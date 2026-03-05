@@ -1,0 +1,68 @@
+{
+  "taskId": "ui-manager-component",
+  "metadata": {
+    "taskId": "ui-manager-component",
+    "trialNumber": 1,
+    "graders": [
+      "state"
+    ],
+    "timestamp": "2026-01-14T02:00:40.606Z"
+  },
+  "startTime": 1768356040606,
+  "endTime": 1768356040606,
+  "metrics": {
+    "tokenCount": 37,
+    "inputTokens": 0,
+    "outputTokens": 37,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 0
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768356040606,
+      "role": "user",
+      "content": "펀드 목록 화면 컴포넌트 만들어줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768356040606,
+      "role": "assistant",
+      "content": {
+        "prompt": "펀드 목록 화면 컴포넌트 만들어줘",
+        "activatedSkills": [
+          "kiips-ui-component-builder"
+        ],
+        "managerAgent": "ui-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768356040606,
+      "graderType": "state",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "state",
+        "passed": true,
+        "score": 1,
+        "checks": [
+          {
+            "key": "output.managerAgent",
+            "passed": true,
+            "expected": "ui-manager",
+            "actual": "ui-manager"
+          }
+        ],
+        "reason": "All state checks passed"
+      }
+    ]
+  }
+}

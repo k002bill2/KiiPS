@@ -1,0 +1,68 @@
+{
+  "taskId": "api-tester-activation-english",
+  "metadata": {
+    "taskId": "api-tester-activation-english",
+    "trialNumber": 1,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:00:40.595Z"
+  },
+  "startTime": 1768356040595,
+  "endTime": 1768356040597,
+  "metrics": {
+    "tokenCount": 41,
+    "inputTokens": 0,
+    "outputTokens": 41,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 2
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768356040595,
+      "role": "user",
+      "content": "Test the REST API endpoints"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768356040596,
+      "role": "assistant",
+      "content": {
+        "prompt": "Test the REST API endpoints",
+        "activatedSkills": [
+          "kiips-test-runner",
+          "kiips-api-tester"
+        ],
+        "managerAgent": null,
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768356040597,
+      "graderType": "activation",
+      "passed": false,
+      "score": 0
+    }
+  ],
+  "outcome": {
+    "passed": false,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": false,
+        "score": 0,
+        "expected": [
+          "kiips-api-tester"
+        ],
+        "actual": [],
+        "missing": [
+          "kiips-api-tester"
+        ],
+        "reason": "Missing skills: kiips-api-tester"
+      }
+    ]
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "taskId": "feature-planner-manager-detection",
+  "metadata": {
+    "taskId": "feature-planner-manager-detection",
+    "trialNumber": 1,
+    "graders": [
+      "activation",
+      "state"
+    ],
+    "timestamp": "2026-01-14T02:00:40.602Z"
+  },
+  "startTime": 1768356040602,
+  "endTime": 1768356040603,
+  "metrics": {
+    "tokenCount": 33,
+    "inputTokens": 0,
+    "outputTokens": 33,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 1
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768356040602,
+      "role": "user",
+      "content": "신규 기능 개발 계획"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768356040602,
+      "role": "assistant",
+      "content": {
+        "prompt": "신규 기능 개발 계획",
+        "activatedSkills": [
+          "kiips-feature-planner"
+        ],
+        "managerAgent": "feature-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768356040603,
+      "graderType": "activation",
+      "passed": false,
+      "score": 0
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768356040603,
+      "graderType": "state",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": false,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": false,
+        "score": 0,
+        "expected": [
+          "kiips-feature-planner"
+        ],
+        "actual": [],
+        "missing": [
+          "kiips-feature-planner"
+        ],
+        "reason": "Missing skills: kiips-feature-planner"
+      },
+      {
+        "type": "state",
+        "passed": true,
+        "score": 1,
+        "checks": [
+          {
+            "key": "output.managerAgent",
+            "passed": true,
+            "expected": "feature-manager",
+            "actual": "feature-manager"
+          }
+        ],
+        "reason": "All state checks passed"
+      }
+    ]
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "taskId": "realgrid-with-excel",
+  "metadata": {
+    "taskId": "realgrid-with-excel",
+    "trialNumber": 1,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:18:19.912Z"
+  },
+  "startTime": 1768357099912,
+  "endTime": 1768357099913,
+  "metrics": {
+    "tokenCount": 44,
+    "inputTokens": 0,
+    "outputTokens": 44,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 1
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768357099912,
+      "role": "user",
+      "content": "RealGrid 엑셀 다운로드 기능 추가"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768357099912,
+      "role": "assistant",
+      "content": {
+        "prompt": "RealGrid 엑셀 다운로드 기능 추가",
+        "activatedSkills": [
+          "kiips-feature-planner",
+          "kiips-realgrid-builder"
+        ],
+        "managerAgent": "ui-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768357099913,
+      "graderType": "activation",
+      "passed": false,
+      "score": 0
+    }
+  ],
+  "outcome": {
+    "passed": false,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": false,
+        "score": 0,
+        "expected": [
+          "kiips-realgrid-builder"
+        ],
+        "actual": [],
+        "missing": [
+          "kiips-realgrid-builder"
+        ],
+        "reason": "Missing skills: kiips-realgrid-builder"
+      }
+    ]
+  }
+}

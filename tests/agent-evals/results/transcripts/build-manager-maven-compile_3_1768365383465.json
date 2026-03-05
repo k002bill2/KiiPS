@@ -1,0 +1,68 @@
+{
+  "taskId": "build-manager-maven-compile",
+  "metadata": {
+    "taskId": "build-manager-maven-compile",
+    "trialNumber": 3,
+    "graders": [
+      "state"
+    ],
+    "timestamp": "2026-01-14T04:36:23.465Z"
+  },
+  "startTime": 1768365383465,
+  "endTime": 1768365383465,
+  "metrics": {
+    "tokenCount": 38,
+    "inputTokens": 0,
+    "outputTokens": 38,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 0
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768365383465,
+      "role": "user",
+      "content": "Maven clean compile 실행"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768365383465,
+      "role": "assistant",
+      "content": {
+        "prompt": "Maven clean compile 실행",
+        "activatedSkills": [
+          "kiips-maven-builder"
+        ],
+        "managerAgent": "build-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768365383465,
+      "graderType": "state",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "state",
+        "passed": true,
+        "score": 1,
+        "checks": [
+          {
+            "key": "output.managerAgent",
+            "passed": true,
+            "expected": "build-manager",
+            "actual": "build-manager"
+          }
+        ],
+        "reason": "All state checks passed"
+      }
+    ]
+  }
+}

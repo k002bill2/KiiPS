@@ -1,0 +1,91 @@
+{
+  "taskId": "workflow-log-debug",
+  "metadata": {
+    "taskId": "workflow-log-debug",
+    "trialNumber": 3,
+    "graders": [
+      "activation",
+      "state"
+    ],
+    "timestamp": "2026-01-14T04:36:23.477Z"
+  },
+  "startTime": 1768365383477,
+  "endTime": 1768365383477,
+  "metrics": {
+    "tokenCount": 43,
+    "inputTokens": 0,
+    "outputTokens": 43,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 0
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768365383477,
+      "role": "user",
+      "content": "배포 후 로그 확인하고 에러 분석"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768365383477,
+      "role": "assistant",
+      "content": {
+        "prompt": "배포 후 로그 확인하고 에러 분석",
+        "activatedSkills": [
+          "kiips-service-deployer",
+          "kiips-log-analyzer"
+        ],
+        "managerAgent": "deployment-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768365383477,
+      "graderType": "activation",
+      "passed": true,
+      "score": 1
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768365383477,
+      "graderType": "state",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": true,
+        "score": 1,
+        "expected": [
+          "kiips-log-analyzer"
+        ],
+        "actual": [
+          "kiips-service-deployer",
+          "kiips-log-analyzer"
+        ],
+        "missing": [],
+        "reason": "All expected skills activated"
+      },
+      {
+        "type": "state",
+        "passed": true,
+        "score": 1,
+        "checks": [
+          {
+            "key": "output.managerAgent",
+            "passed": true,
+            "expected": "deployment-manager",
+            "actual": "deployment-manager"
+          }
+        ],
+        "reason": "All state checks passed"
+      }
+    ]
+  }
+}

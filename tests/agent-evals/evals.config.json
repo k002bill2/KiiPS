@@ -1,0 +1,139 @@
+{
+  "$schema": "./evals.schema.json",
+  "version": "2.0.0",
+  "description": "KiiPS AI Agent Evaluation System Configuration - Enhanced with Pass@k, LLM Grader, Transcripts",
+
+  "environment": {
+    "mode": "hybrid",
+    "mockByDefault": true,
+    "realExecutionSkills": ["kiips-maven-builder"],
+    "timeout": {
+      "default": 30000,
+      "build": 300000,
+      "deploy": 120000
+    },
+    "retries": {
+      "enabled": true,
+      "maxAttempts": 3,
+      "backoffMs": 1000
+    }
+  },
+
+  "trials": {
+    "defaultK": 3,
+    "passAtKThreshold": 0.8,
+    "passKThreshold": 0.6
+  },
+
+  "transcript": {
+    "enabled": true,
+    "storePath": "./results/transcripts/",
+    "retention": "30d"
+  },
+
+  "humanCheckpoint": {
+    "enabled": true,
+    "triggerOn": ["critical", "ambiguous"],
+    "timeout": 300000
+  },
+
+  "trend": {
+    "enabled": true,
+    "retentionDays": 90,
+    "storePath": "./results/trends/"
+  },
+
+  "skills": {
+    "all": [
+      "kiips-maven-builder",
+      "kiips-service-deployer",
+      "kiips-api-tester",
+      "kiips-log-analyzer",
+      "kiips-feature-planner",
+      "kiips-detail-page-planner",
+      "kiips-ui-component-builder",
+      "kiips-realgrid-builder",
+      "kiips-test-runner"
+    ],
+    "groups": {
+      "build": ["kiips-maven-builder", "kiips-test-runner"],
+      "deploy": ["kiips-service-deployer"],
+      "analysis": ["kiips-api-tester", "kiips-log-analyzer"],
+      "planning": ["kiips-feature-planner", "kiips-detail-page-planner"],
+      "ui": ["kiips-ui-component-builder", "kiips-realgrid-builder"]
+    }
+  },
+
+  "agents": {
+    "managers": [
+      "build-manager",
+      "deployment-manager",
+      "feature-manager",
+      "ui-manager"
+    ],
+    "workers": [
+      "kiips-developer",
+      "kiips-architect",
+      "kiips-ui-designer"
+    ]
+  },
+
+  "graders": {
+    "default": "code",
+    "types": {
+      "code": {
+        "enabled": true,
+        "strictMode": false,
+        "tolerateWhitespace": true
+      },
+      "llm": {
+        "enabled": true,
+        "model": "claude-sonnet-4",
+        "rubricPath": "./rubrics/",
+        "timeout": 60000,
+        "maxRetries": 2
+      }
+    }
+  },
+
+  "metrics": {
+    "passRateThreshold": 0.85,
+    "trackLatency": true,
+    "trackResourceUsage": true,
+    "trackTokens": false,
+    "collectTranscripts": true
+  },
+
+  "output": {
+    "format": ["console", "markdown"],
+    "resultsDir": "results/",
+    "transcriptsDir": "results/transcripts/",
+    "verbose": false,
+    "colors": true
+  },
+
+  "suites": {
+    "skill-evals": {
+      "enabled": true,
+      "path": "suites/skill-evals/",
+      "parallel": true
+    },
+    "agent-evals": {
+      "enabled": true,
+      "path": "suites/agent-evals/",
+      "parallel": false
+    },
+    "workflow-evals": {
+      "enabled": true,
+      "path": "suites/workflow-evals/",
+      "parallel": false
+    }
+  },
+
+  "hooks": {
+    "beforeAll": null,
+    "afterAll": null,
+    "beforeEach": null,
+    "afterEach": null
+  }
+}

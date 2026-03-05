@@ -1,0 +1,70 @@
+{
+  "taskId": "workflow-feature-with-api",
+  "metadata": {
+    "taskId": "workflow-feature-with-api",
+    "trialNumber": 1,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T04:36:23.473Z"
+  },
+  "startTime": 1768365383473,
+  "endTime": 1768365383473,
+  "metrics": {
+    "tokenCount": 42,
+    "inputTokens": 0,
+    "outputTokens": 42,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 0
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768365383473,
+      "role": "user",
+      "content": "새 기능 개발하고 API 테스트해줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768365383473,
+      "role": "assistant",
+      "content": {
+        "prompt": "새 기능 개발하고 API 테스트해줘",
+        "activatedSkills": [
+          "kiips-api-tester",
+          "kiips-feature-planner"
+        ],
+        "managerAgent": "feature-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768365383473,
+      "graderType": "activation",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": true,
+        "score": 1,
+        "expected": [
+          "kiips-feature-planner",
+          "kiips-api-tester"
+        ],
+        "actual": [
+          "kiips-api-tester",
+          "kiips-feature-planner"
+        ],
+        "missing": [],
+        "reason": "All expected skills activated"
+      }
+    ]
+  }
+}

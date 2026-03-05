@@ -1,0 +1,46 @@
+{
+  "checkpointId": "cp_1772179886400_62da705f",
+  "timestamp": 1772179886400,
+  "createdAt": "2026-02-27T08:11:26.400Z",
+  "agentId": "primary-coordinator",
+  "trigger": "session_end",
+  "description": "Auto checkpoint on session end",
+  "ethicalClearance": true,
+  "modules": [
+    "KiiPS-COMMON",
+    "KiiPS-UTILS"
+  ],
+  "state": {
+    "layer": "initialization",
+    "progress": 0
+  },
+  "moduleHashes": {},
+  "vcsInfo": {
+    "type": "git",
+    "commit": "4a4d02047147"
+  },
+  "managerStates": {
+    "timestamp": 1772179886414,
+    "activeManagers": [
+      {
+        "managerId": "ui-manager",
+        "executionId": "exec_1767585780146_oh853v",
+        "taskType": "ui_component_creation",
+        "status": "planned",
+        "progress": 0,
+        "delegationDepth": "primary->manager->worker"
+      }
+    ],
+    "managerWorkflows": [
+      {
+        "managerId": "ui-manager",
+        "executionId": "exec_1767585780146_oh853v",
+        "subtaskCount": 1,
+        "completedTasks": 0,
+        "failedTasks": 0
+      }
+    ],
+    "workerAssignments": [],
+    "domainLocks": []
+  }
+}

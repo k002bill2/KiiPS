@@ -1,0 +1,68 @@
+{
+  "taskId": "manager-priority-build-over-deploy",
+  "metadata": {
+    "taskId": "manager-priority-build-over-deploy",
+    "trialNumber": 3,
+    "graders": [
+      "state"
+    ],
+    "timestamp": "2026-01-14T02:35:18.357Z"
+  },
+  "startTime": 1768358118357,
+  "endTime": 1768358118357,
+  "metrics": {
+    "tokenCount": 32,
+    "inputTokens": 0,
+    "outputTokens": 32,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 0
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768358118357,
+      "role": "user",
+      "content": "서비스 빌드 후 패키징"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768358118357,
+      "role": "assistant",
+      "content": {
+        "prompt": "서비스 빌드 후 패키징",
+        "activatedSkills": [
+          "kiips-maven-builder"
+        ],
+        "managerAgent": "build-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768358118357,
+      "graderType": "state",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "state",
+        "passed": true,
+        "score": 1,
+        "checks": [
+          {
+            "key": "output.managerAgent",
+            "passed": true,
+            "expected": "build-manager",
+            "actual": "build-manager"
+          }
+        ],
+        "reason": "All state checks passed"
+      }
+    ]
+  }
+}

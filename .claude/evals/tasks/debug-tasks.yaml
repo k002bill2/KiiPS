@@ -1,0 +1,225 @@
+# Debug Tasks - KiiPS Agent Eval
+# 에러 수정 및 디버깅 평가 작업
+
+tasks:
+  - id: debug-001
+    desc: "NullPointerException 수정"
+    category: debug
+    difficulty: medium
+    graders:
+      - type: deterministic
+        checks:
+          - no_errors: true
+          - not_contains:
+              pattern: "**/*.java"
+              search: "// TODO: fix NPE"
+          # NPE 방어 패턴 중 하나 이상 포함
+          - contains_any:
+              pattern: "**/*.java"
+              searches:
+                - "!= null"
+                - "Optional.ofNullable"
+                - "Objects.requireNonNull"
+                - "Objects.nonNull"
+                - "CollectionUtils.isEmpty"
+                - "StringUtils.isNotEmpty"
+      - type: llm_rubric
+        rubric: debug-guide.md
+        threshold: 70
+        assertions:
+          - "Null 체크가 추가됨"
+          - "방어적 프로그래밍 적용"
+          - "적절한 기본값 처리"
+    tracked_metrics:
+      - n_turns
+      - n_toolcalls
+
+  - id: debug-002
+    desc: "SQL Injection 취약점 수정"
+    category: debug
+    difficulty: high
+    graders:
+      - type: deterministic
+        checks:
+          # 취약 패턴 제거 확인
+          - not_contains:
+              pattern: "**/*.java"
+              search: "\" + request.getParameter"
+          - not_contains:
+              pattern: "**/*.java"
+              search: "' + request.getParameter"
+          - not_contains:
+              pattern: "**/*.java"
+              search: "\" + userId"
+          - not_contains:
+              pattern: "**/*.java"
+              search: "' + name"
+          # 안전 패턴 중 하나 이상 포함
+          - contains_any:
+              pattern: "**/*.java"
+              searches:
+                - "PreparedStatement"
+                - "setString"
+                - "setLong"
+                - "setInt"
+                - "#{" # MyBatis 바인딩
+          # MyBatis XML에서도 확인
+          - contains_any:
+              pattern: "**/*.xml"
+              searches:
+                - "#{" # 파라미터 바인딩
+      - type: llm_rubric
+        rubric: debug-guide.md
+        threshold: 90
+        assertions:
+          - "Parameterized query 또는 바인딩 사용"
+          - "문자열 연결로 SQL 생성 제거"
+          - "입력값 검증 추가"
+    tracked_metrics:
+      - n_turns
+      - total_tokens
+
+  - id: debug-003
+    desc: "RealGrid 렌더링 오류 수정"
+    category: debug
+    difficulty: medium
+    graders:
+      - type: deterministic
+        checks:
+          - no_errors: true
+          # DataProvider 연결 확인
+          - contains_any:
+              pattern: "**/*.js"
+              searches:
+                - "gridView.setDataSource"
+                - "setDataSource(dataProvider)"
+                - "createMainGrid"
+                - "createEditGrid"
+          # 필드 정의 확인
+          - contains_any:
+              pattern: "**/*.js"
+              searches:
+                - "setFields"
+                - "setColumns"
+      - type: llm_rubric
+        rubric: debug-guide.md
+        threshold: 70
+        assertions:
+          - "DataProvider와 GridView 연결됨"
+          - "컬럼 필드 매핑이 정확함"
+          - "DOM 로드 타이밍 고려됨"
+    tracked_metrics:
+      - n_turns
+
+  - id: debug-004
+    desc: "API 타임아웃 오류 해결"
+    category: debug
+    difficulty: medium
+    graders:
+      - type: deterministic
+        checks:
+          # 타임아웃 설정 중 하나 이상 포함
+          - contains_any:
+              pattern: "**/*.java"
+              searches:
+                - "connectTimeout"
+                - "setConnectTimeout"
+                - "readTimeout"
+                - "setReadTimeout"
+                - "responseTimeout"
+                - "CONNECT_TIMEOUT_MILLIS"
+          # 에러 핸들링 확인
+          - contains_any:
+              pattern: "**/*.java"
+              searches:
+                - "TimeoutException"
+                - "SocketTimeoutException"
+                - "catch"
+      - type: llm_rubric
+        rubric: debug-guide.md
+        threshold: 70
+        assertions:
+          - "적절한 타임아웃 설정"
+          - "에러 핸들링 포함"
+          - "재시도 또는 폴백 고려"
+    tracked_metrics:
+      - n_turns
+      - n_toolcalls
+
+  - id: debug-005
+    desc: "CORS 오류 해결"
+    category: debug
+    difficulty: low
+    graders:
+      - type: deterministic
+        checks:
+          # CORS 설정 중 하나 이상 포함
+          - contains_any:
+              pattern: "**/*.java"
+              searches:
+                - "@CrossOrigin"
+                - "Access-Control-Allow-Origin"
+                - "Access-Control-Allow-Methods"
+                - "CorsConfiguration"
+                - "addCorsMappings"
+    tracked_metrics:
+      - n_turns
+
+  - id: debug-006
+    desc: "메모리 누수 (Memory Leak) 수정"
+    category: debug
+    difficulty: high
+    graders:
+      - type: deterministic
+        checks:
+          # 리소스 정리 패턴 확인
+          - contains_any:
+              pattern: "**/*.java"
+              searches:
+                - "try-with-resources"
+                - ".close()"
+                - "finally"
+                - "@PreDestroy"
+                - "shutdown()"
+          - not_contains:
+              pattern: "**/*.java"
+              search: "// TODO: close resource"
+      - type: llm_rubric
+        rubric: debug-guide.md
+        threshold: 80
+        assertions:
+          - "리소스가 적절히 해제됨"
+          - "try-with-resources 또는 finally 사용"
+          - "Connection Pool 고려"
+    tracked_metrics:
+      - n_turns
+      - n_toolcalls
+
+  - id: debug-007
+    desc: "동시성 (Concurrency) 버그 수정"
+    category: debug
+    difficulty: high
+    graders:
+      - type: deterministic
+        checks:
+          # 동기화 메커니즘 확인
+          - contains_any:
+              pattern: "**/*.java"
+              searches:
+                - "synchronized"
+                - "ReentrantLock"
+                - "AtomicInteger"
+                - "AtomicLong"
+                - "ConcurrentHashMap"
+                - "volatile"
+                - "@Transactional"
+      - type: llm_rubric
+        rubric: debug-guide.md
+        threshold: 80
+        assertions:
+          - "경쟁 조건(Race Condition) 해결"
+          - "적절한 동기화 적용"
+          - "데드락 가능성 고려"
+    tracked_metrics:
+      - n_turns
+      - total_tokens

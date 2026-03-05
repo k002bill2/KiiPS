@@ -1,0 +1,91 @@
+{
+  "taskId": "analysis-manager-detection",
+  "metadata": {
+    "taskId": "analysis-manager-detection",
+    "trialNumber": 2,
+    "graders": [
+      "activation",
+      "state"
+    ],
+    "timestamp": "2026-01-14T02:38:43.759Z"
+  },
+  "startTime": 1768358323759,
+  "endTime": 1768358323761,
+  "metrics": {
+    "tokenCount": 41,
+    "inputTokens": 0,
+    "outputTokens": 41,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 2
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768358323759,
+      "role": "user",
+      "content": "배포된 서비스 로그 분석해줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768358323759,
+      "role": "assistant",
+      "content": {
+        "prompt": "배포된 서비스 로그 분석해줘",
+        "activatedSkills": [
+          "kiips-service-deployer",
+          "kiips-log-analyzer"
+        ],
+        "managerAgent": "deployment-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768358323761,
+      "graderType": "activation",
+      "passed": true,
+      "score": 1
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768358323761,
+      "graderType": "state",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": true,
+        "score": 1,
+        "expected": [
+          "kiips-log-analyzer"
+        ],
+        "actual": [
+          "kiips-service-deployer",
+          "kiips-log-analyzer"
+        ],
+        "missing": [],
+        "reason": "All expected skills activated"
+      },
+      {
+        "type": "state",
+        "passed": true,
+        "score": 1,
+        "checks": [
+          {
+            "key": "output.managerAgent",
+            "passed": true,
+            "expected": "deployment-manager",
+            "actual": "deployment-manager"
+          }
+        ],
+        "reason": "All state checks passed"
+      }
+    ]
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "taskId": "test-runner-activation-junit",
+  "metadata": {
+    "taskId": "test-runner-activation-junit",
+    "trialNumber": 2,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:34:19.197Z"
+  },
+  "startTime": 1768358059197,
+  "endTime": 1768358059198,
+  "metrics": {
+    "tokenCount": 37,
+    "inputTokens": 0,
+    "outputTokens": 37,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 1
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768358059197,
+      "role": "user",
+      "content": "Run JUnit tests for KiiPS-IL"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768358059197,
+      "role": "assistant",
+      "content": {
+        "prompt": "Run JUnit tests for KiiPS-IL",
+        "activatedSkills": [
+          "kiips-test-runner"
+        ],
+        "managerAgent": null,
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768358059198,
+      "graderType": "activation",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": true,
+        "score": 1,
+        "expected": [
+          "kiips-test-runner"
+        ],
+        "actual": [
+          "kiips-test-runner"
+        ],
+        "missing": [],
+        "reason": "All expected skills activated"
+      }
+    ]
+  }
+}

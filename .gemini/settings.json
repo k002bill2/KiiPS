@@ -1,0 +1,36 @@
+{
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp@latest"
+      ],
+      "description": "라이브러리 최신 문서 및 코드 예제 조회 (Claude Code와 동일 서버)"
+    },
+    "serena": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena",
+        "start-mcp-server",
+        "--context",
+        "ide-assistant"
+      ],
+      "description": "심볼 기반 코드 탐색 (Read-Only 분석에 활용)"
+    }
+  },
+  "ui": {
+    "theme": "Default"
+  },
+  "notes": {
+    "role": "Read-Only Analyst - 코드 수정 금지",
+    "output_dir": ".temp/coordination/cross-tool/responses/",
+    "forbidden_files": [
+      ".env",
+      "app-kiips.properties",
+      "app-stg.properties"
+    ]
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "CLAUDE_CODE_TEAMMATE_MODE": "tmux"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(chmod:*)",
+      "Bash(find:*)",
+      "Bash(tree:*)",
+      "Bash(echo:*)",
+      "Bash(source ~/.zshrc)",
+      "Bash(cat:*)",
+      "Bash(python3:*)",
+      "Bash(code --list-extensions:*)",
+      "Bash(xargs:*)",
+      "Bash(~/.cache/uv/archive-v0/IH2Suo4ecaHYEEek8HSqO/bin/serena:*)",
+      "Bash(ls:*)",
+      "Bash(grep:*)",
+      "Bash(sort:*)",
+      "Bash(lsof:*)",
+      "Bash(sass:*)",
+      "Bash(wc:*)",
+      "Bash(test:*)",
+      "Bash(for skill in kiips-maven-builder kiips-service-deployer kiips-api-tester kiips-log-analyzer)",
+      "Bash(do)",
+      "Bash(if [ -f \".claude/skills/$skill/SKILL.md\" ])",
+      "Bash(then)",
+      "Bash(else)",
+      "Bash(fi)",
+      "Bash(done)",
+      "Bash(bash:*)",
+      "Bash(./.scripts/claude-config-backup.sh:*)",
+      "Bash(tar:*)",
+      "Bash(claude:*)",
+      "Bash(jq:*)",
+      "Bash(java -version:*)",
+      "Bash(brew install:*)",
+      "Bash(jdtls:*)",
+      "Bash(brew --prefix:*)",
+      "Bash(/usr/libexec/java_home:*)",
+      "Bash(./.scripts/verify-skill-activation.sh:*)",
+      "Bash(node:*)",
+      "WebFetch(domain:api.anthropic.com)",
+      "WebFetch(domain:registry.npmjs.org)"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "context7",
+    "playwright",
+    "serena"
+  ],
+  "disabledMcpjsonServers": [],
+  "outputStyle": "efficient",
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true
+  },
+  "prefersReducedMotion": true
+}

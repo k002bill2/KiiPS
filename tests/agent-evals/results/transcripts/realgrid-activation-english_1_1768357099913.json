@@ -1,0 +1,67 @@
+{
+  "taskId": "realgrid-activation-english",
+  "metadata": {
+    "taskId": "realgrid-activation-english",
+    "trialNumber": 1,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:18:19.912Z"
+  },
+  "startTime": 1768357099912,
+  "endTime": 1768357099913,
+  "metrics": {
+    "tokenCount": 42,
+    "inputTokens": 0,
+    "outputTokens": 42,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 1
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768357099912,
+      "role": "user",
+      "content": "Create a data grid with RealGrid"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768357099912,
+      "role": "assistant",
+      "content": {
+        "prompt": "Create a data grid with RealGrid",
+        "activatedSkills": [
+          "kiips-realgrid-builder"
+        ],
+        "managerAgent": "ui-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768357099913,
+      "graderType": "activation",
+      "passed": false,
+      "score": 0
+    }
+  ],
+  "outcome": {
+    "passed": false,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": false,
+        "score": 0,
+        "expected": [
+          "kiips-realgrid-builder"
+        ],
+        "actual": [],
+        "missing": [
+          "kiips-realgrid-builder"
+        ],
+        "reason": "Missing skills: kiips-realgrid-builder"
+      }
+    ]
+  }
+}

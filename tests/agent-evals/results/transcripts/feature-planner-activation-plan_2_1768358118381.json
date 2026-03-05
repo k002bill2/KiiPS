@@ -1,0 +1,67 @@
+{
+  "taskId": "feature-planner-activation-plan",
+  "metadata": {
+    "taskId": "feature-planner-activation-plan",
+    "trialNumber": 2,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:35:18.341Z"
+  },
+  "startTime": 1768358118341,
+  "endTime": 1768358118341,
+  "metrics": {
+    "tokenCount": 28,
+    "inputTokens": 0,
+    "outputTokens": 28,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 0
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768358118341,
+      "role": "user",
+      "content": "플랜 작성해줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768358118341,
+      "role": "assistant",
+      "content": {
+        "prompt": "플랜 작성해줘",
+        "activatedSkills": [
+          "kiips-feature-planner"
+        ],
+        "managerAgent": null,
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768358118341,
+      "graderType": "activation",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": true,
+        "score": 1,
+        "expected": [
+          "kiips-feature-planner"
+        ],
+        "actual": [
+          "kiips-feature-planner"
+        ],
+        "missing": [],
+        "reason": "All expected skills activated"
+      }
+    ]
+  }
+}

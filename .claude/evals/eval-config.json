@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "2.0.0",
+  "description": "KiiPS Agent Eval System Configuration (Anthropic Methodology) - Enhanced Graders",
+
+  "evalSettings": {
+    "defaultTrials": 3,
+    "maxTrials": 5,
+    "timeout": 300000,
+    "parallelTasks": 1,
+    "stopOnFirstFailure": false
+  },
+
+  "metrics": {
+    "passAtK": {
+      "description": "k번 시도 중 최소 1회 성공 확률",
+      "defaultK": [1, 3]
+    },
+    "passExpK": {
+      "description": "k번 모두 성공 확률 (일관성)",
+      "defaultK": [3]
+    },
+    "tracked": [
+      "n_turns",
+      "n_toolcalls",
+      "total_tokens",
+      "latency_ms",
+      "error_count"
+    ]
+  },
+
+  "graders": {
+    "deterministic": {
+      "enabled": true,
+      "priority": 1,
+      "checks": [
+        "file_exists",
+        "file_contains",
+        "pattern_match",
+        "no_errors",
+        "output_contains",
+        "output_contains_any",
+        "contains",
+        "contains_any",
+        "not_contains"
+      ]
+    },
+    "code": {
+      "enabled": true,
+      "priority": 1,
+      "checks": ["file_exists", "file_contains", "pattern_match", "no_errors"]
+    },
+    "state": {
+      "enabled": true,
+      "priority": 1,
+      "checks": ["env_state", "file_state", "process_state"]
+    },
+    "llm": {
+      "enabled": true,
+      "priority": 2,
+      "model": "haiku",
+      "maxTokens": 1000,
+      "rubricPath": "./prompts/"
+    }
+  },
+
+  "suites": {
+    "ui": {
+      "description": "UI 컴포넌트 생성 및 RealGrid 테스트",
+      "taskFiles": ["ui-tasks.yaml"],
+      "tags": ["ui", "jsp", "realgrid"]
+    },
+    "build": {
+      "description": "Maven 빌드 및 의존성 테스트",
+      "taskFiles": ["build-tasks.yaml"],
+      "tags": ["maven", "build"]
+    },
+    "debug": {
+      "description": "에러 수정 및 디버깅 테스트",
+      "taskFiles": ["debug-tasks.yaml"],
+      "tags": ["debug", "fix"]
+    },
+    "negative": {
+      "description": "실패해야 하는 테스트 (Safety)",
+      "taskFiles": ["negative-tasks.yaml"],
+      "tags": ["negative", "safety"],
+      "expectFailure": true
+    },
+    "realgrid": {
+      "description": "RealGrid 2.6.3 특화 테스트",
+      "taskFiles": ["realgrid-tasks.yaml"],
+      "tags": ["realgrid", "grid"]
+    },
+    "all": {
+      "description": "전체 테스트",
+      "taskFiles": ["ui-tasks.yaml", "build-tasks.yaml", "debug-tasks.yaml", "negative-tasks.yaml", "realgrid-tasks.yaml"],
+      "tags": []
+    }
+  },
+
+  "storage": {
+    "resultsPath": "./results/",
+    "latestFile": "latest.json",
+    "historyFile": "history.jsonl",
+    "transcriptsPath": "./results/transcripts/",
+    "retentionDays": 30
+  },
+
+  "reporting": {
+    "formats": ["json", "markdown"],
+    "includeTranscripts": true,
+    "trendWindow": 7,
+    "regressionThreshold": 0.1
+  },
+
+  "integration": {
+    "feedbackLoop": "../coordination/feedback-loop.js",
+    "telemetryPath": "../ace-framework/telemetry/"
+  }
+}

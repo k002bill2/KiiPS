@@ -1,0 +1,67 @@
+{
+  "taskId": "ui-negative-build",
+  "metadata": {
+    "taskId": "ui-negative-build",
+    "trialNumber": 1,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:34:19.209Z"
+  },
+  "startTime": 1768358059209,
+  "endTime": 1768358059211,
+  "metrics": {
+    "tokenCount": 32,
+    "inputTokens": 0,
+    "outputTokens": 32,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 2
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768358059209,
+      "role": "user",
+      "content": "Maven 빌드 실행"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768358059209,
+      "role": "assistant",
+      "content": {
+        "prompt": "Maven 빌드 실행",
+        "activatedSkills": [
+          "kiips-maven-builder"
+        ],
+        "managerAgent": "build-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768358059211,
+      "graderType": "activation",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": true,
+        "score": 1,
+        "expected": [
+          "kiips-maven-builder"
+        ],
+        "actual": [
+          "kiips-maven-builder"
+        ],
+        "missing": [],
+        "reason": "All expected skills activated"
+      }
+    ]
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "taskId": "planner-negative-build",
+  "metadata": {
+    "taskId": "planner-negative-build",
+    "trialNumber": 3,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:18:19.909Z"
+  },
+  "startTime": 1768357099909,
+  "endTime": 1768357099911,
+  "metrics": {
+    "tokenCount": 32,
+    "inputTokens": 0,
+    "outputTokens": 32,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 2
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768357099909,
+      "role": "user",
+      "content": "Maven 빌드 실행"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768357099909,
+      "role": "assistant",
+      "content": {
+        "prompt": "Maven 빌드 실행",
+        "activatedSkills": [
+          "kiips-maven-builder"
+        ],
+        "managerAgent": "build-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768357099911,
+      "graderType": "activation",
+      "passed": false,
+      "score": 0
+    }
+  ],
+  "outcome": {
+    "passed": false,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": false,
+        "score": 0,
+        "expected": [
+          "kiips-maven-builder"
+        ],
+        "actual": [],
+        "missing": [
+          "kiips-maven-builder"
+        ],
+        "reason": "Missing skills: kiips-maven-builder"
+      }
+    ]
+  }
+}

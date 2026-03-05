@@ -1,0 +1,69 @@
+{
+  "taskId": "deployment-manager-logs",
+  "metadata": {
+    "taskId": "deployment-manager-logs",
+    "trialNumber": 3,
+    "graders": [
+      "state"
+    ],
+    "timestamp": "2026-01-14T02:38:43.794Z"
+  },
+  "startTime": 1768358323794,
+  "endTime": 1768358323794,
+  "metrics": {
+    "tokenCount": 41,
+    "inputTokens": 0,
+    "outputTokens": 41,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 0
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768358323794,
+      "role": "user",
+      "content": "배포된 서비스 로그 확인"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768358323794,
+      "role": "assistant",
+      "content": {
+        "prompt": "배포된 서비스 로그 확인",
+        "activatedSkills": [
+          "kiips-service-deployer",
+          "kiips-log-analyzer"
+        ],
+        "managerAgent": "deployment-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768358323794,
+      "graderType": "state",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "state",
+        "passed": true,
+        "score": 1,
+        "checks": [
+          {
+            "key": "output.managerAgent",
+            "passed": true,
+            "expected": "deployment-manager",
+            "actual": "deployment-manager"
+          }
+        ],
+        "reason": "All state checks passed"
+      }
+    ]
+  }
+}

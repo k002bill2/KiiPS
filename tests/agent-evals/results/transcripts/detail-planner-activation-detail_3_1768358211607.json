@@ -1,0 +1,69 @@
+{
+  "taskId": "detail-planner-activation-detail",
+  "metadata": {
+    "taskId": "detail-planner-activation-detail",
+    "trialNumber": 3,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:36:51.573Z"
+  },
+  "startTime": 1768358211573,
+  "endTime": 1768358211573,
+  "metrics": {
+    "tokenCount": 45,
+    "inputTokens": 0,
+    "outputTokens": 45,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 0
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768358211573,
+      "role": "user",
+      "content": "Create a detail view page"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768358211573,
+      "role": "assistant",
+      "content": {
+        "prompt": "Create a detail view page",
+        "activatedSkills": [
+          "kiips-detail-page-planner",
+          "kiips-ui-component-builder"
+        ],
+        "managerAgent": null,
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768358211573,
+      "graderType": "activation",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": true,
+        "score": 1,
+        "expected": [
+          "kiips-detail-page-planner"
+        ],
+        "actual": [
+          "kiips-detail-page-planner",
+          "kiips-ui-component-builder"
+        ],
+        "missing": [],
+        "reason": "All expected skills activated"
+      }
+    ]
+  }
+}

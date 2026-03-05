@@ -1,0 +1,70 @@
+{
+  "taskId": "detail-planner-with-ui",
+  "metadata": {
+    "taskId": "detail-planner-with-ui",
+    "trialNumber": 3,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:18:19.909Z"
+  },
+  "startTime": 1768357099909,
+  "endTime": 1768357099910,
+  "metrics": {
+    "tokenCount": 43,
+    "inputTokens": 0,
+    "outputTokens": 43,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 1
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768357099909,
+      "role": "user",
+      "content": "펀드 상세 페이지 화면 만들어줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768357099909,
+      "role": "assistant",
+      "content": {
+        "prompt": "펀드 상세 페이지 화면 만들어줘",
+        "activatedSkills": [
+          "kiips-detail-page-planner",
+          "kiips-ui-component-builder"
+        ],
+        "managerAgent": "ui-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768357099910,
+      "graderType": "activation",
+      "passed": false,
+      "score": 0
+    }
+  ],
+  "outcome": {
+    "passed": false,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": false,
+        "score": 0,
+        "expected": [
+          "kiips-detail-page-planner",
+          "kiips-ui-component-builder"
+        ],
+        "actual": [],
+        "missing": [
+          "kiips-detail-page-planner",
+          "kiips-ui-component-builder"
+        ],
+        "reason": "Missing skills: kiips-detail-page-planner, kiips-ui-component-builder"
+      }
+    ]
+  }
+}

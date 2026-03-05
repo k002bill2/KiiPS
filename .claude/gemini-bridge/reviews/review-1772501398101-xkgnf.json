@@ -1,0 +1,23 @@
+{
+  "id": "review-1772501398101-xkgnf",
+  "status": "shown",
+  "files": [
+    "/Users/younghwankang/WORK/WORKSPACE/KiiPS/KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/COM/COMM_POPUP_IL0429_PRTVIEW_P.jsp"
+  ],
+  "createdAt": "2026-03-03T01:30:41.264Z",
+  "raw": "ISSUES:\n- [severity:info] KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/COM/COMM_POPUP_IL0429_PRTVIEW_P.jsp:413 - Use of ES6 'let' might cause compatibility issues if the system still requires IE11 support, which is common in legacy financial environments.\n- [severity:info] KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/COM/COMM_POPUP_IL0429_PRTVIEW_P.jsp:417 - Direct concatenation of 'upDownVal' into an HTML string is a potential XSS vector, although it follows the existing pattern in this file and the value is typically a restricted indicator character.\n\nVERDICT: looks-good\nSUMMARY: The change correctly implements conditional color styling (Red for Up, Blue for Down) for financial indicators and improves UI centering in the print popup.",
+  "issues": [
+    {
+      "severity": "info",
+      "text": "KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/COM/COMM_POPUP_IL0429_PRTVIEW_P.jsp:413 - Use of ES6 'let' might cause compatibility issues if the system still requires IE11 support, which is common in legacy financial environments."
+    },
+    {
+      "severity": "info",
+      "text": "KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/COM/COMM_POPUP_IL0429_PRTVIEW_P.jsp:417 - Direct concatenation of 'upDownVal' into an HTML string is a potential XSS vector, although it follows the existing pattern in this file and the value is typically a restricted indicator character."
+    }
+  ],
+  "verdict": "looks-good",
+  "summary": "The change correctly implements conditional color styling (Red for Up, Blue for Down) for financial indicators and improves UI centering in the print popup.",
+  "needsAttention": false,
+  "shownAt": "2026-03-03T06:24:10.701Z"
+}

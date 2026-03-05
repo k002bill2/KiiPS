@@ -1,0 +1,19 @@
+{
+  "id": "review-1772610397661-ytis0",
+  "status": "shown",
+  "files": [
+    "/Users/younghwankang/WORK/WORKSPACE/KiiPS/KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/COM/ofc_doc/DAEJEON/COMM_OFCIAL_DOC.jsp"
+  ],
+  "createdAt": "2026-03-04T07:47:15.021Z",
+  "raw": "ISSUES:\n- [severity:info] /Users/younghwankang/WORK/WORKSPACE/KiiPS/KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/COM/ofc_doc/DAEJEON/COMM_OFCIAL_DOC.jsp:647 - The 2-second timeout for `window.print()` is a heuristic; on slow connections or with large images (stamps), the print dialog might trigger before resources are fully rendered.\n\nVERDICT: looks-good\nSUMMARY: The changes correctly resolve multi-page printing issues by removing fixed height constraints (`100vh`) and implement a robust auto-print trigger via localStorage.",
+  "issues": [
+    {
+      "severity": "info",
+      "text": "/Users/younghwankang/WORK/WORKSPACE/KiiPS/KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/COM/ofc_doc/DAEJEON/COMM_OFCIAL_DOC.jsp:647 - The 2-second timeout for `window.print()` is a heuristic; on slow connections or with large images (stamps), the print dialog might trigger before resources are fully rendered."
+    }
+  ],
+  "verdict": "looks-good",
+  "summary": "The changes correctly resolve multi-page printing issues by removing fixed height constraints (`100vh`) and implement a robust auto-print trigger via localStorage.",
+  "needsAttention": false,
+  "shownAt": "2026-03-05T04:42:33.271Z"
+}

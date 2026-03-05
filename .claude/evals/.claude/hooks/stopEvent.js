@@ -1,0 +1,1 @@
+/Users/younghwankang/WORK/WORKSPACE/KiiPS/.claude/hooks/stopEvent.js

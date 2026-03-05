@@ -1,0 +1,69 @@
+{
+  "taskId": "workflow-ui-with-detail",
+  "metadata": {
+    "taskId": "workflow-ui-with-detail",
+    "trialNumber": 1,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:33:20.212Z"
+  },
+  "startTime": 1768358000212,
+  "endTime": 1768358000212,
+  "metrics": {
+    "tokenCount": 38,
+    "inputTokens": 0,
+    "outputTokens": 38,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 0
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768358000212,
+      "role": "user",
+      "content": "펀드 상세 페이지 화면 설계하고 구현해줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768358000212,
+      "role": "assistant",
+      "content": {
+        "prompt": "펀드 상세 페이지 화면 설계하고 구현해줘",
+        "activatedSkills": [
+          "kiips-detail-page-planner"
+        ],
+        "managerAgent": "ui-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768358000212,
+      "graderType": "activation",
+      "passed": false,
+      "score": 0
+    }
+  ],
+  "outcome": {
+    "passed": false,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": false,
+        "score": 0,
+        "expected": [
+          "kiips-detail-page-planner",
+          "kiips-ui-component-builder"
+        ],
+        "actual": [],
+        "missing": [
+          "kiips-detail-page-planner",
+          "kiips-ui-component-builder"
+        ],
+        "reason": "Missing skills: kiips-detail-page-planner, kiips-ui-component-builder"
+      }
+    ]
+  }
+}

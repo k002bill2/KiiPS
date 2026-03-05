@@ -1,0 +1,71 @@
+{
+  "taskId": "workflow-error-investigation",
+  "metadata": {
+    "taskId": "workflow-error-investigation",
+    "trialNumber": 1,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:00:40.608Z"
+  },
+  "startTime": 1768356040608,
+  "endTime": 1768356040608,
+  "metrics": {
+    "tokenCount": 49,
+    "inputTokens": 0,
+    "outputTokens": 49,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 0
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768356040608,
+      "role": "user",
+      "content": "서비스 에러 로그 분석하고 API 테스트해줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768356040608,
+      "role": "assistant",
+      "content": {
+        "prompt": "서비스 에러 로그 분석하고 API 테스트해줘",
+        "activatedSkills": [
+          "kiips-test-runner",
+          "kiips-api-tester",
+          "kiips-log-analyzer"
+        ],
+        "managerAgent": "deployment-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768356040608,
+      "graderType": "activation",
+      "passed": false,
+      "score": 0
+    }
+  ],
+  "outcome": {
+    "passed": false,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": false,
+        "score": 0,
+        "expected": [
+          "kiips-log-analyzer",
+          "kiips-api-tester"
+        ],
+        "actual": [],
+        "missing": [
+          "kiips-log-analyzer",
+          "kiips-api-tester"
+        ],
+        "reason": "Missing skills: kiips-log-analyzer, kiips-api-tester"
+      }
+    ]
+  }
+}

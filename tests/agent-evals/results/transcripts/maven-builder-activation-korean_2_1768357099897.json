@@ -1,0 +1,67 @@
+{
+  "taskId": "maven-builder-activation-korean",
+  "metadata": {
+    "taskId": "maven-builder-activation-korean",
+    "trialNumber": 2,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:18:19.897Z"
+  },
+  "startTime": 1768357099897,
+  "endTime": 1768357099897,
+  "metrics": {
+    "tokenCount": 33,
+    "inputTokens": 0,
+    "outputTokens": 33,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 0
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768357099897,
+      "role": "user",
+      "content": "KiiPS-FD 빌드해줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768357099897,
+      "role": "assistant",
+      "content": {
+        "prompt": "KiiPS-FD 빌드해줘",
+        "activatedSkills": [
+          "kiips-maven-builder"
+        ],
+        "managerAgent": "build-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768357099897,
+      "graderType": "activation",
+      "passed": false,
+      "score": 0
+    }
+  ],
+  "outcome": {
+    "passed": false,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": false,
+        "score": 0,
+        "expected": [
+          "kiips-maven-builder"
+        ],
+        "actual": [],
+        "missing": [
+          "kiips-maven-builder"
+        ],
+        "reason": "Missing skills: kiips-maven-builder"
+      }
+    ]
+  }
+}

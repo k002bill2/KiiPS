@@ -1,0 +1,23 @@
+{
+  "id": "review-1772608228892-bphrz",
+  "status": "shown",
+  "files": [
+    "/Users/younghwankang/WORK/WORKSPACE/KiiPS/KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/COM/ofc_doc/DAEJEON/COMM_OFCIAL_DOC.jsp"
+  ],
+  "createdAt": "2026-03-04T07:11:07.265Z",
+  "raw": "ISSUES:\n- [severity:info] COMM_OFCIAL_DOC.jsp:648 - The fixed 2000ms delay for `window.print()` is a heuristic that may fail to capture high-resolution signature stamps or large images if network latency is high.\n- [severity:info] COMM_OFCIAL_DOC.jsp:646 - Using `localStorage` for the print trigger is shared across all browser tabs of the same origin; a URL parameter (e.g., `?autoPrint=Y`) would be more reliable and isolated for users opening multiple document previews simultaneously.\n\nVERDICT: looks-good\nSUMMARY: The changes effectively resolve document clipping issues during printing by transitioning from fixed viewport heights to auto-height, and implement a convenient auto-print trigger for the preview page.",
+  "issues": [
+    {
+      "severity": "info",
+      "text": "COMM_OFCIAL_DOC.jsp:648 - The fixed 2000ms delay for `window.print()` is a heuristic that may fail to capture high-resolution signature stamps or large images if network latency is high."
+    },
+    {
+      "severity": "info",
+      "text": "COMM_OFCIAL_DOC.jsp:646 - Using `localStorage` for the print trigger is shared across all browser tabs of the same origin; a URL parameter (e.g., `?autoPrint=Y`) would be more reliable and isolated for users opening multiple document previews simultaneously."
+    }
+  ],
+  "verdict": "looks-good",
+  "summary": "The changes effectively resolve document clipping issues during printing by transitioning from fixed viewport heights to auto-height, and implement a convenient auto-print trigger for the preview page.",
+  "needsAttention": false,
+  "shownAt": "2026-03-04T07:14:58.985Z"
+}

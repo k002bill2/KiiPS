@@ -1,0 +1,107 @@
+# KiiPS 마이크로서비스
+KIIPS-APIGateway/
+KIIPS-Infra-Admin/
+KIIPS-Eureka/
+KiiPS-MES/
+KiiPS-AC/
+KIIPS-AI/
+KIIPS-APIGateway/
+KIIPS-BATCH/
+KiiPS-COMMON/
+KIIPS-EGOVDOCUMENT/
+KiiPS-EL/
+KiiPS-FD/
+KIIPS-HELP/
+KiiPS-HUB/
+KiiPS-IL/
+KIIPS-Infra-Admin/
+KIIPS-KSD/
+KIIPS-LAB/
+KiiPS-Login/
+KiiPS-LP/
+KIIPS-MOBILE/
+KIIPS-MSGSender/
+KiiPS-PG/
+KiiPS-RT/
+KIIPS-SECURL/
+KiiPS-SY/
+KIIPS-TRANSFER/
+KiiPS-UI/
+KiiPS-UTILS/
+
+# 빌드 결과물
+dist/
+*.log
+
+# 환경 설정
+config.json
+.env
+
+# 로그
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dev-debug.log
+
+# 의존성
+node_modules/
+
+# 에디터 설정
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS 파일
+.DS_Store
+
+# Embedded git repos
+.agent/skills/
+
+# AI 도구 설정 (개인별로 다를 수 있음)
+.cursor/
+.clinerules/
+.kilo/
+.kiro/
+.roo/
+.trae/
+.zed/
+.cursorrules
+.cursorignore
+.kilocodemodes
+.roomodes
+.rules
+AGENT.md
+GEMINI.md
+KiiPSRulesAll.md
+KiiPSrules2.md
+opencode.json
+
+# Task Master 관련 (필요시 주석 해제)
+# .taskmaster/tasks/tasks.json
+# .taskmaster/tasks/
+.env.mcp
+antigravity-config.json
+.env
+
+.vscode/mcp.json
+
+# 세션 로그 (개인 작업 내역, Git으로 관리하지 않음)
+# docs/session-log.json은 각 개발자마다 다르므로 제외
+# 필요시 공유용 템플릿만 커밋
+docs/session-log.json
+
+# Logs
+logs
+# Dependency directories
+# Environment variables
+# Editor directories and files
+.vscode
+# OS specific
+
+# Task files
+# tasks.json
+# tasks/ 

@@ -1,0 +1,67 @@
+{
+  "taskId": "maven-builder-activation-compile",
+  "metadata": {
+    "taskId": "maven-builder-activation-compile",
+    "trialNumber": 1,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:33:20.155Z"
+  },
+  "startTime": 1768358000155,
+  "endTime": 1768358000155,
+  "metrics": {
+    "tokenCount": 47,
+    "inputTokens": 0,
+    "outputTokens": 47,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 0
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768358000155,
+      "role": "user",
+      "content": "Compile KiiPS-PG module with dependencies"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768358000155,
+      "role": "assistant",
+      "content": {
+        "prompt": "Compile KiiPS-PG module with dependencies",
+        "activatedSkills": [
+          "kiips-maven-builder"
+        ],
+        "managerAgent": "build-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768358000155,
+      "graderType": "activation",
+      "passed": false,
+      "score": 0
+    }
+  ],
+  "outcome": {
+    "passed": false,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": false,
+        "score": 0,
+        "expected": [
+          "kiips-maven-builder"
+        ],
+        "actual": [],
+        "missing": [
+          "kiips-maven-builder"
+        ],
+        "reason": "Missing skills: kiips-maven-builder"
+      }
+    ]
+  }
+}

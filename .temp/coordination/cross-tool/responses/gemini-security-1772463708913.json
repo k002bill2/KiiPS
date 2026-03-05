@@ -1,0 +1,44 @@
+{
+  "id": "review-1772463556163-r0q82",
+  "status": "completed",
+  "scanType": "security",
+  "createdAt": "2026-03-02T15:01:48.913Z",
+  "raw": "ISSUES:\n- [CRITICAL] KiiPS-UI/src/main/java/com/kiips/ui/config/WebSecurityConfiguration.java:31 - Authentication bypass: http.authorizeRequests().anyRequest().permitAll() disables security for all endpoints.\n- [CRITICAL] KiiPS-UI/src/main/java/com/kiips/ui/config/WebSecurityConfiguration.java:31 - CSRF protection is explicitly disabled (.csrf().disable()) across all web modules.\n- [CRITICAL] KIIPS-BATCH/src/main/java/com/kiips/batch/dao/DIVA_API_Dao.java:41 - SQL Injection: param.get(\"GP_NM\") and other request parameters are concatenated directly into SQL strings in Dao classes.\n- [CRITICAL] KiiPS-PG/src/main/java/com/kiips/pg/dao/PG0356APIDao.java:148 - SQL Injection: param.get(\"pivotStr\") is concatenated directly into a PIVOT clause.\n- [CRITICAL] KiiPS-PG/src/main/java/com/kiips/pg/dao/PG0303APIDao.java:1110 - SQL Injection: Dynamic column selection via param.get(\"type\") is concatenated directly into SQL.\n- [WARNING] KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/COM/POPUP_RT0409_P2_print.jsp:232 - XSS: Widespread use of unescaped EL expressions (e.g., ${datas.FUNDNM}) in JSPs instead of c:out or fn:escapeXml.\n- [WARNING] KiiPS-PG/app-tibero.properties:98 - Hardcoded secret: cleartext database password ('logos1201') and site secret key found in properties files.\n- [INFO] KIIPS-BATCH/src/main/java/com/kiips/batch/config/WebMvcConfiguration.java:148 - Global XSS filter (lucy-xss-filter) is commented out and inactive.\n\nVERDICT: needs-attention\nSUMMARY: The KiiPS codebase exhibits critical security systemic failures including total authentication/CSRF bypass, multiple direct SQL injection vulnerabilities in DAO layers, and widespread XSS risks in JSP views.",
+  "issues": [
+    {
+      "severity": "critical",
+      "text": "KiiPS-UI/src/main/java/com/kiips/ui/config/WebSecurityConfiguration.java:31 - Authentication bypass: http.authorizeRequests().anyRequest().permitAll() disables security for all endpoints."
+    },
+    {
+      "severity": "critical",
+      "text": "KiiPS-UI/src/main/java/com/kiips/ui/config/WebSecurityConfiguration.java:31 - CSRF protection is explicitly disabled (.csrf().disable()) across all web modules."
+    },
+    {
+      "severity": "critical",
+      "text": "KIIPS-BATCH/src/main/java/com/kiips/batch/dao/DIVA_API_Dao.java:41 - SQL Injection: param.get(\"GP_NM\") and other request parameters are concatenated directly into SQL strings in Dao classes."
+    },
+    {
+      "severity": "critical",
+      "text": "KiiPS-PG/src/main/java/com/kiips/pg/dao/PG0356APIDao.java:148 - SQL Injection: param.get(\"pivotStr\") is concatenated directly into a PIVOT clause."
+    },
+    {
+      "severity": "critical",
+      "text": "KiiPS-PG/src/main/java/com/kiips/pg/dao/PG0303APIDao.java:1110 - SQL Injection: Dynamic column selection via param.get(\"type\") is concatenated directly into SQL."
+    },
+    {
+      "severity": "warning",
+      "text": "KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/COM/POPUP_RT0409_P2_print.jsp:232 - XSS: Widespread use of unescaped EL expressions (e.g., ${datas.FUNDNM}) in JSPs instead of c:out or fn:escapeXml."
+    },
+    {
+      "severity": "warning",
+      "text": "KiiPS-PG/app-tibero.properties:98 - Hardcoded secret: cleartext database password ('logos1201') and site secret key found in properties files."
+    },
+    {
+      "severity": "info",
+      "text": "KIIPS-BATCH/src/main/java/com/kiips/batch/config/WebMvcConfiguration.java:148 - Global XSS filter (lucy-xss-filter) is commented out and inactive."
+    }
+  ],
+  "verdict": "needs-attention",
+  "summary": "The KiiPS codebase exhibits critical security systemic failures including total authentication/CSRF bypass, multiple direct SQL injection vulnerabilities in DAO layers, and widespread XSS risks in JSP views.",
+  "needsAttention": true
+}

@@ -1,0 +1,67 @@
+{
+  "taskId": "deployer-activation-korean",
+  "metadata": {
+    "taskId": "deployer-activation-korean",
+    "trialNumber": 1,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T04:37:15.680Z"
+  },
+  "startTime": 1768365435680,
+  "endTime": 1768365435681,
+  "metrics": {
+    "tokenCount": 37,
+    "inputTokens": 0,
+    "outputTokens": 37,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 1
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768365435680,
+      "role": "user",
+      "content": "KiiPS-FD 서비스 배포해줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768365435681,
+      "role": "assistant",
+      "content": {
+        "prompt": "KiiPS-FD 서비스 배포해줘",
+        "activatedSkills": [
+          "kiips-service-deployer"
+        ],
+        "managerAgent": "deployment-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768365435681,
+      "graderType": "activation",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": true,
+        "score": 1,
+        "expected": [
+          "kiips-service-deployer"
+        ],
+        "actual": [
+          "kiips-service-deployer"
+        ],
+        "missing": [],
+        "reason": "All expected skills activated"
+      }
+    ]
+  }
+}

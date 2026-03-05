@@ -1,0 +1,68 @@
+{
+  "taskId": "feature-manager-development",
+  "metadata": {
+    "taskId": "feature-manager-development",
+    "trialNumber": 2,
+    "graders": [
+      "state"
+    ],
+    "timestamp": "2026-01-14T02:35:18.354Z"
+  },
+  "startTime": 1768358118354,
+  "endTime": 1768358118354,
+  "metrics": {
+    "tokenCount": 33,
+    "inputTokens": 0,
+    "outputTokens": 33,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 0
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768358118354,
+      "role": "user",
+      "content": "새 기능 개발 시작"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768358118354,
+      "role": "assistant",
+      "content": {
+        "prompt": "새 기능 개발 시작",
+        "activatedSkills": [
+          "kiips-feature-planner"
+        ],
+        "managerAgent": "feature-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768358118354,
+      "graderType": "state",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "state",
+        "passed": true,
+        "score": 1,
+        "checks": [
+          {
+            "key": "output.managerAgent",
+            "passed": true,
+            "expected": "feature-manager",
+            "actual": "feature-manager"
+          }
+        ],
+        "reason": "All state checks passed"
+      }
+    ]
+  }
+}

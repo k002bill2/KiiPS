@@ -1,0 +1,23 @@
+{
+  "id": "review-1772608827862-oflae",
+  "status": "shown",
+  "files": [
+    "/Users/younghwankang/WORK/WORKSPACE/KiiPS/KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/PG/PG0303.jsp"
+  ],
+  "createdAt": "2026-03-04T07:21:31.887Z",
+  "raw": "ISSUES:\n- [severity:warning] KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/PG/PG0303.jsp:1865 - localStorage 'KIIPS_AUTO_PRINT' is set to 'Y' on click but never cleared or reset when a regular preview button is clicked; this will cause all subsequent normal previews to automatically trigger the print dialog until the browser is closed or storage is cleared.\n- [severity:info] KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/PG/PG0303.jsp:1865 - Use of localStorage for a transient UI flag may cause side effects across multiple browser tabs of the same application; sessionStorage is recommended for per-tab/per-action state.\n\nVERDICT: needs-attention\nSUMMARY: The \"Print Preview\" feature uses persistent localStorage to signal auto-printing without providing a reset mechanism for normal previews, leading to unintended behavior in subsequent user actions.",
+  "issues": [
+    {
+      "severity": "warning",
+      "text": "KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/PG/PG0303.jsp:1865 - localStorage 'KIIPS_AUTO_PRINT' is set to 'Y' on click but never cleared or reset when a regular preview button is clicked; this will cause all subsequent normal previews to automatically trigger the print dialog until the browser is closed or storage is cleared."
+    },
+    {
+      "severity": "info",
+      "text": "KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/PG/PG0303.jsp:1865 - Use of localStorage for a transient UI flag may cause side effects across multiple browser tabs of the same application; sessionStorage is recommended for per-tab/per-action state."
+    }
+  ],
+  "verdict": "needs-attention",
+  "summary": "The \"Print Preview\" feature uses persistent localStorage to signal auto-printing without providing a reset mechanism for normal previews, leading to unintended behavior in subsequent user actions.",
+  "needsAttention": true,
+  "shownAt": "2026-03-04T07:42:00.279Z"
+}

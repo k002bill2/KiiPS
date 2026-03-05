@@ -1,0 +1,174 @@
+# UI Component Tasks - KiiPS Agent Eval
+# 8개 UI 관련 평가 작업
+
+tasks:
+  - id: ui-001
+    desc: "펀드 목록 RealGrid 생성"
+    category: ui
+    difficulty: medium
+    graders:
+      - type: deterministic
+        checks:
+          - file_exists: "**/*fund*list*.jsp"
+          - contains:
+              pattern: "**/*fund*list*.jsp"
+              search: "RealGridJS"
+          - contains:
+              pattern: "**/*fund*list*.jsp"
+              search: "GridView"
+      - type: llm_rubric
+        rubric: ui-quality.md
+        assertions:
+          - "RealGrid가 올바르게 초기화되었음"
+          - "컬럼 정의가 명확함"
+    tracked_metrics:
+      - n_turns
+      - n_toolcalls
+      - total_tokens
+
+  - id: ui-002
+    desc: "투자 대시보드 ApexCharts 도넛 차트 추가"
+    category: ui
+    difficulty: medium
+    graders:
+      - type: deterministic
+        checks:
+          - file_exists: "**/*dashboard*.jsp"
+          - contains:
+              pattern: "**/*dashboard*.jsp"
+              search: "ApexCharts"
+          - contains:
+              pattern: "**/*dashboard*.jsp"
+              search: "donut"
+      - type: llm_rubric
+        rubric: ui-quality.md
+        assertions:
+          - "차트 옵션이 적절히 설정됨"
+          - "반응형 설정이 포함됨"
+    tracked_metrics:
+      - n_turns
+      - n_toolcalls
+
+  - id: ui-003
+    desc: "Bootstrap 검색 폼 컴포넌트 생성"
+    category: ui
+    difficulty: low
+    graders:
+      - type: deterministic
+        checks:
+          - file_exists: "**/*search*.jsp"
+          - contains:
+              pattern: "**/*search*.jsp"
+              search: "form-control"
+          - contains:
+              pattern: "**/*search*.jsp"
+              search: "btn"
+    tracked_metrics:
+      - n_turns
+
+  - id: ui-004
+    desc: "모달 팝업 컴포넌트 생성"
+    category: ui
+    difficulty: low
+    graders:
+      - type: deterministic
+        checks:
+          - file_exists: "**/*modal*.jsp"
+          - contains:
+              pattern: "**/*modal*.jsp"
+              search: "modal-dialog"
+          - contains:
+              pattern: "**/*modal*.jsp"
+              search: "modal-content"
+    tracked_metrics:
+      - n_turns
+
+  - id: ui-005
+    desc: "RealGrid 편집 그리드 생성 (체크박스 포함)"
+    category: ui
+    difficulty: high
+    graders:
+      - type: deterministic
+        checks:
+          - file_exists: "**/*edit*grid*.jsp"
+          - contains:
+              pattern: "**/*.jsp"
+              search: "createEditGrid"
+          - contains:
+              pattern: "**/*.jsp"
+              search: "checkBar"
+      - type: llm_rubric
+        rubric: ui-quality.md
+        assertions:
+          - "편집 기능이 구현됨"
+          - "체크박스 선택이 가능함"
+          - "KiiPS 표준 함수 사용"
+    tracked_metrics:
+      - n_turns
+      - n_toolcalls
+      - total_tokens
+
+  - id: ui-006
+    desc: "WCAG 2.1 AA 접근성 준수 폼 생성"
+    category: ui
+    difficulty: medium
+    graders:
+      - type: deterministic
+        checks:
+          - contains:
+              pattern: "**/*.jsp"
+              search: "aria-label"
+          - contains:
+              pattern: "**/*.jsp"
+              search: "role="
+          - not_contains:
+              pattern: "**/*.jsp"
+              search: "onclick=\"javascript:"
+      - type: llm_rubric
+        rubric: accessibility.md
+        threshold: 80
+        assertions:
+          - "모든 입력 필드에 레이블이 있음"
+          - "키보드 네비게이션 지원"
+          - "색상 대비 준수"
+    tracked_metrics:
+      - n_turns
+
+  - id: ui-007
+    desc: "탭 레이아웃 컴포넌트 생성"
+    category: ui
+    difficulty: low
+    graders:
+      - type: deterministic
+        checks:
+          - file_exists: "**/*tab*.jsp"
+          - contains:
+              pattern: "**/*tab*.jsp"
+              search: "nav-tabs"
+          - contains:
+              pattern: "**/*tab*.jsp"
+              search: "tab-content"
+    tracked_metrics:
+      - n_turns
+
+  - id: ui-008
+    desc: "SCSS 테마 변수 활용 스타일 적용"
+    category: ui
+    difficulty: medium
+    graders:
+      - type: deterministic
+        checks:
+          - file_exists: "**/*.scss"
+          - contains:
+              pattern: "**/*.scss"
+              search: "$theme-color"
+          - contains:
+              pattern: "**/*.scss"
+              search: "@include"
+      - type: llm_rubric
+        rubric: ui-quality.md
+        assertions:
+          - "KiiPS 디자인 토큰 사용"
+          - "믹스인 활용"
+    tracked_metrics:
+      - n_turns

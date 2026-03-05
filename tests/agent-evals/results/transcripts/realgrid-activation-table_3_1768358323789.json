@@ -1,0 +1,67 @@
+{
+  "taskId": "realgrid-activation-table",
+  "metadata": {
+    "taskId": "realgrid-activation-table",
+    "trialNumber": 3,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:38:43.787Z"
+  },
+  "startTime": 1768358323787,
+  "endTime": 1768358323789,
+  "metrics": {
+    "tokenCount": 33,
+    "inputTokens": 0,
+    "outputTokens": 33,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 2
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768358323787,
+      "role": "user",
+      "content": "테이블 컴포넌트 만들어줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768358323787,
+      "role": "assistant",
+      "content": {
+        "prompt": "테이블 컴포넌트 만들어줘",
+        "activatedSkills": [
+          "kiips-realgrid-guide"
+        ],
+        "managerAgent": "ui-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768358323789,
+      "graderType": "activation",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": true,
+        "score": 1,
+        "expected": [
+          "kiips-realgrid-guide"
+        ],
+        "actual": [
+          "kiips-realgrid-guide"
+        ],
+        "missing": [],
+        "reason": "All expected skills activated"
+      }
+    ]
+  }
+}

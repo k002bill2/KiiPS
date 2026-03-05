@@ -1,0 +1,67 @@
+{
+  "taskId": "maven-builder-negative-ui",
+  "metadata": {
+    "taskId": "maven-builder-negative-ui",
+    "trialNumber": 3,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T04:37:15.678Z"
+  },
+  "startTime": 1768365435678,
+  "endTime": 1768365435680,
+  "metrics": {
+    "tokenCount": 33,
+    "inputTokens": 0,
+    "outputTokens": 33,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 2
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768365435678,
+      "role": "user",
+      "content": "화면 컴포넌트 만들어줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768365435679,
+      "role": "assistant",
+      "content": {
+        "prompt": "화면 컴포넌트 만들어줘",
+        "activatedSkills": [
+          "kiips-ui-component-builder"
+        ],
+        "managerAgent": "ui-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768365435680,
+      "graderType": "activation",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": true,
+        "score": 1,
+        "expected": [
+          "kiips-ui-component-builder"
+        ],
+        "actual": [
+          "kiips-ui-component-builder"
+        ],
+        "missing": [],
+        "reason": "All expected skills activated"
+      }
+    ]
+  }
+}

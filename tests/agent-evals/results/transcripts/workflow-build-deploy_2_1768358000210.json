@@ -1,0 +1,70 @@
+{
+  "taskId": "workflow-build-deploy",
+  "metadata": {
+    "taskId": "workflow-build-deploy",
+    "trialNumber": 2,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:33:20.210Z"
+  },
+  "startTime": 1768358000210,
+  "endTime": 1768358000210,
+  "metrics": {
+    "tokenCount": 44,
+    "inputTokens": 0,
+    "outputTokens": 44,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 0
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768358000210,
+      "role": "user",
+      "content": "KiiPS-FD 서비스 빌드하고 배포해줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768358000210,
+      "role": "assistant",
+      "content": {
+        "prompt": "KiiPS-FD 서비스 빌드하고 배포해줘",
+        "activatedSkills": [
+          "kiips-maven-builder",
+          "kiips-service-deployer"
+        ],
+        "managerAgent": "build-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768358000210,
+      "graderType": "activation",
+      "passed": false,
+      "score": 0
+    }
+  ],
+  "outcome": {
+    "passed": false,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": false,
+        "score": 0,
+        "expected": [
+          "kiips-maven-builder",
+          "kiips-service-deployer"
+        ],
+        "actual": [],
+        "missing": [
+          "kiips-maven-builder",
+          "kiips-service-deployer"
+        ],
+        "reason": "Missing skills: kiips-maven-builder, kiips-service-deployer"
+      }
+    ]
+  }
+}

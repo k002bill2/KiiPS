@@ -1,0 +1,70 @@
+{
+  "taskId": "combined-ui-with-grid",
+  "metadata": {
+    "taskId": "combined-ui-with-grid",
+    "trialNumber": 3,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:36:51.578Z"
+  },
+  "startTime": 1768358211578,
+  "endTime": 1768358211579,
+  "metrics": {
+    "tokenCount": 47,
+    "inputTokens": 0,
+    "outputTokens": 47,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 1
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768358211578,
+      "role": "user",
+      "content": "펀드 목록 화면에 RealGrid 테이블 추가해줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768358211578,
+      "role": "assistant",
+      "content": {
+        "prompt": "펀드 목록 화면에 RealGrid 테이블 추가해줘",
+        "activatedSkills": [
+          "kiips-ui-component-builder",
+          "kiips-realgrid-guide"
+        ],
+        "managerAgent": "ui-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768358211579,
+      "graderType": "activation",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": true,
+        "score": 1,
+        "expected": [
+          "kiips-ui-component-builder",
+          "kiips-realgrid-guide"
+        ],
+        "actual": [
+          "kiips-ui-component-builder",
+          "kiips-realgrid-guide"
+        ],
+        "missing": [],
+        "reason": "All expected skills activated"
+      }
+    ]
+  }
+}

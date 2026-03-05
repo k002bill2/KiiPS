@@ -1,0 +1,75 @@
+{
+  "taskId": "workflow-complete-release",
+  "metadata": {
+    "taskId": "workflow-complete-release",
+    "trialNumber": 3,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:33:20.216Z"
+  },
+  "startTime": 1768358000216,
+  "endTime": 1768358000216,
+  "metrics": {
+    "tokenCount": 53,
+    "inputTokens": 0,
+    "outputTokens": 53,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 0
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768358000216,
+      "role": "user",
+      "content": "KiiPS-FD 빌드, 테스트, 배포하고 로그 확인해줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768358000216,
+      "role": "assistant",
+      "content": {
+        "prompt": "KiiPS-FD 빌드, 테스트, 배포하고 로그 확인해줘",
+        "activatedSkills": [
+          "kiips-maven-builder",
+          "kiips-service-deployer",
+          "kiips-log-analyzer"
+        ],
+        "managerAgent": "build-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768358000216,
+      "graderType": "activation",
+      "passed": false,
+      "score": 0
+    }
+  ],
+  "outcome": {
+    "passed": false,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": false,
+        "score": 0,
+        "expected": [
+          "kiips-maven-builder",
+          "kiips-test-runner",
+          "kiips-service-deployer",
+          "kiips-log-analyzer"
+        ],
+        "actual": [],
+        "missing": [
+          "kiips-maven-builder",
+          "kiips-test-runner",
+          "kiips-service-deployer",
+          "kiips-log-analyzer"
+        ],
+        "reason": "Missing skills: kiips-maven-builder, kiips-test-runner, kiips-service-deployer, kiips-log-analyzer"
+      }
+    ]
+  }
+}

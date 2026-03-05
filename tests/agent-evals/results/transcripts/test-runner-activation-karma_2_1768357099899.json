@@ -1,0 +1,68 @@
+{
+  "taskId": "test-runner-activation-karma",
+  "metadata": {
+    "taskId": "test-runner-activation-karma",
+    "trialNumber": 2,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:18:19.897Z"
+  },
+  "startTime": 1768357099897,
+  "endTime": 1768357099899,
+  "metrics": {
+    "tokenCount": 51,
+    "inputTokens": 0,
+    "outputTokens": 51,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 2
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768357099897,
+      "role": "user",
+      "content": "Execute Karma tests for UI components"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768357099897,
+      "role": "assistant",
+      "content": {
+        "prompt": "Execute Karma tests for UI components",
+        "activatedSkills": [
+          "kiips-test-runner",
+          "kiips-ui-component-builder"
+        ],
+        "managerAgent": "ui-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768357099899,
+      "graderType": "activation",
+      "passed": false,
+      "score": 0
+    }
+  ],
+  "outcome": {
+    "passed": false,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": false,
+        "score": 0,
+        "expected": [
+          "kiips-test-runner"
+        ],
+        "actual": [],
+        "missing": [
+          "kiips-test-runner"
+        ],
+        "reason": "Missing skills: kiips-test-runner"
+      }
+    ]
+  }
+}

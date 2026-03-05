@@ -1,0 +1,67 @@
+{
+  "taskId": "api-tester-activation-endpoint",
+  "metadata": {
+    "taskId": "api-tester-activation-endpoint",
+    "trialNumber": 1,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:36:51.548Z"
+  },
+  "startTime": 1768358211548,
+  "endTime": 1768358211550,
+  "metrics": {
+    "tokenCount": 28,
+    "inputTokens": 0,
+    "outputTokens": 28,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 2
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768358211548,
+      "role": "user",
+      "content": "엔드포인트 검증해줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768358211549,
+      "role": "assistant",
+      "content": {
+        "prompt": "엔드포인트 검증해줘",
+        "activatedSkills": [
+          "kiips-api-tester"
+        ],
+        "managerAgent": null,
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768358211550,
+      "graderType": "activation",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": true,
+        "score": 1,
+        "expected": [
+          "kiips-api-tester"
+        ],
+        "actual": [
+          "kiips-api-tester"
+        ],
+        "missing": [],
+        "reason": "All expected skills activated"
+      }
+    ]
+  }
+}

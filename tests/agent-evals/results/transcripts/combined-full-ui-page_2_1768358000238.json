@@ -1,0 +1,91 @@
+{
+  "taskId": "combined-full-ui-page",
+  "metadata": {
+    "taskId": "combined-full-ui-page",
+    "trialNumber": 2,
+    "graders": [
+      "activation",
+      "state"
+    ],
+    "timestamp": "2026-01-14T02:33:20.172Z"
+  },
+  "startTime": 1768358000172,
+  "endTime": 1768358000174,
+  "metrics": {
+    "tokenCount": 39,
+    "inputTokens": 0,
+    "outputTokens": 39,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 2
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768358000172,
+      "role": "user",
+      "content": "RealGrid로 펀드 목록 조회 페이지 만들어줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768358000172,
+      "role": "assistant",
+      "content": {
+        "prompt": "RealGrid로 펀드 목록 조회 페이지 만들어줘",
+        "activatedSkills": [
+          "kiips-realgrid-guide"
+        ],
+        "managerAgent": "ui-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768358000174,
+      "graderType": "activation",
+      "passed": false,
+      "score": 0
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768358000174,
+      "graderType": "state",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": false,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": false,
+        "score": 0,
+        "expected": [
+          "kiips-realgrid-guide",
+          "kiips-ui-component-builder"
+        ],
+        "actual": [],
+        "missing": [
+          "kiips-realgrid-guide",
+          "kiips-ui-component-builder"
+        ],
+        "reason": "Missing skills: kiips-realgrid-guide, kiips-ui-component-builder"
+      },
+      {
+        "type": "state",
+        "passed": true,
+        "score": 1,
+        "checks": [
+          {
+            "key": "output.managerAgent",
+            "passed": true,
+            "expected": "ui-manager",
+            "actual": "ui-manager"
+          }
+        ],
+        "reason": "All state checks passed"
+      }
+    ]
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "taskId": "feature-manager-planning",
+  "metadata": {
+    "taskId": "feature-manager-planning",
+    "trialNumber": 3,
+    "graders": [
+      "state"
+    ],
+    "timestamp": "2026-01-16T01:25:59.006Z"
+  },
+  "startTime": 1768526759006,
+  "endTime": 1768526759006,
+  "metrics": {
+    "tokenCount": 38,
+    "inputTokens": 0,
+    "outputTokens": 38,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 0
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768526759006,
+      "role": "user",
+      "content": "신규 펀드 조회 기능 개발 계획 세워줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768526759006,
+      "role": "assistant",
+      "content": {
+        "prompt": "신규 펀드 조회 기능 개발 계획 세워줘",
+        "activatedSkills": [
+          "kiips-feature-planner"
+        ],
+        "managerAgent": "feature-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768526759006,
+      "graderType": "state",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "state",
+        "passed": true,
+        "score": 1,
+        "checks": [
+          {
+            "key": "output.managerAgent",
+            "passed": true,
+            "expected": "feature-manager",
+            "actual": "feature-manager"
+          }
+        ],
+        "reason": "All state checks passed"
+      }
+    ]
+  }
+}

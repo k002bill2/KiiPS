@@ -1,0 +1,67 @@
+{
+  "taskId": "log-analyzer-activation-debug",
+  "metadata": {
+    "taskId": "log-analyzer-activation-debug",
+    "trialNumber": 1,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:00:40.596Z"
+  },
+  "startTime": 1768356040596,
+  "endTime": 1768356040598,
+  "metrics": {
+    "tokenCount": 33,
+    "inputTokens": 0,
+    "outputTokens": 33,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 2
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768356040596,
+      "role": "user",
+      "content": "디버그 로그 확인해줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768356040596,
+      "role": "assistant",
+      "content": {
+        "prompt": "디버그 로그 확인해줘",
+        "activatedSkills": [
+          "kiips-log-analyzer"
+        ],
+        "managerAgent": "deployment-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768356040598,
+      "graderType": "activation",
+      "passed": false,
+      "score": 0
+    }
+  ],
+  "outcome": {
+    "passed": false,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": false,
+        "score": 0,
+        "expected": [
+          "kiips-log-analyzer"
+        ],
+        "actual": [],
+        "missing": [
+          "kiips-log-analyzer"
+        ],
+        "reason": "Missing skills: kiips-log-analyzer"
+      }
+    ]
+  }
+}

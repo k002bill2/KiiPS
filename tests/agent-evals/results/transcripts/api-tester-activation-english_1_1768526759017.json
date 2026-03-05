@@ -1,0 +1,67 @@
+{
+  "taskId": "api-tester-activation-english",
+  "metadata": {
+    "taskId": "api-tester-activation-english",
+    "trialNumber": 1,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-16T01:25:58.973Z"
+  },
+  "startTime": 1768526758973,
+  "endTime": 1768526758976,
+  "metrics": {
+    "tokenCount": 36,
+    "inputTokens": 0,
+    "outputTokens": 36,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 3
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768526758973,
+      "role": "user",
+      "content": "Test the REST API endpoints"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768526758975,
+      "role": "assistant",
+      "content": {
+        "prompt": "Test the REST API endpoints",
+        "activatedSkills": [
+          "kiips-api-tester"
+        ],
+        "managerAgent": null,
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768526758976,
+      "graderType": "activation",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": true,
+        "score": 1,
+        "expected": [
+          "kiips-api-tester"
+        ],
+        "actual": [
+          "kiips-api-tester"
+        ],
+        "missing": [],
+        "reason": "All expected skills activated"
+      }
+    ]
+  }
+}

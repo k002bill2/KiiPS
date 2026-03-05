@@ -1,0 +1,67 @@
+{
+  "taskId": "maven-builder-activation-english",
+  "metadata": {
+    "taskId": "maven-builder-activation-english",
+    "trialNumber": 3,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:35:18.331Z"
+  },
+  "startTime": 1768358118331,
+  "endTime": 1768358118332,
+  "metrics": {
+    "tokenCount": 39,
+    "inputTokens": 0,
+    "outputTokens": 39,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 1
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768358118331,
+      "role": "user",
+      "content": "Build the KiiPS-IL service"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768358118332,
+      "role": "assistant",
+      "content": {
+        "prompt": "Build the KiiPS-IL service",
+        "activatedSkills": [
+          "kiips-maven-builder"
+        ],
+        "managerAgent": "ui-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768358118332,
+      "graderType": "activation",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": true,
+        "score": 1,
+        "expected": [
+          "kiips-maven-builder"
+        ],
+        "actual": [
+          "kiips-maven-builder"
+        ],
+        "missing": [],
+        "reason": "All expected skills activated"
+      }
+    ]
+  }
+}

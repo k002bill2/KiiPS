@@ -1,0 +1,67 @@
+{
+  "taskId": "feature-planner-activation-english",
+  "metadata": {
+    "taskId": "feature-planner-activation-english",
+    "trialNumber": 2,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-16T01:25:58.992Z"
+  },
+  "startTime": 1768526758992,
+  "endTime": 1768526758993,
+  "metrics": {
+    "tokenCount": 44,
+    "inputTokens": 0,
+    "outputTokens": 44,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 1
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768526758992,
+      "role": "user",
+      "content": "Create a feature development plan"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768526758993,
+      "role": "assistant",
+      "content": {
+        "prompt": "Create a feature development plan",
+        "activatedSkills": [
+          "kiips-feature-planner"
+        ],
+        "managerAgent": "feature-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768526758993,
+      "graderType": "activation",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": true,
+        "score": 1,
+        "expected": [
+          "kiips-feature-planner"
+        ],
+        "actual": [
+          "kiips-feature-planner"
+        ],
+        "missing": [],
+        "reason": "All expected skills activated"
+      }
+    ]
+  }
+}

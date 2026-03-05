@@ -1,0 +1,67 @@
+{
+  "taskId": "deployer-activation-stop",
+  "metadata": {
+    "taskId": "deployer-activation-stop",
+    "trialNumber": 3,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:38:43.776Z"
+  },
+  "startTime": 1768358323776,
+  "endTime": 1768358323777,
+  "metrics": {
+    "tokenCount": 32,
+    "inputTokens": 0,
+    "outputTokens": 32,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 1
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768358323776,
+      "role": "user",
+      "content": "서비스 중지해줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768358323776,
+      "role": "assistant",
+      "content": {
+        "prompt": "서비스 중지해줘",
+        "activatedSkills": [
+          "kiips-service-deployer"
+        ],
+        "managerAgent": "deployment-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768358323777,
+      "graderType": "activation",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": true,
+        "score": 1,
+        "expected": [
+          "kiips-service-deployer"
+        ],
+        "actual": [
+          "kiips-service-deployer"
+        ],
+        "missing": [],
+        "reason": "All expected skills activated"
+      }
+    ]
+  }
+}

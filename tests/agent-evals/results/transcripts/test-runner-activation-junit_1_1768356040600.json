@@ -1,0 +1,67 @@
+{
+  "taskId": "test-runner-activation-junit",
+  "metadata": {
+    "taskId": "test-runner-activation-junit",
+    "trialNumber": 1,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:00:40.599Z"
+  },
+  "startTime": 1768356040599,
+  "endTime": 1768356040600,
+  "metrics": {
+    "tokenCount": 37,
+    "inputTokens": 0,
+    "outputTokens": 37,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 1
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768356040599,
+      "role": "user",
+      "content": "Run JUnit tests for KiiPS-IL"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768356040599,
+      "role": "assistant",
+      "content": {
+        "prompt": "Run JUnit tests for KiiPS-IL",
+        "activatedSkills": [
+          "kiips-test-runner"
+        ],
+        "managerAgent": null,
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768356040600,
+      "graderType": "activation",
+      "passed": false,
+      "score": 0
+    }
+  ],
+  "outcome": {
+    "passed": false,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": false,
+        "score": 0,
+        "expected": [
+          "kiips-test-runner"
+        ],
+        "actual": [],
+        "missing": [
+          "kiips-test-runner"
+        ],
+        "reason": "Missing skills: kiips-test-runner"
+      }
+    ]
+  }
+}

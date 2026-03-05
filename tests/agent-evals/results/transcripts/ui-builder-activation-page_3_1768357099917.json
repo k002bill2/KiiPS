@@ -1,0 +1,67 @@
+{
+  "taskId": "ui-builder-activation-page",
+  "metadata": {
+    "taskId": "ui-builder-activation-page",
+    "trialNumber": 3,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:18:19.916Z"
+  },
+  "startTime": 1768357099916,
+  "endTime": 1768357099917,
+  "metrics": {
+    "tokenCount": 33,
+    "inputTokens": 0,
+    "outputTokens": 33,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 1
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768357099916,
+      "role": "user",
+      "content": "새 페이지 만들어줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768357099916,
+      "role": "assistant",
+      "content": {
+        "prompt": "새 페이지 만들어줘",
+        "activatedSkills": [
+          "kiips-ui-component-builder"
+        ],
+        "managerAgent": "ui-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768357099917,
+      "graderType": "activation",
+      "passed": false,
+      "score": 0
+    }
+  ],
+  "outcome": {
+    "passed": false,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": false,
+        "score": 0,
+        "expected": [
+          "kiips-ui-component-builder"
+        ],
+        "actual": [],
+        "missing": [
+          "kiips-ui-component-builder"
+        ],
+        "reason": "Missing skills: kiips-ui-component-builder"
+      }
+    ]
+  }
+}

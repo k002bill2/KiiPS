@@ -1,0 +1,67 @@
+{
+  "taskId": "realgrid-with-excel",
+  "metadata": {
+    "taskId": "realgrid-with-excel",
+    "trialNumber": 1,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:34:19.209Z"
+  },
+  "startTime": 1768358059209,
+  "endTime": 1768358059210,
+  "metrics": {
+    "tokenCount": 37,
+    "inputTokens": 0,
+    "outputTokens": 37,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 1
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768358059209,
+      "role": "user",
+      "content": "RealGrid 엑셀 다운로드 기능 추가"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768358059209,
+      "role": "assistant",
+      "content": {
+        "prompt": "RealGrid 엑셀 다운로드 기능 추가",
+        "activatedSkills": [
+          "kiips-realgrid-guide"
+        ],
+        "managerAgent": "ui-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768358059210,
+      "graderType": "activation",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": true,
+        "score": 1,
+        "expected": [
+          "kiips-realgrid-guide"
+        ],
+        "actual": [
+          "kiips-realgrid-guide"
+        ],
+        "missing": [],
+        "reason": "All expected skills activated"
+      }
+    ]
+  }
+}

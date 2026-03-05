@@ -1,0 +1,68 @@
+{
+  "taskId": "deployment-manager-restart",
+  "metadata": {
+    "taskId": "deployment-manager-restart",
+    "trialNumber": 2,
+    "graders": [
+      "state"
+    ],
+    "timestamp": "2026-01-14T02:18:19.922Z"
+  },
+  "startTime": 1768357099922,
+  "endTime": 1768357099922,
+  "metrics": {
+    "tokenCount": 36,
+    "inputTokens": 0,
+    "outputTokens": 36,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 0
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768357099922,
+      "role": "user",
+      "content": "KiiPS-IL 서비스 재시작"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768357099922,
+      "role": "assistant",
+      "content": {
+        "prompt": "KiiPS-IL 서비스 재시작",
+        "activatedSkills": [
+          "kiips-service-deployer"
+        ],
+        "managerAgent": "deployment-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768357099922,
+      "graderType": "state",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "state",
+        "passed": true,
+        "score": 1,
+        "checks": [
+          {
+            "key": "output.managerAgent",
+            "passed": true,
+            "expected": "deployment-manager",
+            "actual": "deployment-manager"
+          }
+        ],
+        "reason": "All state checks passed"
+      }
+    ]
+  }
+}

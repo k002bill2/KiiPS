@@ -1,0 +1,89 @@
+{
+  "taskId": "workflow-ui-grid-table",
+  "metadata": {
+    "taskId": "workflow-ui-grid-table",
+    "trialNumber": 2,
+    "graders": [
+      "activation",
+      "state"
+    ],
+    "timestamp": "2026-01-14T04:37:15.705Z"
+  },
+  "startTime": 1768365435705,
+  "endTime": 1768365435705,
+  "metrics": {
+    "tokenCount": 35,
+    "inputTokens": 0,
+    "outputTokens": 35,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 0
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768365435705,
+      "role": "user",
+      "content": "테이블 그리드 컴포넌트 추가해줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768365435705,
+      "role": "assistant",
+      "content": {
+        "prompt": "테이블 그리드 컴포넌트 추가해줘",
+        "activatedSkills": [
+          "kiips-realgrid-guide"
+        ],
+        "managerAgent": "ui-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768365435705,
+      "graderType": "activation",
+      "passed": true,
+      "score": 1
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768365435705,
+      "graderType": "state",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": true,
+        "score": 1,
+        "expected": [
+          "kiips-realgrid-guide"
+        ],
+        "actual": [
+          "kiips-realgrid-guide"
+        ],
+        "missing": [],
+        "reason": "All expected skills activated"
+      },
+      {
+        "type": "state",
+        "passed": true,
+        "score": 1,
+        "checks": [
+          {
+            "key": "output.managerAgent",
+            "passed": true,
+            "expected": "ui-manager",
+            "actual": "ui-manager"
+          }
+        ],
+        "reason": "All state checks passed"
+      }
+    ]
+  }
+}

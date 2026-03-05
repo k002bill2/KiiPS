@@ -1,0 +1,68 @@
+{
+  "taskId": "build-manager-single-service",
+  "metadata": {
+    "taskId": "build-manager-single-service",
+    "trialNumber": 2,
+    "graders": [
+      "state"
+    ],
+    "timestamp": "2026-01-14T02:36:51.581Z"
+  },
+  "startTime": 1768358211581,
+  "endTime": 1768358211581,
+  "metrics": {
+    "tokenCount": 35,
+    "inputTokens": 0,
+    "outputTokens": 35,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 0
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768358211581,
+      "role": "user",
+      "content": "KiiPS-FD 서비스 빌드해줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768358211581,
+      "role": "assistant",
+      "content": {
+        "prompt": "KiiPS-FD 서비스 빌드해줘",
+        "activatedSkills": [
+          "kiips-maven-builder"
+        ],
+        "managerAgent": "build-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768358211581,
+      "graderType": "state",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "state",
+        "passed": true,
+        "score": 1,
+        "checks": [
+          {
+            "key": "output.managerAgent",
+            "passed": true,
+            "expected": "build-manager",
+            "actual": "build-manager"
+          }
+        ],
+        "reason": "All state checks passed"
+      }
+    ]
+  }
+}

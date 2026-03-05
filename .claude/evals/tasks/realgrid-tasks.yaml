@@ -1,0 +1,106 @@
+# RealGrid Tasks - KiiPS Agent Eval
+# 5개 RealGrid 2.6.3 특화 평가 작업
+
+tasks:
+  - id: realgrid-001
+    desc: "기본 조회 그리드 생성 (createMainGrid)"
+    category: realgrid
+    difficulty: low
+    graders:
+      - type: deterministic
+        checks:
+          - contains:
+              pattern: "**/*.js"
+              search: "createMainGrid"
+          - contains:
+              pattern: "**/*.js"
+              search: "DataProvider"
+          - contains:
+              pattern: "**/*.js"
+              search: "GridView"
+    tracked_metrics:
+      - n_turns
+
+  - id: realgrid-002
+    desc: "편집 그리드 + 행 추가/삭제"
+    category: realgrid
+    difficulty: medium
+    graders:
+      - type: deterministic
+        checks:
+          - contains:
+              pattern: "**/*.js"
+              search: "createEditGrid"
+          - contains:
+              pattern: "**/*.js"
+              search: "insertRow"
+          - contains:
+              pattern: "**/*.js"
+              search: "deleteRow"
+      - type: llm_rubric
+        rubric: ui-quality.md
+        assertions:
+          - "행 추가 함수 구현됨"
+          - "행 삭제 시 확인 로직 있음"
+    tracked_metrics:
+      - n_turns
+      - n_toolcalls
+
+  - id: realgrid-003
+    desc: "Excel 내보내기 기능 구현"
+    category: realgrid
+    difficulty: medium
+    graders:
+      - type: deterministic
+        checks:
+          - contains:
+              pattern: "**/*.js"
+              search: "exportGrid"
+          - contains:
+              pattern: "**/*.js"
+              search: ".xlsx"
+    tracked_metrics:
+      - n_turns
+
+  - id: realgrid-004
+    desc: "트리 그리드 구현"
+    category: realgrid
+    difficulty: high
+    graders:
+      - type: deterministic
+        checks:
+          - contains:
+              pattern: "**/*.js"
+              search: "createTreeGrid"
+          - contains:
+              pattern: "**/*.js"
+              search: "TreeDataProvider"
+      - type: llm_rubric
+        rubric: ui-quality.md
+        assertions:
+          - "부모-자식 관계 설정됨"
+          - "확장/축소 기능 동작"
+    tracked_metrics:
+      - n_turns
+      - total_tokens
+
+  - id: realgrid-005
+    desc: "셀 병합 및 합계 행 추가"
+    category: realgrid
+    difficulty: high
+    graders:
+      - type: deterministic
+        checks:
+          - contains:
+              pattern: "**/*.js"
+              search: "footerSummaryKiips"
+          - contains:
+              pattern: "**/*.js"
+              search: "setFooter"
+      - type: llm_rubric
+        rubric: ui-quality.md
+        assertions:
+          - "KiiPS 표준 합계 설정 사용"
+          - "숫자 포맷 적용됨"
+    tracked_metrics:
+      - n_turns

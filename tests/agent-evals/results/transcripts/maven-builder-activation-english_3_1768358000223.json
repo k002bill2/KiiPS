@@ -1,0 +1,67 @@
+{
+  "taskId": "maven-builder-activation-english",
+  "metadata": {
+    "taskId": "maven-builder-activation-english",
+    "trialNumber": 3,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:33:20.159Z"
+  },
+  "startTime": 1768358000159,
+  "endTime": 1768358000159,
+  "metrics": {
+    "tokenCount": 39,
+    "inputTokens": 0,
+    "outputTokens": 39,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 0
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768358000159,
+      "role": "user",
+      "content": "Build the KiiPS-IL service"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768358000159,
+      "role": "assistant",
+      "content": {
+        "prompt": "Build the KiiPS-IL service",
+        "activatedSkills": [
+          "kiips-maven-builder"
+        ],
+        "managerAgent": "ui-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768358000159,
+      "graderType": "activation",
+      "passed": false,
+      "score": 0
+    }
+  ],
+  "outcome": {
+    "passed": false,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": false,
+        "score": 0,
+        "expected": [
+          "kiips-maven-builder"
+        ],
+        "actual": [],
+        "missing": [
+          "kiips-maven-builder"
+        ],
+        "reason": "Missing skills: kiips-maven-builder"
+      }
+    ]
+  }
+}

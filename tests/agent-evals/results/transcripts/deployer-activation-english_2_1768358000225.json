@@ -1,0 +1,67 @@
+{
+  "taskId": "deployer-activation-english",
+  "metadata": {
+    "taskId": "deployer-activation-english",
+    "trialNumber": 2,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:33:20.162Z"
+  },
+  "startTime": 1768358000162,
+  "endTime": 1768358000162,
+  "metrics": {
+    "tokenCount": 46,
+    "inputTokens": 0,
+    "outputTokens": 46,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 0
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768358000162,
+      "role": "user",
+      "content": "Deploy KiiPS-IL service to staging"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768358000162,
+      "role": "assistant",
+      "content": {
+        "prompt": "Deploy KiiPS-IL service to staging",
+        "activatedSkills": [
+          "kiips-service-deployer"
+        ],
+        "managerAgent": "deployment-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768358000162,
+      "graderType": "activation",
+      "passed": false,
+      "score": 0
+    }
+  ],
+  "outcome": {
+    "passed": false,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": false,
+        "score": 0,
+        "expected": [
+          "kiips-service-deployer"
+        ],
+        "actual": [],
+        "missing": [
+          "kiips-service-deployer"
+        ],
+        "reason": "Missing skills: kiips-service-deployer"
+      }
+    ]
+  }
+}

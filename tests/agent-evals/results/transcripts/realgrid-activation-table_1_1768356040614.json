@@ -1,0 +1,68 @@
+{
+  "taskId": "realgrid-activation-table",
+  "metadata": {
+    "taskId": "realgrid-activation-table",
+    "trialNumber": 1,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:00:40.603Z"
+  },
+  "startTime": 1768356040603,
+  "endTime": 1768356040604,
+  "metrics": {
+    "tokenCount": 41,
+    "inputTokens": 0,
+    "outputTokens": 41,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 1
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768356040603,
+      "role": "user",
+      "content": "테이블 컴포넌트 만들어줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768356040604,
+      "role": "assistant",
+      "content": {
+        "prompt": "테이블 컴포넌트 만들어줘",
+        "activatedSkills": [
+          "kiips-ui-component-builder",
+          "kiips-realgrid-builder"
+        ],
+        "managerAgent": "ui-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768356040604,
+      "graderType": "activation",
+      "passed": false,
+      "score": 0
+    }
+  ],
+  "outcome": {
+    "passed": false,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": false,
+        "score": 0,
+        "expected": [
+          "kiips-realgrid-builder"
+        ],
+        "actual": [],
+        "missing": [
+          "kiips-realgrid-builder"
+        ],
+        "reason": "Missing skills: kiips-realgrid-builder"
+      }
+    ]
+  }
+}

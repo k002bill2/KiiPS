@@ -1,0 +1,774 @@
+{
+  "kiips-ace-essentials": {
+    "type": "framework",
+    "enforcement": "require",
+    "priority": "critical",
+    "description": "ACE 핵심 가드레일 - 위험 차단, 보호 모듈, 빌드 순서, 에이전트 라우팅",
+    "promptTriggers": {
+      "keywords": ["병렬", "parallel", "에이전트", "agent", "조정", "coordination", "ACE", "위험", "프로덕션"],
+      "intentPatterns": [
+        "(병렬|parallel).*?(작업|task|agent)",
+        "(multi|여러).*?(agent|에이전트)",
+        "(coordinate|조정).*?(task|작업)"
+      ]
+    }
+  },
+
+  "kiips-backend-guidelines": {
+    "type": "guideline",
+    "enforcement": "suggest",
+    "priority": "high",
+    "promptTriggers": {
+      "keywords": ["controller", "service", "dao", "API", "endpoint", "REST", "백엔드", "컨트롤러"],
+      "intentPatterns": [
+        "(create|add|make).*?(controller|service|endpoint)",
+        "(fix|debug).*?(API|service)",
+        "(how to|best practice).*?(backend|controller)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": ["**/controll/**/*.java", "**/service/**/*.java", "**/dao/**/*.java"],
+      "contentPatterns": ["@RestController", "@Service", "extends DAO"]
+    }
+  },
+
+  "kiips-frontend-guidelines": {
+    "type": "guideline",
+    "enforcement": "suggest",
+    "priority": "high",
+    "promptTriggers": {
+      "keywords": ["JSP", "JavaScript", "UI", "프론트엔드", "화면", "페이지", "jQuery"],
+      "intentPatterns": [
+        "(create|update|modify).*?(page|screen|UI|화면)",
+        "(fix|style).*?(JSP|JavaScript)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": ["**/jsp/**/*.jsp", "**/static/**/*.js", "**/static/**/*.css"],
+      "contentPatterns": ["<%@", "$(document)", "function "]
+    }
+  },
+
+  "kiips-security-guide": {
+    "type": "guardrail",
+    "enforcement": "require",
+    "priority": "critical",
+    "description": "KiiPS 보안 가이드 - Spring Security, XSS 방어, CSRF, 인증/인가, 민감정보 보호",
+    "promptTriggers": {
+      "keywords": ["인증", "로그인", "JWT", "토큰", "비밀번호", "암호화", "보안", "XSS", "CSRF"],
+      "intentPatterns": [
+        ".*?(auth|login|token).*?",
+        ".*?(password|secret|encrypt).*?",
+        "(보안|security).*?(설정|config|check|검증)"
+      ]
+    }
+  },
+
+  "kiips-database-verification": {
+    "type": "guardrail",
+    "enforcement": "block",
+    "priority": "critical",
+    "promptTriggers": {
+      "keywords": ["database", "DB", "테이블", "스키마", "마이그레이션", "MyBatis"],
+      "intentPatterns": [
+        ".*?(alter|modify|change).*?table",
+        ".*?(drop|delete|truncate).*?",
+        ".*?(schema|migration).*?"
+      ]
+    }
+  },
+
+  "kiips-common-patterns": {
+    "type": "guideline",
+    "enforcement": "suggest",
+    "priority": "normal",
+    "promptTriggers": {
+      "keywords": ["COMMON", "UTILS", "GlobalExceptionHandler", "ErrorNotificationService", "공통"],
+      "intentPatterns": [
+        "(use|implement).*?(common|shared|util)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": ["**/KiiPS-COMMON/**/*.java", "**/KiiPS-UTILS/**/*.java"]
+    }
+  },
+
+  "kiips-build-deploy": {
+    "type": "guideline",
+    "enforcement": "suggest",
+    "priority": "high",
+    "promptTriggers": {
+      "keywords": ["빌드", "배포", "build", "deploy", "maven", "mvn", "start.sh", "stop.sh"],
+      "intentPatterns": [
+        "(build|deploy|run).*?(service|module)",
+        "(how to).*?(build|deploy)"
+      ]
+    }
+  },
+
+  "kiips-maven-builder": {
+    "type": "domain",
+    "enforcement": "require",
+    "priority": "critical",
+    "managerAgent": "build-manager",
+    "orchestrationSkill": "build-orchestration",
+    "autoActivationLevel": "manager",
+    "delegationRules": {
+      "managerHandles": "빌드 조정, 의존성 해결, 병렬 그룹 식별, 워커 할당",
+      "workerHandles": "Maven 명령 실행, 로그 모니터링, 아티팩트 검증"
+    },
+    "promptTriggers": {
+      "keywords": ["빌드", "build", "maven", "mvn", "compile", "package", "KiiPS-HUB"],
+      "intentPatterns": [
+        "(build|compile|package).*?(service|module|project)",
+        ".*?KiiPS-(FD|IL|PG|COMMON|UTILS).*?(build|빌드)",
+        "(how to|need to).*?build"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": ["**/pom.xml"],
+      "contentPatterns": ["<artifactId>KiiPS-", "<packaging>"]
+    }
+  },
+
+  "kiips-service-deployer": {
+    "type": "domain",
+    "enforcement": "require",
+    "priority": "high",
+    "managerAgent": "deployment-manager",
+    "orchestrationSkill": "deployment-pipeline-orchestration",
+    "autoActivationLevel": "manager",
+    "delegationRules": {
+      "managerHandles": "배포 파이프라인 조정, 헬스체크 검증, 로그 분석 감독, 롤백 관리",
+      "workerHandles": "API 테스트 실행, 로그 파일 분석",
+      "primaryHandles": "서비스 start/stop 직접 실행 (Primary 전용 권한)"
+    },
+    "promptTriggers": {
+      "keywords": ["배포", "deploy", "start", "stop", "restart", "서비스 시작", "서비스 중지"],
+      "intentPatterns": [
+        "(start|stop|restart|deploy).*?service",
+        ".*?(배포|시작|중지|재시작).*?서비스",
+        "check.*?(health|status)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": ["**/start.sh", "**/stop.sh"]
+    }
+  },
+
+  "kiips-api-tester": {
+    "type": "domain",
+    "enforcement": "suggest",
+    "priority": "high",
+    "managerAgent": "deployment-manager",
+    "orchestrationSkill": "deployment-pipeline-orchestration",
+    "autoActivationLevel": "worker",
+    "delegationRules": {
+      "managerHandles": "헬스체크 검증 조정, API 테스트 시나리오 계획, 결과 집계",
+      "workerHandles": "실제 API 호출, curl 명령 실행, JWT 토큰 검증, 엔드포인트 테스트"
+    },
+    "promptTriggers": {
+      "keywords": ["API", "테스트", "test", "curl", "gateway", "endpoint", "JWT"],
+      "intentPatterns": [
+        "test.*?(API|endpoint|gateway)",
+        "(verify|check).*?(routing|authentication)",
+        ".*?(테스트|검증).*?(API|게이트웨이)"
+      ]
+    }
+  },
+
+  "kiips-log-analyzer": {
+    "type": "domain",
+    "enforcement": "suggest",
+    "priority": "high",
+    "managerAgent": "deployment-manager",
+    "orchestrationSkill": "deployment-pipeline-orchestration",
+    "autoActivationLevel": "worker",
+    "delegationRules": {
+      "managerHandles": "로그 분석 감독, 에러 패턴 심각도 분류, 롤백 결정",
+      "workerHandles": "로그 파일 읽기, grep/tail 실행, ERROR/WARN 패턴 검색, 스택 트레이스 분석"
+    },
+    "promptTriggers": {
+      "keywords": ["로그", "log", "error", "에러", "exception", "분석", "analyze", "grep"],
+      "intentPatterns": [
+        "(check|analyze|find).*?(log|error)",
+        ".*?(로그|에러).*?(확인|분석|검색)",
+        "(troubleshoot|debug).*?issue"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": ["**/logs/*.log"]
+    }
+  },
+
+  "kiips-feature-planner": {
+    "type": "domain",
+    "enforcement": "require",
+    "priority": "high",
+    "managerAgent": "feature-manager",
+    "orchestrationSkill": "feature-lifecycle-orchestration",
+    "autoActivationLevel": "manager",
+    "delegationRules": {
+      "managerHandles": "기능 개발 라이프사이클 조정, 단계별 handoff (architect→developer→QA), 품질 체크포인트 강제, dev docs 관리",
+      "workerHandles": "아키텍처 설계 (kiips-architect), 코드 구현 (kiips-developer), UI 개발 (kiips-ui-designer), 검증 (checklist-generator)"
+    },
+    "promptTriggers": {
+      "keywords": ["기능", "feature", "개발", "계획", "plan", "구현", "implement"],
+      "intentPatterns": [
+        "(새로운|new).*?(기능|feature)",
+        "(개발|develop).*?(계획|plan)",
+        "(구현|implement).*?(기능|feature)",
+        "feature.*?(추가|add|create)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": ["dev/active/**/*-plan.md"],
+      "contentPatterns": ["## Implementation Plan", "## Phase"]
+    }
+  },
+
+  "kiips-detail-page-planner": {
+    "type": "domain",
+    "enforcement": "require",
+    "priority": "high",
+    "description": "모듈 상세페이지 개발 계획서 자동 생성 (2-4시간 규모의 UI 중심 개발)",
+    "managerAgent": "ui-manager",
+    "orchestrationSkill": "ui-workflow-orchestration",
+    "autoActivationLevel": "manager",
+    "delegationRules": {
+      "managerHandles": "상세페이지 개발 계획 수립, Phase별 진행 관리, Quality Gate 검증 조정",
+      "workerHandles": "JSP 생성 (kiips-ui-component-builder), 반응형 검증 (kiips-responsive-validator), 접근성 검증 (kiips-a11y-checker)"
+    },
+    "promptTriggers": {
+      "keywords": [
+        "상세페이지",
+        "detail page",
+        "상세화면",
+        "투자기업상세",
+        "펀드상세",
+        "기업상세",
+        "detail view"
+      ],
+      "intentPatterns": [
+        "(생성|create|만들|개발).*?(상세|detail).*?(페이지|page|화면)",
+        "(new|새|신규).*?(detail|상세).*?(screen|화면|page)",
+        ".*?[A-Z]{2}0[0-9]0[0-9].*?(상세|detail|생성|만들)",
+        "(상세|detail).*?(JSP|jsp).*?(생성|만들|create)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": ["**/jsp/kiips/**/*0[0-9]0[0-9].jsp"],
+      "contentPatterns": ["cd-container", "cd-header", "cd-card", "cd-grid"]
+    },
+    "relatedSkills": [
+      "kiips-ui-component-builder",
+      "kiips-responsive-validator",
+      "kiips-a11y-checker",
+      "kiips-realgrid-guide"
+    ]
+  },
+
+  "kiips-ui-component-builder": {
+    "type": "domain",
+    "enforcement": "require",
+    "priority": "high",
+    "description": "JSP 컴포넌트 템플릿 기반 생성 (RealGrid, ApexCharts, Bootstrap 폼, 팝업)",
+    "managerAgent": "ui-manager",
+    "orchestrationSkill": "ui-workflow-orchestration",
+    "autoActivationLevel": "worker",
+    "delegationRules": {
+      "managerHandles": "UI 컴포넌트 구현 계획, 템플릿 선택 조정, 검증 파이프라인 조정 (반응형→접근성→크로스브라우저)",
+      "workerHandles": "JSP 파일 생성, RealGrid 초기화 코드, ApexCharts 설정, Bootstrap 레이아웃, SCSS 스타일 작성, 팝업 템플릿 생성"
+    },
+    "promptTriggers": {
+      "keywords": [
+        "UI 컴포넌트",
+        "JSP 생성",
+        "그리드 생성",
+        "차트 추가",
+        "페이지 생성",
+        "화면 개발",
+        "컴포넌트 템플릿",
+        "펀드 목록",
+        "투자 대시보드",
+        "검색 폼",
+        "모달 팝업",
+        "탭 레이아웃",
+        "팝업",
+        "popup",
+        "POPUP",
+        "print",
+        "인쇄",
+        "모달",
+        "modal"
+      ],
+      "intentPatterns": [
+        "(create|생성|만들).*?(UI|component|컴포넌트|page|페이지|screen|화면)",
+        "(add|추가).*?(grid|그리드|chart|차트|form|폼|modal|모달)",
+        "(build|develop).*?(JSP|화면|페이지)",
+        "(new|새).*?(page|화면|component|컴포넌트)",
+        "팝업.*?(만들|생성|추가)",
+        "popup.*?(create|generate|add)",
+        "(인쇄|print).*?(페이지|page|popup|팝업)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": ["**/*.jsp", "**/webapp/**/*.html", "**/POPUP*.jsp", "**/popup*.jsp", "**/*_print*.jsp"],
+      "contentPatterns": ["RealGridJS", "ApexCharts", "Bootstrap", "header_popup.jsp", "print.css", "no-print"]
+    },
+    "referenceFiles": ["docs/POPUP_GUIDE.md", "docs/SCSS_GUIDE.md"]
+  },
+
+  "kiips-realgrid-guide": {
+    "type": "domain",
+    "enforcement": "require",
+    "priority": "critical",
+    "description": "RealGrid 2.6.3 종합 가이드 - 그리드 생성, 설정, 에디터, Excel, 성능 최적화",
+    "managerAgent": "ui-manager",
+    "orchestrationSkill": "ui-workflow-orchestration",
+    "autoActivationLevel": "worker",
+    "delegationRules": {
+      "managerHandles": "RealGrid 생성/설정 감독, 멀티 레벨 헤더 설계 검토, KiiPS 표준 패턴 검증, Excel export/import 전략, 성능 최적화",
+      "workerHandles": "GridView/DataProvider 초기화, 컬럼 정의 생성, 멀티 레벨 헤더 구현, 커스텀 렌더러 연동, 셀 에디터 설정, 필터/정렬/그룹핑 구현"
+    },
+    "promptTriggers": {
+      "keywords": [
+        "RealGrid",
+        "리얼그리드",
+        "그리드",
+        "테이블",
+        "그리드 생성",
+        "그리드 만들어",
+        "테이블 생성",
+        "멀티 레벨 헤더",
+        "컬럼 그룹",
+        "columnLayout",
+        "createMainGrid",
+        "그리드 설정",
+        "그리드 편집",
+        "셀 에디터",
+        "엑셀 내보내기",
+        "엑셀 가져오기",
+        "그리드 필터",
+        "그리드 정렬",
+        "그룹핑",
+        "집계"
+      ],
+      "intentPatterns": [
+        "(create|생성|만들).*?(RealGrid|그리드|table|테이블)",
+        "(멀티|multi).*?(level|레벨).*?(header|헤더)",
+        "(columnLayout|컬럼 그룹).*?",
+        "(RealGrid|그리드).*?(코드|code).*?(생성|generate)",
+        "RealGrid.*?(설정|config|setup|configure)",
+        "(grid|그리드).*?(edit|편집|export|내보내기|import|가져오기)",
+        "(Excel|엑셀).*?(export|import|다운로드|업로드)",
+        "(cell|셀).*?(editor|에디터|edit|편집)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": ["**/*grid*.js", "**/*Grid*.js", "**/*.jsp"],
+      "contentPatterns": ["RealGridJS", "GridView", "DataProvider", "createMainGrid", "logosAjax.requestTokenGrid", "setColumnLayout", "setFields", "setColumns"]
+    },
+    "referenceFiles": ["docs/REALGRID_GUIDE.md", "docs/SCSS_GUIDE.md"]
+  },
+
+  "kiips-responsive-validator": {
+    "type": "validation",
+    "enforcement": "require",
+    "priority": "high",
+    "description": "반응형 디자인 자동 검증 및 테스트",
+    "managerAgent": "ui-manager",
+    "orchestrationSkill": "ui-workflow-orchestration",
+    "autoActivationLevel": "worker",
+    "delegationRules": {
+      "managerHandles": "검증 파이프라인 조정, 브레이크포인트별 테스트 순서 관리, 실패 시 개발자 피드백 조정",
+      "workerHandles": "Bootstrap 브레이크포인트 검증 (xs/sm/md/lg/xl), 터치 타겟 크기 측정 (≥44px), 미디어 쿼리 정합성 검사"
+    },
+    "promptTriggers": {
+      "keywords": [
+        "반응형 테스트",
+        "모바일 확인",
+        "브레이크포인트",
+        "반응형 검증",
+        "모바일 레이아웃",
+        "터치 타겟",
+        "responsive"
+      ],
+      "intentPatterns": [
+        "(responsive|반응형).*?(test|테스트|check|확인|validate|검증)",
+        "(mobile|모바일).*?(layout|레이아웃|view|화면)",
+        "(breakpoint|브레이크포인트).*?",
+        "(touch|터치).*?(target|타겟)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": ["**/*.jsp", "**/*.scss", "**/*.css"],
+      "contentPatterns": ["@media", "col-md-", "col-lg-", "img-fluid"]
+    },
+    "referenceFiles": ["docs/SCSS_GUIDE.md"]
+  },
+
+  "kiips-a11y-checker": {
+    "type": "validation",
+    "enforcement": "require",
+    "priority": "high",
+    "description": "웹 접근성 (WCAG 2.1 AA) 검증 및 자동 수정",
+    "managerAgent": "ui-manager",
+    "orchestrationSkill": "ui-workflow-orchestration",
+    "autoActivationLevel": "worker",
+    "delegationRules": {
+      "managerHandles": "WCAG 2.1 AA 준수 강제, 접근성 검증 파이프라인 조정, 자동 수정 vs 경고 판단",
+      "workerHandles": "ARIA 속성 검증, 색상 대비 측정 (≥4.5:1), 키보드 네비게이션 테스트, 스크린 리더 호환성 검사, alt/label 누락 탐지"
+    },
+    "promptTriggers": {
+      "keywords": [
+        "접근성",
+        "WCAG",
+        "ARIA",
+        "스크린 리더",
+        "키보드 네비게이션",
+        "색상 대비",
+        "웹 표준",
+        "accessibility",
+        "a11y"
+      ],
+      "intentPatterns": [
+        "(accessibility|접근성|a11y).*?(check|검증|validate|test)",
+        "WCAG.*?(verify|check|validate)",
+        "ARIA.*?(label|role|attribute)",
+        "(screen reader|스크린 리더).*?",
+        "(keyboard|키보드).*?(navigation|네비게이션|nav)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": ["**/*.jsp", "**/*.html"],
+      "contentPatterns": ["aria-", "role=", "alt=", "label"]
+    },
+    "referenceFiles": ["docs/SCSS_GUIDE.md"]
+  },
+
+  "kiips-scss-theme-manager": {
+    "type": "domain",
+    "enforcement": "suggest",
+    "priority": "normal",
+    "description": "SCSS 테마 시스템 및 디자인 토큰 관리",
+    "managerAgent": "ui-manager",
+    "orchestrationSkill": "ui-workflow-orchestration",
+    "autoActivationLevel": "worker",
+    "delegationRules": {
+      "managerHandles": "테마 일관성 관리, 디자인 토큰 변경 영향 범위 검토, 스타일 가이드 준수 감독",
+      "workerHandles": "SCSS 변수 정의, 믹스인 작성, 테마 파일 생성, CSS 변수 변환, 스타일 컴파일 검증"
+    },
+    "promptTriggers": {
+      "keywords": [
+        "SCSS",
+        "스타일",
+        "테마",
+        "디자인 토큰",
+        "CSS 변수",
+        "믹스인",
+        "mixin",
+        "스타일 가이드",
+        "theme"
+      ],
+      "intentPatterns": [
+        "SCSS.*?(setup|설정|create|생성)",
+        "(theme|테마).*?(manage|관리|change|변경)",
+        "(design token|디자인 토큰).*?",
+        "(mixin|믹스인).*?(create|생성|add|추가)",
+        "(style|스타일).*?(guide|가이드|system|시스템)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": ["**/*.scss", "**/_*.scss"],
+      "contentPatterns": ["@import", "@mixin", "$primary", "$theme"]
+    },
+    "referenceFiles": ["docs/SCSS_GUIDE.md"]
+  },
+
+  "checklist-generator": {
+    "type": "tool",
+    "enforcement": "suggest",
+    "priority": "normal",
+    "managerAgent": "shared",
+    "orchestrationSkill": "shared",
+    "autoActivationLevel": "worker",
+    "delegationRules": {
+      "managerHandles": "체크리스트 요청 조정, 체크포인트 타이밍 결정, 검증 결과 평가",
+      "workerHandles": "도메인별 체크리스트 생성 (빌드, 배포, 코드 리뷰, UI 검증, 테스트)",
+      "sharedBy": ["build-manager", "feature-manager", "ui-manager", "deployment-manager"]
+    },
+    "promptTriggers": {
+      "keywords": [
+        "checklist",
+        "체크리스트",
+        "TODO",
+        "todo",
+        "task list",
+        "verification",
+        "검증",
+        "확인사항",
+        "점검"
+      ],
+      "intentPatterns": [
+        "(create|generate|make|생성|작성).*?(checklist|체크리스트|TODO|task list)",
+        "(code review|deployment|testing).*?(checklist|체크리스트)",
+        "(verify|check|validate).*?(list|items|체크)",
+        "what.*?(should|need).*?(check|verify|confirm)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": [
+        "**/*-checklist.md",
+        "**/checklists/**",
+        "**/TODO.md"
+      ]
+    }
+  },
+
+  "kiips-test-runner": {
+    "type": "validation",
+    "enforcement": "require",
+    "priority": "critical",
+    "description": "Automated test execution (Boris Cherny's feedback loop principle)",
+    "autoActivationLevel": "hook",
+    "triggeredBy": "stopEvent Hook",
+    "promptTriggers": {
+      "keywords": [
+        "테스트",
+        "test",
+        "junit",
+        "검증",
+        "validation",
+        "테스트 실행",
+        "run test",
+        "자동 테스트",
+        "auto test",
+        "test coverage",
+        "커버리지"
+      ],
+      "intentPatterns": [
+        "(run|실행|execute).*?(test|테스트)",
+        "(test|테스트).*?(자동|auto|automatic)",
+        "(verify|검증|validate).*?(code|코드)",
+        "(junit|karma|jest).*?(test|테스트)",
+        "(coverage|커버리지).*?(check|확인|measure)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": [
+        "**/*Test.java",
+        "**/*Tests.java",
+        "**/test/**/*.java",
+        "**/*.test.js",
+        "**/*.spec.js",
+        "**/test/**/*.js"
+      ],
+      "contentPatterns": [
+        "@Test",
+        "@RunWith",
+        "describe\\(",
+        "it\\(",
+        "test\\("
+      ]
+    },
+    "activationConditions": {
+      "automatic": "Triggered by stopEvent Hook when .java files are modified",
+      "manual": "Can be invoked explicitly for test execution",
+      "preventDuplicates": true
+    }
+  },
+
+  "code-simplifier": {
+    "type": "agent",
+    "enforcement": "suggest",
+    "priority": "normal",
+    "description": "Post-implementation code refactoring and simplification (Boris Cherny principle)",
+    "agentFile": ".claude/agents/code-simplifier.md",
+    "model": "haiku",
+    "autoActivationLevel": "manual",
+    "promptTriggers": {
+      "keywords": [
+        "simplify",
+        "단순화",
+        "refactor",
+        "리팩토링",
+        "개선",
+        "improve",
+        "cleanup",
+        "정리",
+        "복잡",
+        "complex",
+        "complicated"
+      ],
+      "intentPatterns": [
+        "(simplify|단순화).*?(code|코드)",
+        "(refactor|리팩토링).*?(this|이|code|코드)",
+        "(code|코드).*?(too|너무).*?(complex|복잡)",
+        "(improve|개선).*?(code|코드|quality|품질)",
+        "(cleanup|정리).*?(code|코드)",
+        "(reduce|줄이|감소).*?(complexity|복잡도)"
+      ]
+    },
+    "triggeredAfter": [
+      "기능 구현 완료",
+      "feature implementation complete",
+      "/review shows high complexity"
+    ],
+    "capabilities": {
+      "detectComplexity": true,
+      "extractMethod": true,
+      "guardClauses": true,
+      "extractConditional": true,
+      "eliminateDuplication": true,
+      "preserveBehavior": true
+    },
+    "thresholds": {
+      "cyclomaticComplexity": 10,
+      "nestingDepth": 3,
+      "methodLength": 50,
+      "duplicationMinLines": 5
+    }
+  },
+
+  "kiips-page-pattern-guide": {
+    "type": "domain",
+    "enforcement": "require",
+    "priority": "critical",
+    "description": "KiiPS JSP 페이지 표준 패턴 - 레이아웃, Include 체계, 검색필터+버튼+그리드 연동",
+    "promptTriggers": {
+      "keywords": ["페이지 생성", "화면 만들", "JSP 만들", "새 화면", "페이지 패턴", "표준 패턴", "페이지 템플릿", "목록 화면"],
+      "intentPatterns": [
+        "(페이지|화면|JSP).*(생성|만들|추가|제작)",
+        "(create|add|make).*(page|screen|jsp)",
+        "(표준|standard).*(패턴|pattern).*(적용|apply)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": ["**/WEB-INF/jsp/kiips/**/*.jsp"],
+      "contentPatterns": ["inc_filter_main", "inc_main_button", "MAIN_SEARCH_FILTER", "content-body-modern"]
+    }
+  },
+
+  "kiips-search-filter-guide": {
+    "type": "domain",
+    "enforcement": "require",
+    "priority": "high",
+    "description": "KiiPS 검색필터 패턴 - MainComponent, Constant, inc_filter_main.jsp 연동",
+    "promptTriggers": {
+      "keywords": ["검색조건", "검색필터", "SEARCH_CONDITION", "MainComponent", "필터", "inc_filter_main"],
+      "intentPatterns": [
+        "(검색|필터|조건).*(추가|생성|만들|수정)",
+        "(create|add|make).*(filter|search|condition)",
+        "SEARCH_CONDITION.*(추가|변경|수정)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": ["**/WEB-INF/jsp/**/*.jsp"],
+      "contentPatterns": ["SEARCH_CONDITION", "MainComponent", "inc_filter_main", "MAIN_SEARCH_FILTER"]
+    }
+  },
+
+  "kiips-button-guide": {
+    "type": "domain",
+    "enforcement": "require",
+    "priority": "high",
+    "description": "KiiPS 버튼 영역 패턴 - inc_main_button, 권한, 아이콘",
+    "promptTriggers": {
+      "keywords": ["버튼", "툴바", "inc_main_button", "btn_reload", "btn_regist", "관리자 버튼", "엑셀 버튼"],
+      "intentPatterns": [
+        "(버튼|toolbar|툴바).*(추가|생성|만들|수정)",
+        "(create|add|make).*(button|toolbar)",
+        "inc_(il|fd|ac|pg)_button"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": ["**/include/button/inc_*_button.jsp", "**/include/inc_main_button.jsp"],
+      "contentPatterns": ["inc_main_button", "maingrid_button", "btn_reload", "btn_regist"]
+    }
+  },
+
+  "kiips-darktheme-applier": {
+    "type": "domain",
+    "enforcement": "require",
+    "priority": "high",
+    "description": "다크테마 전용 적용 워크플로우 - [data-theme=dark] 셀렉터, SCSS 변수",
+    "promptTriggers": {
+      "keywords": ["다크테마", "dark theme", "다크모드", "dark mode", "다크 적용"],
+      "intentPatterns": [
+        "(다크|dark).*(테마|theme|모드|mode).*(적용|apply)",
+        "(apply|적용).*(dark|다크)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": ["**/css/sass/**/*.scss", "**/themes/**/_dark.scss"],
+      "contentPatterns": ["[data-theme=dark]", "$dark-bg", "$dark-color"]
+    }
+  },
+
+  "kiips-regist-modal-guide": {
+    "type": "domain",
+    "enforcement": "require",
+    "priority": "critical",
+    "description": "KiiPS 등록/수정 모달 패턴 - 모달 HTML, 폼필드, 편집그리드, columnGroup 머지, 저장",
+    "promptTriggers": {
+      "keywords": ["등록 모달", "수정 모달", "모달창", "팝업", "registModal", "modal 생성", "모달 그리드"],
+      "intentPatterns": [
+        "(등록|수정|모달|팝업).*(생성|만들|추가)",
+        "modal.*(add|create)",
+        "(columnGroup|컬럼그룹).*(머지|merge)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": ["**/WEB-INF/jsp/**/*.jsp"],
+      "contentPatterns": ["modal fade", "modal-dialog", "bottom-btn", "modal-confirm"]
+    }
+  },
+
+  "kiips-startup": {
+    "type": "workflow",
+    "enforcement": "require",
+    "priority": "high",
+    "description": "KiiPS 서비스 시작 전 Pre-flight 체크 및 순차 기동",
+    "promptTriggers": {
+      "keywords": ["startup", "preflight", "시작전점검", "기동", "서비스 시작", "start"],
+      "intentPatterns": [
+        "(서비스|service).*(시작|start|기동)",
+        "(pre-flight|preflight|점검).*(check|확인)"
+      ]
+    }
+  },
+
+  "kiips-mybatis-guide": {
+    "type": "domain",
+    "enforcement": "require",
+    "priority": "critical",
+    "description": "MyBatis 종합 가이드 - #{} vs ${}, mapper.xml 패턴, 동적 SQL",
+    "promptTriggers": {
+      "keywords": ["MyBatis", "마이바티스", "mapper", "매퍼", "SQL", "쿼리", "동적SQL"],
+      "intentPatterns": [
+        "(mybatis|마이바티스).*(작성|생성|수정)",
+        "(mapper|매퍼).*(xml|작성|추가)",
+        "(SQL|쿼리).*(바인딩|binding|injection)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": ["**/mapper/**/*.xml"],
+      "contentPatterns": ["#{", "${", "<select", "<insert", "<update", "<delete"]
+    }
+  },
+
+  "parallel-coordinator": {
+    "type": "workflow",
+    "enforcement": "suggest",
+    "priority": "high",
+    "description": "ACE Framework 기반 병렬 에이전트 실행 조율",
+    "promptTriggers": {
+      "keywords": ["parallel", "concurrent", "multi-agent", "병렬", "동시", "에이전트 팀"],
+      "intentPatterns": [
+        "(parallel|concurrent|병렬).*(agent|task|execution|작업)",
+        "(coordinate|orchestrate|조율).*(agent|worker|에이전트)"
+      ]
+    }
+  }
+}

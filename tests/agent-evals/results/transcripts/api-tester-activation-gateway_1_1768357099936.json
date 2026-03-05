@@ -1,0 +1,68 @@
+{
+  "taskId": "api-tester-activation-gateway",
+  "metadata": {
+    "taskId": "api-tester-activation-gateway",
+    "trialNumber": 1,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:18:19.885Z"
+  },
+  "startTime": 1768357099885,
+  "endTime": 1768357099887,
+  "metrics": {
+    "tokenCount": 37,
+    "inputTokens": 0,
+    "outputTokens": 37,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 2
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768357099885,
+      "role": "user",
+      "content": "API Gateway 라우팅 테스트"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768357099886,
+      "role": "assistant",
+      "content": {
+        "prompt": "API Gateway 라우팅 테스트",
+        "activatedSkills": [
+          "kiips-test-runner",
+          "kiips-api-tester"
+        ],
+        "managerAgent": null,
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768357099887,
+      "graderType": "activation",
+      "passed": false,
+      "score": 0
+    }
+  ],
+  "outcome": {
+    "passed": false,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": false,
+        "score": 0,
+        "expected": [
+          "kiips-api-tester"
+        ],
+        "actual": [],
+        "missing": [
+          "kiips-api-tester"
+        ],
+        "reason": "Missing skills: kiips-api-tester"
+      }
+    ]
+  }
+}

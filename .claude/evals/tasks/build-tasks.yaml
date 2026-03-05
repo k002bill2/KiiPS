@@ -1,0 +1,78 @@
+# Build Tasks - KiiPS Agent Eval
+# 4개 Maven 빌드 관련 평가 작업
+
+tasks:
+  - id: build-001
+    desc: "KiiPS-UI 단일 모듈 빌드"
+    category: build
+    difficulty: low
+    graders:
+      - type: deterministic
+        checks:
+          - no_errors: true
+          - output_contains: "BUILD SUCCESS"
+      - type: state_check
+        expect:
+          build_state:
+            maven_target: "KiiPS-UI"
+            artifact_type: "war"
+    tracked_metrics:
+      - n_turns
+      - latency_ms
+
+  - id: build-002
+    desc: "KiiPS-HUB 전체 빌드 (멀티모듈)"
+    category: build
+    difficulty: medium
+    graders:
+      - type: deterministic
+        checks:
+          - no_errors: true
+          - output_contains: "BUILD SUCCESS"
+          - output_contains: "Reactor Summary"
+      - type: state_check
+        expect:
+          file_state:
+            "KiiPS-HUB/target": { exists: true }
+    tracked_metrics:
+      - n_turns
+      - latency_ms
+      - total_tokens
+
+  - id: build-003
+    desc: "의존성 충돌 해결 빌드"
+    category: build
+    difficulty: high
+    graders:
+      - type: deterministic
+        checks:
+          - no_errors: true
+          - not_contains:
+              pattern: "**/*output*"
+              search: "version conflict"
+      - type: llm_rubric
+        rubric: code-quality.md
+        assertions:
+          - "의존성 버전이 명시적으로 관리됨"
+          - "충돌이 해결됨"
+    tracked_metrics:
+      - n_turns
+      - n_toolcalls
+
+  - id: build-004
+    desc: "KiiPS-FD 서비스 빌드 및 테스트"
+    category: build
+    difficulty: medium
+    graders:
+      - type: deterministic
+        checks:
+          - no_errors: true
+          - output_contains: "Tests run:"
+      - type: state_check
+        expect:
+          build_state:
+            maven_target: "KiiPS-FD"
+            artifact_type: "jar"
+    tracked_metrics:
+      - n_turns
+      - latency_ms

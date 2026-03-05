@@ -1,0 +1,89 @@
+{
+  "taskId": "build-manager-multi-module",
+  "metadata": {
+    "taskId": "build-manager-multi-module",
+    "trialNumber": 3,
+    "graders": [
+      "state",
+      "activation"
+    ],
+    "timestamp": "2026-01-14T04:36:23.464Z"
+  },
+  "startTime": 1768365383464,
+  "endTime": 1768365383464,
+  "metrics": {
+    "tokenCount": 44,
+    "inputTokens": 0,
+    "outputTokens": 44,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 0
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768365383464,
+      "role": "user",
+      "content": "KiiPS-FD, KiiPS-IL, KiiPS-PG 모두 빌드해줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768365383464,
+      "role": "assistant",
+      "content": {
+        "prompt": "KiiPS-FD, KiiPS-IL, KiiPS-PG 모두 빌드해줘",
+        "activatedSkills": [
+          "kiips-maven-builder"
+        ],
+        "managerAgent": "build-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768365383464,
+      "graderType": "state",
+      "passed": true,
+      "score": 1
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768365383464,
+      "graderType": "activation",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "state",
+        "passed": true,
+        "score": 1,
+        "checks": [
+          {
+            "key": "output.managerAgent",
+            "passed": true,
+            "expected": "build-manager",
+            "actual": "build-manager"
+          }
+        ],
+        "reason": "All state checks passed"
+      },
+      {
+        "type": "activation",
+        "passed": true,
+        "score": 1,
+        "expected": [
+          "kiips-maven-builder"
+        ],
+        "actual": [
+          "kiips-maven-builder"
+        ],
+        "missing": [],
+        "reason": "All expected skills activated"
+      }
+    ]
+  }
+}

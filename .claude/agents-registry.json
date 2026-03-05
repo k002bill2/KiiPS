@@ -1,0 +1,97 @@
+{
+  "_generated": "2026-02-06T00:00:00.000Z",
+  "_description": "Auto-generated KiiPS agent registry. Do not edit manually. Use /sync-registry to regenerate.",
+  "agents": {
+    "kiips-architect": {
+      "file": ".claude/agents/kiips-architect.md",
+      "description": "KiiPS architecture expert for system design and microservices coordination",
+      "tools": ["Read", "Grep", "Glob", "Bash", "Task"],
+      "model": "opus",
+      "triggers": null
+    },
+    "kiips-developer": {
+      "file": ".claude/agents/kiips-developer.md",
+      "description": "KiiPS development expert for coding, debugging, and feature implementation",
+      "tools": ["Read", "Edit", "Write", "Grep", "Glob", "Bash", "LSP"],
+      "model": "sonnet",
+      "triggers": null
+    },
+    "kiips-ui-designer": {
+      "file": ".claude/agents/kiips-ui-designer.md",
+      "description": "UI/UX specialist for JSP, Bootstrap, RealGrid 2.6.3, ApexCharts, and responsive design",
+      "tools": ["Read", "Edit", "Write", "Grep", "Glob"],
+      "model": "sonnet",
+      "triggers": null
+    },
+    "kiips-realgrid-generator": {
+      "file": ".claude/agents/kiips-realgrid-generator.md",
+      "description": "RealGrid 2.6.3 table code auto-generation agent",
+      "tools": ["Read", "Write", "Edit", "Grep", "Glob"],
+      "model": "sonnet",
+      "triggers": null
+    },
+    "code-simplifier": {
+      "file": ".claude/agents/code-simplifier.md",
+      "description": "Post-implementation code refactoring and simplification specialist (Boris Cherny principle)",
+      "tools": ["Read", "Write", "Edit", "Grep", "Glob", "Bash"],
+      "model": "haiku",
+      "triggers": null
+    },
+    "checklist-generator": {
+      "file": ".claude/agents/checklist-generator.md",
+      "description": "Generates contextual checklists for code review, deployment, testing, and ACE validation",
+      "tools": ["Read", "Write", "TodoWrite"],
+      "model": "haiku",
+      "triggers": null
+    },
+    "primary-coordinator": {
+      "file": ".claude/agents/primary-coordinator.md",
+      "description": "Primary orchestrator for multi-agent workflows using ACE Framework",
+      "tools": ["Read", "Grep", "Glob", "Task", "Bash"],
+      "model": "opus",
+      "triggers": null
+    },
+    "deployment-manager": {
+      "file": ".claude/agents/managers/deployment-manager.md",
+      "description": "Deployment Pipeline Orchestrator for KiiPS services",
+      "tools": ["Read", "Grep", "Glob", "Bash", "Task"],
+      "model": "sonnet",
+      "triggers": null
+    },
+    "build-manager": {
+      "file": ".claude/agents/managers/build-manager.md",
+      "description": "Build Orchestrator for KiiPS Maven Multi-Module projects",
+      "tools": ["Read", "Grep", "Glob", "Bash", "Task"],
+      "model": "sonnet",
+      "triggers": null
+    },
+    "feature-manager": {
+      "file": ".claude/agents/managers/feature-manager.md",
+      "description": "Feature Lifecycle Orchestrator for KiiPS development",
+      "tools": ["Read", "Grep", "Glob", "Bash", "Task"],
+      "model": "sonnet",
+      "triggers": null
+    },
+    "ui-manager": {
+      "file": ".claude/agents/managers/ui-manager.md",
+      "description": "UI/UX Workflow Orchestrator for KiiPS frontend",
+      "tools": ["Read", "Grep", "Glob", "Bash", "Task"],
+      "model": "sonnet",
+      "triggers": null
+    }
+  },
+  "shared": {
+    "ace-framework": ".claude/agents/shared/ace-framework.md",
+    "parallel-agents-protocol": ".claude/agents/shared/parallel-agents-protocol.md",
+    "delegation-template": ".claude/agents/shared/delegation-template.md",
+    "effort-scaling": ".claude/agents/shared/effort-scaling.md",
+    "quality-gates": ".claude/agents/shared/quality-gates.md"
+  },
+  "stats": {
+    "totalAgents": 11,
+    "sharedProtocols": 5,
+    "managers": 4,
+    "specialists": 5,
+    "coordinators": 2
+  }
+}

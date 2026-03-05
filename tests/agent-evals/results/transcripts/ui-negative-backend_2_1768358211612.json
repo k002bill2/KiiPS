@@ -1,0 +1,67 @@
+{
+  "taskId": "ui-negative-backend",
+  "metadata": {
+    "taskId": "ui-negative-backend",
+    "trialNumber": 2,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:36:51.576Z"
+  },
+  "startTime": 1768358211576,
+  "endTime": 1768358211578,
+  "metrics": {
+    "tokenCount": 33,
+    "inputTokens": 0,
+    "outputTokens": 33,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 2
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768358211576,
+      "role": "user",
+      "content": "REST API 엔드포인트 테스트해줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768358211577,
+      "role": "assistant",
+      "content": {
+        "prompt": "REST API 엔드포인트 테스트해줘",
+        "activatedSkills": [
+          "kiips-api-tester"
+        ],
+        "managerAgent": null,
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768358211578,
+      "graderType": "activation",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": true,
+        "score": 1,
+        "expected": [
+          "kiips-api-tester"
+        ],
+        "actual": [
+          "kiips-api-tester"
+        ],
+        "missing": [],
+        "reason": "All expected skills activated"
+      }
+    ]
+  }
+}

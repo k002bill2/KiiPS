@@ -1,0 +1,67 @@
+{
+  "taskId": "test-runner-activation-korean",
+  "metadata": {
+    "taskId": "test-runner-activation-korean",
+    "trialNumber": 2,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:33:20.157Z"
+  },
+  "startTime": 1768358000157,
+  "endTime": 1768358000158,
+  "metrics": {
+    "tokenCount": 33,
+    "inputTokens": 0,
+    "outputTokens": 33,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 1
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768358000157,
+      "role": "user",
+      "content": "KiiPS-FD 유닛 테스트 실행해줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768358000157,
+      "role": "assistant",
+      "content": {
+        "prompt": "KiiPS-FD 유닛 테스트 실행해줘",
+        "activatedSkills": [
+          "kiips-test-runner"
+        ],
+        "managerAgent": null,
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768358000158,
+      "graderType": "activation",
+      "passed": false,
+      "score": 0
+    }
+  ],
+  "outcome": {
+    "passed": false,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": false,
+        "score": 0,
+        "expected": [
+          "kiips-test-runner"
+        ],
+        "actual": [],
+        "missing": [
+          "kiips-test-runner"
+        ],
+        "reason": "Missing skills: kiips-test-runner"
+      }
+    ]
+  }
+}

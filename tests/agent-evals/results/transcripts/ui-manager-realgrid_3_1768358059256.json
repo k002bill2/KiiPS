@@ -1,0 +1,68 @@
+{
+  "taskId": "ui-manager-realgrid",
+  "metadata": {
+    "taskId": "ui-manager-realgrid",
+    "trialNumber": 3,
+    "graders": [
+      "state"
+    ],
+    "timestamp": "2026-01-14T02:34:19.220Z"
+  },
+  "startTime": 1768358059220,
+  "endTime": 1768358059220,
+  "metrics": {
+    "tokenCount": 35,
+    "inputTokens": 0,
+    "outputTokens": 35,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 0
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768358059220,
+      "role": "user",
+      "content": "RealGrid 테이블 추가해줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768358059220,
+      "role": "assistant",
+      "content": {
+        "prompt": "RealGrid 테이블 추가해줘",
+        "activatedSkills": [
+          "kiips-realgrid-guide"
+        ],
+        "managerAgent": "ui-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768358059220,
+      "graderType": "state",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "state",
+        "passed": true,
+        "score": 1,
+        "checks": [
+          {
+            "key": "output.managerAgent",
+            "passed": true,
+            "expected": "ui-manager",
+            "actual": "ui-manager"
+          }
+        ],
+        "reason": "All state checks passed"
+      }
+    ]
+  }
+}

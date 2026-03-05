@@ -1,0 +1,90 @@
+{
+  "taskId": "workflow-log-debug",
+  "metadata": {
+    "taskId": "workflow-log-debug",
+    "trialNumber": 1,
+    "graders": [
+      "activation",
+      "state"
+    ],
+    "timestamp": "2026-01-14T02:18:19.933Z"
+  },
+  "startTime": 1768357099933,
+  "endTime": 1768357099933,
+  "metrics": {
+    "tokenCount": 43,
+    "inputTokens": 0,
+    "outputTokens": 43,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 0
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768357099933,
+      "role": "user",
+      "content": "배포 후 로그 확인하고 에러 분석"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768357099933,
+      "role": "assistant",
+      "content": {
+        "prompt": "배포 후 로그 확인하고 에러 분석",
+        "activatedSkills": [
+          "kiips-service-deployer",
+          "kiips-log-analyzer"
+        ],
+        "managerAgent": "deployment-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768357099933,
+      "graderType": "activation",
+      "passed": false,
+      "score": 0
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768357099933,
+      "graderType": "state",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": false,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": false,
+        "score": 0,
+        "expected": [
+          "kiips-log-analyzer"
+        ],
+        "actual": [],
+        "missing": [
+          "kiips-log-analyzer"
+        ],
+        "reason": "Missing skills: kiips-log-analyzer"
+      },
+      {
+        "type": "state",
+        "passed": true,
+        "score": 1,
+        "checks": [
+          {
+            "key": "output.managerAgent",
+            "passed": true,
+            "expected": "deployment-manager",
+            "actual": "deployment-manager"
+          }
+        ],
+        "reason": "All state checks passed"
+      }
+    ]
+  }
+}

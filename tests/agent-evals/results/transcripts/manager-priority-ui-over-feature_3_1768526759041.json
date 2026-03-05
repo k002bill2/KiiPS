@@ -1,0 +1,68 @@
+{
+  "taskId": "manager-priority-ui-over-feature",
+  "metadata": {
+    "taskId": "manager-priority-ui-over-feature",
+    "trialNumber": 3,
+    "graders": [
+      "state"
+    ],
+    "timestamp": "2026-01-16T01:25:59.009Z"
+  },
+  "startTime": 1768526759009,
+  "endTime": 1768526759009,
+  "metrics": {
+    "tokenCount": 31,
+    "inputTokens": 0,
+    "outputTokens": 31,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 0
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768526759009,
+      "role": "user",
+      "content": "화면 개발 시작"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768526759009,
+      "role": "assistant",
+      "content": {
+        "prompt": "화면 개발 시작",
+        "activatedSkills": [
+          "kiips-ui-component-builder"
+        ],
+        "managerAgent": "ui-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768526759009,
+      "graderType": "state",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "state",
+        "passed": true,
+        "score": 1,
+        "checks": [
+          {
+            "key": "output.managerAgent",
+            "passed": true,
+            "expected": "ui-manager",
+            "actual": "ui-manager"
+          }
+        ],
+        "reason": "All state checks passed"
+      }
+    ]
+  }
+}

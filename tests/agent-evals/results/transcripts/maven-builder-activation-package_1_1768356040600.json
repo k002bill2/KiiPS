@@ -1,0 +1,67 @@
+{
+  "taskId": "maven-builder-activation-package",
+  "metadata": {
+    "taskId": "maven-builder-activation-package",
+    "trialNumber": 1,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:00:40.599Z"
+  },
+  "startTime": 1768356040599,
+  "endTime": 1768356040600,
+  "metrics": {
+    "tokenCount": 42,
+    "inputTokens": 0,
+    "outputTokens": 42,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 1
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768356040599,
+      "role": "user",
+      "content": "Package the KiiPS-COMMON project"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768356040599,
+      "role": "assistant",
+      "content": {
+        "prompt": "Package the KiiPS-COMMON project",
+        "activatedSkills": [
+          "kiips-maven-builder"
+        ],
+        "managerAgent": "build-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768356040600,
+      "graderType": "activation",
+      "passed": false,
+      "score": 0
+    }
+  ],
+  "outcome": {
+    "passed": false,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": false,
+        "score": 0,
+        "expected": [
+          "kiips-maven-builder"
+        ],
+        "actual": [],
+        "missing": [
+          "kiips-maven-builder"
+        ],
+        "reason": "Missing skills: kiips-maven-builder"
+      }
+    ]
+  }
+}

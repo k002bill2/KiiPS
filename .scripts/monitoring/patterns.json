@@ -1,0 +1,92 @@
+{
+  "errorPatterns": {
+    "general": {
+      "pattern": "ERROR|Exception|Failed",
+      "flags": "i",
+      "severity": "error",
+      "description": "General error pattern"
+    },
+    "nullPointer": {
+      "pattern": "NullPointerException",
+      "flags": "",
+      "severity": "critical",
+      "description": "Null pointer exception"
+    },
+    "sqlError": {
+      "pattern": "SQLException|DataAccessException",
+      "flags": "",
+      "severity": "critical",
+      "description": "Database error"
+    },
+    "timeout": {
+      "pattern": "TimeoutException|timed out",
+      "flags": "i",
+      "severity": "error",
+      "description": "Timeout error"
+    },
+    "outOfMemory": {
+      "pattern": "OutOfMemoryError|Java heap space",
+      "flags": "",
+      "severity": "critical",
+      "description": "Memory error"
+    },
+    "authentication": {
+      "pattern": "AuthenticationException|Unauthorized|401",
+      "flags": "",
+      "severity": "warning",
+      "description": "Authentication failure"
+    },
+    "authorization": {
+      "pattern": "AccessDeniedException|Forbidden|403",
+      "flags": "",
+      "severity": "warning",
+      "description": "Authorization failure"
+    },
+    "connectionError": {
+      "pattern": "ConnectionException|Connection refused|Could not connect",
+      "flags": "i",
+      "severity": "critical",
+      "description": "Connection error"
+    }
+  },
+  "performancePatterns": {
+    "slowQuery": {
+      "pattern": "execution time[:\\s]+(\\d+)",
+      "flags": "i",
+      "threshold": 2000,
+      "description": "Slow database query"
+    },
+    "apiResponseTime": {
+      "pattern": "API.*time[=:]\\s*(\\d+)",
+      "flags": "i",
+      "threshold": 2000,
+      "description": "Slow API response"
+    }
+  },
+  "stackTracePatterns": {
+    "start": {
+      "pattern": "^\\s*at\\s+",
+      "flags": "",
+      "description": "Stack trace line"
+    },
+    "causedBy": {
+      "pattern": "^Caused by:",
+      "flags": "",
+      "description": "Caused by line"
+    }
+  },
+  "servicePatterns": {
+    "extractService": {
+      "pattern": "(KiiPS-[A-Z]+|KIIPS-[A-Z]+)",
+      "flags": "",
+      "description": "Extract service name from log"
+    }
+  },
+  "timestampPatterns": {
+    "iso8601": {
+      "pattern": "\\d{4}-\\d{2}-\\d{2}[T\\s]\\d{2}:\\d{2}:\\d{2}",
+      "flags": "",
+      "description": "ISO 8601 timestamp"
+    }
+  }
+}

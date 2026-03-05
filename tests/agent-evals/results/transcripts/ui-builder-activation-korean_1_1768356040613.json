@@ -1,0 +1,67 @@
+{
+  "taskId": "ui-builder-activation-korean",
+  "metadata": {
+    "taskId": "ui-builder-activation-korean",
+    "trialNumber": 1,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:00:40.603Z"
+  },
+  "startTime": 1768356040603,
+  "endTime": 1768356040604,
+  "metrics": {
+    "tokenCount": 33,
+    "inputTokens": 0,
+    "outputTokens": 33,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 1
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768356040603,
+      "role": "user",
+      "content": "화면 컴포넌트 만들어줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768356040604,
+      "role": "assistant",
+      "content": {
+        "prompt": "화면 컴포넌트 만들어줘",
+        "activatedSkills": [
+          "kiips-ui-component-builder"
+        ],
+        "managerAgent": "ui-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768356040604,
+      "graderType": "activation",
+      "passed": false,
+      "score": 0
+    }
+  ],
+  "outcome": {
+    "passed": false,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": false,
+        "score": 0,
+        "expected": [
+          "kiips-ui-component-builder"
+        ],
+        "actual": [],
+        "missing": [
+          "kiips-ui-component-builder"
+        ],
+        "reason": "Missing skills: kiips-ui-component-builder"
+      }
+    ]
+  }
+}

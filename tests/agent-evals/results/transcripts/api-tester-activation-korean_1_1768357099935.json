@@ -1,0 +1,68 @@
+{
+  "taskId": "api-tester-activation-korean",
+  "metadata": {
+    "taskId": "api-tester-activation-korean",
+    "trialNumber": 1,
+    "graders": [
+      "activation"
+    ],
+    "timestamp": "2026-01-14T02:18:19.881Z"
+  },
+  "startTime": 1768357099881,
+  "endTime": 1768357099886,
+  "metrics": {
+    "tokenCount": 39,
+    "inputTokens": 0,
+    "outputTokens": 39,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 5
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768357099882,
+      "role": "user",
+      "content": "KiiPS-FD API 테스트 실행해줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768357099886,
+      "role": "assistant",
+      "content": {
+        "prompt": "KiiPS-FD API 테스트 실행해줘",
+        "activatedSkills": [
+          "kiips-test-runner",
+          "kiips-api-tester"
+        ],
+        "managerAgent": null,
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768357099886,
+      "graderType": "activation",
+      "passed": false,
+      "score": 0
+    }
+  ],
+  "outcome": {
+    "passed": false,
+    "grades": [
+      {
+        "type": "activation",
+        "passed": false,
+        "score": 0,
+        "expected": [
+          "kiips-api-tester"
+        ],
+        "actual": [],
+        "missing": [
+          "kiips-api-tester"
+        ],
+        "reason": "Missing skills: kiips-api-tester"
+      }
+    ]
+  }
+}

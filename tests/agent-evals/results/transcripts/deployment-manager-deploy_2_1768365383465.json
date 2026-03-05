@@ -1,0 +1,68 @@
+{
+  "taskId": "deployment-manager-deploy",
+  "metadata": {
+    "taskId": "deployment-manager-deploy",
+    "trialNumber": 2,
+    "graders": [
+      "state"
+    ],
+    "timestamp": "2026-01-14T04:36:23.465Z"
+  },
+  "startTime": 1768365383465,
+  "endTime": 1768365383465,
+  "metrics": {
+    "tokenCount": 37,
+    "inputTokens": 0,
+    "outputTokens": 37,
+    "turns": 2,
+    "toolCallCount": 0,
+    "latency": 0
+  },
+  "entries": [
+    {
+      "type": "message",
+      "timestamp": 1768365383465,
+      "role": "user",
+      "content": "KiiPS-FD 서비스 배포해줘"
+    },
+    {
+      "type": "message",
+      "timestamp": 1768365383465,
+      "role": "assistant",
+      "content": {
+        "prompt": "KiiPS-FD 서비스 배포해줘",
+        "activatedSkills": [
+          "kiips-service-deployer"
+        ],
+        "managerAgent": "deployment-manager",
+        "processed": true
+      }
+    },
+    {
+      "type": "grader_result",
+      "timestamp": 1768365383465,
+      "graderType": "state",
+      "passed": true,
+      "score": 1
+    }
+  ],
+  "outcome": {
+    "passed": true,
+    "grades": [
+      {
+        "type": "state",
+        "passed": true,
+        "score": 1,
+        "checks": [
+          {
+            "key": "output.managerAgent",
+            "passed": true,
+            "expected": "deployment-manager",
+            "actual": "deployment-manager"
+          }
+        ],
+        "reason": "All state checks passed"
+      }
+    ]
+  }
+}
