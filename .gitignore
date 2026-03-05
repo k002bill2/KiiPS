@@ -79,6 +79,7 @@ GEMINI.md
 KiiPSRulesAll.md
 KiiPSrules2.md
 opencode.json
+gemini-bridge/reviews/*
 
 # Task Master 관련 (필요시 주석 해제)
 # .taskmaster/tasks/tasks.json
