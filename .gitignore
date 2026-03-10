@@ -81,6 +81,9 @@ KiiPSRulesAll.md
 KiiPSrules2.md
 opencode.json
 .claude/gemini-bridge/reviews/*
+.claude/learning/observations.jsonl
+.claude/learning/observer-health.json
+.claude/learning/archive/
 
 # Task Master 관련 (필요시 주석 해제)
 # .taskmaster/tasks/tasks.json
