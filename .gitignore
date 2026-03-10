@@ -82,6 +82,8 @@ KiiPSrules2.md
 opencode.json
 .claude/gemini-bridge/reviews/*
 .claude/gemini-bridge/gemini-state.json
+.claude/gemini-bridge/gemini-prompt-*.txt
+.claude/gemini-bridge/pending-files.txt
 .claude/learning/observations.jsonl
 .claude/learning/observer-health.json
 .claude/learning/archive/
