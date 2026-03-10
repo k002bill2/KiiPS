@@ -1,0 +1,82 @@
+{
+  "description": "KiiPS 프로젝트 도메인 패턴 설정 (observe.js가 로드)",
+  "version": "1.0.0",
+  "domainPatterns": [
+    {
+      "domain": "mybatis-pattern",
+      "patterns": ["mapper\\.xml", "mybatis", "#\\{|\\$\\{", "sqlSession", "<select|<insert|<update|<delete"]
+    },
+    {
+      "domain": "realgrid-pattern",
+      "patterns": ["realgrid", "GridView|DataProvider", "setColumns|setFields", "gridExport"]
+    },
+    {
+      "domain": "build-pattern",
+      "patterns": ["mvn\\s", "maven", "pom\\.xml", "BUILD\\s+(SUCCESS|FAILURE)"]
+    },
+    {
+      "domain": "security-pattern",
+      "patterns": ["XSS|CSRF|injection", "password|credential|secret", "Spring\\s*Security"]
+    },
+    {
+      "domain": "jsp-pattern",
+      "patterns": ["\\.jsp", "<%|%>", "JSTL|taglib", "inc_filter|inc_main"]
+    },
+    {
+      "domain": "scss-pattern",
+      "patterns": ["\\.scss", "data-theme.*dark", "\\$dark-", "sass"]
+    },
+    {
+      "domain": "api-pattern",
+      "patterns": ["Controller|RestController", "RequestMapping|GetMapping", "ResponseEntity"]
+    },
+    {
+      "domain": "error-pattern",
+      "patterns": ["Exception|Error|FAIL", "stack\\s*trace", "NullPointer"]
+    }
+  ],
+  "filePathDomains": [
+    {
+      "domain": "mybatis-pattern",
+      "patterns": ["mapper\\.xml$", "Mapper\\.java$", "DAO\\.java$", "Dao\\.java$"]
+    },
+    {
+      "domain": "jsp-pattern",
+      "patterns": ["\\.jsp$"]
+    },
+    {
+      "domain": "scss-pattern",
+      "patterns": ["\\.scss$", "\\.sass$"]
+    },
+    {
+      "domain": "api-pattern",
+      "patterns": ["Controller\\.java$", "Service\\.java$"]
+    },
+    {
+      "domain": "build-pattern",
+      "patterns": ["pom\\.xml$", "\\.properties$"]
+    },
+    {
+      "domain": "realgrid-pattern",
+      "patterns": ["realgrid", "grid"]
+    },
+    {
+      "domain": "security-pattern",
+      "patterns": ["Security\\.java$", "Auth\\.java$"]
+    }
+  ],
+  "bashCommandDomains": [
+    {
+      "domain": "build-pattern",
+      "patterns": ["\\bmvn\\b", "\\bmaven\\b", "\\bnpm\\b", "\\bgradle\\b"]
+    },
+    {
+      "domain": "build-pattern",
+      "patterns": ["\\bjava\\b", "\\bjavac\\b"]
+    },
+    {
+      "domain": "scss-pattern",
+      "patterns": ["\\bsass\\b", "\\bnode-sass\\b", "\\bsass-loader\\b"]
+    }
+  ]
+}

@@ -117,9 +117,9 @@
 | `kiips-service-deployer` | 서비스 배포, 중지, 재시작 |
 | `kiips-startup` | 서비스 시작 Pre-flight 체크 및 순차 기동 |
 | `kiips-test-runner` | JUnit/Jest/Karma 테스트 실행 및 검증 |
-| `parallel-coordinator` | 병렬 에이전트 실행 조정 (ACE Framework) |
-| `kiips-continuous-learning` | 연속 학습 시스템 (Instinct 생성, 패턴 감지, 진화) |
-| `kiips-session-wrap` | 세션 종료 정리 (변경 요약, 학습, 인수인계) |
+| `parallel-coordinator` | 병렬 에이전트 실행 조정 (ACE Framework) *(글로벌 동일본 존재)* |
+| `kiips-continuous-learning` | 연속 학습 시스템 (Instinct 생성, 패턴 감지, 진화) *(글로벌: continuous-learning)* |
+| `kiips-session-wrap` | 세션 종료 정리 (변경 요약, 학습, 인수인계) *(글로벌: session-wrap)* |
 
 ---
 
@@ -181,6 +181,21 @@
 ## Agent Teams (에이전트 팀)
 
 > 상세 가이드: [docs/AGENT_TEAMS_GUIDE.md](./docs/AGENT_TEAMS_GUIDE.md)
+
+---
+
+## 글로벌 vs KiiPS 전용 파일 분리
+
+범용 파일은 `~/.claude/`에 글로벌 버전이 존재하며, KiiPS 프로젝트에서는 KiiPS 도메인 지식이 포함된 로컬 버전을 유지합니다.
+
+| 유형 | 글로벌 (`~/.claude/`) | KiiPS 로컬 (`.claude/`) | 비고 |
+|------|----------------------|------------------------|------|
+| **스킬** | `continuous-learning`, `session-wrap`, `parallel-coordinator` | `kiips-continuous-learning`, `kiips-session-wrap`, `parallel-coordinator` | KiiPS 도메인 패턴 포함 |
+| **커맨드** | `learn`, `evolve`, `verify`, `plan`, `session-wrap`, `instinct-status`, `eval`, `scope-lock` | 동일 이름 (KiiPS 특화) | KiiPS 모듈/SVN 참조 |
+| **훅** | `observe.js`, `outputSecretFilter.js`, `pre-compact-save.sh`, `update-reminder.sh` | 동일 이름 (KiiPS 도메인 패턴 포함) | `observe.js`는 `domain-config.json`으로 분리 |
+| **에이전트** | `planner.md`, `verify-agent.md` | `kiips-planner.md`, `verify-agent.md` | KiiPS 검증 체크리스트 포함 |
+
+**도메인 패턴 설정**: `.claude/learning/domain-config.json`에서 KiiPS 9개 도메인 패턴 정의 (글로벌 `observe.js`가 로드)
 
 ---
 
