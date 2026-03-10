@@ -23,30 +23,23 @@
 
 1. **Always build from KiiPS-HUB** - 의존성 해결 필수
 2. **Read subdirectory CLAUDE.md first** - 하위 디렉토리 작업 전 해당 CLAUDE.md 확인
-3. **Use SVN** (not Git) - `svn up` 으로 업데이트
+3. **Use SVN** (not Git) → [rules/svn-workflow.md](.claude/rules/svn-workflow.md)
+4. **증거 기반 완료** - 실행 증거 없이 완료 선언 금지 → [rules/verification.md](.claude/rules/verification.md)
+5. **Fresh-context 검증** - 구현 후 `/verify`로 독립 검증 (확인 편향 제거)
+6. **반합리화** - 요청 범위만 수정, 범위 확장 금지 → [rules/anti-rationalization.md](.claude/rules/anti-rationalization.md)
 
 ---
 
-## Dark Theme Rules
+## Rules (상세 규칙 파일)
 
-| 규칙 | 상세 |
-|------|------|
-| 셀렉터 | `[data-theme=dark]` 만 사용 (`.dark`, `.theme-dark` 금지) |
-| !important | 인라인 스타일 오버라이드 시에만 사용 |
-| 파일 대상 | SCSS 파일만 수정 (CSS 직접 수정 금지) |
-| 레이아웃 금지 | width/height/display/position/margin/padding 변경 금지 |
-| 변수 사용 | `$dark-bg`, `$dark-color-2` 등 기존 변수 활용 |
-| 참조 파일 | `themes/default/_dark.scss` (변수), `layouts/_dark.scss` (컴포넌트) |
-
----
-
-## Revert & Change Management
-
-1. **체크포인트** - 다중 파일 편집 전 변경 대상 파일 목록 확인
-2. **정확한 복원** - '되돌리기' 시 원본 그대로 복원 (부분 되돌리기/재해석 금지)
-3. **최소 편집** - 광범위한 리팩토링보다 정밀 수정 선호
-4. **관심사 분리** - 버그 수정과 리팩토링을 혼합하지 말 것
-5. **즉시 응답** - 사용자가 "되돌려"라고 하면 논쟁 없이 즉시 실행
+| 규칙 | 요약 | 상세 |
+|------|------|------|
+| Dark Theme | `[data-theme=dark]` 셀렉터, 색상만 변경 | → [dark-theme.md](.claude/rules/dark-theme.md) |
+| Editing & Revert | 범위 제한, 정확한 복원, 최소 편집 | → [editing.md](.claude/rules/editing.md) |
+| Error Handling | 근본 원인 우선, 한 번에 하나 | → [error-handling.md](.claude/rules/error-handling.md) |
+| SVN Workflow | SVN 명령어, 커밋 규칙 | → [svn-workflow.md](.claude/rules/svn-workflow.md) |
+| Verification | 증거 기반 완료, 검증 게이트 | → [verification.md](.claude/rules/verification.md) |
+| Anti-Rationalization | HARD-GATE, Ralph Loop 감지 | → [anti-rationalization.md](.claude/rules/anti-rationalization.md) |
 
 ---
 
@@ -58,39 +51,6 @@
 - **JSP 위치**: `KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/{도메인}/`
 - **모듈 검색**: API/공통 코드 추적 시 모든 모듈 검색 (루트만 보지 말 것)
 - **주요 모듈**: KiiPS-FD(펀드), KiiPS-IL(투자원장), KiiPS-AC(회계), KiiPS-SY(시스템), KiiPS-LP(LP관리), KiiPS-EL(전자원장), KIIPS-BATCH, KIIPS-HELP
-
----
-
-## Service Startup Checklist
-
-`./start.sh` 실행 전:
-1. DB 접속 가능? (PostgreSQL 연결 테스트)
-2. `app-local.properties` 또는 `.env` 설정 확인?
-3. Java 8 활성? (`java -version` → 1.8.x)
-4. 포트 충돌 없음? (`lsof -i :8088 :8100 :8601 :8401 :8701 :8801`)
-5. 의존 서비스 실행 중? (Gateway 8088, Common 8701, Login 8801)
-6. 포트 응답 확인 전 "실행 중"이라 보고하지 말 것
-
----
-
-## Error Handling Rules
-
-1. **근본 원인 우선** - 코드 변경 전 가설을 먼저 제시
-2. **캐시 삭제 금지** - 사용자 확인 없이 `.m2`, `node_modules` 등 삭제 금지
-3. **악화 시 중단** - 수정이 상황을 악화시키면 즉시 되돌리기
-4. **한 번에 하나** - 5개 변경을 동시에 하지 말고, 하나씩 검증
-5. **상태 보존** - 디버깅 중 관련 없는 작동 중인 파일 수정 금지
-
----
-
-## Editing Rules
-
-1. **범위 제한** - 요청된 내용만 수정, 기능/레이아웃/로직 변경 금지
-2. **대상 파일 확인** - JSP 편집 시 유사 파일이 있으면 사용자에게 먼저 확인
-3. **점진적 적용** - 벌크 편집(10+ 파일) 시 2-3개 먼저 적용 후 사용자 확인
-4. **주석 검색 포함** - 파일 참조 검색 시 주석 처리된 코드도 포함
-5. **컴파일 검증** - SCSS 편집 후 컴파일 성공 확인 전 완료 보고 금지
-6. **회귀 즉시 복원** - 변경이 컴파일/기능을 깨뜨리면 즉시 되돌리고 보고
 
 ---
 
@@ -158,6 +118,43 @@
 | `kiips-startup` | 서비스 시작 Pre-flight 체크 및 순차 기동 |
 | `kiips-test-runner` | JUnit/Jest/Karma 테스트 실행 및 검증 |
 | `parallel-coordinator` | 병렬 에이전트 실행 조정 (ACE Framework) |
+| `kiips-continuous-learning` | 연속 학습 시스템 (Instinct 생성, 패턴 감지, 진화) |
+| `kiips-session-wrap` | 세션 종료 정리 (변경 요약, 학습, 인수인계) |
+
+---
+
+## Active Commands (21개)
+
+**Core** — 핵심 워크플로우
+
+| Command | 용도 |
+|---------|------|
+| `/plan` | 구조화된 5단계 작업 계획 (CLARIFY→EXPLORE→PLAN→VALIDATE→EXECUTE) |
+| `/session-wrap` | 세션 종료 정리 (COLLECT→SUMMARIZE→LEARN→HANDOFF) |
+| `/verify` | Fresh-context 독립 검증 |
+| `/learn` | 교훈 기록 + 자동화 제안 |
+| `/evolve` | Instinct 클러스터링 → 스킬/커맨드 진화 |
+| `/diagnose` | 진단 우선 디버깅 |
+| `/scope-lock` | 파일 범위 제한 모드 |
+
+**Utility** — 보조 도구
+
+| Command | 용도 |
+|---------|------|
+| `/review` | 코드 리뷰 (보안, 성능, 품질) |
+| `/check-health` | 프로젝트 종합 상태 점검 |
+| `/commit-push-pr` | SVN 커밋 파이프라인 |
+| `/deploy-with-tests` | 안전 배포 (Test→Build→Deploy→Health) |
+| `/draft-commits` | 커밋 초안 생성 |
+| `/simplify-code` | 코드 단순화 분석 |
+| `/test-coverage` | JUnit 테스트 + JaCoCo 커버리지 |
+| `/my-workflow` | 개발 워크플로우 |
+| `/eval` | AI 에이전트 평가 |
+| `/gemini-scan` | Gemini 보안 스캔 |
+| `/service-status` | 서비스 상태 확인 |
+| `/view-logs` | 로그 조회 |
+| `/instinct-status` | 학습 패턴 조회 |
+| `/kiips-linked-approval-template` | 연계승인 템플릿 |
 
 ---
 

@@ -130,6 +130,10 @@ function analyzeCodeChanges(editedFiles) {
     console.log("No critical patterns detected");
   }
 
+  console.log("");
+  console.log(
+    "TIP: 세션 종료 전 /session-wrap 으로 변경 요약 및 인수인계를 정리하세요.",
+  );
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 }
 
