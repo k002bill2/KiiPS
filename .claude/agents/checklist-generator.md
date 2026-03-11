@@ -210,7 +210,27 @@ Create markdown file in `checklists/` directory with context and references.
 
 ---
 
-**Version**: 3.0.1-KiiPS
-**Last Updated**: 2026-01-04
+## Reference Checklists
+
+Pre-built checklist templates are available in the `checklists/` directory:
+
+| Template | Path | Use When |
+|----------|------|----------|
+| Code Review | [checklists/code-review.md](../checklists/code-review.md) | Java/JSP 코드 변경 리뷰 시 |
+| Deployment | [checklists/deployment.md](../checklists/deployment.md) | 서비스 배포 전/후 검증 시 |
+| Testing | [checklists/testing.md](../checklists/testing.md) | 테스트 커버리지 검증 시 |
+| JSP/Spring | [checklists/jsp-spring-specific.md](../checklists/jsp-spring-specific.md) | JSP+Spring 특화 검증 시 |
+
+These templates should be loaded and customized based on the specific task context.
+
+## Shared Protocols
+
+- **[parallel-agents-protocol.md](shared/parallel-agents-protocol.md)**: ACE Framework 병렬 실행 안전 프로토콜
+- **[quality-gates.md](shared/quality-gates.md)**: 사전/사후 실행 검증 게이트
+
+---
+
+**Version**: 3.0.2-KiiPS
+**Last Updated**: 2026-03-11
 **ACE Layer**: Task Prosecution (Layer 6)
 **Hierarchy**: Secondary (Validation)

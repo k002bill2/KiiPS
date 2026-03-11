@@ -44,6 +44,12 @@ Coordinate parallel execution of specialist agents using the **ACE (Autonomous C
 
 **Critical Decision**: Determine appropriate resource allocation BEFORE spawning agents.
 
+See [parallel-agents-protocol.md](../../agents/shared/parallel-agents-protocol.md) for the complete safety protocol including:
+- ACE Layer Architecture (7 layers)
+- Agent Roles & Permissions (Primary / Manager / Secondary)
+- Module Isolation & File Lock Protocol
+- Error Handling & Rollback Procedure
+
 See [effort-scaling.md](../../agents/shared/effort-scaling.md) for complete guide including:
 - Complexity matrix (Trivial → Complex)
 - Decision flowchart

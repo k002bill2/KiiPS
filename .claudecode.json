@@ -5,20 +5,14 @@
 
   "aceFramework": {
     "enabled": true,
-    "configPath": ".claude/ace-framework/ace-config.json",
-    "layers": {
-      "layer1": ".claude/ace-framework/layer1-aspirational.md",
-      "layer3": ".claude/ace-framework/layer3-agent-model.json",
-      "layer4": ".claude/ace-framework/layer4-executive.md",
-      "layer45_domain_orchestration": ".claude/ace-framework/layer45-orchestration.md"
-    },
+    "note": "ACE concepts via agents/shared/ace-framework.md. Original config archived to _archive/ace-framework/",
     "agentHierarchy": {
       "primary": {
         "id": "primary-coordinator",
         "name": "Primary Coordinator",
         "model": "sonnet-4.5",
         "role": "strategic-coordinator",
-        "configFile": ".claude/agents/primary-coordinator.md"
+        "configFile": "~/.claude/agents/primary-coordinator.md"
       },
       "managers": [
         {
@@ -149,16 +143,6 @@
         ]
       },
       {
-        "matcher": "Task",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node .claude/hooks/parallelCoordinator.js onTaskPreExecute",
-            "description": "ACE Layer 5 - Parallel coordination for Task tool"
-          }
-        ]
-      },
-      {
         "matcher": "Bash(mvn *)",
         "hooks": [
           {
@@ -177,16 +161,6 @@
             "type": "command",
             "command": "node .claude/hooks/autoFormatter.js",
             "description": "Boris Cherny - Auto-format code after Write/Edit"
-          }
-        ]
-      },
-      {
-        "matcher": "Task",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node .claude/hooks/parallelCoordinator.js onTaskPostExecute",
-            "description": "ACE Layer 5 - Release locks and record metrics"
           }
         ]
       },
@@ -217,11 +191,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node .claude/coordination/checkpoint-manager.js create '{\"trigger\":\"after_successful_build\",\"description\":\"Auto checkpoint after Maven build\"}'",
-            "description": "ACE - Auto checkpoint after successful build"
-          },
-          {
-            "type": "command",
             "command": "echo '✅ Build completed. Check target/ directory for artifacts.'"
           }
         ]
@@ -233,11 +202,6 @@
         "type": "command",
         "command": "node .claude/hooks/stopEvent.js",
         "description": "ACE Layer 6 - Self-check, feedback loop, and checkpoint"
-      },
-      {
-        "type": "command",
-        "command": "node .claude/coordination/feedback-loop.js generateSummary",
-        "description": "ACE - Generate session telemetry summary"
       },
       {
         "type": "command",
@@ -274,10 +238,7 @@
     "enabled": true,
     "primaryAgent": "primary-coordinator",
     "secondaryAgents": ["kiips-developer", "kiips-architect", "checklist-generator"],
-    "lockManager": ".claude/coordination/file-lock-manager.js",
-    "taskAllocator": ".claude/coordination/task-allocator.js",
-    "checkpointManager": ".claude/coordination/checkpoint-manager.js",
-    "feedbackLoop": ".claude/coordination/feedback-loop.js"
+    "note": "Coordination scripts archived to _archive/coordination/. Coordination now handled by primary-coordinator agent and parallel-coordinator skill."
   },
 
   "devDocs": {
@@ -307,7 +268,7 @@
 
   "metadata": {
     "created": "2025-12-28",
-    "lastUpdated": "2026-01-04",
+    "lastUpdated": "2026-03-11",
     "version": "3.0.1",
     "maintainer": "KiiPS Development Team",
     "aceFrameworkVersion": "3.0.1-KiiPS"
