@@ -1,23 +1,6 @@
 ---
-name: KiiPS Accessibility Checker
-description: 웹 접근성 (WCAG 2.1 AA) 검증 및 자동 수정
-version: 1.0.0
-priority: high
-enforcement: require
-category: ui-validation
-tags:
-  - accessibility
-  - wcag
-  - aria
-  - a11y
-  - screen-reader
-author: KiiPS Development Team
-lastUpdated: 2026-01-04
-disclosure:
-  summary: true      # name + description 만 로드
-  expanded: true     # WCAG Checklist + 핵심 패턴
-  full: true         # 전체 접근성 가이드
-  default: expanded  # 기본 로딩 레벨
+name: kiips-a11y-checker
+description: "웹 접근성 (WCAG 2.1 AA) 검증 및 자동 수정"
 ---
 
 # KiiPS Accessibility Checker

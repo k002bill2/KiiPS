@@ -1,19 +1,6 @@
 ---
-name: KiiPS DB Verification
-description: |
-  DB 관련 작업 검증 가이드, MyBatis 안전 패턴, DBA 승인 프로세스.
-  Use when: DB 관련 작업 검증, MyBatis 쿼리 검증, 마이그레이션 작업
-version: 1.0.0
-priority: critical
-enforcement: block
-category: guardrail
-tags:
-  - db
-  - mybatis
-  - sql-safety
-  - verification
-author: KiiPS Development Team
-lastUpdated: 2026-03-03
+name: kiips-database-verification
+description: "DB 관련 작업 검증 가이드, MyBatis 안전 패턴, DBA 승인 프로세스"
 ---
 
 # KiiPS DB Verification

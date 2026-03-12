@@ -1,10 +1,7 @@
 ---
-skill: kiips-test-runner
-name: KiiPS Test Runner
-description: Automated test execution and validation for KiiPS microservices (JUnit, Jest, Karma)
-version: 1.0.0
-priority: critical
-tags: [testing, quality-assurance, junit, jest, validation, boris-cherny-feedback-loop]
+name: kiips-test-runner
+description: "Automated test execution and validation for KiiPS microservices (JUnit, Jest, Karma)"
+disable-model-invocation: true
 ---
 
 # KiiPS Test Runner

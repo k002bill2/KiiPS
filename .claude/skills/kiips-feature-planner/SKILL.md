@@ -1,6 +1,7 @@
 ---
 name: kiips-feature-planner
-description: Creates practical feature plans for KiiPS microservices. Use when planning new features, organizing development work, or structuring implementation strategy. Optimized for KiiPS Maven Multi-Module architecture.
+description: "Creates practical feature plans for KiiPS microservices. Use when planning new features, organizing development work, or structuring implementation strategy."
+disable-model-invocation: true
 ---
 
 # KiiPS Feature Planner Skill

@@ -1,20 +1,7 @@
 ---
-name: KiiPS Service Deployer
-description: |
-  KiiPS 서비스 배포 전문 스킬.
-  Use when: 배포, deploy, 중지, stop, 재시작, restart, 서비스 시작
-version: 1.0.0
-priority: high
-enforcement: require
-category: deployment
-tags:
-  - deploy
-  - start
-  - stop
-  - restart
-  - service
-author: KiiPS Development Team
-lastUpdated: 2026-02-03
+name: kiips-service-deployer
+description: "KiiPS 서비스 배포 전문 스킬. 배포, 중지, 재시작, 서비스 시작"
+disable-model-invocation: true
 ---
 
 # KiiPS Service Deployer Skill

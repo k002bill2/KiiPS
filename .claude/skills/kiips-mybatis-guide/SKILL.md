@@ -1,27 +1,6 @@
 ---
-name: KiiPS MyBatis Guide
-description: |
-  MyBatis 종합 가이드 - #{} vs ${}, mapper.xml 패턴, 동적 SQL, TypeHandler, 성능 최적화.
-  Use when: MyBatis mapper 작성, SQL 바인딩, 동적 쿼리, DAO 패턴, SQL Injection 방지
-version: 1.0.0
-priority: critical
-enforcement: require
-category: backend-development
-disclosure:
-  summary: true
-  expanded: true
-  full: true
-  default: expanded
-tags:
-  - mybatis
-  - mapper
-  - sql
-  - dao
-  - sql-injection
-  - dynamic-sql
-  - typehandler
-author: KiiPS Development Team
-lastUpdated: 2026-02-27
+name: kiips-mybatis-guide
+description: "MyBatis 종합 가이드 - mapper.xml 패턴, 동적 SQL, TypeHandler, 성능 최적화"
 ---
 
 # KiiPS MyBatis Guide

@@ -1,19 +1,7 @@
 ---
-name: KiiPS Service Startup
-description: |
-  KiiPS 서비스 시작 전 Pre-flight 체크 및 순차 기동 스킬.
-  Use when: startup, preflight, 시작전점검, 기동, 헬스체크, health check
-version: 1.0.0
-priority: high
-enforcement: require
-category: deployment
-tags:
-  - startup
-  - preflight
-  - health-check
-  - service
-author: KiiPS Development Team
-lastUpdated: 2026-02-09
+name: kiips-startup
+description: "KiiPS 서비스 시작 전 Pre-flight 체크 및 순차 기동 스킬"
+disable-model-invocation: true
 ---
 
 # KiiPS Service Startup Skill

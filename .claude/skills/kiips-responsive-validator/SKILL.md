@@ -1,23 +1,6 @@
 ---
-name: KiiPS Responsive Validator
-description: 반응형 디자인 자동 검증 및 테스트 (Bootstrap breakpoints, 터치 타겟)
-version: 1.0.0
-priority: high
-enforcement: require
-category: ui-validation
-tags:
-  - responsive
-  - mobile
-  - bootstrap
-  - breakpoint
-  - validation
-author: KiiPS Development Team
-lastUpdated: 2026-01-04
-disclosure:
-  summary: true      # name + description 만 로드
-  expanded: true     # Breakpoints + Checklist
-  full: true         # 전체 검증 가이드
-  default: expanded  # 기본 로딩 레벨
+name: kiips-responsive-validator
+description: "반응형 디자인 자동 검증 및 테스트 (Bootstrap breakpoints, 터치 타겟)"
 ---
 
 # KiiPS Responsive Validator

@@ -1,20 +1,7 @@
 ---
-name: KiiPS API Tester
-description: |
-  KiiPS API 테스트 전문 스킬.
-  Use when: API 엔드포인트 테스트, 헬스 체크, 스모크 테스트
-version: 1.0.0
-priority: high
-enforcement: suggest
-category: testing
-tags:
-  - api
-  - test
-  - health
-  - smoke
-  - endpoint
-author: KiiPS Development Team
-lastUpdated: 2026-02-03
+name: kiips-api-tester
+description: "KiiPS API 테스트 전문 스킬. API 엔드포인트 테스트, 헬스 체크, 스모크 테스트"
+disable-model-invocation: true
 ---
 
 # KiiPS API Tester Skill

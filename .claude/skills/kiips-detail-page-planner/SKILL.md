@@ -1,22 +1,7 @@
 ---
 name: kiips-detail-page-planner
-description: KiiPS 모듈 상세페이지 개발 계획서 자동 생성. 상세페이지 생성 요청 시 Plan 문서를 자동으로 생성하고 Phase별 진행을 추적합니다.
-version: 1.0.0
-priority: normal
-enforcement: suggest
-category: planning
-tags:
-  - detail-page
-  - planning
-  - phase
-  - workflow
-author: KiiPS Development Team
-lastUpdated: 2026-02-02
-disclosure:
-  summary: true      # name + description 만 로드
-  expanded: true     # Plan Template + Phase 구성
-  full: true         # 전체 워크플로우 가이드
-  default: expanded  # 기본 로딩 레벨
+description: "KiiPS 모듈 상세페이지 개발 계획서 자동 생성. 상세페이지 생성 요청 시 Plan 문서를 자동으로 생성하고 Phase별 진행을 추적합니다."
+disable-model-invocation: true
 ---
 
 # KiiPS Detail Page Planner Skill

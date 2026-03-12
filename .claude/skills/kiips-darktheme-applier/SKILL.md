@@ -1,23 +1,6 @@
 ---
-name: KiiPS Dark Theme Applier
-description: 다크테마 전용 적용 워크플로우 - [data-theme=dark] 셀렉터 패턴, 색상 전용 변경, SCSS 변수 활용
-version: 1.0.0
-priority: high
-enforcement: strict
-category: ui-development
-tags:
-  - dark-theme
-  - scss
-  - theme
-  - color
-  - accessibility
-author: KiiPS Development Team
-lastUpdated: 2026-02-06
-disclosure:
-  summary: true
-  expanded: true
-  full: true
-  default: expanded
+name: kiips-darktheme-applier
+description: "다크테마 전용 적용 워크플로우 - [data-theme=dark] 셀렉터 패턴, 색상 전용 변경, SCSS 변수 활용"
 ---
 
 # KiiPS Dark Theme Applier

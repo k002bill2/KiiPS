@@ -1,7 +1,7 @@
 ---
 name: kiips-continuous-learning
-description: "KiiPS 연속 학습 시스템 — 세션 관찰 기반 Instinct 생성, 패턴 감지, 스킬/커맨드 진화. Use when: 학습, 교훈 기록, 패턴 분석, instinct, evolve"
-version: 1.0.0
+description: "KiiPS 연속 학습 시스템 — 세션 관찰 기반 Instinct 생성, 패턴 감지, 스킬/커맨드 진화"
+disable-model-invocation: true
 ---
 
 # KiiPS Continuous Learning System

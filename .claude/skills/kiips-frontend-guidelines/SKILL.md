@@ -1,21 +1,6 @@
 ---
-name: KiiPS Frontend Guidelines
-description: |
-  KiiPS 프론트엔드 개발 가이드 - JSP/jQuery/Bootstrap 표준 패턴, AJAX 호출 규칙, RealGrid 연동.
-  Use when: JSP 페이지 개발, JavaScript 작성, UI 수정, AJAX 호출 패턴 확인
-version: 1.0.0
-priority: high
-enforcement: suggest
-category: guideline
-tags:
-  - frontend
-  - jsp
-  - jquery
-  - bootstrap
-  - javascript
-  - ajax
-author: KiiPS Development Team
-lastUpdated: 2026-03-03
+name: kiips-frontend-guidelines
+description: "KiiPS 프론트엔드 개발 가이드 - JSP/jQuery/Bootstrap 표준 패턴, AJAX 호출 규칙, RealGrid 연동"
 ---
 
 # KiiPS Frontend Guidelines

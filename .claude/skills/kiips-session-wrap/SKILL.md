@@ -1,3 +1,9 @@
+---
+name: kiips-session-wrap
+description: "KiiPS 세션 종료 정리 — 변경 요약, 학습 패턴 수집, 컨텍스트 저장, 인수인계"
+disable-model-invocation: true
+---
+
 # kiips-session-wrap
 
 > 세션 종료 정리 스킬 - Forge session-wrap를 KiiPS 환경에 적응

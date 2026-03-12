@@ -1,20 +1,7 @@
 ---
-name: KiiPS Log Analyzer
-description: |
-  KiiPS 로그 분석 전문 스킬.
-  Use when: 로그 분석, 에러 탐지, 문제 진단, 모니터링
-version: 1.0.0
-priority: high
-enforcement: suggest
-category: monitoring
-tags:
-  - log
-  - analyze
-  - error
-  - debug
-  - monitor
-author: KiiPS Development Team
-lastUpdated: 2026-02-03
+name: kiips-log-analyzer
+description: "KiiPS 로그 분석 전문 스킬. 로그 분석, 에러 탐지, 문제 진단, 모니터링"
+disable-model-invocation: true
 ---
 
 # KiiPS Log Analyzer Skill

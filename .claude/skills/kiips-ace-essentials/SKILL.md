@@ -1,6 +1,7 @@
 ---
 name: kiips-ace-essentials
 description: KiiPS ACE 핵심 가드레일 - 위험 패턴 차단, 보호 모듈, 빌드 순서, 에이전트 라우팅
+user-invocable: false
 ---
 
 # KiiPS ACE Essentials

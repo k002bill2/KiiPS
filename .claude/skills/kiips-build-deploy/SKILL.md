@@ -1,19 +1,7 @@
 ---
-name: KiiPS Build & Deploy
-description: |
-  빌드+배포 통합 가이드, kiips-maven-builder와 kiips-service-deployer 연계 워크플로우.
-  Use when: 빌드부터 배포까지 전체 파이프라인, 빌드+배포 통합 작업
-version: 1.0.0
-priority: high
-enforcement: suggest
-category: guideline
-tags:
-  - build
-  - deploy
-  - pipeline
-  - workflow
-author: KiiPS Development Team
-lastUpdated: 2026-03-03
+name: kiips-build-deploy
+description: "빌드+배포 통합 가이드, kiips-maven-builder와 kiips-service-deployer 연계 워크플로우"
+disable-model-invocation: true
 ---
 
 # KiiPS Build & Deploy

@@ -1,21 +1,6 @@
 ---
-name: KiiPS Backend Guidelines
-description: |
-  KiiPS 백엔드 개발 가이드 - Controller/Service/DAO 표준 패턴, API 설계, 트랜잭션 관리.
-  Use when: Controller, Service, DAO 생성/수정, REST API 개발, 백엔드 패턴 확인
-version: 1.0.0
-priority: high
-enforcement: suggest
-category: guideline
-tags:
-  - backend
-  - controller
-  - service
-  - dao
-  - spring-boot
-  - api
-author: KiiPS Development Team
-lastUpdated: 2026-03-03
+name: kiips-backend-guidelines
+description: "KiiPS 백엔드 개발 가이드 - Controller/Service/DAO 표준 패턴, API 설계, 트랜잭션 관리"
 ---
 
 # KiiPS Backend Guidelines

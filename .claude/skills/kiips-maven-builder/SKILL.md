@@ -1,20 +1,7 @@
 ---
-name: KiiPS Maven Builder
-description: |
-  KiiPS Maven Multi-Module 빌드 전문 스킬.
-  Use when: Maven 빌드, 컴파일, 패키징, 의존성 해결 관련 작업
-version: 1.0.0
-priority: critical
-enforcement: require
-category: build
-tags:
-  - maven
-  - build
-  - compile
-  - package
-  - dependency
-author: KiiPS Development Team
-lastUpdated: 2026-02-03
+name: kiips-maven-builder
+description: "KiiPS Maven Multi-Module 빌드 전문 스킬. Maven 빌드, 컴파일, 패키징, 의존성 해결"
+disable-model-invocation: true
 ---
 
 # KiiPS Maven Builder Skill

@@ -1,28 +1,6 @@
 ---
-name: KiiPS Security Guide
-description: |
-  KiiPS 보안 가이드 - Spring Security, XSS 방어, CSRF, 인증/인가, 민감정보 보호.
-  Use when: 보안 설정, 인증 처리, XSS 방어, 민감정보 보호, 보안 코드 리뷰
-version: 1.0.0
-priority: critical
-enforcement: require
-category: security
-disclosure:
-  summary: true
-  expanded: true
-  full: true
-  default: expanded
-tags:
-  - security
-  - spring-security
-  - xss
-  - csrf
-  - authentication
-  - authorization
-  - encryption
-  - sql-injection
-author: KiiPS Development Team
-lastUpdated: 2026-02-27
+name: kiips-security-guide
+description: "KiiPS 보안 가이드 - Spring Security, XSS 방어, CSRF, 인증/인가, 민감정보 보호"
 ---
 
 # KiiPS Security Guide

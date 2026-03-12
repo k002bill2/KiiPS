@@ -1,19 +1,6 @@
 ---
-name: KiiPS Common Patterns
-description: |
-  KiiPS-COMMON/UTILS 공통 코드 사용법, GlobalExceptionHandler, ErrorNotificationService.
-  Use when: 공통 모듈 사용, 예외 처리, 유틸리티 함수, 모듈 간 의존성 확인
-version: 1.0.0
-priority: normal
-enforcement: suggest
-category: guideline
-tags:
-  - common
-  - utils
-  - exception-handler
-  - shared-code
-author: KiiPS Development Team
-lastUpdated: 2026-03-03
+name: kiips-common-patterns
+description: "KiiPS-COMMON/UTILS 공통 코드 사용법, GlobalExceptionHandler, ErrorNotificationService"
 ---
 
 # KiiPS Common Patterns
