@@ -360,4 +360,35 @@ Level 5: Abort with recovery info (manual)
 
 ---
 
-**Version**: 4.0.0-KiiPS | **Last Updated**: 2026-02-06 | **Layer 1 + Layer 4.5 Enhanced**
+## Chain of Skills Protocol
+
+### Skill Chaining Mechanism
+
+스킬 간 데이터 전달은 `proposals/` 디렉토리를 통해 이루어집니다:
+
+1. Skill A가 결과를 `proposals/skill-a-result.json`에 저장
+2. Primary Coordinator가 결과를 읽고 Skill B에 전달
+3. Skill B가 Skill A 결과를 입력으로 사용
+
+### Pipeline Execution Rules
+
+| 규칙 | 설명 |
+|------|------|
+| Sequential Gate | 이전 단계 성공 시에만 다음 단계 진행 |
+| Parallel Branch | 독립 스킬은 병렬 실행 가능 |
+| Rollback Trigger | 임계 스킬 실패 시 전체 파이프라인 중단 |
+| Checkpoint | 각 단계 완료 시 자동 체크포인트 |
+
+### Available Pipelines
+
+| Pipeline | Trigger | Key Skills |
+|----------|---------|------------|
+| Build-Deploy-Verify | "빌드하고 배포" | maven-builder → test-runner → service-deployer → api-tester |
+| Feature Lifecycle | "기능 개발" | architect → compliance-checker → developer → ui-designer → test-runner |
+| Incident Response | "에러 분석" | log-reader → log-analyzer → db-inspector → api-tester |
+
+상세: `.claude/skills/chain-of-skills/` 참조
+
+---
+
+**Version**: 5.0.0-KiiPS | **Last Updated**: 2026-03-13 | **Layer 1 + Layer 4.5 + Chain of Skills**

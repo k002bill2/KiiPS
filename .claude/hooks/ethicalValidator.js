@@ -32,7 +32,7 @@ const BLOCKED_OPERATIONS = {
   },
   deployment: {
     patterns: [
-      /--force\s+push.*main|master/i,
+      /--force\s+push.*(main|master)/i,
       /git\s+push\s+--force\s+origin\s+(main|master)/i,
       /kubectl\s+delete\s+--all/i,
       /docker\s+system\s+prune\s+-a\s+-f/i,

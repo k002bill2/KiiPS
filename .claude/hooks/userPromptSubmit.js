@@ -99,6 +99,21 @@ async function onUserPromptSubmit(prompt, context) {
     const skillActivation = activateSkills(prompt, projectRoot);
     if (skillActivation) messages.push(skillActivation);
 
+    // Block Rules 검사
+    const rules = getSkillRules(projectRoot);
+    if (rules) {
+      const violations = checkBlockRules(prompt, rules);
+      if (violations.length > 0) {
+        const blockMsg = violations
+          .map(
+            (v) =>
+              `[BLOCKED] ${v.skill}:${v.ruleId}\n  ${v.severity === "critical" ? "🔴" : "⚠️"} ${v.message}`,
+          )
+          .join("\n");
+        messages.push(blockMsg);
+      }
+    }
+
     // KiiPS 모듈 감지
     const moduleContext = detectKiipsModules(prompt);
     if (moduleContext) messages.push(moduleContext);
@@ -291,6 +306,30 @@ function activateSkills(prompt, projectRoot) {
     .filter((s) => s.priority !== "critical")
     .map((s) => s.name);
   return `[Skills] ${[...critical, ...others].join(", ")}`;
+}
+
+// ─── Block Rules 검사 (enforcement: "block" 스킬의 blockRules) ──
+
+function checkBlockRules(prompt, rules) {
+  const violations = [];
+  for (const [skillName, rule] of Object.entries(rules)) {
+    if (rule.enforcement !== "block" || !rule.blockRules) continue;
+    for (const blockRule of rule.blockRules) {
+      try {
+        if (new RegExp(blockRule.pattern, "i").test(prompt)) {
+          violations.push({
+            skill: skillName,
+            ruleId: blockRule.id,
+            message: blockRule.message,
+            severity: blockRule.severity,
+          });
+        }
+      } catch (_) {
+        continue;
+      }
+    }
+  }
+  return violations;
 }
 
 function shouldActivateSkill(prompt, rule) {

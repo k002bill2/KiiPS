@@ -75,7 +75,21 @@
         ".*?(drop|delete|truncate).*?",
         ".*?(schema|migration).*?"
       ]
-    }
+    },
+    "blockRules": [
+      {
+        "id": "ddl-destructive",
+        "pattern": "\\b(DROP|TRUNCATE)\\s+(TABLE|INDEX|COLUMN)",
+        "message": "DDL 파괴 명령 차단: DBA 승인 필수",
+        "severity": "critical"
+      },
+      {
+        "id": "delete-without-where",
+        "pattern": "DELETE\\s+FROM\\s+\\w+\\s*$",
+        "message": "WHERE 없는 DELETE 차단: 대량 삭제 위험",
+        "severity": "critical"
+      }
+    ]
   },
 
   "kiips-common-patterns": {
@@ -769,6 +783,117 @@
         "(parallel|concurrent|병렬).*(agent|task|execution|작업)",
         "(coordinate|orchestrate|조율).*(agent|worker|에이전트)"
       ]
+    }
+  },
+
+  "legacy-compliance-checker": {
+    "type": "guardrail",
+    "enforcement": "block",
+    "priority": "critical",
+    "description": "KiiPS 레거시 호환성 검증 - Java 8, Spring Boot 2.4.x, jQuery/JSP 표준",
+    "promptTriggers": {
+      "keywords": ["Java", "코드 작성", "구현", "implement", "클래스", "메서드", "controller", "service"],
+      "intentPatterns": [
+        "(create|add|write|작성|생성).*?(class|method|controller|service|dao|mapper)",
+        "(implement|구현).*?(feature|기능|API|endpoint)",
+        "(upgrade|업그레이드|migration|마이그레이션).*?(java|spring|version)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": ["**/*.java", "**/*.jsp", "**/*.xml", "**/*.scss"],
+      "contentPatterns": ["public class", "public interface", "<%@", "@import"]
+    },
+    "blockRules": [
+      {
+        "id": "java8-syntax",
+        "pattern": "\\bvar\\s+\\w+\\s*=|\\brecord\\s+\\w+|\\bsealed\\s+(class|interface)",
+        "message": "Java 8 호환성 위반: var/record/sealed는 Java 10+ 문법입니다",
+        "severity": "critical"
+      },
+      {
+        "id": "dark-theme-selector",
+        "pattern": "\\.(dark|theme-dark)\\s*\\{",
+        "message": "[data-theme=dark] 셀렉터만 사용하세요 (.dark, .theme-dark 금지)",
+        "severity": "high"
+      },
+      {
+        "id": "mybatis-injection",
+        "pattern": "\\$\\{(?!\\s*(sortColumn|sortDirection|orderBy)\\s*[},])",
+        "message": "MyBatis ${} 직접 삽입은 SQL Injection 위험 (ORDER BY 예외만 허용)",
+        "severity": "critical"
+      }
+    ]
+  },
+
+  "kiips-db-inspector": {
+    "type": "domain",
+    "enforcement": "suggest",
+    "priority": "normal",
+    "description": "DB 구조 조회 전용 - MyBatis mapper 분석, 테이블/컬럼 탐색",
+    "promptTriggers": {
+      "keywords": ["테이블 구조", "컬럼", "DB 구조", "스키마 확인", "mapper 분석", "TB_", "DAO 매핑"],
+      "intentPatterns": [
+        "(테이블|table|TB_).*?(구조|structure|확인|조회)",
+        "(컬럼|column).*?(목록|list|확인|what)",
+        "(mapper|매퍼).*?(분석|analyze|확인)",
+        "(DB|database|디비).*?(구조|schema|inspect)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": ["**/mapper/**/*.xml", "**/dao/**/*.java"],
+      "contentPatterns": ["resultMap", "namespace", "@Mapper"]
+    },
+    "readOnlyConstraint": true
+  },
+
+  "kiips-log-reader": {
+    "type": "domain",
+    "enforcement": "suggest",
+    "priority": "normal",
+    "description": "구조화된 로그 조회/필터링 전용 스킬",
+    "promptTriggers": {
+      "keywords": ["로그 보기", "로그 검색", "로그 필터", "log search", "log filter", "최근 로그", "오늘 로그"],
+      "intentPatterns": [
+        "(로그|log).*?(보기|보여|조회|search|filter|읽기|read)",
+        "(최근|오늘|어제|recent|today).*?(로그|log)",
+        "(서비스|service).*?(로그|log).*?(확인|check)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": ["**/logs/*.log"]
+    },
+    "readOnlyConstraint": true
+  },
+
+  "chain-of-skills": {
+    "type": "workflow",
+    "enforcement": "suggest",
+    "priority": "high",
+    "description": "ACE Framework 기반 스킬 체이닝 파이프라인 오케스트레이션",
+    "promptTriggers": {
+      "keywords": ["파이프라인", "pipeline", "워크플로우", "workflow", "자동화", "automation", "체인", "chain"],
+      "intentPatterns": [
+        "(빌드|build).*?(배포|deploy).*?(검증|verify)",
+        "(에러|error|장애).*?(분석|diagnose|investigate)",
+        "(기능|feature).*?(설계|design).*?(구현|implement).*?(테스트|test)"
+      ]
+    },
+    "pipelines": {
+      "build-deploy-verify": {
+        "trigger": "(빌드|build).*(배포|deploy)",
+        "stages": ["kiips-maven-builder", "kiips-test-runner", "kiips-service-deployer", "kiips-log-reader", "kiips-api-tester"],
+        "managers": "build-manager, deployment-manager"
+      },
+      "feature-lifecycle": {
+        "trigger": "(기능|feature).*(개발|develop|구현|implement)",
+        "stages": ["kiips-architect", "legacy-compliance-checker", "kiips-developer", "kiips-ui-designer", "kiips-test-runner", "code-simplifier"],
+        "managers": "feature-manager"
+      },
+      "incident-response": {
+        "trigger": "(에러|error|장애|incident).*(분석|analyze|조사|investigate)",
+        "stages": ["kiips-log-reader", "kiips-log-analyzer", "kiips-db-inspector", "kiips-api-tester"],
+        "managers": "deployment-manager"
+      }
     }
   }
 }

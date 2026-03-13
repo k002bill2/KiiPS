@@ -82,6 +82,33 @@ $(document).ready(function() {
 
 ---
 
+## HTML 문자열 연결 시 text-indent 필수
+
+`변수명 += '<html...'` 패턴으로 HTML을 동적 생성할 때, 문자열 내부에 HTML 중첩 레벨에 맞는 들여쓰기를 적용합니다.
+
+```javascript
+// Good - HTML 구조가 한눈에 보임 + XSS 이스케이프 적용
+html += '<div class="form-group row">';
+html += '  <label class="col-sm-2 control-label">' + escapeHtml(item.DSCP) + '</label>';
+html += '  <div class="col-sm-10">';
+html += '    <input type="text" class="form-control" />';
+html += '  </div>';
+html += '</div>';
+
+// Bad - 중첩 구조 파악 불가, XSS 취약
+html += '<div class="form-group row">';
+html += '<label class="col-sm-2 control-label">' + item.DSCP + '</label>';
+html += '<div class="col-sm-10">';
+html += '<input type="text" class="form-control" />';
+html += '</div>';
+html += '</div>';
+```
+
+- 들여쓰기 단위: 2칸 스페이스 (문자열 내부)
+- 적용 대상: `html`, `mainHtml`, `cnte`, `resultTxt` 등 모든 HTML 연결 변수
+
+---
+
 ## XSS 방어
 
 ```jsp

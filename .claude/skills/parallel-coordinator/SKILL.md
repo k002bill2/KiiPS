@@ -188,5 +188,47 @@ For detailed procedures, see [references/operations-guide.md](references/operati
 External Reference:
 - [Anthropic Multi-Agent Research System](https://www.anthropic.com/engineering/multi-agent-research-system)
 
+## Chain of Skills Pipeline Support
+
+### Pipeline 실행 시 병렬 조율
+
+`chain-of-skills` 파이프라인 내에서 병렬 분기가 필요한 경우 이 스킬이 조율합니다:
+
+| Pipeline | 병렬 구간 | 스킬 |
+|----------|----------|------|
+| Build-Deploy-Verify | Stage 1 (Build) | maven-builder + test-runner |
+| Build-Deploy-Verify | Stage 3 (Verify) | log-reader + api-tester |
+| Feature Lifecycle | Phase 2-3 | developer (backend) + ui-designer (frontend) |
+| Incident Response | Step 1 (Collect) | log-reader + db-inspector |
+
+### Pipeline 상태 추적
+
+파이프라인 실행 중 `metadata.json`에 추가 필드:
+
+```json
+{
+  "pipeline": "build-deploy-verify",
+  "currentStage": "deploy",
+  "stageResults": {
+    "build": { "status": "success", "timestamp": "ISO8601" },
+    "test": { "status": "success", "timestamp": "ISO8601" }
+  },
+  "nextStage": "verify"
+}
+```
+
+### 순차/병렬 판단 기준
+
+```
+IF skills share output files -> SEQUENTIAL
+IF skills depend on each other's results -> SEQUENTIAL
+IF skills operate on different modules/files -> PARALLEL
+IF skills are in different ACE layers -> check dependency first
+```
+
+상세: [chain-of-skills SKILL.md](../chain-of-skills/SKILL.md) 참조
+
+---
+
 ## 추가 참조
 - 상세 레퍼런스: [reference.md](reference.md)

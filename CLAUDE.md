@@ -107,10 +107,12 @@
 | `kiips-build-deploy` | 빌드+배포 통합 워크플로우 (빌드→테스트→배포→헬스체크) |
 | `kiips-common-patterns` | KiiPS-COMMON/UTILS 공통 코드, 예외 처리 |
 | `kiips-database-verification` | DB 변경 검증, MyBatis 안전 패턴, DBA 승인 |
+| `kiips-db-inspector` | DB 구조 조회 전용 (MyBatis mapper 분석, 읽기 전용) |
 | `kiips-detail-page-planner` | 상세페이지 개발 계획서 자동 생성 |
 | `kiips-feature-planner` | Feature 개발 계획 수립 (마이크로서비스) |
 | `kiips-frontend-guidelines` | JSP/jQuery/Bootstrap 표준 패턴, AJAX 규칙 |
 | `kiips-log-analyzer` | 로그 분석, 에러 탐지, 모니터링 |
+| `kiips-log-reader` | 구조화된 로그 조회/필터링 (읽기 전용) |
 | `kiips-maven-builder` | Maven Multi-Module 빌드, 의존성 해결 |
 | `kiips-mybatis-guide` | MyBatis mapper, 동적 SQL, SQL Injection 방지 |
 | `kiips-security-guide` | Spring Security, XSS/CSRF 방어, 인증/인가 |
@@ -119,6 +121,8 @@
 | `kiips-test-runner` | JUnit/Jest/Karma 테스트 실행 및 검증 |
 | `parallel-coordinator` | 병렬 에이전트 실행 조정 (ACE Framework) *(글로벌 동일본 존재)* |
 | `kiips-continuous-learning` | 연속 학습 시스템 (Instinct 생성, 패턴 감지, 진화) *(글로벌: continuous-learning)* |
+| `legacy-compliance-checker` | 레거시 준수 검증 (Java 8, Spring Boot 2.4.x, jQuery/JSP 표준) |
+| `chain-of-skills` | ACE Framework 기반 스킬 체이닝 파이프라인 오케스트레이션 |
 | `kiips-session-wrap` | 세션 종료 정리 (변경 요약, 학습, 인수인계) *(글로벌: session-wrap)* |
 
 ---
@@ -143,7 +147,6 @@
 |---------|------|
 | `/review` | 코드 리뷰 (보안, 성능, 품질) |
 | `/check-health` | 프로젝트 종합 상태 점검 |
-| `/commit-push-pr` | SVN 커밋 파이프라인 |
 | `/deploy-with-tests` | 안전 배포 (Test→Build→Deploy→Health) |
 | `/draft-commits` | 커밋 초안 생성 |
 | `/simplify-code` | 코드 단순화 분석 |

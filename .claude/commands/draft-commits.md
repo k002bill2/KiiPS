@@ -85,16 +85,18 @@ QUICK ACTIONS
   SVN commit:
   │ svn commit -m "type(scope): 설명" │
 
-  Git commit:
-  │ /commit-push-pr 사용 │
+  Git commit (.claude/ 설정):
+  │ git add && git commit │
+
+  SVN commit (소스 코드):
+  │ IntelliJ에서 수동 커밋 │
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
 ## 연계 명령어
 
-- `/commit-push-pr` - 실제 커밋 및 PR 생성
 - `/review` - 변경사항 코드 리뷰
-- `/verify-app` - 커밋 전 검증
+- `/verify` - 커밋 전 검증
 
 $ARGUMENTS
