@@ -124,6 +124,9 @@
 | `legacy-compliance-checker` | 레거시 준수 검증 (Java 8, Spring Boot 2.4.x, jQuery/JSP 표준) |
 | `chain-of-skills` | ACE Framework 기반 스킬 체이닝 파이프라인 오케스트레이션 |
 | `kiips-session-wrap` | 세션 종료 정리 (변경 요약, 학습, 인수인계) *(글로벌: session-wrap)* |
+| `kiips-linked-approval-template` | 결재 연계 문서 HTML 템플릿 + 데이터 바인딩 생성 |
+| `checklist-generator` | 코드 리뷰, 배포, 테스트, ACE 검증 체크리스트 생성 |
+| `code-simplifier` | 구현 후 코드 복잡도 분석 및 단순화 (Boris Cherny principle) |
 
 ---
 

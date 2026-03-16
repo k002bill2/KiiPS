@@ -865,6 +865,55 @@
     "readOnlyConstraint": true
   },
 
+  "kiips-continuous-learning": {
+    "type": "workflow",
+    "enforcement": "suggest",
+    "priority": "normal",
+    "description": "KiiPS 연속 학습 시스템 — Instinct 생성, 패턴 감지, 스킬/커맨드 진화",
+    "promptTriggers": {
+      "keywords": ["학습", "learning", "instinct", "패턴", "관찰", "observation", "진화", "evolve"],
+      "intentPatterns": [
+        "(학습|learn).*?(패턴|pattern|instinct)",
+        "(관찰|observe).*?(세션|session)",
+        "(진화|evolve).*?(스킬|skill|커맨드|command)"
+      ]
+    }
+  },
+
+  "kiips-session-wrap": {
+    "type": "workflow",
+    "enforcement": "suggest",
+    "priority": "normal",
+    "description": "KiiPS 세션 종료 정리 — 변경 요약, 학습 패턴 수집, 컨텍스트 저장, 인수인계",
+    "promptTriggers": {
+      "keywords": ["세션 정리", "세션 종료", "마무리", "인수인계", "session wrap", "wrap up"],
+      "intentPatterns": [
+        "(세션|session).*?(정리|wrap|종료|end)",
+        "(오늘|today).*?(작업|work).*?(마무리|finish)",
+        "(인수인계|handoff|handover)"
+      ]
+    }
+  },
+
+  "kiips-linked-approval-template": {
+    "type": "domain",
+    "enforcement": "require",
+    "priority": "high",
+    "description": "결재 연계 문서(LinkedApproval) HTML 템플릿 + 데이터 바인딩 생성",
+    "promptTriggers": {
+      "keywords": ["결재", "상신", "LinkedApproval", "결재 연계", "결재 템플릿", "상신 문서"],
+      "intentPatterns": [
+        "(결재|approval).*?(연계|linked|템플릿|template)",
+        "(상신|submit).*?(문서|document|생성|create)",
+        "LinkedApproval.*?(생성|추가|만들)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": ["**/static/js/LinkedApproval*.js"],
+      "contentPatterns": ["LinkedApprovalCode", "getApprvContent", "doc_id"]
+    }
+  },
+
   "chain-of-skills": {
     "type": "workflow",
     "enforcement": "suggest",
