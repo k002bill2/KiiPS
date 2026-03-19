@@ -1,6 +1,6 @@
 ---
 name: kiips-api-tester
-description: "KiiPS API 테스트 전문 스킬. API 엔드포인트 테스트, 헬스 체크, 스모크 테스트"
+description: "KiiPS API 테스트 전문 스킬. API 엔드포인트 테스트, 헬스 체크, 스모크 테스트. Use when: API, 테스트, test, curl, gateway, endpoint"
 disable-model-invocation: true
 ---
 

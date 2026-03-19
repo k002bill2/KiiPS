@@ -1,6 +1,6 @@
 ---
 name: kiips-detail-page-planner
-description: "KiiPS 모듈 상세페이지 개발 계획서 자동 생성. 상세페이지 생성 요청 시 Plan 문서를 자동으로 생성하고 Phase별 진행을 추적합니다."
+description: "KiiPS 모듈 상세페이지 개발 계획서 자동 생성. 상세페이지 생성 요청 시 Plan 문서를 자동으로 생성하고 Phase별 진행을 추적합니다. Use when: 상세페이지, detail page, 상세화면, 투자기업상세, 펀드상세, 기업상세"
 disable-model-invocation: true
 ---
 

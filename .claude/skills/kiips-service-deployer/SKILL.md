@@ -1,6 +1,6 @@
 ---
 name: kiips-service-deployer
-description: "KiiPS 서비스 배포 전문 스킬. 배포, 중지, 재시작, 서비스 시작"
+description: "KiiPS 서비스 배포 전문 스킬. 배포, 중지, 재시작, 서비스 시작. Use when: 배포, deploy, start, stop, restart, 서비스 시작"
 disable-model-invocation: true
 ---
 

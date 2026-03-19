@@ -1,6 +1,6 @@
 ---
 name: kiips-darktheme-applier
-description: "다크테마 전용 적용 워크플로우 - [data-theme=dark] 셀렉터 패턴, 색상 전용 변경, SCSS 변수 활용"
+description: "다크테마 전용 적용 워크플로우 - [data-theme=dark] 셀렉터 패턴, 색상 전용 변경, SCSS 변수 활용. Use when: 다크테마, dark theme, 다크모드, dark mode, 다크 적용"
 ---
 
 # KiiPS Dark Theme Applier

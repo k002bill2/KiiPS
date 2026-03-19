@@ -1,6 +1,6 @@
 ---
 name: kiips-db-inspector
-description: "KiiPS MyBatis mapper 기반 테이블/컬럼 구조 조회 전용 스킬"
+description: "KiiPS MyBatis mapper 기반 테이블/컬럼 구조 조회 전용 스킬. Use when: 테이블 구조, 컬럼, DB 구조, 스키마 확인, mapper 분석, TB_"
 user-invocable: false
 ---
 

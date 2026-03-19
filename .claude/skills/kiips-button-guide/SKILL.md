@@ -1,6 +1,6 @@
 ---
 name: kiips-button-guide
-description: "KiiPS 버튼 영역 종합 가이드 - inc_main_button.jsp, 도메인별 버튼, 권한 처리, 아이콘 클래스"
+description: "KiiPS 버튼 영역 종합 가이드 - inc_main_button.jsp, 도메인별 버튼, 권한 처리, 아이콘 클래스. Use when: 버튼, 툴바, inc_main_button, btn_reload, btn_regist, 관리자 버튼"
 ---
 
 # KiiPS Button Area Guide

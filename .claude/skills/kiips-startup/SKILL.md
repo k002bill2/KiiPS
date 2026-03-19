@@ -1,6 +1,6 @@
 ---
 name: kiips-startup
-description: "KiiPS 서비스 시작 전 Pre-flight 체크 및 순차 기동 스킬"
+description: "KiiPS 서비스 시작 전 Pre-flight 체크 및 순차 기동 스킬. Use when: startup, preflight, 시작전점검, 기동, 서비스 시작, start"
 disable-model-invocation: true
 ---
 

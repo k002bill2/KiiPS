@@ -1,6 +1,6 @@
 ---
 name: kiips-page-pattern-guide
-description: "KiiPS JSP 페이지 표준 패턴 종합 가이드 - 페이지 레이아웃, Include 체계, 검색필터+버튼+그리드 연동"
+description: "KiiPS JSP 페이지 표준 패턴 종합 가이드 - 페이지 레이아웃, Include 체계, 검색필터+버튼+그리드 연동. Use when: 페이지 생성, 화면 만들, JSP 만들, 새 화면, 페이지 패턴, 표준 패턴"
 ---
 
 # KiiPS Page Pattern Guide

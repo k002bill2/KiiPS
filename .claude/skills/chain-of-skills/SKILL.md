@@ -1,6 +1,6 @@
 ---
 name: chain-of-skills
-description: "ACE Framework 기반 스킬 체이닝 파이프라인 오케스트레이션"
+description: "ACE Framework 기반 스킬 체이닝 파이프라인 오케스트레이션. Use when: 파이프라인, pipeline, 워크플로우, workflow, 자동화, automation"
 user-invocable: false
 ---
 

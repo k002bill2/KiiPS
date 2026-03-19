@@ -1,6 +1,6 @@
 ---
 name: kiips-search-filter-guide
-description: "KiiPS 검색필터 종합 가이드 - MainComponent, Constant, inc_filter_main.jsp 연동"
+description: "KiiPS 검색필터 종합 가이드 - MainComponent, Constant, inc_filter_main.jsp 연동. Use when: 검색조건, 검색필터, SEARCH_CONDITION, MainComponent, 필터, inc_filter_main"
 ---
 
 # KiiPS Search Filter Guide

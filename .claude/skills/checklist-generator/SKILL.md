@@ -1,6 +1,6 @@
 ---
 name: checklist-generator
-description: "컨텍스트 기반 체크리스트 생성 — 코드 리뷰, 배포, 테스트, ACE 검증"
+description: "컨텍스트 기반 체크리스트 생성 — 코드 리뷰, 배포, 테스트, ACE 검증. Use when: checklist, 체크리스트, TODO, todo, task list, verification"
 disable-model-invocation: true
 ---
 

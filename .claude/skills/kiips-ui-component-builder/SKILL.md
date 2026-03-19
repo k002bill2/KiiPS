@@ -1,6 +1,6 @@
 ---
 name: kiips-ui-component-builder
-description: "JSP 컴포넌트 템플릿 기반 생성 (RealGrid, ApexCharts, Bootstrap 폼, 팝업)"
+description: "JSP 컴포넌트 템플릿 기반 생성 (RealGrid, ApexCharts, Bootstrap 폼, 팝업). Use when: UI 컴포넌트, JSP 생성, 그리드 생성, 차트 추가, 페이지 생성, 화면 개발"
 ---
 
 # KiiPS UI Component Builder

@@ -1,8 +1,6 @@
 ---
 name: kiips-linked-approval-template
-description: >
-  결재 연계 문서(LinkedApproval)의 HTML 템플릿과 데이터 바인딩 로직을 생성합니다.
-  Use when: 결재 상신, LinkedApproval, 결재 연계, 결재 템플릿, 상신 문서 생성
+description: "결재 연계 문서(LinkedApproval)의 HTML 템플릿과 데이터 바인딩 로직을 생성합니다. Use when: 결재, 상신, LinkedApproval, 결재 연계, 결재 템플릿, 상신 문서"
 argument-hint: "[모듈코드] [doc_id] [문서명]"
 allowed-tools: Read, Grep, Glob, Edit, Write
 ---

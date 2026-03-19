@@ -1,6 +1,6 @@
 ---
 name: kiips-scss-theme-manager
-description: "SCSS 테마 시스템 및 디자인 토큰 관리"
+description: "SCSS 테마 시스템 및 디자인 토큰 관리. Use when: SCSS, 스타일, 테마, 디자인 토큰, CSS 변수, 믹스인"
 ---
 
 # KiiPS SCSS Theme Manager

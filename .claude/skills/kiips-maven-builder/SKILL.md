@@ -1,6 +1,6 @@
 ---
 name: kiips-maven-builder
-description: "KiiPS Maven Multi-Module 빌드 전문 스킬. Maven 빌드, 컴파일, 패키징, 의존성 해결"
+description: "KiiPS Maven Multi-Module 빌드 전문 스킬. Maven 빌드, 컴파일, 패키징, 의존성 해결. Use when: 빌드, build, maven, mvn, compile, package"
 disable-model-invocation: true
 ---
 

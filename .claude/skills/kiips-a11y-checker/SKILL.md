@@ -1,6 +1,6 @@
 ---
 name: kiips-a11y-checker
-description: "웹 접근성 (WCAG 2.1 AA) 검증 및 자동 수정"
+description: "웹 접근성 (WCAG 2.1 AA) 검증 및 자동 수정. Use when: 접근성, WCAG, ARIA, 스크린 리더, 키보드 네비게이션, 색상 대비"
 ---
 
 # KiiPS Accessibility Checker

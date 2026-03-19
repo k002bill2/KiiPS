@@ -1,6 +1,6 @@
 ---
 name: code-simplifier
-description: "구현 후 코드 복잡도 분석 및 단순화 (Boris Cherny principle)"
+description: "구현 후 코드 복잡도 분석 및 단순화 (Boris Cherny principle). Use when: simplify, 단순화, refactor, 리팩토링, 개선, improve"
 disable-model-invocation: true
 ---
 

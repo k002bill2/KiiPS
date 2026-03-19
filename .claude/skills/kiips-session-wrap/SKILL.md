@@ -1,6 +1,6 @@
 ---
 name: kiips-session-wrap
-description: "KiiPS 세션 종료 정리 — 변경 요약, 학습 패턴 수집, 컨텍스트 저장, 인수인계"
+description: "KiiPS 세션 종료 정리 — 변경 요약, 학습 패턴 수집, 컨텍스트 저장, 인수인계. Use when: 세션 정리, 세션 종료, 마무리, 인수인계, session wrap, wrap up"
 disable-model-invocation: true
 ---
 

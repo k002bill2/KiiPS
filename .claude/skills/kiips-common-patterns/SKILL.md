@@ -1,6 +1,6 @@
 ---
 name: kiips-common-patterns
-description: "KiiPS-COMMON/UTILS 공통 코드 사용법, GlobalExceptionHandler, ErrorNotificationService"
+description: "KiiPS-COMMON/UTILS 공통 코드 사용법, GlobalExceptionHandler, ErrorNotificationService. Use when: COMMON, UTILS, GlobalExceptionHandler, ErrorNotificationService, 공통"
 ---
 
 # KiiPS Common Patterns

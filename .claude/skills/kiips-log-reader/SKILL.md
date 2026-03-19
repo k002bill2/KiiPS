@@ -1,6 +1,6 @@
 ---
 name: kiips-log-reader
-description: "KiiPS 구조화된 로그 조회/필터링 전용 스킬 - 시간/레벨/서비스별 로그 검색"
+description: "KiiPS 구조화된 로그 조회/필터링 전용 스킬 - 시간/레벨/서비스별 로그 검색. Use when: 로그 보기, 로그 검색, 로그 필터, log search, log filter, 최근 로그"
 user-invocable: false
 ---
 

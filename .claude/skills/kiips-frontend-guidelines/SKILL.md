@@ -1,6 +1,6 @@
 ---
 name: kiips-frontend-guidelines
-description: "KiiPS 프론트엔드 개발 가이드 - JSP/jQuery/Bootstrap 표준 패턴, AJAX 호출 규칙, RealGrid 연동"
+description: "KiiPS 프론트엔드 개발 가이드 - JSP/jQuery/Bootstrap 표준 패턴, AJAX 호출 규칙, RealGrid 연동. Use when: JSP, JavaScript, UI, 프론트엔드, 화면, 페이지"
 ---
 
 # KiiPS Frontend Guidelines

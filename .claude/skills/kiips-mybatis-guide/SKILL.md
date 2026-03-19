@@ -1,6 +1,6 @@
 ---
 name: kiips-mybatis-guide
-description: "MyBatis 종합 가이드 - mapper.xml 패턴, 동적 SQL, TypeHandler, 성능 최적화"
+description: "MyBatis 종합 가이드 - mapper.xml 패턴, 동적 SQL, TypeHandler, 성능 최적화. Use when: MyBatis, 마이바티스, mapper, 매퍼, SQL, 쿼리"
 ---
 
 # KiiPS MyBatis Guide

@@ -1,6 +1,6 @@
 ---
 name: kiips-responsive-validator
-description: "반응형 디자인 자동 검증 및 테스트 (Bootstrap breakpoints, 터치 타겟)"
+description: "반응형 디자인 자동 검증 및 테스트 (Bootstrap breakpoints, 터치 타겟). Use when: 반응형 테스트, 모바일 확인, 브레이크포인트, 반응형 검증, 모바일 레이아웃, 터치 타겟"
 ---
 
 # KiiPS Responsive Validator

@@ -1,6 +1,6 @@
 ---
 name: kiips-backend-guidelines
-description: "KiiPS 백엔드 개발 가이드 - Controller/Service/DAO 표준 패턴, API 설계, 트랜잭션 관리"
+description: "KiiPS 백엔드 개발 가이드 - Controller/Service/DAO 표준 패턴, API 설계, 트랜잭션 관리. Use when: controller, service, dao, API, endpoint, REST"
 ---
 
 # KiiPS Backend Guidelines

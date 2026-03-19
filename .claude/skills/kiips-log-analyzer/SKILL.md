@@ -1,6 +1,6 @@
 ---
 name: kiips-log-analyzer
-description: "KiiPS 로그 분석 전문 스킬. 로그 분석, 에러 탐지, 문제 진단, 모니터링"
+description: "KiiPS 로그 분석 전문 스킬. 로그 분석, 에러 탐지, 문제 진단, 모니터링. Use when: 로그, log, error, 에러, exception, 분석"
 disable-model-invocation: true
 ---
 

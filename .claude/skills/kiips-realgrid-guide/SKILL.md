@@ -1,6 +1,6 @@
 ---
 name: kiips-realgrid-guide
-description: "RealGrid 2.6.3 종합 가이드 - 그리드 생성, 설정, 에디터, Excel, 성능 최적화"
+description: "RealGrid 2.6.3 종합 가이드 - 그리드 생성, 설정, 에디터, Excel, 성능 최적화. Use when: RealGrid, 리얼그리드, 그리드, 테이블, 그리드 생성, 그리드 만들어"
 ---
 
 # KiiPS RealGrid Guide

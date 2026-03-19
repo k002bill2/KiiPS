@@ -1,6 +1,6 @@
 ---
 name: kiips-database-verification
-description: "DB 관련 작업 검증 가이드, MyBatis 안전 패턴, DBA 승인 프로세스"
+description: "DB 관련 작업 검증 가이드, MyBatis 안전 패턴, DBA 승인 프로세스. Use when: database, DB, 테이블, 스키마, 마이그레이션, MyBatis"
 ---
 
 # KiiPS DB Verification

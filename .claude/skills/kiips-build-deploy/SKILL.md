@@ -1,6 +1,6 @@
 ---
 name: kiips-build-deploy
-description: "빌드+배포 통합 가이드, kiips-maven-builder와 kiips-service-deployer 연계 워크플로우"
+description: "빌드+배포 통합 가이드, kiips-maven-builder와 kiips-service-deployer 연계 워크플로우. Use when: 빌드, 배포, build, deploy, maven, mvn"
 disable-model-invocation: true
 ---
 

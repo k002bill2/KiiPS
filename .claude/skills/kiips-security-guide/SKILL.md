@@ -1,6 +1,6 @@
 ---
 name: kiips-security-guide
-description: "KiiPS 보안 가이드 - Spring Security, XSS 방어, CSRF, 인증/인가, 민감정보 보호"
+description: "KiiPS 보안 가이드 - Spring Security, XSS 방어, CSRF, 인증/인가, 민감정보 보호. Use when: 인증, 로그인, JWT, 토큰, 비밀번호, 암호화"
 ---
 
 # KiiPS Security Guide
