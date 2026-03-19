@@ -27,6 +27,8 @@
 4. **증거 기반 완료** - 실행 증거 없이 완료 선언 금지 → [rules/verification.md](.claude/rules/verification.md)
 5. **Fresh-context 검증** - 구현 후 `/verify`로 독립 검증 (확인 편향 제거)
 6. **반합리화** - 요청 범위만 수정, 범위 확장 금지 → [rules/anti-rationalization.md](.claude/rules/anti-rationalization.md)
+7. **Context 50% Rule** - 컨텍스트 50% 초과 시 `/compact` 실행 (Golden Principle #8)
+8. **Boundary Validation** - Controller에서 입력 검증 → [rules/validation.md](.claude/rules/validation.md)
 
 ---
 
@@ -40,6 +42,7 @@
 | SVN Workflow | SVN 명령어, 커밋 규칙 | → [svn-workflow.md](.claude/rules/svn-workflow.md) |
 | Verification | 증거 기반 완료, 검증 게이트 | → [verification.md](.claude/rules/verification.md) |
 | Anti-Rationalization | HARD-GATE, Ralph Loop 감지 | → [anti-rationalization.md](.claude/rules/anti-rationalization.md) |
+| Validation | Controller 입력 검증, Boundary 원칙 | → [validation.md](.claude/rules/validation.md) |
 
 ---
 
@@ -124,6 +127,7 @@
 | `legacy-compliance-checker` | 레거시 준수 검증 (Java 8, Spring Boot 2.4.x, jQuery/JSP 표준) |
 | `chain-of-skills` | ACE Framework 기반 스킬 체이닝 파이프라인 오케스트레이션 |
 | `kiips-session-wrap` | 세션 종료 정리 (변경 요약, 학습, 인수인계) *(글로벌: session-wrap)* |
+| `kiips-skill-factory` | 세션 활동 분석 → 스킬/커맨드 자동 생성 (중복 검사 포함) |
 | `kiips-linked-approval-template` | 결재 연계 문서 HTML 템플릿 + 데이터 바인딩 생성 |
 | `checklist-generator` | 코드 리뷰, 배포, 테스트, ACE 검증 체크리스트 생성 |
 | `code-simplifier` | 구현 후 코드 복잡도 분석 및 단순화 (Boris Cherny principle) |

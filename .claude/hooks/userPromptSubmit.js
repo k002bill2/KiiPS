@@ -118,6 +118,10 @@ async function onUserPromptSubmit(prompt, context) {
     const moduleContext = detectKiipsModules(prompt);
     if (moduleContext) messages.push(moduleContext);
 
+    // Specialist Agent 라우팅 (STANDARD 이상)
+    const specialistRoute = routeToSpecialist(prompt);
+    if (specialistRoute) messages.push(specialistRoute);
+
     // Gemini 리뷰 주입 (최신 1개, 최적화된 로딩)
     const geminiReview = loadLatestGeminiReview();
     if (geminiReview) messages.unshift(geminiReview);
@@ -144,6 +148,122 @@ async function onUserPromptSubmit(prompt, context) {
   } catch (error) {
     console.error("[UserPromptSubmit] Error:", error.message);
     return prompt;
+  }
+}
+
+// ─── Specialist Agent 라우팅 ─────────────────────────────────
+
+const SPECIALIST_ROUTES = [
+  {
+    agent: "security-reviewer",
+    keywords: [
+      "보안",
+      "xss",
+      "csrf",
+      "injection",
+      "취약점",
+      "security",
+      "vulnerability",
+      "인증",
+      "인가",
+      "auth",
+    ],
+    priority: 1,
+  },
+  {
+    agent: "kiips-realgrid-generator",
+    keywords: [
+      "realgrid",
+      "그리드 생성",
+      "gridview",
+      "dataprovider",
+      "그리드 코드",
+    ],
+    priority: 2,
+  },
+  {
+    agent: "kiips-architect",
+    keywords: [
+      "아키텍처",
+      "architecture",
+      "설계 검토",
+      "모듈 구조",
+      "시스템 설계",
+    ],
+    priority: 2,
+  },
+  {
+    agent: "verify-agent",
+    keywords: ["검증", "verify", "빌드 확인", "테스트 확인", "증거 기반"],
+    priority: 1,
+  },
+  {
+    agent: "code-simplifier",
+    keywords: [
+      "단순화",
+      "simplify",
+      "리팩토링",
+      "refactor",
+      "복잡도",
+      "complexity",
+    ],
+    priority: 3,
+  },
+  {
+    agent: "checklist-generator",
+    keywords: ["체크리스트", "checklist", "리뷰 목록", "검증 목록"],
+    priority: 3,
+  },
+  {
+    agent: "kiips-developer",
+    keywords: [
+      "구현",
+      "코딩",
+      "디버깅",
+      "버그 수정",
+      "bug fix",
+      "implement",
+      "coding",
+    ],
+    priority: 4,
+  },
+  {
+    agent: "kiips-ui-designer",
+    keywords: [
+      "ui 설계",
+      "화면 설계",
+      "jsp 디자인",
+      "레이아웃 설계",
+      "디자인 시안",
+    ],
+    priority: 4,
+  },
+];
+
+/**
+ * 프롬프트에서 전문 에이전트 라우팅 감지
+ * STANDARD 이상에서 호출되어 적합한 specialist 추천
+ */
+function routeToSpecialist(prompt) {
+  try {
+    const lowerPrompt = prompt.toLowerCase();
+    const matched = SPECIALIST_ROUTES.filter((r) =>
+      r.keywords.some((kw) => lowerPrompt.includes(kw)),
+    ).sort((a, b) => a.priority - b.priority);
+
+    if (matched.length === 0) return null;
+
+    // 최우선 1개만 라우팅 (다중 매칭 시 priority 기준)
+    const primary = matched[0];
+    const others = matched.slice(1, 3).map((m) => m.agent);
+
+    let msg = `[Specialist] ${primary.agent}`;
+    if (others.length > 0) {
+      msg += ` (also: ${others.join(", ")})`;
+    }
+    return msg;
+  } catch (_) {
+    return null;
   }
 }
 

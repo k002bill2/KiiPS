@@ -220,6 +220,33 @@ const HEALTH = {
   startedAt: new Date().toISOString(),
 };
 
+// ─── Rate Limiter (모니터링 전용) ────────────────────────────
+
+const RATE_LIMIT = {
+  windowMs: 60000, // 1분 윈도우
+  maxCalls: 30, // 분당 최대 호출
+  timestamps: [],
+};
+
+/**
+ * 분당 tool 호출 횟수 추적 → 30회/분 초과 시 stderr 경고
+ * 비차단(exit 0), 가시성 확보 목적
+ */
+function checkRateLimit() {
+  const now = Date.now();
+  // 윈도우 밖의 타임스탬프 제거
+  RATE_LIMIT.timestamps = RATE_LIMIT.timestamps.filter(
+    (ts) => now - ts < RATE_LIMIT.windowMs,
+  );
+  RATE_LIMIT.timestamps.push(now);
+
+  if (RATE_LIMIT.timestamps.length > RATE_LIMIT.maxCalls) {
+    process.stderr.write(
+      `\n⚠️  [RateLimit] ${RATE_LIMIT.timestamps.length} tool calls/min (threshold: ${RATE_LIMIT.maxCalls}). Consider batching operations.\n`,
+    );
+  }
+}
+
 /**
  * 헬스 상태 저장 (주기적으로 호출)
  */
@@ -311,6 +338,9 @@ if (require.main === module) {
 
       // 모니터링: 총 이벤트 카운트
       HEALTH.totalEvents++;
+
+      // Rate limit 체크
+      checkRateLimit();
 
       // 노이즈 도구 스킵
       if (CONFIG.skipTools.includes(toolName)) {
@@ -404,9 +434,11 @@ module.exports = {
   detectDomains,
   detectDomainsFromPath,
   detectDomainsFromCommand,
+  checkRateLimit,
   DOMAIN_PATTERNS,
   FILE_PATH_DOMAINS,
   CONFIG,
   HEALTH,
+  RATE_LIMIT,
   saveHealthStatus,
 };

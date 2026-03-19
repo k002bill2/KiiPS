@@ -159,6 +159,14 @@ const SECRET_PATTERNS = [
     type: "Potential Base64 Secret",
     severity: "MEDIUM",
   },
+
+  // === URL-Encoded 시크릿 ===
+  {
+    pattern:
+      /(?:password|secret|token|api_key|apikey)%3[Dd](?:%[0-9A-Fa-f]{2}|[a-zA-Z0-9._~!$&'()*+,;=:@/-]){8,}/gi,
+    type: "URL-Encoded Secret",
+    severity: "HIGH",
+  },
 ];
 
 // ─── 마스킹 함수 ───────────────────────────────────────
@@ -206,6 +214,47 @@ function checkBase64Encoded(text) {
   return false;
 }
 
+/**
+ * URL-Encoded 시크릿 탐지
+ * %3D(=), %26(&) 등으로 인코딩된 시크릿을 감지
+ * @param {string} text - 검사할 텍스트
+ * @returns {{ found: boolean, matches: Array<{index: number, length: number, value: string}> }}
+ */
+function checkUrlEncoded(text) {
+  const matches = [];
+  // URL-encoded key=value 패턴 탐지
+  const urlPattern =
+    /(?:password|secret|token|api_key|apikey|pwd|passwd)(?:%3[Dd]|=)(?:%[0-9A-Fa-f]{2}|[a-zA-Z0-9._~!$&'()*+,;:@/-]){8,}/gi;
+  let match;
+  while ((match = urlPattern.exec(text)) !== null) {
+    try {
+      const decoded = decodeURIComponent(match[0]);
+      // 디코딩된 값에서 시크릿 패턴 확인
+      for (const { pattern } of SECRET_PATTERNS) {
+        pattern.lastIndex = 0;
+        if (pattern.test(decoded)) {
+          matches.push({
+            index: match.index,
+            length: match[0].length,
+            value: match[0],
+          });
+          break;
+        }
+      }
+    } catch {
+      // URL 디코딩 실패 — 원본이 의심스러우면 그냥 추가
+      if (match[0].length > 30) {
+        matches.push({
+          index: match.index,
+          length: match[0].length,
+          value: match[0],
+        });
+      }
+    }
+  }
+  return { found: matches.length > 0, matches };
+}
+
 // ─── 메인 필터 로직 ───────────────────────────────────────
 
 /**
@@ -241,7 +290,20 @@ function filterSecrets(toolResult) {
     }
   }
 
-  // 2단계: Base64 인코딩 우회 탐지
+  // 2단계: URL-Encoded 우회 탐지
+  const urlEncodedResult = checkUrlEncoded(maskedOutput);
+  if (urlEncodedResult.found) {
+    for (const match of urlEncodedResult.matches) {
+      maskedOutput =
+        maskedOutput.substring(0, match.index) +
+        maskSecret(match.value) +
+        maskedOutput.substring(match.index + match.length);
+      maskedCount++;
+      maskedTypes.add("URL-Encoded Secret");
+    }
+  }
+
+  // 3단계: Base64 인코딩 우회 탐지
   // 먼저 모든 매칭을 수집한 후 뒤에서부터 치환 (인덱스 안정성 보장)
   if (checkBase64Encoded(toolResult)) {
     const b64Pattern = /[A-Za-z0-9+/]{40,}={0,2}/g;
@@ -375,5 +437,6 @@ module.exports = {
   filterSecrets,
   maskSecret,
   checkBase64Encoded,
+  checkUrlEncoded,
   SECRET_PATTERNS,
 };

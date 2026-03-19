@@ -914,6 +914,21 @@
     }
   },
 
+  "kiips-skill-factory": {
+    "type": "workflow",
+    "enforcement": "suggest",
+    "priority": "low",
+    "description": "세션 활동 분석 → 기존 스킬 중복 검사 → 자동 스킬/커맨드 생성",
+    "promptTriggers": {
+      "keywords": ["스킬 생성", "skill factory", "스킬 팩토리", "자동화 제안", "패턴 자동화"],
+      "intentPatterns": [
+        "(create|generate|make).*?skill",
+        "(자동|auto).*?(스킬|skill|커맨드|command)",
+        "패턴.*?스킬.*?생성"
+      ]
+    }
+  },
+
   "chain-of-skills": {
     "type": "workflow",
     "enforcement": "suggest",

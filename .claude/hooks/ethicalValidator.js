@@ -52,6 +52,19 @@ const BLOCKED_OPERATIONS = {
     message: "하드코딩된 자격 증명은 차단됩니다.",
     severity: "HIGH",
   },
+  remoteExecution: {
+    patterns: [
+      /curl\s+(-X\s+POST\s+|--data\s+)(?!.*localhost)(?!.*127\.0\.0\.1)(?!.*0\.0\.0\.0)/i,
+      /wget\s+(?!.*localhost)(?!.*127\.0\.0\.1).*--post/i,
+      /ssh\s+\w+@/i,
+      /\b(nc|netcat|ncat)\s+-[elp]/i,
+      /\|\s*bash\b/i,
+      /\bcurl\s+.*\|\s*sh\b/i,
+      /\beval\s*\(\s*["'`]\s*\$\(/i,
+    ],
+    message: "원격 명령 실행은 차단됩니다. localhost 제외.",
+    severity: "CRITICAL",
+  },
 };
 
 /**

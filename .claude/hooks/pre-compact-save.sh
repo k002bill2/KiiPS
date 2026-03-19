@@ -36,4 +36,45 @@ else
   echo "ℹ️  PreCompact: no dev-doc files found to update"
 fi
 
+# ─── Strategic Compact: 학습 체크포인트 저장 ────────────────────
+
+CHECKPOINT_FILE=".claude/learning/compact-checkpoint.json"
+INSTINCT_COUNT=$(ls -1 .claude/learning/instincts/personal/*.md 2>/dev/null | wc -l | tr -d ' ')
+# 캐시된 health 파일에서 관찰 수를 읽음 (전체 파일 스캔 회피)
+OBS_COUNT=$(python3 -c "
+import json
+try:
+    with open('.claude/learning/observer-health.json') as f:
+        print(json.load(f).get('observationsFileSizeKB', 0) * 10)  # 대략적 줄 수 추정
+except: print(0)
+" 2>/dev/null)
+OBS_COUNT=${OBS_COUNT:-0}
+
+# 최근 작업 도메인 top 3 추출
+TOP_DOMAINS=$(tail -50 .claude/learning/observations.jsonl 2>/dev/null | python3 -c "
+import json, sys, collections
+domains = collections.Counter()
+for line in sys.stdin:
+    try:
+        obj = json.loads(line.strip())
+        for d in obj.get('domains', []):
+            if d != 'general': domains[d] += 1
+    except: pass
+top3 = [d for d, _ in domains.most_common(3)]
+print(','.join(top3) if top3 else 'general')
+" 2>/dev/null || echo "general")
+
+# 체크포인트 JSON 생성
+cat > "$CHECKPOINT_FILE" << CKEOF
+{
+  "timestamp": "$TIMESTAMP",
+  "instinctCount": $INSTINCT_COUNT,
+  "observationCount": $OBS_COUNT,
+  "recentDomains": $(python3 -c "import json; print(json.dumps('$TOP_DOMAINS'))" 2>/dev/null || echo '"general"'),
+  "hint": "compact 후 복구 시 이 파일을 확인하여 학습 상태를 복원하세요"
+}
+CKEOF
+
+echo "📊 Learning checkpoint: ${INSTINCT_COUNT} instincts, ${OBS_COUNT} observations, domains: ${TOP_DOMAINS}"
+
 exit 0

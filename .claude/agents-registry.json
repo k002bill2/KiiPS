@@ -7,98 +7,98 @@
       "description": "KiiPS architecture expert for system design and microservices coordination",
       "tools": ["Read", "Grep", "Glob", "Bash", "Task"],
       "model": "opus",
-      "triggers": null
+      "triggers": ["아키텍처", "architecture", "설계 검토", "모듈 구조", "시스템 설계"]
     },
     "kiips-developer": {
       "file": ".claude/agents/kiips-developer.md",
       "description": "KiiPS development expert for coding, debugging, and feature implementation",
       "tools": ["Read", "Edit", "Write", "Grep", "Glob", "Bash", "LSP"],
       "model": "sonnet",
-      "triggers": null
+      "triggers": ["구현", "코딩", "디버깅", "버그 수정", "bug fix", "implement", "coding"]
     },
     "kiips-ui-designer": {
       "file": ".claude/agents/kiips-ui-designer.md",
       "description": "UI/UX specialist for JSP, Bootstrap, RealGrid 2.6.3, ApexCharts, and responsive design",
       "tools": ["Read", "Edit", "Write", "Grep", "Glob"],
       "model": "sonnet",
-      "triggers": null
+      "triggers": ["ui 설계", "화면 설계", "jsp 디자인", "레이아웃 설계", "디자인 시안"]
     },
     "kiips-realgrid-generator": {
       "file": ".claude/agents/kiips-realgrid-generator.md",
       "description": "RealGrid 2.6.3 table code auto-generation agent",
       "tools": ["Read", "Write", "Edit", "Grep", "Glob"],
       "model": "sonnet",
-      "triggers": null
+      "triggers": ["realgrid", "그리드 생성", "gridview", "dataprovider", "그리드 코드"]
     },
     "code-simplifier": {
       "file": ".claude/agents/code-simplifier.md",
       "description": "Post-implementation code refactoring and simplification specialist (Boris Cherny principle)",
       "tools": ["Read", "Write", "Edit", "Grep", "Glob", "Bash"],
       "model": "haiku",
-      "triggers": null
+      "triggers": ["단순화", "simplify", "리팩토링", "refactor", "복잡도", "complexity"]
     },
     "checklist-generator": {
       "file": ".claude/agents/checklist-generator.md",
       "description": "Generates contextual checklists for code review, deployment, testing, and ACE validation",
       "tools": ["Read", "Write", "TodoWrite"],
       "model": "haiku",
-      "triggers": null
+      "triggers": ["체크리스트", "checklist", "리뷰 목록", "검증 목록"]
     },
     "kiips-planner": {
       "file": ".claude/agents/kiips-planner.md",
       "description": "KiiPS 구조화된 계획 수립 에이전트 - 코드 탐색 및 영향 분석",
       "tools": ["Read", "Glob", "Grep", "Bash", "Agent"],
       "model": "sonnet",
-      "triggers": null
+      "triggers": ["계획", "plan", "영향 분석", "impact analysis"]
     },
     "security-reviewer": {
       "file": ".claude/agents/security-reviewer.md",
       "description": "KiiPS 보안 전문 리뷰어 - SQL Injection, XSS, 인증/인가, 민감정보 노출 검증",
       "tools": ["Read", "Grep", "Glob", "Bash"],
       "model": "sonnet",
-      "triggers": null
+      "triggers": ["보안", "xss", "csrf", "injection", "취약점", "security", "vulnerability", "인증", "인가"]
     },
     "verify-agent": {
       "file": ".claude/agents/verify-agent.md",
       "description": "Fresh-context 검증 에이전트. 구현 후 별도 컨텍스트에서 빌드/테스트/검증 파이프라인을 실행하여 확인 편향을 제거",
       "tools": ["Read", "Bash", "Grep", "Glob"],
       "model": "sonnet",
-      "triggers": null
+      "triggers": ["검증", "verify", "빌드 확인", "테스트 확인", "증거 기반"]
     },
     "primary-coordinator": {
       "file": "~/.claude/agents/primary-coordinator.md",
       "description": "Multi-agent workflow coordinator (ACE Layer 4)",
       "tools": ["Bash", "Read", "Write", "Edit", "Glob", "Grep", "Task", "TodoWrite"],
       "model": "opus",
-      "triggers": null
+      "triggers": ["coordinate", "orchestrate", "multi-agent", "병렬", "조율"]
     },
     "deployment-manager": {
       "file": ".claude/agents/managers/deployment-manager.md",
       "description": "Deployment Pipeline Orchestrator for KiiPS services",
       "tools": ["Read", "Grep", "Glob", "Bash", "Task"],
       "model": "sonnet",
-      "triggers": null
+      "triggers": ["배포", "deploy", "start", "stop", "restart", "시작", "중지", "재시작"]
     },
     "build-manager": {
       "file": ".claude/agents/managers/build-manager.md",
       "description": "Build Orchestrator for KiiPS Maven Multi-Module projects",
       "tools": ["Read", "Grep", "Glob", "Bash", "Task"],
       "model": "sonnet",
-      "triggers": null
+      "triggers": ["빌드", "build", "maven", "compile", "package", "mvn"]
     },
     "feature-manager": {
       "file": ".claude/agents/managers/feature-manager.md",
       "description": "Feature Lifecycle Orchestrator for KiiPS development",
       "tools": ["Read", "Grep", "Glob", "Bash", "Task"],
       "model": "sonnet",
-      "triggers": null
+      "triggers": ["기능 개발", "feature", "신규 기능", "기능 구현"]
     },
     "ui-manager": {
       "file": ".claude/agents/managers/ui-manager.md",
       "description": "UI/UX Workflow Orchestrator for KiiPS frontend",
       "tools": ["Read", "Grep", "Glob", "Bash", "Task"],
       "model": "sonnet",
-      "triggers": null
+      "triggers": ["UI", "화면", "페이지", "그리드", "차트", "JSP", "RealGrid", "반응형", "접근성"]
     }
   },
   "shared": {

@@ -9,6 +9,7 @@
 /learn --from-error          # 최근 에러에서 패턴 추출
 /learn --from-session        # 현재 세션에서 패턴 추출
 /learn --suggest             # SVN 로그 기반 자동화 제안
+/learn --from-observations   # observations.jsonl에서 반복 패턴 추출
 /learn --list                # 기록된 교훈 목록
 /learn --edit N              # N번 항목 수정
 /learn --remove N            # N번 항목 삭제
@@ -22,6 +23,7 @@ $ARGUMENTS 파싱:
 - `--remove N`: N번 항목 삭제 후 종료
 - `--from-error`: 에러 기반 학습
 - `--from-session`: 세션 기반 학습
+- `--from-observations`: observations.jsonl에서 반복 패턴 추출
 - `--suggest`: 자동화 제안
 - 플래그 없음: 직접 입력
 
@@ -39,6 +41,29 @@ $ARGUMENTS 파싱:
 1. 현재 세션에서 수행한 작업 요약
 2. 반복된 패턴, 실수, 발견사항 추출
 3. 각 항목을 교훈으로 정리
+
+#### --from-observations
+1. `.claude/learning/observations.jsonl` 파일 로드
+2. 도메인별 관찰 빈도 집계 (최소 5회 이상 반복 패턴)
+3. 기존 instinct와 중복 검사 (`.claude/learning/instincts/personal/`)
+4. 새로운 패턴을 instinct로 생성 (신뢰도 0.5 초기)
+5. 생성된 instinct 목록 출력
+
+```bash
+# 도메인별 관찰 빈도 확인
+cat .claude/learning/observations.jsonl | python3 -c "
+import json, sys, collections
+domains = collections.Counter()
+for line in sys.stdin:
+    try:
+        obj = json.loads(line.strip())
+        for d in obj.get('domains', []):
+            domains[d] += 1
+    except: pass
+for d, c in domains.most_common():
+    print(f'{d}: {c}')
+"
+```
 
 #### --suggest
 ```bash
