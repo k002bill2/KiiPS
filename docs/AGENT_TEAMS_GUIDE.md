@@ -64,6 +64,49 @@ Create an agent team with 4 teammates to refactor [대상]:
 Wait for your teammates to complete their tasks before proceeding.
 ```
 
+### 6. 인시던트 대응 팀 (Incident Response)
+
+```
+[장애 현상] 에러가 발생합니다.
+Create an agent team for incident response:
+- Log analyst: KiiPS 로그 파일에서 에러 타임라인 추적, 스택트레이스 분석
+- DB investigator: MyBatis mapper/쿼리 실행 계획 분석, 데이터 정합성 확인
+- Service tracer: API Gateway → 서비스 간 호출 체인 추적, 타임아웃/CORS/인증 확인
+Have them share findings and build a unified incident timeline.
+```
+
+### 7. 데이터 마이그레이션 팀 (Data Migration)
+
+```
+Create an agent team for [마이그레이션 대상] data migration:
+- Schema designer: MyBatis mapper XML 변경, 컬럼 추가/변경 DDL 작성
+- Migration developer: KIIPS-TRANSFER 기반 데이터 이전 로직 구현, 롤백 스크립트 포함
+- Service updater: 영향받는 Service/DAO 계층 수정 (KiiPS-FD, KiiPS-IL 등)
+- Validator: 마이그레이션 전후 데이터 정합성 검증 쿼리 작성
+Require plan approval before making changes.
+```
+
+### 8. 결재 워크플로우 팀 (Approval Workflow)
+
+```
+Create an agent team for [결재 대상] approval workflow:
+- State machine designer: 기안→결재→반려→재상신 상태 전이 로직 (Service/DAO)
+- Template developer: LinkedApproval HTML 템플릿 + 데이터 바인딩 (KiiPS-UI)
+- Notification integrator: 결재 이벤트별 알림 연동 (MSGSender 서비스)
+Require plan approval before making changes.
+Use Sonnet for each teammate.
+```
+
+### 9. 성능 최적화 팀 (Performance Optimization)
+
+```
+Create an agent team for performance optimization on [대상 기능]:
+- Query optimizer: MyBatis 슬로우 쿼리 분석, 인덱스 제안, N+1 쿼리 제거
+- Frontend optimizer: RealGrid 대용량 데이터 처리, 페이지 로딩 최적화, 불필요한 AJAX 제거
+- API optimizer: Gateway 병목 분석, 캐시 전략, 비동기 처리 전환 검토
+Have them each profile, optimize, and verify improvements.
+```
+
 ## 팀 운영 규칙
 
 | 규칙 | 설명 |
