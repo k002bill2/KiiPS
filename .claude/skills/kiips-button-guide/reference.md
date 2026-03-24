@@ -83,7 +83,6 @@
     </div>
     <!-- 그리드 -->
     <div id="TB_GRID" ...></div>
-    <div id="paging"></div>
 </div>
 ```
 

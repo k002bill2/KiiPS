@@ -57,7 +57,7 @@
 </div>
 
 <script>
-var gToken = "${gToken}";
+// gToken은 header.jsp에서 세션 토큰으로 초기화됨 (재선언 금지)
 var dataProvider, gridView;
 
 $(document).ready(function() {

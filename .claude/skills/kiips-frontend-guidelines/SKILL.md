@@ -56,6 +56,8 @@ logosAjax.request({
 
 ### 규칙
 - `logosAjax.request()` 또는 `logosAjax.requestTokenGrid()` 사용
+- **`var gToken` 재선언 금지** — `header.jsp`에서 세션 토큰으로 이미 초기화됨
+- **`logosAjax.getToken()` 사용 금지** — 존재하지 않는 메서드
 - `.fail()` 에러 핸들러 필수
 - Loading 스피너 표시/숨기기
 - 중복 요청 방지 (버튼 비활성화)

@@ -118,7 +118,6 @@
                     <jsp:param name="MENU_SCREEN_ID" value="{SCREEN_ID}" />
                 </jsp:include>
                 <div id="TB_{SCREEN_ID}" data-id="TB_{SCREEN_ID}" data-gbn="table" data-provider-id="dataProvider"></div>
-                <div id="paging"></div>
             </div>
         </div>
     </div>

@@ -206,8 +206,7 @@ KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/
                 </jsp:include>
                 <!-- 그리드 -->
                 <div id="TB_{SCREEN_ID}" data-id="TB_{SCREEN_ID}" data-gbn="table" data-provider-id="dataProvider"></div>
-                <!-- 페이징 -->
-                <div id="paging"></div>
+                <!-- paging은 setPaging()이 동적 생성 → HTML 불필요 -->
             </div>
         </div>
     </div>
@@ -230,11 +229,9 @@ KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/
 <div class="tab-content px-0">
     <div class="tab-pane active pt-0" id="STCK_DOC1" role="tabpanel">
         <div id="TB_{SCREEN_ID}" data-id="TB_{SCREEN_ID}" data-gbn="table" data-provider-id="dataProvider"></div>
-        <div id="paging"></div>
     </div>
     <div class="tab-pane pt-0" id="STCK_DOC2" role="tabpanel">
         <div id="TB_{SCREEN_ID}2" data-id="TB_{SCREEN_ID}2" data-gbn="table" data-provider-id="dataProvider2"></div>
-        <div id="paging2"></div>
     </div>
 </div>
 ```
