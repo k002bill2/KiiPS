@@ -139,10 +139,8 @@ When performing tasks, leverage these KiiPS skills:
 
 | Skill | Usage |
 |-------|-------|
-| **kiips-maven-builder** | Maven builds from KiiPS-HUB |
-| **kiips-service-deployer** | Service start/stop/restart |
-| **kiips-api-tester** | API endpoint testing |
-| **kiips-log-analyzer** | Log analysis and debugging |
+| **kiips-build** | Maven builds, service deploy, start/stop |
+| **kiips-logs** | Log analysis and debugging |
 
 ## Best Practices
 

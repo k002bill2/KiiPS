@@ -587,29 +587,41 @@ function assessEffortScaling(prompt) {
 
 // ─── CLI Entry Point ─────────────────────────────────────────
 if (require.main === module) {
-  let input = "";
+  // stdin을 동기적으로 수집하여 setTimeout 경합 방지
+  const chunks = [];
   process.stdin.setEncoding("utf8");
-  process.stdin.on("data", (chunk) => {
-    input += chunk;
-  });
+  process.stdin.on("data", (chunk) => chunks.push(chunk));
   process.stdin.on("end", async () => {
     try {
+      const input = chunks.join("");
+      if (!input.trim()) {
+        process.exit(0); // 빈 입력 → 무시
+      }
       const event = JSON.parse(input);
       const prompt = event.prompt || event.user_prompt || "";
-      const context = { workspaceRoot: event.workspace_root || process.cwd() };
+      const context = {
+        workspaceRoot: event.cwd || event.workspace_root || process.cwd(),
+      };
       const result = await onUserPromptSubmit(prompt, context);
       if (result && result !== prompt) {
         process.stdout.write(result);
       }
       process.exit(0);
     } catch (e) {
-      process.stderr.write(`[UserPromptSubmit] Parse error: ${e.message}\n`);
+      // 파싱/처리 에러 시 stderr 로깅 후 정상 종료 (prompt 통과)
+      process.stderr.write(`[UserPromptSubmit] Error: ${e.message}\n`);
       process.exit(0);
     }
   });
-  setTimeout(() => {
+  // stdin이 아예 열리지 않는 극단적 상황 대비 (10초)
+  // end 이벤트 수신 시 clearTimeout으로 해제
+  const safetyTimer = setTimeout(() => {
+    process.stderr.write("[UserPromptSubmit] stdin timeout (10s)\n");
     process.exit(0);
-  }, 5000);
+  }, 10_000);
+  process.stdin.on("end", () => clearTimeout(safetyTimer));
+  // stdin이 이미 끝난 상태에서 실행될 경우 대비
+  process.stdin.resume();
 }
 
 module.exports = { onUserPromptSubmit, classifyPromptComplexity };

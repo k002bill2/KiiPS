@@ -51,7 +51,7 @@ The Build Manager orchestrates Maven Multi-Module build workflows for the KiiPS 
 ## Skills Managed
 
 ### Primary Skill
-- **kiips-maven-builder** (enforcement: require, priority: critical)
+- **kiips-build** (enforcement: require, priority: critical)
   - Activation: Keywords like "빌드", "build", "maven", "compile", "package"
   - Delegation: Manager plans workflow, workers execute Maven commands
 
@@ -67,7 +67,7 @@ The Build Manager orchestrates Maven Multi-Module build workflows for the KiiPS 
 ```
 Task: Build KiiPS-FD
 ├─ Subtask 1: SVN Update (worker-1, 30s)
-├─ Subtask 2: Maven Build (worker-1 + kiips-maven-builder, 180s)
+├─ Subtask 2: Maven Build (worker-1 + kiips-build, 180s)
 └─ Subtask 3: Verify Artifacts (checklist-generator, 30s)
 
 Manager Role: Monitor progress, handle failures
@@ -197,7 +197,7 @@ reportToPrimary({
 
 1. **Primary Coordinator** receives user request
 2. **Primary** routes to Build Manager (task type: `service_build`)
-3. **Build Manager** activates `kiips-maven-builder` skill
+3. **Build Manager** activates `kiips-build` skill
 4. **Build Manager** creates execution plan:
    - SVN update → Maven build → Artifact verification
 5. **Build Manager** delegates to `kiips-developer` worker
@@ -300,5 +300,5 @@ This agent follows the shared parallel execution protocols:
 ---
 
 **Related Agents**: primary-coordinator, kiips-developer, checklist-generator
-**Related Skills**: kiips-maven-builder, build-orchestration
+**Related Skills**: kiips-build, build-orchestration
 **Coordination Scripts**: task-allocator.js, file-lock-manager.js, manager-coordinator.js

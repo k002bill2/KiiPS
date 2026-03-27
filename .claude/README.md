@@ -56,12 +56,12 @@
 ├── skills/                     # Active skills
 │   ├── kiips-realgrid-guide/   # RealGrid 2.6.3 guide
 │   ├── kiips-ui-component-builder/  # JSP component templates
-│   ├── kiips-scss-theme-manager/    # SCSS theme management
-│   ├── kiips-responsive-validator/  # Responsive design validation
-│   ├── kiips-darktheme-applier/     # Dark theme workflow
-│   ├── kiips-a11y-checker/     # WCAG 2.1 AA accessibility
+│   ├── kiips-scss/    # SCSS theme management
+│   ├── kiips-quality/  # Responsive design validation
+│   ├── kiips-scss/     # Dark theme workflow
+│   ├── kiips-quality/     # WCAG 2.1 AA accessibility
 │   ├── kiips-feature-planner/  # Feature planning
-│   ├── kiips-detail-page-planner/   # Detail page planning
+│   ├── kiips-page-pattern-guide/   # Detail page planning
 │   ├── kiips-test-runner/      # Test execution (JUnit)
 │   ├── verification-loop/      # Boris Cherny verification
 │   ├── parallel-coordinator/   # ACE parallel execution
@@ -79,19 +79,6 @@
 │   ├── userPromptSubmit.js     # UserPromptSubmit: pattern detection
 │   ├── parallelCoordinator.js  # Pre/Post Task coordination
 │   └── update-reminder.sh      # SessionStart: update check
-├── coordination/               # Multi-agent coordination
-│   ├── feedback-loop.js        # Execution metrics + learning events
-│   ├── checkpoint-manager.js   # Checkpoint create/restore
-│   ├── task-allocator.js       # Task allocation
-│   ├── file-lock-manager.js    # File locking
-│   └── manager-coordinator.js  # Manager coordination
-├── ace-framework/              # ACE 6-layer architecture
-│   ├── ace-framework-guide.md
-│   ├── layer1-aspirational.md
-│   ├── layer3-agent-model.json
-│   ├── layer4-executive.md
-│   ├── layer45-orchestration.md
-│   └── ace-config.json
 ├── checklists/                 # Quality checklists
 │   ├── code-review.md
 │   ├── deployment.md
@@ -138,10 +125,10 @@
 |-------|------|-----------------|
 | kiips-realgrid-guide | RealGrid 그리드 생성/설정/Excel | realgrid, grid, 그리드 |
 | kiips-ui-component-builder | JSP 컴포넌트 템플릿 | component, 컴포넌트, 폼 |
-| kiips-scss-theme-manager | SCSS 테마 + 디자인 토큰 | scss, theme, 테마 |
-| kiips-darktheme-applier | 다크테마 적용 워크플로우 | dark, 다크테마, 다크모드 |
-| kiips-responsive-validator | 반응형 디자인 검증 | responsive, 반응형 |
-| kiips-a11y-checker | WCAG 2.1 AA 접근성 | accessibility, 접근성 |
+| kiips-scss | SCSS 테마 + 디자인 토큰 | scss, theme, 테마 |
+| kiips-scss | 다크테마 적용 워크플로우 | dark, 다크테마, 다크모드 |
+| kiips-quality | 반응형 디자인 검증 | responsive, 반응형 |
+| kiips-quality | WCAG 2.1 AA 접근성 | accessibility, 접근성 |
 | kiips-feature-planner | 기능 개발 계획 | plan, feature, 계획 |
 | kiips-test-runner | JUnit/Jest/Karma 테스트 | test, 테스트, 커버리지 |
 

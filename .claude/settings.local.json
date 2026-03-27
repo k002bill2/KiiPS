@@ -22,13 +22,6 @@
       "Bash(sass:*)",
       "Bash(wc:*)",
       "Bash(test:*)",
-      "Bash(for skill in kiips-maven-builder kiips-service-deployer kiips-api-tester kiips-log-analyzer)",
-      "Bash(do)",
-      "Bash(if [ -f \".claude/skills/$skill/SKILL.md\" ])",
-      "Bash(then)",
-      "Bash(else)",
-      "Bash(fi)",
-      "Bash(done)",
       "Bash(bash:*)",
       "Bash(./.scripts/claude-config-backup.sh:*)",
       "Bash(tar:*)",
@@ -44,7 +37,8 @@
       "WebFetch(domain:api.anthropic.com)",
       "WebFetch(domain:registry.npmjs.org)",
       "WebFetch(domain:github.com)",
-      "WebFetch(domain:api.github.com)"
+      "WebFetch(domain:api.github.com)",
+      "Bash(cd:*)"
     ]
   },
   "enabledMcpjsonServers": [

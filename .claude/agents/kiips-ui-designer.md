@@ -494,14 +494,14 @@ function loadFundList() {
    - Excel import/export with formatting
    - Performance tuning (virtual scroll, lazy load)
 
-3. **kiips-responsive-validator** (Priority: High, Enforcement: Require)
+3. **kiips-quality** (Priority: High, Enforcement: Require)
    - Bootstrap breakpoint testing (xs, sm, md, lg, xl)
    - Layout overflow detection
    - Touch target size validation (≥44px)
    - Font readability check (≥16px on mobile)
    - Image responsiveness verification
 
-4. **kiips-a11y-checker** (Priority: High, Enforcement: Require)
+4. **kiips-quality** (Priority: High, Enforcement: Require)
    - WCAG 2.1 AA compliance validation
    - ARIA attribute verification and auto-addition
    - Color contrast checking (4.5:1 for text, 3:1 for UI)
@@ -509,7 +509,7 @@ function loadFundList() {
    - Form label validation
    - RealGrid accessibility optimization
 
-5. **kiips-scss-theme-manager** (Priority: Normal, Enforcement: Suggest)
+5. **kiips-scss** (Priority: Normal, Enforcement: Suggest)
    - Design token management (colors, fonts, spacing)
    - Responsive mixins
    - Component style modularization
@@ -528,15 +528,15 @@ const skillActivation = {
     keywords: ["RealGrid", "그리드 설정", "셀 편집", "엑셀 내보내기", "컬럼 설정"],
     contentPatterns: ["RealGridJS", "GridView", "DataProvider"]
   },
-  "kiips-responsive-validator": {
+  "kiips-quality": {
     keywords: ["반응형 테스트", "모바일 확인", "브레이크포인트"],
     afterTask: "ui_component_creation"
   },
-  "kiips-a11y-checker": {
+  "kiips-quality": {
     keywords: ["접근성", "WCAG", "ARIA", "스크린 리더"],
     afterTask: "ui_component_creation"
   },
-  "kiips-scss-theme-manager": {
+  "kiips-scss": {
     keywords: ["SCSS", "스타일", "테마", "색상 변경"],
     filePatterns: ["**/*.scss", "**/*.css"]
   }
@@ -827,8 +827,8 @@ const skillActivation = {
    - `fund-list.js` (Grid initialization, AJAX, Excel export)
    - `fund-list.scss` (Custom styles)
 5. **Validate**:
-   - `kiips-responsive-validator` (Mobile layout)
-   - `kiips-a11y-checker` (ARIA labels, keyboard navigation)
+   - `kiips-quality` (Mobile layout)
+   - `kiips-quality` (ARIA labels, keyboard navigation)
 6. **Report to Primary**: Completion with artifacts
 
 **Generated JSP (fund-list.jsp)**:
@@ -1097,8 +1097,8 @@ const skillActivation = {
    - `dashboard.js` (Chart initialization + AJAX)
    - `dashboard.scss` (Card styles)
 5. **Validate**:
-   - `kiips-responsive-validator` (Charts stack on mobile)
-   - `kiips-a11y-checker` (Chart ARIA labels)
+   - `kiips-quality` (Charts stack on mobile)
+   - `kiips-quality` (Chart ARIA labels)
 6. **Report to Primary**: Completion
 
 **Generated JSP (dashboard.jsp)**:
@@ -1383,7 +1383,7 @@ const skillActivation = {
 **User Request**: "SCSS 테마를 커스터마이징해줘. Primary 색상을 파란색 (#0066CC)으로 바꾸고, 카드 그림자를 더 진하게 해줘."
 
 **Workflow**:
-1. **Activate Skill**: `kiips-scss-theme-manager`
+1. **Activate Skill**: `kiips-scss`
 2. **Read Current Variables**: `_variables.scss`
 3. **Update Variables**: Change `$primary-color`, `$card-shadow`
 4. **Compile SCSS**: `sass --watch ...`
@@ -1564,4 +1564,4 @@ $primary: #007bff;
 
 **Last Updated**: 2026-01-04
 **Agent Version**: 1.0.0
-**Skill Dependencies**: kiips-ui-component-builder, kiips-realgrid-guide, kiips-responsive-validator, kiips-a11y-checker, kiips-scss-theme-manager
+**Skill Dependencies**: kiips-ui-component-builder, kiips-realgrid-guide, kiips-quality, kiips-quality, kiips-scss

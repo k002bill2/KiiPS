@@ -33,56 +33,11 @@
     ],
     "PostToolUse": [
       {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node ./.claude/hooks/autoFormatter.js"
-          }
-        ]
-      },
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node ./.claude/hooks/buildChecker.js"
-          }
-        ]
-      },
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ./.claude/hooks/scssValidator.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ./.claude/hooks/gemini-collector.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node ./.claude/hooks/outputSecretFilter.js"
-          }
-        ]
-      },
-      {
         "matcher": "Bash|Edit|Write",
         "hooks": [
           {
             "type": "command",
-            "command": "node ./.claude/hooks/observe.js"
+            "command": "node ./.claude/hooks/postToolOrchestrator.js"
           }
         ]
       }

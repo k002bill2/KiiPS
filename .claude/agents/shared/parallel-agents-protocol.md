@@ -124,10 +124,10 @@ description: Parallel Agents Safety Protocol with ACE Framework for KiiPS multi-
 
 | Manager | Domain | Managed Skills | Delegates To |
 |---------|--------|---------------|-------------|
-| `build-manager` | Maven 빌드 | kiips-maven-builder | kiips-developer |
+| `build-manager` | Maven 빌드 | kiips-build | kiips-developer |
 | `feature-manager` | 기능 개발 | kiips-feature-planner, checklist-generator | kiips-architect, kiips-developer, kiips-ui-designer |
-| `ui-manager` | UI/UX | kiips-ui-component-builder, kiips-realgrid-guide, kiips-responsive-validator, kiips-a11y-checker, kiips-scss-theme-manager | kiips-ui-designer, kiips-developer |
-| `deployment-manager` | 배포 | kiips-service-deployer, kiips-api-tester, kiips-log-analyzer | kiips-developer |
+| `ui-manager` | UI/UX | kiips-ui-component-builder, kiips-realgrid-guide, kiips-quality, kiips-quality, kiips-scss | kiips-ui-designer, kiips-developer |
+| `deployment-manager` | 배포 | kiips-build, kiips-logs | kiips-developer |
 
 ### 3.3 Secondary Agents (Specialists)
 
@@ -215,12 +215,12 @@ KiiPS/ (Monorepo)
 | Mapper XML 작성 | - | MyBatis #{} 규칙 준수 |
 | JSP 화면 생성 | `kiips-ui-component-builder` | 컴포넌트 생성 전 |
 | RealGrid 설정 | `kiips-realgrid-guide` | 그리드 설정 전 |
-| SCSS 테마 수정 | `kiips-scss-theme-manager` | [data-theme=dark] 규칙 확인 |
-| 다크테마 적용 | `kiips-darktheme-applier` | 다크테마 작업 전 |
-| Maven 빌드 | `kiips-maven-builder` | 빌드 실행 전 |
-| 서비스 배포 | `kiips-service-deployer` | 배포 전 |
-| API 테스트 | `kiips-api-tester` | 테스트 전 |
-| 로그 분석 | `kiips-log-analyzer` | 분석 전 |
+| SCSS 테마 수정 | `kiips-scss` | [data-theme=dark] 규칙 확인 |
+| 다크테마 적용 | `kiips-scss` | 다크테마 작업 전 |
+| Maven 빌드 | `kiips-build` | 빌드 실행 전 |
+| 서비스 배포 | `kiips-build` | 배포 전 |
+| API 테스트 | `kiips-build` | 테스트 전 |
+| 로그 분석 | `kiips-logs` | 분석 전 |
 
 ### 5.2 Skill Selection Logic
 
@@ -231,14 +231,14 @@ function selectSkill(taskType) {
     'service': 'kiips-feature-planner',
     'jsp_page': 'kiips-ui-component-builder',
     'realgrid': 'kiips-realgrid-guide',
-    'scss_theme': 'kiips-scss-theme-manager',
-    'dark_theme': 'kiips-darktheme-applier',
-    'maven_build': 'kiips-maven-builder',
-    'deploy': 'kiips-service-deployer',
-    'api_test': 'kiips-api-tester',
-    'log_analysis': 'kiips-log-analyzer',
-    'responsive': 'kiips-responsive-validator',
-    'accessibility': 'kiips-a11y-checker'
+    'scss_theme': 'kiips-scss',
+    'dark_theme': 'kiips-scss',
+    'maven_build': 'kiips-build',
+    'deploy': 'kiips-build',
+    'api_test': 'kiips-build',
+    'log_analysis': 'kiips-logs',
+    'responsive': 'kiips-quality',
+    'accessibility': 'kiips-quality'
   };
   return skillMap[taskType] || 'general';
 }
@@ -374,14 +374,14 @@ Primary Coordinator (통합 및 검증)
 kiips-feature-planner          # 기능 개발 계획
 kiips-ui-component-builder     # JSP 컴포넌트 생성
 kiips-realgrid-guide           # RealGrid 2.6.3 설정
-kiips-scss-theme-manager       # SCSS 테마 관리
-kiips-darktheme-applier        # 다크테마 적용
-kiips-maven-builder            # Maven 빌드
-kiips-service-deployer         # 서비스 배포
-kiips-api-tester               # API 테스트
-kiips-log-analyzer             # 로그 분석
-kiips-responsive-validator     # 반응형 검증
-kiips-a11y-checker             # 접근성 검증
+kiips-scss       # SCSS 테마 관리
+kiips-scss        # 다크테마 적용
+kiips-build            # Maven 빌드
+kiips-build         # 서비스 배포
+kiips-build               # API 테스트
+kiips-logs             # 로그 분석
+kiips-quality     # 반응형 검증
+kiips-quality             # 접근성 검증
 
 # Verification
 /verify-app                    # 앱 종합 검증

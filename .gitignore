@@ -88,6 +88,13 @@ opencode.json
 .claude/learning/observer-health.json
 .claude/learning/archive/
 .claude/gemini-bridge/daemon.pid
+.claude/gemini-bridge/.last-collect
+.claude/gemini-bridge/.pending-build.json
+.claude/hooks/*.log
+.claude/.last-update-check
+.claude/gemini-bridge/errors.log
+.claude/evals/results/history.jsonl
+.claude/evals/results/transcripts/
 .claude/worktrees/
 
 # Task Master 관련 (필요시 주석 해제)

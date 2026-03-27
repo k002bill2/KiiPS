@@ -249,8 +249,8 @@ timeout: 300000 // 5분으로 증가
 
 ## Related Skills
 
-- **kiips-maven-builder** - 빌드 전 테스트 실행
-- **kiips-service-deployer** - 배포 전 테스트 검증
+- **kiips-build** - 빌드 전 테스트 실행
+- **kiips-build** - 배포 전 테스트 검증
 - **checklist-generator** - 테스트 체크리스트 생성
 - **kiips-feature-planner** - 기능 개발 시 테스트 계획
 

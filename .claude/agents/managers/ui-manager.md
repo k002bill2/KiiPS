@@ -36,8 +36,8 @@ The UI Manager orchestrates UI/UX development workflows including JSP template c
 
 ### 3. Validation Pipeline Orchestration
 - **Stage 1**: Component implementation (kiips-ui-designer)
-- **Stage 2**: Responsive design validation (kiips-responsive-validator skill)
-- **Stage 3**: Accessibility validation (kiips-a11y-checker skill)
+- **Stage 2**: Responsive design validation (kiips-quality skill)
+- **Stage 3**: Accessibility validation (kiips-quality skill)
 - **Stage 4**: Cross-browser testing checklist (checklist-generator)
 
 ### 4. UI-Backend Integration
@@ -60,13 +60,13 @@ The UI Manager orchestrates UI/UX development workflows including JSP template c
 - **kiips-realgrid-guide** (enforcement: require, priority: critical)
   - RealGrid 2.6.3 종합 가이드 (그리드 생성, 설정, Excel, 성능 최적화)
 
-- **kiips-responsive-validator** (enforcement: require, priority: high)
+- **kiips-quality** (enforcement: require, priority: high)
   - Bootstrap breakpoint validation, touch target checks
 
-- **kiips-a11y-checker** (enforcement: require, priority: high)
+- **kiips-quality** (enforcement: require, priority: high)
   - WCAG 2.1 AA validation, ARIA labels, keyboard navigation
 
-- **kiips-scss-theme-manager** (enforcement: suggest, priority: normal)
+- **kiips-scss** (enforcement: suggest, priority: normal)
   - SCSS variables, mixins, theming support
 
 ### Orchestration Skill
@@ -84,9 +84,9 @@ Stage 1: Requirements Analysis (UI Manager)
    ↓
 Stage 2: Component Implementation (kiips-ui-designer)
    ↓ [Skills: ui-component-builder, realgrid-builder, scss-theme-manager]
-Stage 3: Responsive Validation (kiips-responsive-validator)
+Stage 3: Responsive Validation (kiips-quality)
    ↓ [Checkpoint: Bootstrap breakpoints, touch targets]
-Stage 4: Accessibility Validation (kiips-a11y-checker)
+Stage 4: Accessibility Validation (kiips-quality)
    ↓ [Checkpoint: WCAG 2.1 AA compliance]
 Stage 5: Cross-Browser Testing (checklist-generator)
    ↓ [Checkpoint: Chrome, Safari, Edge compatibility]
@@ -184,7 +184,7 @@ parallel([
 
 ### Stage 3: Responsive Design Validation
 
-**Skill**: `kiips-responsive-validator`
+**Skill**: `kiips-quality`
 
 **Checks**:
 1. **Bootstrap Breakpoints**:
@@ -209,7 +209,7 @@ parallel([
 
 ### Stage 4: Accessibility Validation
 
-**Skill**: `kiips-a11y-checker`
+**Skill**: `kiips-quality`
 
 **WCAG 2.1 AA Checks**:
 1. **Perceivable**:
@@ -281,8 +281,8 @@ overallProgress = weightedAverage(stageProgress) // ~42%
 2. **UI Manager** activates skills:
    - `kiips-ui-component-builder`
    - `kiips-realgrid-guide` (priority)
-   - `kiips-responsive-validator`
-   - `kiips-a11y-checker`
+   - `kiips-quality`
+   - `kiips-quality`
 3. **UI Manager** coordinates with kiips-developer:
    - "Do we have GET /api/funds endpoint?"
    - kiips-developer: "Not yet, need to create"
@@ -298,10 +298,10 @@ overallProgress = weightedAverage(stageProgress) // ~42%
 6. **kiips-developer** completes API endpoint, notifies UI Manager
 7. **kiips-ui-designer** integrates real API, reports 100% complete
 8. **UI Manager** delegates Stage 3 (Responsive Validation):
-   - `kiips-responsive-validator` checks breakpoints
+   - `kiips-quality` checks breakpoints
    - Result: PASS (all breakpoints OK, touch targets 48px)
 9. **UI Manager** delegates Stage 4 (Accessibility Validation):
-   - `kiips-a11y-checker` checks WCAG compliance
+   - `kiips-quality` checks WCAG compliance
    - Result: 2 minor warnings (missing ARIA labels on export button)
    - kiips-ui-designer fixes → revalidate → PASS
 10. **UI Manager** delegates Stage 5 (Cross-Browser Checklist):
@@ -316,7 +316,7 @@ overallProgress = weightedAverage(stageProgress) // ~42%
 
 1. **kiips-ui-designer** completes JSP implementation
 2. **UI Manager** triggers Stage 3 (Responsive Validation)
-3. **kiips-responsive-validator** reports:
+3. **kiips-quality** reports:
    - ❌ Mobile (xs): Horizontal scroll at 375px width
    - ❌ Touch targets: 3 buttons only 36px (need 44px)
 4. **UI Manager** → Checkpoint FAIL
@@ -395,5 +395,5 @@ This agent follows the shared parallel execution protocols:
 ---
 
 **Related Agents**: primary-coordinator, kiips-ui-designer, kiips-developer, checklist-generator
-**Related Skills**: kiips-ui-component-builder, kiips-realgrid-guide, kiips-responsive-validator, kiips-a11y-checker, kiips-scss-theme-manager, ui-workflow-orchestration
+**Related Skills**: kiips-ui-component-builder, kiips-realgrid-guide, kiips-quality, kiips-quality, kiips-scss, ui-workflow-orchestration
 **Coordination Scripts**: task-allocator.js, manager-coordinator.js, file-lock-manager.js

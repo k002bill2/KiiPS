@@ -37,8 +37,8 @@ The Deployment Manager orchestrates service deployment pipelines including stop/
 ### 3. Verification Pipeline
 - **Stage 1**: Pre-deployment checks (checklist-generator)
 - **Stage 2**: Service stop → start (Primary Coordinator)
-- **Stage 3**: Health check (kiips-api-tester skill via kiips-developer)
-- **Stage 4**: Log verification (kiips-log-analyzer skill via kiips-developer)
+- **Stage 3**: Health check (kiips-build skill via kiips-developer)
+- **Stage 4**: Log verification (kiips-logs skill via kiips-developer)
 - **Stage 5**: Deployment checklist (checklist-generator)
 
 ### 4. Rollback Management
@@ -57,15 +57,15 @@ The Deployment Manager orchestrates service deployment pipelines including stop/
 ## Skills Managed
 
 ### Primary Skills
-- **kiips-service-deployer** (enforcement: require, priority: high)
+- **kiips-build** (enforcement: require, priority: high)
   - Activation: Keywords like "배포", "deploy", "restart", "start", "stop"
   - Manages deployment workflow
 
-- **kiips-api-tester** (enforcement: suggest, priority: high)
+- **kiips-build** (enforcement: suggest, priority: high)
   - API health checks and endpoint testing
   - Delegated to kiips-developer
 
-- **kiips-log-analyzer** (enforcement: suggest, priority: high)
+- **kiips-logs** (enforcement: suggest, priority: high)
   - Log file analysis for errors and warnings
   - Delegated to kiips-developer
 
@@ -86,9 +86,9 @@ Stage 2: Service Stop (Primary Coordinator)
    ↓ [Execute: ./stop.sh]
 Stage 3: Service Start (Primary Coordinator)
    ↓ [Execute: ./start.sh]
-Stage 4: Health Check (kiips-developer + kiips-api-tester)
+Stage 4: Health Check (kiips-developer + kiips-build)
    ↓ [Parallel: API testing]
-Stage 5: Log Verification (kiips-developer + kiips-log-analyzer)
+Stage 5: Log Verification (kiips-developer + kiips-logs)
    ↓ [Parallel: Error pattern detection]
 Stage 6: Post-Deployment Checklist (checklist-generator)
    ↓ [Checkpoint: All validations passed]
@@ -126,8 +126,8 @@ Total Time: ~9-15 minutes (sequential to avoid cascading failures)
 
 - **kiips-developer** (verification):
   - Health check API calls (`curl http://localhost:8601/actuator/health`)
-  - API endpoint testing (kiips-api-tester skill)
-  - Log file analysis (kiips-log-analyzer skill)
+  - API endpoint testing (kiips-build skill)
+  - Log file analysis (kiips-logs skill)
 
 - **checklist-generator** (validation):
   - Pre-deployment checklist (build artifacts, configs)
@@ -171,8 +171,8 @@ stages = [
 ```javascript
 // After service starts, run health check and log analysis in parallel
 parallel([
-  { worker: 'kiips-developer', task: 'Health Check', skill: 'kiips-api-tester', time: 30s },
-  { worker: 'kiips-developer', task: 'Log Analysis', skill: 'kiips-log-analyzer', time: 30s }
+  { worker: 'kiips-developer', task: 'Health Check', skill: 'kiips-build', time: 30s },
+  { worker: 'kiips-developer', task: 'Log Analysis', skill: 'kiips-logs', time: 30s }
 ])
 
 // Wait for both to complete before proceeding
@@ -235,7 +235,7 @@ onHealthCheckFailure = (serviceName, error) => {
 
 ### Stage 4: Health Check
 
-**Owner**: kiips-developer + kiips-api-tester skill
+**Owner**: kiips-developer + kiips-build skill
 
 **Checks**:
 ```bash
@@ -258,7 +258,7 @@ curl http://localhost:8601/api/health
 
 ### Stage 5: Log Verification
 
-**Owner**: kiips-developer + kiips-log-analyzer skill
+**Owner**: kiips-developer + kiips-logs skill
 
 **Checks**:
 ```bash
@@ -329,9 +329,9 @@ overallProgress = (completed / total) * 100 // ~62%
 
 1. **Primary** routes to Deployment Manager (task: `service_deploy`)
 2. **Deployment Manager** activates skills:
-   - `kiips-service-deployer`
-   - `kiips-api-tester`
-   - `kiips-log-analyzer`
+   - `kiips-build`
+   - `kiips-build`
+   - `kiips-logs`
 3. **Deployment Manager** acquires domain lock on "deployment"
 4. **Deployment Manager** delegates Stage 1 to checklist-generator:
    - Pre-deployment checks → PASS
@@ -462,5 +462,5 @@ This agent follows the shared parallel execution protocols:
 ---
 
 **Related Agents**: primary-coordinator, kiips-developer, checklist-generator
-**Related Skills**: kiips-service-deployer, kiips-api-tester, kiips-log-analyzer, deployment-pipeline-orchestration
+**Related Skills**: kiips-build, kiips-logs, deployment-pipeline-orchestration
 **Coordination Scripts**: task-allocator.js, manager-coordinator.js, file-lock-manager.js

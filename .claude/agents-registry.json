@@ -1,6 +1,6 @@
 {
-  "_generated": "2026-02-06T00:00:00.000Z",
-  "_description": "Auto-generated KiiPS agent registry. Do not edit manually. Use /sync-registry to regenerate.",
+  "_generated": "2026-03-27T00:00:00.000Z",
+  "_description": "KiiPS agent registry. Manually maintained.",
   "agents": {
     "kiips-architect": {
       "file": ".claude/agents/kiips-architect.md",

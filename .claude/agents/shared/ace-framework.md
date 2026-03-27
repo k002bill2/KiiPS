@@ -387,7 +387,7 @@ Level 5: Abort with recovery info (manual)
 | Feature Lifecycle | "기능 개발" | architect → compliance-checker → developer → ui-designer → test-runner |
 | Incident Response | "에러 분석" | log-reader → log-analyzer → db-inspector → api-tester |
 
-상세: `.claude/skills/chain-of-skills/` 참조
+상세: `.claude/skills/kiips-orchestration/` 참조
 
 ---
 

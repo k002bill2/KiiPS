@@ -317,31 +317,44 @@ async function onPreToolUse(event) {
 
 // ─── CLI Entry Point (stdin JSON 파싱) ───────────────────────
 if (require.main === module) {
-  let input = "";
+  const chunks = [];
   process.stdin.setEncoding("utf8");
-  process.stdin.on("data", (chunk) => {
-    input += chunk;
-  });
+  process.stdin.on("data", (chunk) => chunks.push(chunk));
   process.stdin.on("end", async () => {
     try {
+      const input = chunks.join("");
+      if (!input.trim()) {
+        // 빈 입력 → 안전하게 차단 (fail-closed)
+        process.stderr.write(
+          "[EthicalValidator] Empty input - blocking for safety\n",
+        );
+        process.exit(2);
+      }
       const event = JSON.parse(input);
       const result = await onPreToolUse(event);
       if (result.decision === "block") {
-        // stderr로 차단 메시지 출력 (사용자에게 표시)
         if (result.message) process.stderr.write(result.message);
         process.exit(2); // exit 2 = block
       }
       process.exit(0); // exit 0 = allow
     } catch (e) {
-      // JSON 파싱 실패 또는 기타 에러 → fail-close (안전 차단)
-      process.stderr.write(`[EthicalValidator] Parse error: ${e.message}\n`);
+      // JSON 파싱 실패 또는 기타 에러 → fail-closed (차단)
+      // 악의적 입력으로 안전 검사 우회 방지
+      process.stderr.write(
+        `[EthicalValidator] Parse error - blocking for safety: ${e.message}\n`,
+      );
       process.exit(2);
     }
   });
-  // stdin이 비어있는 경우 타임아웃
-  setTimeout(() => {
-    process.exit(0);
-  }, 5000);
+  // stdin 미수신 시 안전 타임아웃 (fail-closed)
+  const safetyTimer = setTimeout(() => {
+    process.stderr.write(
+      "[EthicalValidator] stdin timeout - blocking for safety\n",
+    );
+    process.exit(2);
+  }, 10_000);
+  process.stdin.on("end", () => clearTimeout(safetyTimer));
+  process.stdin.resume();
 }
 
 // Export for Claude Code Hook system

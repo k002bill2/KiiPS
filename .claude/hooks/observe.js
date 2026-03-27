@@ -430,7 +430,70 @@ if (require.main === module) {
   }, 3000);
 }
 
+/**
+ * 외부에서 호출 가능한 관찰 처리 함수
+ * @param {Object} event - PostToolUse 이벤트 JSON
+ */
+function processEvent(event) {
+  try {
+    const toolName = event.tool_name || "unknown";
+    HEALTH.totalEvents++;
+    checkRateLimit();
+    if (CONFIG.skipTools.includes(toolName)) {
+      HEALTH.skippedEvents++;
+      saveHealthStatus();
+      return;
+    }
+    const toolInput = event.tool_input || {};
+    const toolResult = event.tool_result || "";
+    const inputText = truncate(toolInput, CONFIG.maxInputLength);
+    const outputText = truncate(toolResult, CONFIG.maxOutputLength);
+    const combinedText = inputText + " " + outputText;
+    const allDomains = new Set(detectDomains(combinedText));
+    if (toolInput.file_path) {
+      for (const d of detectDomainsFromPath(toolInput.file_path))
+        allDomains.add(d);
+    }
+    if (toolName === "Bash" && toolInput.command) {
+      for (const d of detectDomainsFromCommand(toolInput.command))
+        allDomains.add(d);
+    }
+    const observation = {
+      timestamp: new Date().toISOString(),
+      event: "tool_complete",
+      tool: toolName,
+      domains:
+        Array.from(allDomains).length > 0
+          ? Array.from(allDomains)
+          : ["general"],
+    };
+    if (["Edit", "Write"].includes(toolName) && toolInput.file_path)
+      observation.file = toolInput.file_path;
+    if (toolName === "Bash" && toolInput.command)
+      observation.command = truncate(toolInput.command, 500);
+    const resultStr =
+      typeof toolResult === "string" ? toolResult : JSON.stringify(toolResult);
+    if (/error|exception|fail|FAIL/i.test(resultStr)) {
+      observation.has_error = true;
+      observation.error_snippet = truncate(
+        resultStr.match(/(?:error|exception|fail)[^\n]{0,200}/i)?.[0] || "",
+        200,
+      );
+    }
+    saveObservation(observation);
+    saveHealthStatus();
+  } catch (err) {
+    HEALTH.droppedEvents++;
+    HEALTH.errors.push({
+      at: new Date().toISOString(),
+      msg: "processEvent: " + (err.message || "unknown"),
+    });
+    saveHealthStatus();
+  }
+}
+
 module.exports = {
+  processEvent,
   detectDomains,
   detectDomainsFromPath,
   detectDomainsFromCommand,

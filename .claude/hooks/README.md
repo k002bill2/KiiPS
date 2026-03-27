@@ -20,7 +20,7 @@ This directory contains Claude Code hooks for automating KiiPS workflows.
 
 **Configuration**:
 ```json
-// In .claudecode.json
+// In settings.json
 "hooks": {
   "SessionStart": [
     {
@@ -69,7 +69,7 @@ Update timestamp
 
 1. Create script in `.claude/hooks/`
 2. Make executable: `chmod +x script.sh`
-3. Register in `.claudecode.json`
+3. Register in `settings.json`
 4. Test manually first
 
 ---

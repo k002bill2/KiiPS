@@ -204,9 +204,9 @@ fetch('/api/funds');
 | Skill | Usage |
 |-------|-------|
 | **kiips-realgrid-guide** | RealGrid 2.6.3 종합 가이드 - 필수 참조 |
-| **kiips-responsive-validator** | 생성된 컴포넌트의 반응형 검증 |
-| **kiips-a11y-checker** | 접근성 자동 검증 및 수정 |
-| **kiips-scss-theme-manager** | SCSS 스타일 커스터마이징 |
+| **kiips-quality** | 생성된 컴포넌트의 반응형 검증 |
+| **kiips-quality** | 접근성 자동 검증 및 수정 |
+| **kiips-scss** | SCSS 스타일 커스터마이징 |
 
 ## Naming Conventions
 

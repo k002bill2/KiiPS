@@ -315,8 +315,8 @@ Add to plan document header:
 - [plan-template-kiips.md](plan-template-kiips.md) - Feature plan template
 
 ## Related Skills
-- **kiips-maven-builder** - Build planned features and verify dependencies
-- **kiips-service-deployer** - Deploy implemented features to environments
-- **kiips-api-tester** - Test feature APIs and validate functionality
-- **kiips-log-analyzer** - Monitor feature performance and track issues
+- **kiips-build** - Build planned features and verify dependencies
+- **kiips-build** - Deploy implemented features to environments
+- **kiips-build** - Test feature APIs and validate functionality
+- **kiips-logs** - Monitor feature performance and track issues
 - **checklist-generator** - Generate feature development checklists and quality gates

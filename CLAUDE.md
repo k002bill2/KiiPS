@@ -94,43 +94,29 @@
 
 | Skill | 용도 |
 |-------|------|
-| `kiips-ace-essentials` | ACE 핵심 가드레일 (위험 차단, 보호 모듈, 빌드 순서, 에이전트 라우팅) |
-| `kiips-page-pattern-guide` | JSP 페이지 표준 패턴 (레이아웃, Include, 연동) |
+| `kiips-build` | 빌드/배포/기동 통합 (Maven, 배포, Pre-flight, 헬스체크) |
+| `kiips-backend` | 백엔드 통합 (Controller/Service/DAO 패턴, 공통 코드, API 설계) |
+| `kiips-frontend-guidelines` | JSP/jQuery/Bootstrap 표준 패턴, AJAX 규칙 |
+| `kiips-mybatis-guide` | MyBatis mapper, 동적 SQL, DB 검증, SQL Injection 방지 |
+| `kiips-security-guide` | Spring Security, XSS/CSRF 방어, 인증/인가 |
+| `kiips-realgrid-guide` | RealGrid 2.6.3 그리드 생성, 설정, Excel, 성능 |
+| `kiips-ui-component-builder` | JSP 컴포넌트 템플릿 생성 |
+| `kiips-page-pattern-guide` | JSP 페이지 표준 패턴 (레이아웃, Include, 연동, 상세페이지) |
 | `kiips-search-filter-guide` | 검색필터 (MainComponent, Constant, 필터바) |
 | `kiips-button-guide` | 버튼 영역 (inc_main_button, 권한, 아이콘) |
-| `kiips-realgrid-guide` | RealGrid 그리드 생성, 설정, Excel, 성능 |
-| `kiips-ui-component-builder` | JSP 컴포넌트 템플릿 생성 |
-| `kiips-scss-theme-manager` | SCSS 테마 및 디자인 토큰 |
-| `kiips-responsive-validator` | 반응형 디자인 검증 |
-| `kiips-darktheme-applier` | 다크테마 전용 적용 워크플로우 |
-| `kiips-regist-modal-guide` | 등록/수정 모달 생성 (폼, 그리드, columnGroup) |
-| `kiips-a11y-checker` | WCAG 2.1 AA 접근성 검증 |
-| `kiips-api-tester` | API 엔드포인트 테스트, 헬스 체크 |
-| `kiips-backend-guidelines` | Controller/Service/DAO 표준 패턴, API 설계 |
-| `kiips-build-deploy` | 빌드+배포 통합 워크플로우 (빌드→테스트→배포→헬스체크) |
-| `kiips-common-patterns` | KiiPS-COMMON/UTILS 공통 코드, 예외 처리 |
-| `kiips-database-verification` | DB 변경 검증, MyBatis 안전 패턴, DBA 승인 |
-| `kiips-db-inspector` | DB 구조 조회 전용 (MyBatis mapper 분석, 읽기 전용) |
-| `kiips-detail-page-planner` | 상세페이지 개발 계획서 자동 생성 |
+| `kiips-regist-modal-guide` | 등록/수정 모달 (폼, 그리드, columnGroup) |
+| `kiips-linked-approval-template` | 결재 연계 문서 HTML 템플릿 + 데이터 바인딩 |
+| `kiips-scss` | SCSS 테마 + 다크테마 통합 (디자인 토큰, [data-theme=dark]) |
+| `kiips-quality` | 웹 접근성(WCAG) + 반응형 디자인 검증 통합 |
+| `kiips-logs` | 로그 조회/분석 통합 (에러 탐지, 모니터링) |
+| `kiips-db-inspector` | DB 구조 조회 (MyBatis mapper 분석, 읽기 전용) |
 | `kiips-feature-planner` | Feature 개발 계획 수립 (마이크로서비스) |
-| `kiips-frontend-guidelines` | JSP/jQuery/Bootstrap 표준 패턴, AJAX 규칙 |
-| `kiips-log-analyzer` | 로그 분석, 에러 탐지, 모니터링 |
-| `kiips-log-reader` | 구조화된 로그 조회/필터링 (읽기 전용) |
-| `kiips-maven-builder` | Maven Multi-Module 빌드, 의존성 해결 |
-| `kiips-mybatis-guide` | MyBatis mapper, 동적 SQL, SQL Injection 방지 |
-| `kiips-security-guide` | Spring Security, XSS/CSRF 방어, 인증/인가 |
-| `kiips-service-deployer` | 서비스 배포, 중지, 재시작 |
-| `kiips-startup` | 서비스 시작 Pre-flight 체크 및 순차 기동 |
 | `kiips-test-runner` | JUnit/Jest/Karma 테스트 실행 및 검증 |
-| `parallel-coordinator` | 병렬 에이전트 실행 조정 (ACE Framework) *(글로벌 동일본 존재)* |
-| `kiips-continuous-learning` | 연속 학습 시스템 (Instinct 생성, 패턴 감지, 진화) *(글로벌: continuous-learning)* |
-| `legacy-compliance-checker` | 레거시 준수 검증 (Java 8, Spring Boot 2.4.x, jQuery/JSP 표준) |
-| `chain-of-skills` | ACE Framework 기반 스킬 체이닝 파이프라인 오케스트레이션 |
-| `kiips-session-wrap` | 세션 종료 정리 (변경 요약, 학습, 인수인계) *(글로벌: session-wrap)* |
-| `kiips-skill-factory` | 세션 활동 분석 → 스킬/커맨드 자동 생성 (중복 검사 포함) |
-| `kiips-linked-approval-template` | 결재 연계 문서 HTML 템플릿 + 데이터 바인딩 생성 |
-| `checklist-generator` | 코드 리뷰, 배포, 테스트, ACE 검증 체크리스트 생성 |
-| `code-simplifier` | 구현 후 코드 복잡도 분석 및 단순화 (Boris Cherny principle) |
+| `kiips-orchestration` | 병렬 에이전트, ACE 가드레일, 스킬 체이닝 통합 |
+| `kiips-learning` | 학습 시스템 통합 (Instinct 생성, 패턴 감지, 스킬 팩토리) |
+| `legacy-compliance-checker` | 레거시 준수 검증 (Java 8, Spring Boot 2.4.x) |
+| `checklist-generator` | 코드 리뷰, 배포, 테스트 체크리스트 생성 |
+| `code-simplifier` | 구현 후 코드 단순화 (Boris Cherny principle) |
 
 ---
 

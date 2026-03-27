@@ -207,7 +207,7 @@ grep -rn 'FUND_CD' KiiPS-FD/src/main/resources/mapper/
 
 ## Integration
 
-### With kiips-database-verification
+### With kiips-mybatis-guide
 - DB 변경 작업 전 현재 구조 파악에 활용
 - 구조 조회 전용으로 사용
 
@@ -219,4 +219,4 @@ grep -rn 'FUND_CD' KiiPS-FD/src/main/resources/mapper/
 
 **Version**: 1.0.0
 **Last Updated**: 2026-03-13
-**Related**: kiips-database-verification, kiips-mybatis-guide, kiips-backend-guidelines
+**Related**: kiips-mybatis-guide, kiips-mybatis-guide, kiips-backend

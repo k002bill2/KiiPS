@@ -138,7 +138,7 @@ Multi-agent systems use ~15x more tokens than single-agent.
 ```
 build-manager
    +- Coordinates: kiips-developer for Maven builds
-   +- Skill: kiips-maven-builder
+   +- Skill: kiips-build
 
 feature-manager
    +- Coordinates: architect -> developer -> ui-designer -> checklist
@@ -147,11 +147,11 @@ feature-manager
 ui-manager
    +- Coordinates: kiips-ui-designer, kiips-realgrid-generator
    +- Skills: kiips-ui-component-builder, kiips-realgrid-guide,
-              kiips-responsive-validator, kiips-a11y-checker, kiips-scss-theme-manager
+              kiips-quality, kiips-quality, kiips-scss
 
 deployment-manager
    +- Coordinates: kiips-developer for deployment pipeline
-   +- Skills: kiips-service-deployer, kiips-api-tester, kiips-log-analyzer
+   +- Skills: kiips-build, kiips-logs
 ```
 
 ## Common Mistakes
