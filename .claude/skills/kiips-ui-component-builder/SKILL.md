@@ -136,6 +136,59 @@ gridView.editOptions.commitByCell = true;
 
 팝업 생성 시 반드시 참조: [docs/POPUP_GUIDE.md](../../../docs/POPUP_GUIDE.md)
 
+### 5. 폼 입력 컴포넌트 표준 패턴 (CRITICAL)
+
+KiiPS 프로젝트 전용 패턴입니다. Bootstrap 기본 클래스를 사용하면 스타일이 깨집니다.
+
+#### 체크박스
+
+```html
+<!-- ✅ KiiPS 표준 -->
+<div class="form-check-inline">
+    <div class="checkbox-custom checkbox-default mb-2">
+        <input type="checkbox" data-id="FIELD_ID" data-gbn="checkbox" id="FIELD_ID">
+        <label for="FIELD_ID">&nbsp;라벨</label>
+    </div>
+</div>
+
+<!-- ❌ 금지: Bootstrap custom-control -->
+<div class="custom-control custom-checkbox">
+    <input type="checkbox" class="custom-control-input">
+</div>
+
+<!-- ❌ 금지: form-check-input 클래스 -->
+<input type="checkbox" class="form-check-input">
+```
+
+**필수 클래스**: `checkbox-custom checkbox-default`
+**금지 클래스**: `custom-control`, `custom-checkbox`, `form-check-input`
+
+#### 날짜 입력
+
+```html
+<!-- ✅ KiiPS 표준 (flatpickr) -->
+<input type="text" class="form-control flatpickr-basic"
+       data-id="FIELD_ID" data-gbn="date" name="FIELD_ID"
+       placeholder="YYYY-MM-DD">
+
+<!-- ❌ 금지: datepicker -->
+<input type="text" class="datepicker">
+```
+
+**필수**: `flatpickr-basic` + `data-gbn="date"` + `placeholder="YYYY-MM-DD"`
+
+#### 토글 스위치
+
+```html
+<div class="media-body text-left icon-state switch-outline">
+    <label class="switch">
+        <input type="checkbox" data-id="FIELD_ID" data-gbn="checkbox"
+               name="FIELD_ID" id="FIELD_ID">
+        <span class="switch-state"></span>
+    </label>
+</div>
+```
+
 ## Component Templates
 
 | Template | Purpose | File |
@@ -185,6 +238,9 @@ document.innerHTML = userInput;
 fetch('http://localhost:8000/api/funds');
 // 접근성 누락
 <button onclick="save()">저장</button>
+// 다크모드 미지원 — 인라인 색상
+el.style.color = "#333";
+el.style.backgroundColor = "#f8f9fa";
 ```
 
 ### Do
@@ -197,7 +253,22 @@ fetch('/api/funds');
 <button onclick="save()" aria-label="펀드 정보 저장">
     <i class="bi bi-save" aria-hidden="true"></i> 저장
 </button>
+// 다크모드 지원 — CSS 클래스 또는 테마 감지
+el.classList.add("summary-bar");
+// 또는 불가피 시:
+var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+el.style.color = isDark ? "#ddd" : "#333";
 ```
+
+## Dark Mode Rules (CRITICAL)
+
+새 컴포넌트 생성 시 반드시 준수:
+
+1. **인라인 style에 `color`, `background-color`, `border-color` 사용 금지** → CSS 클래스 사용
+2. **새 CSS 클래스는 라이트+다크 쌍으로** `custom.scss`에 정의
+3. **JS 커스텀 렌더러**에서 색상 하드코딩 시 `isDark` 분기 필수
+4. **Bootstrap 유틸**: `text-dark` 대신 `text-body` 사용 (다크 지원)
+5. 상세: [kiips-scss](../kiips-scss/SKILL.md) 참조
 
 ## Related Skills
 

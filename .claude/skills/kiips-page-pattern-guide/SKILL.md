@@ -266,6 +266,79 @@ KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/
 - [ ] 모달 (필요 시)
 - [ ] footer_sidemenu.jsp Include
 - [ ] Controller에 화면 매핑 추가
+- [ ] **다크모드 호환** (아래 규칙 참조)
+
+---
+
+# Part 11: 다크모드 자동 연동 (CRITICAL)
+
+새 페이지/컴포넌트 생성 시 반드시 다크모드를 고려해야 합니다.
+
+## 규칙 1: 인라인 style에 색상 금지
+
+```jsp
+<!-- ❌ 다크모드에서 오버라이드 불가 -->
+<div style="background-color:#f8f9fa; color:#333; border:1px solid #dee2e6;">
+
+<!-- ✅ CSS 클래스 사용 → SCSS에서 다크 오버라이드 -->
+<div class="summary-bar">
+```
+
+## 규칙 2: 새 CSS 클래스는 라이트+다크 쌍으로 정의
+
+```scss
+// custom.scss에 추가
+.my-component {
+  background-color: #f8f9fa;
+  color: #333;
+  border: 1px solid #dee2e6;
+}
+[data-theme=dark] .my-component {
+  background-color: $dark-color-3;
+  color: $dark-default-text;
+  border-color: $dark-color-4;
+}
+```
+
+## 규칙 3: RealGrid 커스텀 렌더러 다크 감지
+
+```javascript
+var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+gridView.registerCustomRenderer("my_renderer", {
+  initContent: function(parent) {
+    var el = document.createElement("span");
+    // ✅ 테마별 색상 분기
+    el.style.color = isDark ? "#ddd" : "#333";
+    el.style.background = isDark ? "#3a3f47" : "#e9ecef";
+    parent.appendChild(el);
+  }
+});
+```
+
+## 규칙 4: JS 동적 HTML 생성 시
+
+```javascript
+// ❌ 하드코딩 색상
+html += '<span style="color:#333;">텍스트</span>';
+
+// ✅ CSS 클래스 사용
+html += '<span class="text-body">텍스트</span>';
+```
+
+## 색상 매핑 Quick Reference
+
+| 용도 | 라이트 | 다크 변수 |
+|------|--------|----------|
+| 배경 | `#f8f9fa` | `$dark-bg` (#1d2127) |
+| 카드 배경 | `#fff` | `$dark-color-3` |
+| 텍스트 | `#333` | `$dark-default-text` (#eee) |
+| 테두리 | `#dee2e6` | `$dark-color-4` |
+| 입력 배경 | `#e9ecef` | `#3a3f47` |
+
+> 상세: [kiips-scss](../kiips-scss/SKILL.md) 스킬 참조
+
+---
 
 ## 추가 참조
 - 상세 레퍼런스: [reference.md](reference.md)
