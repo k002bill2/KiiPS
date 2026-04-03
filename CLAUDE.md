@@ -117,6 +117,13 @@
 | `legacy-compliance-checker` | 레거시 준수 검증 (Java 8, Spring Boot 2.4.x) |
 | `checklist-generator` | 코드 리뷰, 배포, 테스트 체크리스트 생성 |
 | `code-simplifier` | 구현 후 코드 단순화 (Boris Cherny principle) |
+| `stitch-design` | Stitch/Pencil MCP 통합 디자인 워크플로우 (프롬프트 강화, 스크린 생성) |
+| `stitch-loop` | 자율적 멀티페이지 생성 루프 (baton-passing 패턴) |
+| `design-md` | 디자인 시스템 문서 자동 생성 (DESIGN.md) |
+| `enhance-prompt` | UI 프롬프트 최적화 (디자인 시스템 일관성) |
+| `react-components` | Stitch 디자인 → React 컴포넌트 변환 |
+| `kiips-stitch-bridge` | Stitch 디자인 → KiiPS JSP 변환 브리지 |
+| `kiips-page-harness` | 페이지 자동 생성 하네스 (Plan→Generate→Evaluate 파이프라인, 정량 QA) |
 
 ---
 

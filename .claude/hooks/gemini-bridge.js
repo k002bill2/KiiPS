@@ -377,14 +377,20 @@ Focus ONLY on issues static analysis would miss:
 2. Performance at scale (N+1 queries, unnecessary DB calls)
 3. Security (MyBatis \${} SQL Injection, JSP XSS, CSRF)
 4. Business logic errors
+5. KiiPS anti-pattern violations (inline style, raw $.ajax, .dark selector, onclick handler)
 
 Skip: formatting, naming conventions, simple type issues.
 
 Output format (strict):
 ISSUES:
-- [severity:critical|warning|info] file:line - description
+- [severity:critical|warning|info] file:line — [WHY] rule/reason — [HOW] specific fix
 VERDICT: needs-attention|looks-good (1 sentence)
 SUMMARY: (1 sentence)
+
+Every issue MUST include all 3 elements:
+- WHERE: file:line (exact location)
+- WHY: which rule or principle is violated
+- HOW: concrete fix (not "please fix" but "change X to Y")
 
 DIFF:
 ${diff || "(no diff available)"}`;
