@@ -410,3 +410,23 @@ var(--rgTable-background-color)    // 그리드 배경색
 var(--rgTable-border-color)        // 테두리 색상
 var(--rgTable-header-background)   // 헤더 배경색
 ```
+
+---
+
+## 주의사항 (Anti-Patterns)
+
+### styleName:"text-center" 사용 금지
+
+RealGrid 기본 정렬이 중앙정렬이므로 `text-center`는 불필요하다.
+
+```javascript
+// BAD - 불필요한 text-center
+{fieldName: "COL1", styleName: "text-center"}
+{fieldName: "COL2", styleName: "text-center green-column"}
+
+// GOOD - text-center 제거
+{fieldName: "COL1"}
+{fieldName: "COL2", styleName: "green-column"}
+```
+
+**정렬 변경이 필요한 경우만 명시**: `right-column` (우측), `left-column` (좌측)

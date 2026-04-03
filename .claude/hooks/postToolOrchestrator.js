@@ -26,6 +26,7 @@ const hooksDir = __dirname;
 const autoFormatter = require(path.join(hooksDir, "autoFormatter.js"));
 const buildChecker = require(path.join(hooksDir, "buildChecker.js"));
 const observe = require(path.join(hooksDir, "observe.js"));
+const agentState = require(path.join(hooksDir, "agentStateManager.js"));
 
 let outputSecretFilter;
 try {
@@ -110,6 +111,17 @@ async function orchestrate(event) {
     observe.processEvent(event);
   } catch (e) {
     process.stderr.write(`[Orchestrator] observe: ${e.message}\n`);
+  }
+
+  // 7. Agent State: stale 에이전트 정리 (매 50번째 호출마다)
+  try {
+    if (!orchestrate._callCount) orchestrate._callCount = 0;
+    orchestrate._callCount++;
+    if (orchestrate._callCount % 50 === 0) {
+      agentState.cleanupStale();
+    }
+  } catch (e) {
+    // 상태 정리 실패는 무시
   }
 }
 

@@ -142,7 +142,10 @@ async function onUserPromptSubmit(prompt, context) {
     }
 
     if (messages.length > 0) {
-      return messages.join("\n\n") + "\n\n" + prompt;
+      // 토큰 버짓: 주입 메시지 총량 제한 (컨텍스트 윈도우 보호)
+      const TOKEN_BUDGET = complexity === "COMPLEX" ? 6000 : 2000; // chars (~tokens*4)
+      const joined = applyTokenBudget(messages, TOKEN_BUDGET);
+      return joined + "\n\n" + prompt;
     }
     return prompt;
   } catch (error) {
@@ -522,6 +525,38 @@ function loadLatestGeminiReview() {
   } catch (_) {
     return null;
   }
+}
+
+// ─── Token Budget (컨텍스트 윈도우 보호) ────────────────────
+
+/**
+ * 주입 메시지 총량을 버짓 내로 제한
+ * 우선순위: BLOCKED > Gemini > Skills > Specialist > 나머지
+ * @param {string[]} messages
+ * @param {number} budgetChars - 최대 문자 수
+ * @returns {string}
+ */
+function applyTokenBudget(messages, budgetChars) {
+  let total = 0;
+  const kept = [];
+  for (const msg of messages) {
+    if (total + msg.length <= budgetChars) {
+      kept.push(msg);
+      total += msg.length;
+    } else {
+      const remaining = budgetChars - total;
+      if (remaining > 80) {
+        kept.push(msg.substring(0, remaining - 30) + "\n[...truncated]");
+      }
+      break;
+    }
+  }
+  if (kept.length < messages.length) {
+    kept.push(
+      `[TokenBudget] ${messages.length - kept.length} message(s) trimmed`,
+    );
+  }
+  return kept.join("\n\n");
 }
 
 // ─── Effort Scaling (COMPLEX 전용) ──────────────────────────

@@ -77,4 +77,41 @@ CKEOF
 
 echo "📊 Learning checkpoint: ${INSTINCT_COUNT} instincts, ${OBS_COUNT} observations, domains: ${TOP_DOMAINS}"
 
+# ─── Agent State: stale 에이전트 정리 ─────────────────────────
+AGENT_STATE=".claude/agents/agent-state.json"
+if [ -f "$AGENT_STATE" ]; then
+  STALE_COUNT=$(node -e "
+    const s = require('./.claude/hooks/agentStateManager.js');
+    console.log(s.cleanupStale());
+  " 2>/dev/null || echo "0")
+  if [ "$STALE_COUNT" != "0" ]; then
+    echo "🧹 Cleaned ${STALE_COUNT} stale agent(s) before compact"
+  fi
+fi
+
+# ─── 세션 변경 파일 요약 (compact 후 컨텍스트 복구용) ──────────
+COMPACT_SUMMARY=".claude/learning/compact-summary.md"
+CHANGED_FILES=$(git diff --name-only HEAD 2>/dev/null | head -20)
+if [ -n "$CHANGED_FILES" ]; then
+  FILE_COUNT=$(echo "$CHANGED_FILES" | wc -l | tr -d ' ')
+  cat > "$COMPACT_SUMMARY" << SUMEOF
+# Pre-Compact Session Summary
+**Time**: $TIMESTAMP
+**Changed files**: $FILE_COUNT
+**Active domains**: $TOP_DOMAINS
+
+## Files modified this session
+\`\`\`
+$CHANGED_FILES
+\`\`\`
+
+## Learning state
+- Instincts: $INSTINCT_COUNT
+- Observations: ~$OBS_COUNT
+
+_This summary was auto-generated before context compaction._
+SUMEOF
+  echo "📝 Session summary saved to $COMPACT_SUMMARY ($FILE_COUNT files)"
+fi
+
 exit 0

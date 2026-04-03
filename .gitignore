@@ -61,6 +61,9 @@ node_modules/
 # Embedded git repos
 .agent/skills/
 
+# Archive (migrated legacy files)
+# .archive/
+
 # AI 도구 설정 (개인별로 다를 수 있음)
 .cursor/
 .clinerules/
@@ -92,6 +95,10 @@ opencode.json
 .claude/gemini-bridge/.pending-build.json
 .claude/hooks/*.log
 .claude/.last-update-check
+.claude/learning/agent-state.json
+.claude/learning/.state.lock
+.claude/learning/compact-summary.md
+.claude/learning/compact-checkpoint.json
 .claude/gemini-bridge/errors.log
 .claude/evals/results/history.jsonl
 .claude/evals/results/transcripts/

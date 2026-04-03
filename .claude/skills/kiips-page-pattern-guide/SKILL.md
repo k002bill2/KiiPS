@@ -206,7 +206,7 @@ KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/
                 </jsp:include>
                 <!-- 그리드 -->
                 <div id="TB_{SCREEN_ID}" data-id="TB_{SCREEN_ID}" data-gbn="table" data-provider-id="dataProvider"></div>
-                <!-- paging은 setPaging()이 동적 생성 → HTML 불필요 -->
+                <div id="paging"></div>
             </div>
         </div>
     </div>

@@ -1,0 +1,19 @@
+{
+  "name": "kiips-agent-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "KiiPS Agent System integrity and integration tests",
+  "scripts": {
+    "test": "node run-all-tests.js",
+    "test:hooks": "node test-hook-activation.js",
+    "test:agents": "node test-agent-activation.js",
+    "test:skills": "node test-skills.js",
+    "test:e2e": "node test-e2e-workflow.js",
+    "test:managers": "node test-manager-routing.js",
+    "test:ui": "node test-ui-skills-integration.js",
+    "test:evals": "node agent-evals/run-agent-evals.js"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

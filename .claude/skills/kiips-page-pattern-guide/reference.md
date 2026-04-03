@@ -130,6 +130,88 @@ function excelExport() {
 
 ---
 
+## Part 5.6: 공통 팝업 호출 패턴 (COMM_POPUP_NEW)
+
+### 함수 시그니처
+
+```javascript
+// common.js에 정의됨 (전역)
+COMM_POPUP_NEW(URL, pop_id, key, width, height)
+```
+
+| 파라미터 | 설명 | 예시 |
+|----------|------|------|
+| `URL` | API Gateway URL | `'${KiiPS_GATE}'` |
+| `pop_id` | 팝업 JSP ID (`POPUP/{pop_id}.jsp`로 매핑) | `'PG0916POP'`, `'CHECK_PIDF'` |
+| `key` | 팝업에 전달할 파라미터 객체 (또는 빈 문자열) | `param`, `rtnObj`, `''` |
+| `width` | 팝업 너비 (문자열) | `'1200'` |
+| `height` | 팝업 높이 (문자열) | `'900'` |
+
+### 내부 동작 (자동 처리)
+
+- `key.MENU_ID` 미설정 시 → 현재 화면 `MENU_ID` 자동 할당
+- `key.gtoken` → `gToken` 자동 할당
+- 팝업 위치 → 화면 중앙 자동 계산
+- `target` → `pop_id + key.invtex_seq`로 생성 (동일 대상 재오픈 시 기존 팝업 재사용)
+- `COMM_PUPUP_FORM`으로 POST 전송 → `{URL}/COM/POPUP`
+
+### 표준 사용법
+
+```javascript
+// 기본 호출 (파라미터 없이)
+COMM_POPUP_NEW('${KiiPS_GATE}', 'PG0404_CKD', '', '800', '900');
+
+// 파라미터 전달
+function fn_openPopup(grid, clickData) {
+    var rowData = grid.getValues(clickData.itemIndex);
+    var param = {
+        FIELD1: rowData.FIELD1,
+        FIELD2: StringUtil.nvl(rowData.FIELD2, ''),
+        invtex_seq: rowData.UNIQUE_KEY  // 동일 대상 재오픈 방지용
+    };
+    COMM_POPUP_NEW('${KiiPS_GATE}', '{POP_ID}', param, '1200', '900');
+}
+
+// 검색 팝업 (inline onclick)
+<button type="button" class="btn btn-only-icon btn-sm btn-outline-primary text-4"
+    onclick="COMM_POPUP_NEW('${KiiPS_GATE}','SEARCH_ORG','COMM_POPUP_SCHEDULE', '1000','900')">
+    <span class="icon_treeView"></span>
+</button>
+```
+
+### Anti-Pattern (금지)
+
+```javascript
+// BAD: 수동으로 팝업 열기 (gToken, MENU_ID, 위치 계산 중복)
+param.gtoken = gToken;
+var width = 1200;
+var popupX = (window.screen.width / 2) - (width / 2);
+var popupY = (window.screen.height / 2) - (height / 2);
+var win = window.open("", target, "width=...");
+var form = document.COMM_PUPUP_FORM;
+form.POP_ID.value = 'PG0916POP';
+form.key.value = JSON.stringify(param);
+form.action = '${KiiPS_GATE}/COM/POPUP';
+form.submit();
+
+// GOOD: COMM_POPUP_NEW 사용
+COMM_POPUP_NEW('${KiiPS_GATE}', 'PG0916POP', param, '1200', '900');
+```
+
+### 주요 사용 사례
+
+| 용도 | pop_id 예시 | 크기 |
+|------|-------------|------|
+| 조직도 | `SEARCH_ORG` | 1000x900 |
+| 전표 조회 | `SLIP` | 1800x900 |
+| 이력 조회 | `HISTRYAPP` | 1000x450 |
+| 인쇄 미리보기 | `PRINT_VIEW` | 1200x1000 |
+| 클립소프트 | `CLIPSOFT` | 811x900 |
+| 결재 조회 | `APPR_VIEW` | 960x940 |
+| 화면별 팝업 | `{SCREEN_ID}POP` | 화면별 상이 |
+
+---
+
 ## Part 6: 도메인별 버튼 등록
 
 ### 6.1 버튼 파일에 분기 추가
