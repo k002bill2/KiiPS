@@ -11,10 +11,11 @@
  *   4. gemini-collector.sh - Gemini 리뷰 수집 (Edit|Write)
  *   5. observe.js          - 학습 관찰 (Bash|Edit|Write)
  *   6. outputSecretFilter.js - 비밀번호 필터링 (Bash only)
+ *   7. geminiRealtimeFeedback - Gemini 리뷰 완료 결과 실시간 주입 (v1.1)
  *
  * 성능: 6 프로세스 → 1 프로세스 (shell hooks는 child_process.execSync)
  *
- * @version 1.0.0
+ * @version 1.1.0 - Gemini 실시간 피드백 추가
  */
 
 const path = require("path");
@@ -113,16 +114,122 @@ async function orchestrate(event) {
     process.stderr.write(`[Orchestrator] observe: ${e.message}\n`);
   }
 
-  // 7. Agent State: stale 에이전트 정리 (매 50번째 호출마다)
+  // 7. Gemini 리뷰 실시간 피드백 (매 10번째 호출마다 확인)
   try {
     if (!orchestrate._callCount) orchestrate._callCount = 0;
     orchestrate._callCount++;
+    if (orchestrate._callCount % 10 === 0) {
+      checkGeminiReviewsRealtime();
+    }
+  } catch (e) {
+    // 리뷰 피드백 실패는 무시
+  }
+
+  // 8. Agent State: stale 에이전트 정리 (매 50번째 호출마다)
+  try {
     if (orchestrate._callCount % 50 === 0) {
       agentState.cleanupStale();
     }
   } catch (e) {
     // 상태 정리 실패는 무시
   }
+}
+
+/**
+ * Gemini 리뷰 실시간 피드백 (v1.1)
+ *
+ * .claude/gemini-bridge/reviews/ 에 새로 완료된 리뷰가 있으면
+ * 현재 세션에 즉시 피드백을 주입합니다.
+ * SessionStart가 아닌 PostToolUse 시점에서 실행되어 "실시간" 효과.
+ */
+function checkGeminiReviewsRealtime() {
+  const reviewsDir = path.join(__dirname, "../gemini-bridge/reviews");
+  const shownFile = path.join(
+    __dirname,
+    "../gemini-bridge/.shown-reviews.json",
+  );
+
+  if (!fs.existsSync(reviewsDir)) return;
+
+  // 이미 표시한 리뷰 목록 로드
+  let shown = [];
+  try {
+    if (fs.existsSync(shownFile)) {
+      shown = JSON.parse(fs.readFileSync(shownFile, "utf8"));
+    }
+  } catch (_) {
+    shown = [];
+  }
+
+  // 리뷰 파일 스캔
+  const reviewFiles = fs
+    .readdirSync(reviewsDir)
+    .filter((f) => f.endsWith(".json") && !shown.includes(f));
+
+  if (reviewFiles.length === 0) return;
+
+  const newReviews = [];
+  for (const f of reviewFiles) {
+    try {
+      const data = JSON.parse(
+        fs.readFileSync(path.join(reviewsDir, f), "utf8"),
+      );
+      if (data.status === "completed" && data.needsAttention) {
+        newReviews.push({ name: f, data });
+      }
+      // 완료된 리뷰는 표시 여부와 관계없이 shown에 추가 (재표시 방지)
+      if (data.status === "completed") {
+        shown.push(f);
+      }
+    } catch (_) {
+      // 파싱 실패 무시
+    }
+  }
+
+  // shown 목록 저장 (중복 표시 방지)
+  try {
+    const dir = path.dirname(shownFile);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(shownFile, JSON.stringify(shown, null, 2), "utf8");
+  } catch (_) {}
+
+  // 주의가 필요한 리뷰만 실시간 피드백
+  if (newReviews.length === 0) return;
+
+  const feedback = [
+    ``,
+    `┌─── GEMINI REVIEW FEEDBACK (realtime) ───────────────┐`,
+  ];
+
+  for (const review of newReviews) {
+    const d = review.data;
+    const issues = d.issues || [];
+    const critical = issues.filter((x) => x.severity === "critical");
+    const type = (d.scanType || "review").toUpperCase();
+
+    feedback.push(`│ [${type}] ${review.name}`);
+    feedback.push(
+      `│   Issues: ${issues.length} (critical: ${critical.length})`,
+    );
+
+    // Critical 이슈 최대 3개 표시
+    critical.slice(0, 3).forEach((issue) => {
+      const text = (issue.text || "").substring(0, 70);
+      feedback.push(`│   CRITICAL: ${text}`);
+    });
+
+    if (d.verdict) {
+      feedback.push(`│   Verdict: ${d.verdict}`);
+    }
+  }
+
+  feedback.push(`│`);
+  feedback.push(`│ Run /gemini-handoff read for full details`);
+  feedback.push(`└────────────────────────────────────────────────────┘`);
+  feedback.push(``);
+
+  // stderr로 출력하여 Claude가 인식
+  process.stderr.write(feedback.join("\n"));
 }
 
 // ─── CLI Entry Point ────────────────────────────────────────

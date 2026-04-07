@@ -1,10 +1,13 @@
 /**
- * Build Checker Hook (Deferred Mode v2.0)
+ * Build Checker Hook (Deferred Mode v3.0 — Auto-Correction Loop)
  *
  * 코드 변경 후 빌드 필요 여부를 축적하고,
  * 일정 수 이상 Java 파일이 변경되었을 때만 빌드를 실행합니다.
  *
- * 변경: 매 Edit/Write마다 Maven 컴파일 실행 → 축적 후 조건부 실행
+ * v3.0 변경:
+ *   - 컴파일 에러 발견 시 구조화된 피드백을 stderr로 출력
+ *   - Claude가 에러를 인식하고 자동 수정을 시도하는 "자동 교정 루프" 구현
+ *   - 에러 상태를 .pending-build.json에 저장하여 추적
  */
 
 const { exec } = require("child_process");
@@ -20,6 +23,7 @@ const PENDING_BUILD_FILE = path.join(
   "../gemini-bridge/.pending-build.json",
 );
 const BUILD_THRESHOLD = 3; // Java 파일 3개 이상 변경 시 빌드 실행
+const MAX_AUTO_FIX_ATTEMPTS = 3; // 자동 교정 최대 시도 횟수
 
 /**
  * 빌드 대기 목록 로드
@@ -52,7 +56,78 @@ function savePendingBuild(state) {
  * 빌드 대기 목록 초기화
  */
 function clearPendingBuild() {
-  savePendingBuild({ files: [], lastCheck: Date.now() });
+  savePendingBuild({
+    files: [],
+    lastCheck: Date.now(),
+    errors: [],
+    autoFixAttempts: 0,
+  });
+}
+
+/**
+ * 자동 교정 피드백을 stderr로 출력
+ * Claude Code는 PostToolUse stderr 출력을 문제로 인식하고 자동 수정을 시도함
+ * @param {string} moduleName - 빌드 실패 모듈
+ * @param {Array} errors - 에러 배열 [{file, line, col, message}]
+ */
+function emitAutoCorrectFeedback(moduleName, errors) {
+  const pending = loadPendingBuild();
+
+  // Ralph Loop 가드: 이미 한계 도달 상태면 즉시 반환 (재시작 방지)
+  if ((pending.autoFixAttempts || 0) >= MAX_AUTO_FIX_ATTEMPTS) {
+    process.stderr.write(
+      `\n⛔ [BuildChecker] AUTO-CORRECTION STILL HALTED for ${moduleName}.\n` +
+        `Run: cd KiiPS-HUB && mvn clean compile -pl :${moduleName} -am\n` +
+        `Then manually clear: delete .claude/gemini-bridge/.pending-build.json\n\n`,
+    );
+    return;
+  }
+
+  const attempts = (pending.autoFixAttempts || 0) + 1;
+
+  // Ralph Loop 방지: 한계 도달 시 카운터를 MAX에 고정 (리셋하지 않음)
+  if (attempts >= MAX_AUTO_FIX_ATTEMPTS) {
+    process.stderr.write(
+      `\n⛔ [BuildChecker] AUTO-CORRECTION HALTED — ${attempts} attempts failed for ${moduleName}.\n` +
+        `Ralph Loop detected. Manual intervention required.\n` +
+        `Run: cd KiiPS-HUB && mvn clean compile -pl :${moduleName} -am\n\n`,
+    );
+    // 카운터를 MAX에 고정 — 0으로 리셋하지 않아 다음 편집에서도 가드에 걸림
+    pending.autoFixAttempts = MAX_AUTO_FIX_ATTEMPTS;
+    pending.errors = errors;
+    savePendingBuild(pending);
+    return;
+  }
+
+  // 에러 상태 저장 (추적용)
+  pending.autoFixAttempts = attempts;
+  pending.errors = errors;
+  pending.lastErrorTime = Date.now();
+  savePendingBuild(pending);
+
+  // 구조화된 에러 피드백 출력 → Claude가 자동 수정 시도
+  const feedback = [
+    ``,
+    `╔══════════════════════════════════════════════════════════════╗`,
+    `║  ⚠️  BUILD FAILED — AUTO-CORRECTION REQUIRED (attempt ${attempts}/${MAX_AUTO_FIX_ATTEMPTS})  ║`,
+    `╠══════════════════════════════════════════════════════════════╣`,
+    `║  Module: ${moduleName.padEnd(49)}║`,
+    `╚══════════════════════════════════════════════════════════════╝`,
+    ``,
+  ];
+
+  errors.forEach((err, i) => {
+    feedback.push(`  ${i + 1}. ${err.file}:${err.line} — ${err.message}`);
+  });
+
+  feedback.push(``);
+  feedback.push(
+    `ACTION REQUIRED: Fix the compilation errors above, then save the files.`,
+  );
+  feedback.push(`The build will re-verify automatically after the next edit.`);
+  feedback.push(``);
+
+  process.stderr.write(feedback.join("\n"));
 }
 
 /**
@@ -103,12 +178,19 @@ async function onPostToolUse(context) {
     console.log(`Accumulated ${pending.files.length} Java file(s)\n`);
 
     // 각 모듈에서 빌드 실행
+    let hasErrors = false;
     for (const modulePath of editedModules) {
       await checkBuild(modulePath);
     }
 
-    // 빌드 완료 후 대기 목록 초기화
-    clearPendingBuild();
+    // 에러가 있으면 파일 목록만 초기화 (autoFixAttempts 유지)
+    const postBuild = loadPendingBuild();
+    if (postBuild.errors && postBuild.errors.length > 0) {
+      postBuild.files = []; // 파일 목록만 초기화하여 다음 수정 후 재빌드 가능
+      savePendingBuild(postBuild);
+    } else {
+      clearPendingBuild();
+    }
 
     console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
   } catch (error) {
@@ -172,46 +254,50 @@ async function checkBuild(moduleName) {
     // 빌드 성공
     if (stdout.includes("BUILD SUCCESS")) {
       console.log(`✅ Build successful in ${moduleName}`);
+      // 성공 시 자동 교정 카운터 리셋
+      const pending = loadPendingBuild();
+      if (pending.autoFixAttempts > 0) {
+        console.log(
+          `  ✨ Auto-correction succeeded after ${pending.autoFixAttempts} attempt(s)`,
+        );
+        pending.autoFixAttempts = 0;
+        pending.errors = [];
+        savePendingBuild(pending);
+      }
       return;
     }
 
-    // 빌드 실패 - 에러 추출
+    // 빌드 실패 - 구조화된 에러 추출
     const errors = extractBuildErrors(stderr + stdout);
 
     if (errors.length === 0) {
       console.log(`⚠️  Build completed with warnings in ${moduleName}`);
-    } else if (errors.length < 5) {
-      console.log(`\n❌ Build failed in ${moduleName}:\n`);
-      errors.forEach((error, index) => {
-        console.log(`${index + 1}. ${error}`);
-      });
-      console.log("\n💡 Please fix these errors before continuing.\n");
     } else {
-      console.log(
-        `\n❌ ${errors.length} compilation errors found in ${moduleName}!`,
-      );
-      console.log(
-        "💡 Consider reviewing the changes or running build manually:\n",
-      );
-      console.log(
-        `   cd KiiPS-HUB && mvn clean compile -pl :${moduleName} -am\n`,
-      );
+      // v3.0: 자동 교정 루프 — stderr로 구조화된 피드백 출력
+      emitAutoCorrectFeedback(moduleName, errors);
     }
   } catch (error) {
     // 빌드 명령 실패
     if (error.code === "ETIMEDOUT") {
       console.log(`⏱️  Build timeout for ${moduleName} (exceeded 120s)`);
     } else {
-      console.log(`❌ Build error for ${moduleName}: ${error.message}`);
-      console.log("💡 Ensure JAVA_HOME is set and Maven is available");
+      // exec 에러에도 stderr에서 컴파일 에러 추출 시도
+      const errorOutput = (error.stderr || "") + (error.stdout || "");
+      const errors = extractBuildErrors(errorOutput);
+      if (errors.length > 0) {
+        emitAutoCorrectFeedback(moduleName, errors);
+      } else {
+        console.log(`❌ Build error for ${moduleName}: ${error.message}`);
+        console.log("💡 Ensure JAVA_HOME is set and Maven is available");
+      }
     }
   }
 }
 
 /**
- * Maven 출력에서 컴파일 에러 추출
+ * Maven 출력에서 컴파일 에러 추출 (v3.0: 구조화된 에러 객체 반환)
  * @param {string} output - Maven 출력
- * @returns {Array} - 에러 메시지 배열
+ * @returns {Array} - 에러 객체 배열 [{file, line, col, message}]
  */
 function extractBuildErrors(output) {
   const errors = [];
@@ -226,8 +312,12 @@ function extractBuildErrors(output) {
       const match = line.match(/\[ERROR\]\s+(.+\.java):\[(\d+),(\d+)\]\s+(.+)/);
       if (match) {
         const [, file, lineNum, col, message] = match;
-        const fileName = path.basename(file);
-        errors.push(`${fileName}:${lineNum} - ${message.trim()}`);
+        errors.push({
+          file: file.trim(),
+          line: parseInt(lineNum, 10),
+          col: parseInt(col, 10),
+          message: message.trim(),
+        });
       }
     }
   }

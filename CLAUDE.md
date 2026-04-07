@@ -127,7 +127,7 @@
 
 ---
 
-## Active Commands (21개)
+## Active Commands (24개)
 
 **Core** — 핵심 워크플로우
 
@@ -157,6 +157,9 @@
 | `/service-status` | 서비스 상태 확인 |
 | `/view-logs` | 로그 조회 |
 | `/instinct-status` | 학습 패턴 조회 |
+| `/check-rules` | 규칙 위반 코드베이스 스캔 (7개 rules 자동 검증) |
+| `/periodic-cleanup` | 주기적 GC (미사용 코드, 규칙 위반, Instinct 수명 관리) |
+| `/instinct-gc` | Instinct 수명 관리 (저신뢰/미사용 아카이빙, Observation 정리) |
 | `/kiips-linked-approval-template` | 연계승인 템플릿 |
 
 ---
