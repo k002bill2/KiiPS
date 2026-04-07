@@ -27,12 +27,12 @@
 4. **증거 기반 완료** - 실행 증거 없이 완료 선언 금지 → [rules/verification.md](.claude/rules/verification.md)
 5. **Fresh-context 검증** - 구현 후 `/verify`로 독립 검증 (확인 편향 제거)
 6. **반합리화** - 요청 범위만 수정, 범위 확장 금지 → [rules/anti-rationalization.md](.claude/rules/anti-rationalization.md)
-7. **Context 50% Rule** - 컨텍스트 50% 초과 시 `/compact` 실행 (Golden Principle #8)
+7. **Context 90% Rule** - 컨텍스트 90% 초과 시 `/compact` 실행
 8. **Boundary Validation** - Controller에서 입력 검증 → [rules/validation.md](.claude/rules/validation.md)
 
 ---
 
-## Rules (상세 규칙 파일)
+## Rules
 
 | 규칙 | 요약 | 상세 |
 |------|------|------|
@@ -43,188 +43,49 @@
 | Verification | 증거 기반 완료, 검증 게이트 | → [verification.md](.claude/rules/verification.md) |
 | Anti-Rationalization | HARD-GATE, Ralph Loop 감지 | → [anti-rationalization.md](.claude/rules/anti-rationalization.md) |
 | Validation | Controller 입력 검증, Boundary 원칙 | → [validation.md](.claude/rules/validation.md) |
+| Power Stack | 4단계 프레임워크 파이프라인 | → [power-stack.md](.claude/rules/power-stack.md) |
 
 ---
 
-## Project Structure (Monorepo)
+## Project Structure
 
 - **Parent POM**: `KiiPS-HUB/` (항상 여기서 빌드)
 - **빌드 순서**: COMMON → UTILS → 서비스 모듈
-- **SCSS 위치**: `KiiPS-UI/src/main/resources/static/css/sass/`
-- **JSP 위치**: `KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/{도메인}/`
-- **모듈 검색**: API/공통 코드 추적 시 모든 모듈 검색 (루트만 보지 말 것)
-- **주요 모듈**: KiiPS-FD(펀드), KiiPS-IL(투자원장), KiiPS-AC(회계), KiiPS-SY(시스템), KiiPS-LP(LP관리), KiiPS-EL(전자원장), KIIPS-BATCH, KIIPS-HELP
-
----
-
-## Documentation
-
-| 문서 | 내용 |
-|------|------|
-| [architecture.md](./architecture.md) | 시스템 구조, 모듈, 통신 패턴 |
-| [api.md](./api.md) | API Gateway, 엔드포인트, 인증 |
-| [deployment.md](./deployment.md) | 빌드, 배포, 환경 관리 |
-| [troubleshooting.md](./troubleshooting.md) | 문제 해결, 디버깅 |
-| [docs/REALGRID_GUIDE.md](./docs/REALGRID_GUIDE.md) | RealGrid 2.6.3 가이드 |
-| [docs/SCSS_GUIDE.md](./docs/SCSS_GUIDE.md) | SCSS 테마 시스템 |
-| [docs/AGENT_TEAMS_GUIDE.md](./docs/AGENT_TEAMS_GUIDE.md) | Agent Teams 팀 운영 가이드 |
-
----
-
-## Service Ports
-
-| Service | Port | Service | Port |
-|---------|------|---------|------|
-| Gateway | 8088 | Login | 8801 |
-| Common | 8701 | UI | 8100 |
-| FD | 8601 | IL | 8401 |
-
----
+- **SCSS**: `KiiPS-UI/src/main/resources/static/css/sass/`
+- **JSP**: `KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/{도메인}/`
+- **모듈 검색**: API/공통 코드 추적 시 모든 모듈 검색
+- **주요 모듈**: KiiPS-FD, KiiPS-IL, KiiPS-AC, KiiPS-SY, KiiPS-LP, KiiPS-EL, KIIPS-BATCH, KIIPS-HELP
+- **Core**: KiiPS-HUB(Parent POM), KiiPS-COMMON(공통), KiiPS-UTILS(DAO), KiiPS-UI(WAR), KIIPS-APIGateway
 
 ## Tech Stack
 
 - **Backend**: Spring Boot 2.4.2, Java 8
 - **Frontend**: JSP, jQuery, Bootstrap, RealGrid 2.6.3, ApexCharts
-- **Build**: Maven Multi-Module
-- **VCS**: SVN
+- **Build**: Maven Multi-Module | **VCS**: SVN
+
+## Service Ports
+
+| Gateway | UI | Common | FD | IL | Login |
+|---------|-----|--------|-----|-----|-------|
+| 8088 | 8100 | 8701 | 8601 | 8401 | 8801 |
+
+## Environment
+
+- `app-local.properties` / `app-stg.properties` / `app-kiips.properties`
 
 ---
 
-## Active Skills
+## Catalogs & References
 
-| Skill | 용도 |
-|-------|------|
-| `kiips-build` | 빌드/배포/기동 통합 (Maven, 배포, Pre-flight, 헬스체크) |
-| `kiips-backend` | 백엔드 통합 (Controller/Service/DAO 패턴, 공통 코드, API 설계) |
-| `kiips-frontend-guidelines` | JSP/jQuery/Bootstrap 표준 패턴, AJAX 규칙 |
-| `kiips-mybatis-guide` | MyBatis mapper, 동적 SQL, DB 검증, SQL Injection 방지 |
-| `kiips-security-guide` | Spring Security, XSS/CSRF 방어, 인증/인가 |
-| `kiips-realgrid-guide` | RealGrid 2.6.3 그리드 생성, 설정, Excel, 성능 |
-| `kiips-ui-component-builder` | JSP 컴포넌트 템플릿 생성 |
-| `kiips-page-pattern-guide` | JSP 페이지 표준 패턴 (레이아웃, Include, 연동, 상세페이지) |
-| `kiips-search-filter-guide` | 검색필터 (MainComponent, Constant, 필터바) |
-| `kiips-button-guide` | 버튼 영역 (inc_main_button, 권한, 아이콘) |
-| `kiips-regist-modal-guide` | 등록/수정 모달 (폼, 그리드, columnGroup) |
-| `kiips-linked-approval-template` | 결재 연계 문서 HTML 템플릿 + 데이터 바인딩 |
-| `kiips-scss` | SCSS 테마 + 다크테마 통합 (디자인 토큰, [data-theme=dark]) |
-| `kiips-quality` | 웹 접근성(WCAG) + 반응형 디자인 검증 통합 |
-| `kiips-logs` | 로그 조회/분석 통합 (에러 탐지, 모니터링) |
-| `kiips-db-inspector` | DB 구조 조회 (MyBatis mapper 분석, 읽기 전용) |
-| `kiips-feature-planner` | Feature 개발 계획 수립 (마이크로서비스) |
-| `kiips-test-runner` | JUnit/Jest/Karma 테스트 실행 및 검증 |
-| `kiips-orchestration` | 병렬 에이전트, ACE 가드레일, 스킬 체이닝 통합 |
-| `kiips-learning` | 학습 시스템 통합 (Instinct 생성, 패턴 감지, 스킬 팩토리) |
-| `legacy-compliance-checker` | 레거시 준수 검증 (Java 8, Spring Boot 2.4.x) |
-| `checklist-generator` | 코드 리뷰, 배포, 테스트 체크리스트 생성 |
-| `code-simplifier` | 구현 후 코드 단순화 (Boris Cherny principle) |
-| `stitch-design` | Stitch/Pencil MCP 통합 디자인 워크플로우 (프롬프트 강화, 스크린 생성) |
-| `stitch-loop` | 자율적 멀티페이지 생성 루프 (baton-passing 패턴) |
-| `design-md` | 디자인 시스템 문서 자동 생성 (DESIGN.md) |
-| `enhance-prompt` | UI 프롬프트 최적화 (디자인 시스템 일관성) |
-| `react-components` | Stitch 디자인 → React 컴포넌트 변환 |
-| `kiips-stitch-bridge` | Stitch 디자인 → KiiPS JSP 변환 브리지 |
-| `kiips-page-harness` | 페이지 자동 생성 하네스 (Plan→Generate→Evaluate 파이프라인, 정량 QA) |
-
----
-
-## Active Commands (24개)
-
-**Core** — 핵심 워크플로우
-
-| Command | 용도 |
-|---------|------|
-| `/plan` | 구조화된 5단계 작업 계획 (CLARIFY→EXPLORE→PLAN→VALIDATE→EXECUTE) |
-| `/session-wrap` | 세션 종료 정리 (COLLECT→SUMMARIZE→LEARN→HANDOFF) |
-| `/verify` | Fresh-context 독립 검증 |
-| `/learn` | 교훈 기록 + 자동화 제안 |
-| `/evolve` | Instinct 클러스터링 → 스킬/커맨드 진화 |
-| `/diagnose` | 진단 우선 디버깅 |
-| `/scope-lock` | 파일 범위 제한 모드 |
-
-**Utility** — 보조 도구
-
-| Command | 용도 |
-|---------|------|
-| `/review` | 코드 리뷰 (보안, 성능, 품질) |
-| `/check-health` | 프로젝트 종합 상태 점검 |
-| `/deploy-with-tests` | 안전 배포 (Test→Build→Deploy→Health) |
-| `/draft-commits` | 커밋 초안 생성 |
-| `/simplify-code` | 코드 단순화 분석 |
-| `/test-coverage` | JUnit 테스트 + JaCoCo 커버리지 |
-| `/my-workflow` | 개발 워크플로우 |
-| `/eval` | AI 에이전트 평가 |
-| `/gemini-scan` | Gemini 보안 스캔 |
-| `/service-status` | 서비스 상태 확인 |
-| `/view-logs` | 로그 조회 |
-| `/instinct-status` | 학습 패턴 조회 |
-| `/check-rules` | 규칙 위반 코드베이스 스캔 (7개 rules 자동 검증) |
-| `/periodic-cleanup` | 주기적 GC (미사용 코드, 규칙 위반, Instinct 수명 관리) |
-| `/instinct-gc` | Instinct 수명 관리 (저신뢰/미사용 아카이빙, Observation 정리) |
-| `/kiips-linked-approval-template` | 연계승인 템플릿 |
-
----
-
-## Core Modules
-
-| 모듈 | 역할 |
+| 문서 | 내용 |
 |------|------|
-| **KiiPS-HUB** | Parent POM |
-| **KiiPS-COMMON** | 공통 서비스 |
-| **KiiPS-UTILS** | 공통 DAO |
-| **KiiPS-UI** | 웹 인터페이스 (WAR) |
-| **KIIPS-APIGateway** | API 라우팅 |
-
----
-
-## Environment Files
-
-- `app-local.properties` - 로컬 개발
-- `app-stg.properties` - 스테이징
-- `app-kiips.properties` - 프로덕션
-
----
-
-## Agent Teams (에이전트 팀)
-
-> 상세 가이드: [docs/AGENT_TEAMS_GUIDE.md](./docs/AGENT_TEAMS_GUIDE.md)
-
----
-
-## 글로벌 vs KiiPS 전용 파일 분리
-
-범용 파일은 `~/.claude/`에 글로벌 버전이 존재하며, KiiPS 프로젝트에서는 KiiPS 도메인 지식이 포함된 로컬 버전을 유지합니다.
-
-| 유형 | 글로벌 (`~/.claude/`) | KiiPS 로컬 (`.claude/`) | 비고 |
-|------|----------------------|------------------------|------|
-| **스킬** | `continuous-learning`, `session-wrap`, `parallel-coordinator` | `kiips-continuous-learning`, `kiips-session-wrap`, `parallel-coordinator` | KiiPS 도메인 패턴 포함 |
-| **커맨드** | `learn`, `evolve`, `verify`, `plan`, `session-wrap`, `instinct-status`, `eval`, `scope-lock` | 동일 이름 (KiiPS 특화) | KiiPS 모듈/SVN 참조 |
-| **훅** | `observe.js`, `outputSecretFilter.js`, `pre-compact-save.sh`, `update-reminder.sh` | 동일 이름 (KiiPS 도메인 패턴 포함) | `observe.js`는 `domain-config.json`으로 분리 |
-| **에이전트** | `planner.md`, `verify-agent.md` | `kiips-planner.md`, `verify-agent.md` | KiiPS 검증 체크리스트 포함 |
-
-**도메인 패턴 설정**: `.claude/learning/domain-config.json`에서 KiiPS 9개 도메인 패턴 정의 (글로벌 `observe.js`가 로드)
-
----
-
-**상세 정보는 위 Documentation 링크 참조**
-
----
-
-## Power Stack 워크플로우 (3대 프레임워크 강제 규칙)
-
-Claude Code는 작업을 수행할 때 반드시 아래의 4단계 프레임워크 파이프라인을 준수해야 합니다.
-
-### Phase 1: 기획 및 설계 (Gstack Mode)
-- **역할 집중:** 새로운 기능을 시작할 때, 먼저 `.gstack/personas/`에 있는 '엔지니어 매니저(EM)' 페르소나를 장착하고 아키텍처를 설계합니다.
-- 복잡한 로직은 16살도 이해할 수 있도록 단순화하여 마크다운으로 정리합니다.
-
-### Phase 2: 작업 분할 및 상태 저장 (GSD Mode)
-- **50% 규칙:** 컨텍스트 윈도우가 낭비되지 않도록, 전체 작업을 작은 마일스톤으로 나눕니다.
-- **상태 저장(State Persistence):** 한 마일스톤이 끝날 때마다 현재까지의 작업 진행 상황, 다음 할 일, 핵심 변수들을 `.gsd/states/current_state.md` 파일에 기록합니다.
-- *주의:* 사용자가 터미널에서 `/clear`를 입력해 컨텍스트를 비우더라도, Claude는 즉시 `current_state.md`를 읽어와 작업을 매끄럽게 이어가야 합니다.
-
-### Phase 3: 코드 구현 (Superpowers Mode)
-- **엄격한 TDD:** 코드를 작성하기 전에 반드시 `.superpowers/specs/`에 스펙 문서를 작성합니다.
-- 실제 구현 코드를 짜기 전에 테스트 코드(`*.test.ts` 등)를 먼저 작성하고, 테스트가 실패하는 것을 확인한 뒤에 본 코드를 작성하여 통과시킵니다.
-
-### Phase 4: 최종 검증 (Gstack QA Mode)
-- 코드 구현이 완료되면, 'QA 리드' 페르소나로 전환하여 사용자 관점의 엣지 케이스(Edge Case)를 테스트하고, 앞서 구축한 **Gemini CLI (Checker)**를 호출하여 교차 검증을 받습니다.
+| [Active Skills](.claude/SKILLS.md) | 30+ 스킬 카탈로그 |
+| [Active Commands](.claude/COMMANDS.md) | 24개 커맨드 카탈로그 |
+| [글로벌/로컬 분리](.claude/docs/GLOBAL_LOCAL_FILES.md) | ~/.claude/ vs .claude/ 파일 관리 |
+| [Agent Teams](./docs/AGENT_TEAMS_GUIDE.md) | 팀 운영 가이드 |
+| [architecture.md](./architecture.md) | 시스템 구조, 모듈, 통신 |
+| [api.md](./api.md) | API Gateway, 인증 |
+| [deployment.md](./deployment.md) | 빌드, 배포, 환경 |
+| [troubleshooting.md](./troubleshooting.md) | 문제 해결 |
+| [RealGrid Guide](./docs/REALGRID_GUIDE.md) | RealGrid 2.6.3 |
+| [SCSS Guide](./docs/SCSS_GUIDE.md) | 테마 시스템 |
