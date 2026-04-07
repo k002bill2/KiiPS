@@ -47,7 +47,7 @@
     "serena"
   ],
   "disabledMcpjsonServers": [],
-  "outputStyle": "Explanatory",
+  "outputStyle": "efficient",
   "sandbox": {
     "enabled": true,
     "autoAllowBashIfSandboxed": true
