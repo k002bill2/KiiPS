@@ -79,6 +79,67 @@ function classifyPromptComplexity(prompt) {
   return "STANDARD";
 }
 
+// ─── Scope Capture ───────────────────────────────────────────
+
+/**
+ * 현재 프롬프트에서 파일 경로와 모듈명을 추출해 scope-state.json에 저장
+ * 이미 scope가 설정된 경우(mid-task) 덮어쓰지 않음
+ */
+function captureScope(prompt) {
+  try {
+    const scopePath = path.join(
+      __dirname,
+      "../gemini-bridge/.scope-state.json",
+    );
+
+    // 기존 scope 확인 — 만료되지 않은 scope가 있으면 덮어쓰지 않음
+    if (fs.existsSync(scopePath)) {
+      try {
+        const existing = JSON.parse(fs.readFileSync(scopePath, "utf8"));
+        const ageMs = Date.now() - (existing.capturedAt || 0);
+        if (!existing.expanded && ageMs < 30 * 60 * 1000) {
+          return; // 유효한 scope 존재 → 스킵
+        }
+      } catch (_) {
+        // 파싱 실패 시 재설정 진행
+      }
+    }
+
+    // 파일 경로 추출 (공통 확장자)
+    const filePattern =
+      /(?:[\w\-./\\]+\.(?:java|xml|jsp|js|scss|css|properties))/gi;
+    const files = [...new Set(prompt.match(filePattern) || [])];
+
+    // KiiPS 모듈명 추출
+    const modulePattern = /KiiPS-[A-Z]{2,10}/gi;
+    const modules = [
+      ...new Set(
+        (prompt.match(modulePattern) || []).map((m) => m.toUpperCase()),
+      ),
+    ];
+
+    // 파일도 모듈도 없으면 저장 불필요
+    if (files.length === 0 && modules.length === 0) return;
+
+    const scopeDir = path.dirname(scopePath);
+    if (!fs.existsSync(scopeDir)) {
+      fs.mkdirSync(scopeDir, { recursive: true });
+    }
+
+    fs.writeFileSync(
+      scopePath,
+      JSON.stringify(
+        { files, modules, capturedAt: Date.now(), expanded: false },
+        null,
+        2,
+      ),
+      "utf8",
+    );
+  } catch (_) {
+    // scope 캡처 실패는 조용히 무시 (메인 흐름 방해 금지)
+  }
+}
+
 // ─── Hook Entry Point ────────────────────────────────────────
 
 async function onUserPromptSubmit(prompt, context) {
@@ -92,6 +153,9 @@ async function onUserPromptSubmit(prompt, context) {
 
     const projectRoot = context.workspaceRoot || process.cwd();
     const messages = [];
+
+    // Scope 캡처 (STANDARD/COMPLEX만, 기존 scope 미덮어씀)
+    captureScope(prompt);
 
     // --- STANDARD 이상: Skill 활성화 + 모듈 감지 ---
 

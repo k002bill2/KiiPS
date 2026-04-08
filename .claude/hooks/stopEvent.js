@@ -18,6 +18,89 @@
 const fs = require("fs");
 const path = require("path");
 
+// ─── Evidence State Path ────────────────────────────────────
+const EVIDENCE_PATH = path.join(
+  __dirname,
+  "../gemini-bridge/.completion-evidence.json",
+);
+
+/**
+ * Check whether verification steps were run after compilable files were edited.
+ * Emits a warning to stderr if evidence is missing, then resets the state file.
+ */
+function checkCompletionEvidence() {
+  try {
+    if (!fs.existsSync(EVIDENCE_PATH)) return;
+
+    let state;
+    try {
+      state = JSON.parse(fs.readFileSync(EVIDENCE_PATH, "utf8"));
+    } catch (_) {
+      return; // fail-open
+    }
+
+    // Nothing was edited — skip
+    if (
+      !state ||
+      !Array.isArray(state.editedFileTypes) ||
+      state.editedFileTypes.length === 0
+    ) {
+      return;
+    }
+
+    const missing = [];
+    if (state.editedFileTypes.includes(".java") && !state.buildRun) {
+      missing.push("Maven build not run after .java changes");
+    }
+    if (state.editedFileTypes.includes(".scss") && !state.scssCompileRun) {
+      missing.push("SCSS compile not verified after .scss changes");
+    }
+    if (state.editedFileTypes.includes(".xml") && !state.mybatisCheckRun) {
+      missing.push("MyBatis syntax not verified after .xml changes");
+    }
+
+    if (missing.length > 0) {
+      const lines = [
+        "",
+        "┌─── EVIDENCE-BASED COMPLETION CHECK ────────────────┐",
+        "│ Code changed but verification incomplete:           │",
+      ];
+      missing.forEach((m) => {
+        const padded = `│  - ${m}`.padEnd(53) + "│";
+        lines.push(padded);
+      });
+      lines.push("│                                                     │");
+      lines.push("│ Run verification before claiming completion.        │");
+      lines.push("│ Ref: .claude/rules/verification.md                  │");
+      lines.push("└─────────────────────────────────────────────────────┘");
+      lines.push("");
+      process.stderr.write(lines.join("\n"));
+    }
+  } catch (_) {
+    // fail-open
+  } finally {
+    // Reset evidence state for the next response cycle
+    try {
+      fs.writeFileSync(
+        EVIDENCE_PATH,
+        JSON.stringify(
+          {
+            buildRun: false,
+            scssCompileRun: false,
+            mybatisCheckRun: false,
+            editedFileTypes: [],
+            lastEditAt: null,
+            lastVerifyAt: null,
+          },
+          null,
+          2,
+        ),
+        "utf8",
+      );
+    } catch (_) {}
+  }
+}
+
 /**
  * Hook entry point
  */
@@ -34,6 +117,9 @@ async function onStopEvent(context) {
     if (editedFiles.length > 0) {
       triggerGeminiReview(editedFiles);
     }
+
+    // 3. Evidence-based completion check
+    checkCompletionEvidence();
   } catch (error) {
     console.error("[StopEvent] Error:", error.message);
   }

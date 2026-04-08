@@ -36,6 +36,78 @@ try {
   // outputSecretFilter가 없어도 진행
 }
 
+// ─── Evidence State Path ────────────────────────────────────
+const EVIDENCE_PATH = path.join(
+  __dirname,
+  "../gemini-bridge/.completion-evidence.json",
+);
+
+/**
+ * Track verification evidence from Bash/Edit/Write tool calls.
+ * Persists state to .completion-evidence.json for stopEvent.js to consume.
+ */
+function trackVerificationEvidence(toolName, toolInput) {
+  try {
+    // Load existing state (fail-open: start fresh on any read error)
+    let state = {
+      buildRun: false,
+      scssCompileRun: false,
+      mybatisCheckRun: false,
+      editedFileTypes: [],
+      lastEditAt: null,
+      lastVerifyAt: null,
+    };
+    try {
+      if (fs.existsSync(EVIDENCE_PATH)) {
+        state = JSON.parse(fs.readFileSync(EVIDENCE_PATH, "utf8"));
+        if (!Array.isArray(state.editedFileTypes)) state.editedFileTypes = [];
+      }
+    } catch (_) {
+      // fail-open: use defaults
+    }
+
+    if (toolName === "Bash") {
+      const cmd = (toolInput.command || "").toString();
+      if (/mvn\s+(clean\s+)?(compile|package|test|verify)/.test(cmd)) {
+        state.buildRun = true;
+        state.lastVerifyAt = Date.now();
+      }
+      if (/sass\s|scss\s|node-sass|dart-sass/.test(cmd)) {
+        state.scssCompileRun = true;
+        state.lastVerifyAt = Date.now();
+      }
+      if (/grep.*xml|mybatis/i.test(cmd)) {
+        state.mybatisCheckRun = true;
+        state.lastVerifyAt = Date.now();
+      }
+    }
+
+    if (toolName === "Edit" || toolName === "Write") {
+      const filePath = (toolInput.file_path || "").toString();
+      const ext = path.extname(filePath);
+      // Only track compilable types; skip .md, .json, .sh, .js
+      const TRACKED_EXTS = [".java", ".scss", ".xml"];
+      if (
+        ext &&
+        TRACKED_EXTS.includes(ext) &&
+        !state.editedFileTypes.includes(ext)
+      ) {
+        state.editedFileTypes.push(ext);
+      }
+      if (ext && TRACKED_EXTS.includes(ext)) {
+        state.lastEditAt = Date.now();
+      }
+    }
+
+    // Persist state
+    const dir = path.dirname(EVIDENCE_PATH);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(EVIDENCE_PATH, JSON.stringify(state, null, 2), "utf8");
+  } catch (_) {
+    // fail-open: never interrupt the orchestration pipeline
+  }
+}
+
 // ─── Shell Hook 실행 헬퍼 ──────────────────────────────────
 function runShellHook(scriptName, stdinData, timeoutMs = 5000) {
   const scriptPath = path.join(hooksDir, scriptName);
@@ -132,6 +204,13 @@ async function orchestrate(event) {
     }
   } catch (e) {
     // 상태 정리 실패는 무시
+  }
+
+  // 9. Evidence tracking (Bash|Edit|Write — 검증 증거 수집)
+  try {
+    trackVerificationEvidence(toolName, toolInput);
+  } catch (e) {
+    // 증거 수집 실패는 무시
   }
 }
 

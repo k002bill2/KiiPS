@@ -117,6 +117,72 @@ const PROTECTED_MODULES = [
 ];
 
 /**
+ * scope-state.json을 로드해 현재 파일이 초기 요청 범위 내인지 확인
+ * - scope 없음 / 만료(30분) / expanded=true → 항상 inScope
+ * - .claude/ 내부 파일 → 항상 inScope
+ * - Bash 도구 → 검사 안 함
+ *
+ * @param {string} filePath - 편집/쓰기 대상 파일 경로
+ * @returns {{ inScope: boolean, message?: string }}
+ */
+function checkScopeExpansion(filePath) {
+  try {
+    const path = require("path");
+    const fs = require("fs");
+    const scopePath = path.join(
+      __dirname,
+      "../gemini-bridge/.scope-state.json",
+    );
+
+    // .claude/ 내부 파일은 항상 허용
+    if (filePath.includes("/.claude/") || filePath.includes("\\.claude\\")) {
+      return { inScope: true };
+    }
+
+    if (!fs.existsSync(scopePath)) return { inScope: true };
+
+    let scope;
+    try {
+      scope = JSON.parse(fs.readFileSync(scopePath, "utf8"));
+    } catch (_) {
+      return { inScope: true };
+    }
+
+    // 만료 또는 이미 확장된 scope
+    const ageMs = Date.now() - (scope.capturedAt || 0);
+    if (scope.expanded || ageMs >= 30 * 60 * 1000) return { inScope: true };
+
+    // scope에 파일/모듈이 아무것도 없으면 검사 생략
+    const hasFiles = scope.files && scope.files.length > 0;
+    const hasModules = scope.modules && scope.modules.length > 0;
+    if (!hasFiles && !hasModules) return { inScope: true };
+
+    // 모듈 경로 포함 여부
+    if (hasModules) {
+      for (const mod of scope.modules) {
+        if (filePath.includes(mod)) return { inScope: true };
+      }
+    }
+
+    // 파일 경로 일치 여부
+    if (hasFiles) {
+      for (const f of scope.files) {
+        if (filePath.includes(f) || filePath.endsWith(path.sep + f)) {
+          return { inScope: true };
+        }
+      }
+    }
+
+    return {
+      inScope: false,
+      message: `Scope expansion detected: "${filePath}" is outside the initial request scope (modules: ${(scope.modules || []).join(", ") || "none"}).`,
+    };
+  } catch (_) {
+    return { inScope: true };
+  }
+}
+
+/**
  * 윤리적 검증 수행
  *
  * @param {string} toolName - 실행할 도구 이름
@@ -173,6 +239,20 @@ function validateEthically(toolName, toolInput, context) {
       category: "protected_module",
       message: moduleAccess.message,
     });
+  }
+
+  // 4. Scope 확장 검사 (Edit/Write 전용, 소프트 경고)
+  if (["edit", "write"].includes(toolName.toLowerCase())) {
+    const filePath = toolInput.file_path || "";
+    if (filePath) {
+      const scopeCheck = checkScopeExpansion(filePath);
+      if (!scopeCheck.inScope) {
+        result.warnings.push({
+          category: "scope_expansion",
+          message: scopeCheck.message,
+        });
+      }
+    }
   }
 
   return result;
@@ -362,6 +442,7 @@ module.exports = {
   onPreToolUse,
   validateEthically,
   formatValidationResult,
+  checkScopeExpansion,
   BLOCKED_OPERATIONS,
   WARNING_OPERATIONS,
   PROTECTED_MODULES,

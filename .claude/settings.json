@@ -18,6 +18,33 @@
             "command": "python3 -c \"import json,sys; p=json.load(sys.stdin).get('tool_input',{}).get('file_path',''); blocked=['.env','secrets','.git/','app-kiips.properties','app-stg.properties','app-local.properties','app-tibero.properties','credentials','.secret','password']; sys.exit(2 if any(b in p for b in blocked) else 0)\""
           }
         ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ./.claude/hooks/mybatisBindingGuard.js"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ./.claude/hooks/multiFileGate.js"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ./.claude/hooks/geminiReviewGate.js"
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
