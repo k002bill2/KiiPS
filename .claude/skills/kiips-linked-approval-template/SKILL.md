@@ -120,6 +120,88 @@ function escapeHtml(str) {
 - [ ] min.js 동기화 필요 여부 확인
 - [ ] 대상 모듈의 Code/Binding 파일에 정확히 추가 확인
 
+### Step 6: HTML 미리보기 파일 생성 (필수 자동 실행)
+
+작성한 결재 양식을 즉시 브라우저에서 리뷰할 수 있도록 **독립 HTML 파일을 자동 생성**한다. 이 단계는 스킬 종료 전 필수로 수행한다.
+
+**출력 경로**
+
+`KiiPS-UI/src/main/webapp/preview/{doc_id}_{sanitized_문서명}.html`
+
+- `preview/` 폴더가 없으면 생성
+- 문서명에서 공백·슬래시·특수문자 제거 후 사용
+- 예: `KiiPS-UI/src/main/webapp/preview/DOC9999836_자기개발비신청.html`
+
+**생성 절차**
+
+1. Step 2에서 작성한 `{문서명} += ...` HTML 템플릿 문자열을 이어붙여 복원
+2. Step 3의 `contents.replace('##VALx##', ...)` 매핑에서 DB 필드명 추출
+3. 필드명 suffix 규칙으로 mock 값 결정 → `##VALx##` 치환 (XSS 필드는 `escapeHtml()` 결과로 치환)
+4. 아래 독립 HTML 골격의 `{복원된 HTML 템플릿}` 위치에 치환 결과 삽입
+5. 대상 경로에 파일 저장 (폴더 없으면 생성)
+6. 사용자에게 파일 경로 및 `open file://...` 명령 안내
+
+**Mock 데이터 규칙**
+
+| 필드 suffix / 키워드 | Mock 값 |
+|---------------------|---------|
+| `_DT`, `_DATE`, `_YMD` | `2026-04-17` |
+| `_AMT`, `_AMOUNT`, `금액` | `1,000,000` |
+| `_NM`, `_NAME`, `명` | `홍길동` |
+| `_CD`, `_CODE` | `001` |
+| `_TPNM`, `구분` | `일반` |
+| `_NO`, `_ACCT_NO` | `110-123-456789` |
+| `BIGO`, `비고`, `SAUE`, `사유` | `샘플 비고 <script>alert(1)</script>\n두 번째 줄입니다.` |
+| 기타 | `샘플값` |
+
+> 비고/사유에 의도적으로 `<script>` 문자열을 포함시켜 Step 4의 `escapeHtml()`이 실제 동작하는지 미리보기로 검증한다. 생성된 HTML에서 `&lt;script&gt;`로 출력되어야 정상.
+
+**독립 HTML 골격 (최소 래퍼)**
+
+```html
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>{문서명} ({doc_id})</title>
+</head>
+<body>
+<!-- doc_id: {doc_id} | 문서명: {문서명} | 생성: {YYYY-MM-DD HH:mm} -->
+{복원된 HTML 템플릿 + mock 치환 결과}
+</body>
+</html>
+```
+
+**디자인 불변 원칙 (필수 준수)**
+
+원본 `LinkedApprovalCode_*.js`의 HTML 문자열과 **완전히 동일한 렌더링 결과**를 목표로 한다. 미리보기용 디자인 요소를 일체 추가하지 않는다.
+
+| 금지 항목 | 이유 |
+|----------|------|
+| 신규 CSS 클래스 추가 (`preview-wrap`, `preview-meta` 등) | 실 WAS 렌더링과 차이 발생 |
+| `<style>` 블록 추가 (body margin, background, font-family 등) | 원본 템플릿은 모든 시각 속성을 인라인 style로만 표현 |
+| 외부 `<link href>`, `<script src>` 참조 | 파일 단독 실행 불가, KiiPS CSS 의존 금지 |
+| `<h1>`, `<header>`, 제목/메타 배너 등 리뷰용 UI 삽입 | 결재 양식 레이아웃 오염 |
+| 폰트·색상·여백·배경 임의 변경 | 원본 인라인 style만 사용 |
+| Dark theme, 반응형 미디어쿼리 등 추가 스타일 | 스코프 밖 |
+
+**허용되는 요소 (이것만)**
+- `<!DOCTYPE html>`, `<html lang="ko">`, `<head>`, `<meta charset>`, `<title>`, `<body>` — HTML 최소 골격
+- `<body>` 직하위 **HTML 주석 1줄** (doc_id/문서명/생성일시 메타) — 시각 렌더링에 영향 없음
+- `<body>` 직하위 **복원된 HTML 템플릿 그대로 삽입** (mock 값 치환만 수행)
+
+> 작성 시 자문: "이 줄을 넣으면 실 WAS 렌더링과 pixel-diff가 발생하는가?" → yes면 넣지 않는다.
+
+**완료 보고 형식**
+
+```
+✓ 미리보기 생성 완료
+  파일: KiiPS-UI/src/main/webapp/preview/DOC9999836_자기개발비신청.html
+  열기: open "file:///.../KiiPS-UI/src/main/webapp/preview/DOC9999836_자기개발비신청.html"
+```
+
+> **주의**: `preview/` 폴더는 리뷰용 산출물이므로 SVN 커밋 대상 아님. 최초 생성 시 `svn propset svn:ignore "*" KiiPS-UI/src/main/webapp/preview/` 권장.
+
 ## 추가 리소스
 
 - 인라인 스타일 규칙, StringUtil 함수, 데이터 접근 패턴 상세: [reference.md](reference.md)

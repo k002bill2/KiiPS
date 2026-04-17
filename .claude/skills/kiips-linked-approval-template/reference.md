@@ -9,6 +9,34 @@
 | **금액 td** | 위 스타일 + `text-align:right` |
 | **colspan 행** | `colspan='3'` (4컬럼 테이블에서 값이 3칸 차지) |
 
+### 폰트 사이즈 일률 적용 (필수)
+
+결재 양식 전체에 **단일 폰트 사이즈**를 적용한다. 요소별로 다른 사이즈를 섞지 않는다.
+
+| 규칙 | 값 |
+|------|-----|
+| 표준 폰트 사이즈 | **`10pt`** |
+| 선언 위치 | **최상위 `<table>` 루트 `style` 에만 선언** |
+| 하위 `<th>`, `<td>` | **`font-size` 지정 금지** — 테이블에서 상속받음 |
+| 중첩 테이블 | 내부 테이블에도 `font-size` 재선언 금지 — 부모에서 상속 |
+| 예외 최대치 | 강조 제목 등 불가피한 경우 **문서당 1곳**까지만 허용 |
+
+```javascript
+// ✅ 올바름 — 테이블 루트에만 font-size: 10pt 선언, 하위는 상속
+XXX신청 +="<table width='100%' style='border-collapse: collapse; border: 1px solid #BFBFBF; font-size: 10pt'>";
+XXX신청 +="    <th style='padding: 4px 6px; border-right: 1px solid #BFBFBF; border-bottom: 1px solid #BFBFBF; text-align:center; background-color:#F1F1F1'>항목명</th>";
+XXX신청 +="    <td style='padding: 4px 6px; border-right: 1px solid #BFBFBF; border-bottom: 1px solid #BFBFBF;'>##VAL1##</td>";
+
+// ❌ 금지 — th/td에 font-size 개별 선언 (일률성 깨짐)
+XXX신청 +="    <th style='padding: 4px 6px; ... font-size: 9pt; ...'>항목명</th>";
+XXX신청 +="    <td style='padding: 4px 6px; ... font-size: 11pt; ...'>##VAL1##</td>";
+
+// ❌ 금지 — 중첩 테이블 font-size 재선언
+XXX신청 +="    <table style='font-size: 8pt'>"; // 부모 10pt와 충돌
+```
+
+> 강조가 필요한 단일 요소는 `<strong>`, `<b>` 등 시맨틱 태그로 표현하여 `font-size` 재선언을 피한다. 크기 대비가 꼭 필요하면 문서당 **1곳만** 예외 적용하고 그 예외를 주석으로 남긴다.
+
 ### 테이블 행 패턴 (th + td)
 
 ```javascript
