@@ -93,6 +93,11 @@ opencode.json
 .claude/gemini-bridge/daemon.pid
 .claude/gemini-bridge/.last-collect
 .claude/gemini-bridge/.pending-build.json
+.claude/gemini-bridge/.scope-state.json
+.claude/gemini-bridge/.session-edits.json
+.claude/gemini-bridge/.last-review-at
+.claude/gemini-bridge/.review-signal.json
+.claude/gemini-bridge/.shown-reviews.json
 .claude/hooks/*.log
 .claude/.last-update-check
 .claude/learning/agent-state.json
