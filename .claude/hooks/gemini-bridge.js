@@ -32,7 +32,7 @@ const BRIDGE_DIR = path.join(__dirname, "../gemini-bridge");
 const REVIEWS_DIR = path.join(BRIDGE_DIR, "reviews");
 const STATE_FILE = path.join(BRIDGE_DIR, "gemini-state.json");
 const ERROR_LOG = path.join(BRIDGE_DIR, "errors.log");
-const DAILY_LIMIT = 100;
+const DAILY_LIMIT = 900;
 const TIMEOUT_REVIEW = 120_000; // 120초
 const TIMEOUT_SCAN = 180_000; // 180초
 
@@ -586,6 +586,23 @@ async function modeReview(files) {
         hasIssues || parsed.verdict.toLowerCase().includes("needs-attention"),
     });
 
+    // Fast-Pass signal: 리뷰 완료를 PostToolUse에 즉시 알림
+    try {
+      const signalPath = path.join(BRIDGE_DIR, ".review-signal.json");
+      fs.writeFileSync(
+        signalPath,
+        JSON.stringify({
+          hasNew: true,
+          lastSignalAt: Date.now(),
+          reviewId: id,
+          severity: hasIssues ? "critical" : "info",
+        }),
+        "utf8",
+      );
+    } catch (_) {
+      // signal 실패는 무시 (fail-open)
+    }
+
     state.callCount += 1;
     saveState(state);
   } catch (e) {
@@ -628,6 +645,22 @@ async function modeScan() {
     };
 
     saveReview(id, reviewData);
+
+    // Fast-Pass signal: 스캔 완료를 PostToolUse에 즉시 알림
+    try {
+      const hasCritical = parsed.issues.some((i) => i.severity === "critical");
+      const signalPath = path.join(BRIDGE_DIR, ".review-signal.json");
+      fs.writeFileSync(
+        signalPath,
+        JSON.stringify({
+          hasNew: true,
+          lastSignalAt: Date.now(),
+          reviewId: id,
+          severity: hasCritical ? "critical" : "info",
+        }),
+        "utf8",
+      );
+    } catch (_) {}
 
     // cross-tool coordination 경로에도 저장
     const coordDir = path.join(

@@ -167,6 +167,34 @@ const SECRET_PATTERNS = [
     type: "URL-Encoded Secret",
     severity: "HIGH",
   },
+
+  // === KiiPS 특화: MyBatis 실행 로그 파라미터 ===
+  {
+    pattern: /==>\s*Parameters:\s*.+/g,
+    type: "MyBatis Query Parameters",
+    severity: "MEDIUM",
+  },
+
+  // === 한국 개인정보: 주민등록번호 ===
+  {
+    pattern: /\b\d{6}-[1-4]\d{6}\b/g,
+    type: "Korean National ID",
+    severity: "CRITICAL",
+  },
+
+  // === 한국 개인정보: 휴대전화번호 ===
+  {
+    pattern: /\b01[016789]-?\d{3,4}-?\d{4}\b/g,
+    type: "Korean Phone Number",
+    severity: "HIGH",
+  },
+
+  // === curl 인라인 크레덴셜 ===
+  {
+    pattern: /curl\s+[^|;]*(?:-u|--user)\s+["']?\S+:\S+["']?/gi,
+    type: "Curl Credential",
+    severity: "CRITICAL",
+  },
 ];
 
 // ─── 마스킹 함수 ───────────────────────────────────────

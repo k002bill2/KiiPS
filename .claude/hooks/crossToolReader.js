@@ -220,56 +220,31 @@ function detectTaskType(filename) {
 }
 
 /**
- * Gemini Auto-Reviewer Daemon 상태 확인
- * 세션 시작 시 데몬 실행 여부를 확인하고 안내 메시지 출력
+ * Gemini Auto-Trigger 상태 확인
+ * 세션 시작 시 lazy daemon 상태 + 오늘 호출 수 표시
  */
-function checkGeminiDaemon() {
+function checkGeminiTrigger() {
   try {
-    const PID_FILE = ".claude/gemini-bridge/daemon.pid";
+    const socketPath = ".claude/gemini-bridge/gemini.sock";
+    const stateFile = ".claude/gemini-bridge/gemini-state.json";
+    const parts = ["Gemini auto-trigger"];
 
-    if (!fs.existsSync(PID_FILE)) {
-      console.log("\n╔══════════════════════════════════════════╗");
-      console.log("║   GEMINI AUTO-REVIEWER 데몬 미실행       ║");
-      console.log("╚══════════════════════════════════════════╝");
-      console.log("");
-      console.log("자동 코드 리뷰를 위해 별도 터미널에서 실행하세요:");
-      console.log("  bash .claude/hooks/start-gemini-daemon.sh");
-      console.log("");
-      console.log("──────────────────────────────────────────────\n");
-      return;
+    if (fs.existsSync(stateFile)) {
+      try {
+        const s = JSON.parse(fs.readFileSync(stateFile, "utf8"));
+        parts.push(`${s.callCount || 0}/900 calls`);
+      } catch (_) {}
     }
 
-    const pid = parseInt(fs.readFileSync(PID_FILE, "utf8").trim(), 10);
-    if (isNaN(pid)) {
-      console.log("\n⚠️  Gemini daemon PID file corrupt. Restart with:");
-      console.log("  bash .claude/hooks/start-gemini-daemon.sh restart\n");
-      return;
-    }
-
-    try {
-      process.kill(pid, 0); // 프로세스 존재 확인
-      console.log(`\n✅ Gemini auto-reviewer daemon running (PID: ${pid})\n`);
-    } catch (e) {
-      if (e.code === "ESRCH") {
-        // stale PID
-        console.log("\n╔══════════════════════════════════════════╗");
-        console.log("║   GEMINI AUTO-REVIEWER 데몬 중단됨       ║");
-        console.log("╚══════════════════════════════════════════╝");
-        console.log("");
-        console.log("데몬이 비정상 종료되었습니다. 재시작하세요:");
-        console.log("  bash .claude/hooks/start-gemini-daemon.sh restart");
-        console.log("");
-        console.log("──────────────────────────────────────────────\n");
-        try {
-          fs.unlinkSync(PID_FILE);
-        } catch (_) {}
-      }
-    }
+    parts.push(
+      fs.existsSync(socketPath) ? "daemon active" : "idle (auto-start on edit)",
+    );
+    console.log(`\n✅ ${parts.join(" | ")}\n`);
   } catch (_) {
-    // 데몬 확인 실패는 무시
+    // 상태 확인 실패는 무시
   }
 }
 
-// 실행: 데몬 확인, 그 다음 메인 로직
-checkGeminiDaemon();
+// 실행: trigger 확인, 그 다음 메인 로직
+checkGeminiTrigger();
 run();

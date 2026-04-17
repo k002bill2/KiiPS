@@ -120,54 +120,85 @@ async function onStopEvent(context) {
 
     // 3. Evidence-based completion check
     checkCompletionEvidence();
+
+    // 4. Garbage collection: old reviews & oversized logs
+    gcGeminiBridge();
   } catch (error) {
     console.error("[StopEvent] Error:", error.message);
   }
 }
 
 /**
- * Gemini 백그라운드 리뷰 트리거
+ * Gemini Bridge GC: 최신 리뷰 20개만 보존, 로그 100KB 초과 시 truncate
  */
-function triggerGeminiReview(editedFiles) {
+function gcGeminiBridge() {
   try {
-    const daemonPidFile = path.join(__dirname, "../gemini-bridge/daemon.pid");
-    let daemonRunning = false;
+    const reviewsDir = path.join(__dirname, "../gemini-bridge/reviews");
+    if (!fs.existsSync(reviewsDir)) return;
 
-    if (fs.existsSync(daemonPidFile)) {
-      try {
-        const pid = parseInt(fs.readFileSync(daemonPidFile, "utf8").trim(), 10);
-        if (!isNaN(pid)) {
-          process.kill(pid, 0);
-          daemonRunning = true;
-        }
-      } catch (e) {
-        if (e.code === "ESRCH") {
-          try {
-            fs.unlinkSync(daemonPidFile);
-          } catch (_) {}
-        }
+    const files = fs
+      .readdirSync(reviewsDir)
+      .filter((f) => f.endsWith(".json"))
+      .sort()
+      .reverse(); // newest first (timestamp in filename)
+
+    const MAX_REVIEWS = 20;
+    if (files.length > MAX_REVIEWS) {
+      const toDelete = files.slice(MAX_REVIEWS);
+      for (const f of toDelete) {
+        try {
+          fs.unlinkSync(path.join(reviewsDir, f));
+        } catch (_) {}
       }
     }
 
-    if (daemonRunning) {
-      console.log("[StopEvent] Gemini auto-reviewer daemon active.");
-    } else {
-      const { spawn } = require("child_process");
-      const bridgePath = path.join(__dirname, "gemini-bridge.js");
-      const child = spawn("node", [bridgePath, "review", ...editedFiles], {
-        detached: true,
-        stdio: "ignore",
-        cwd: process.cwd(),
-        // SECURITY EXEMPTION: Gemini review를 위한 sandbox 해제 (Stop 이벤트 fallback 전용)
-        env: {
-          ...process.env,
-          CLAUDE_SANDBOX: undefined,
-          SANDBOX_MODE: undefined,
-        },
-      });
-      child.unref();
-      console.log("[StopEvent] Gemini review spawned (fallback).");
+    // Log rotation: truncate logs over 100KB
+    const LOG_MAX = 100 * 1024;
+    const logs = ["trigger.log", "errors.log"].map((f) =>
+      path.join(__dirname, "../gemini-bridge", f),
+    );
+    for (const logPath of logs) {
+      try {
+        if (fs.existsSync(logPath) && fs.statSync(logPath).size > LOG_MAX) {
+          fs.writeFileSync(logPath, "", "utf8");
+        }
+      } catch (_) {}
     }
+  } catch (_) {
+    // GC failure is non-critical
+  }
+}
+
+/**
+ * Gemini 백그라운드 리뷰 트리거
+ * lazy daemon이 활성이면 socket으로 전달, 아니면 direct spawn fallback
+ */
+function triggerGeminiReview(editedFiles) {
+  try {
+    const socketPath = path.join(__dirname, "../gemini-bridge/gemini.sock");
+
+    if (fs.existsSync(socketPath)) {
+      // daemon 활성 → socket으로 파일 전송
+      const net = require("net");
+      const client = net.createConnection({ path: socketPath });
+      client.on("connect", () => {
+        editedFiles.forEach((f) =>
+          client.write(JSON.stringify({ file: f }) + "\n"),
+        );
+        client.end();
+        console.log("[StopEvent] Files sent to lazy daemon via socket.");
+      });
+      client.on("error", () => {
+        spawnDirectReview(editedFiles);
+      });
+      client.setTimeout(2000, () => {
+        client.destroy();
+        spawnDirectReview(editedFiles);
+      });
+      return;
+    }
+
+    spawnDirectReview(editedFiles);
   } catch (e) {
     try {
       const errLog = path.join(__dirname, "../gemini-bridge/errors.log");
@@ -178,6 +209,24 @@ function triggerGeminiReview(editedFiles) {
       );
     } catch (_) {}
   }
+}
+
+function spawnDirectReview(files) {
+  try {
+    const { spawn } = require("child_process");
+    const bridgePath = path.join(__dirname, "gemini-bridge.js");
+    const cleanEnv = { ...process.env };
+    delete cleanEnv.CLAUDE_SANDBOX;
+    delete cleanEnv.SANDBOX_MODE;
+    const child = spawn("node", [bridgePath, "review", ...files], {
+      detached: true,
+      stdio: "ignore",
+      cwd: process.cwd(),
+      env: cleanEnv,
+    });
+    child.unref();
+    console.log("[StopEvent] Gemini review spawned (direct fallback).");
+  } catch (_) {}
 }
 
 /**

@@ -8,7 +8,7 @@
  *   1. autoFormatter.js   - 코드 포맷팅 (Edit|Write)
  *   2. buildChecker.js    - Maven 빌드 검증 (Edit|Write)
  *   3. scssValidator.sh   - SCSS 다크테마 검증 (Edit|Write, .scss only)
- *   4. gemini-collector.sh - Gemini 리뷰 수집 (Edit|Write)
+ *   4. geminiAutoTrigger.js - Gemini lazy daemon trigger (Edit|Write)
  *   5. observe.js          - 학습 관찰 (Bash|Edit|Write)
  *   6. outputSecretFilter.js - 비밀번호 필터링 (Bash only)
  *   7. geminiRealtimeFeedback - Gemini 리뷰 완료 결과 실시간 주입 (v1.1)
@@ -165,9 +165,16 @@ async function orchestrate(event) {
     runShellHook("scssValidator.sh", event);
   }
 
-  // 4. Gemini Collector (Edit|Write only)
-  if (isEditWrite) {
-    runShellHook("gemini-collector.sh", event);
+  // 4. Gemini Auto-Trigger (Edit|Write only)
+  if (isEditWrite && filePath) {
+    try {
+      const geminiTrigger = require(
+        path.join(hooksDir, "geminiAutoTrigger.js"),
+      );
+      geminiTrigger.trigger(filePath);
+    } catch (e) {
+      process.stderr.write(`[Orchestrator] geminiAutoTrigger: ${e.message}\n`);
+    }
   }
 
   // 5. OutputSecretFilter (Bash only)
@@ -186,12 +193,38 @@ async function orchestrate(event) {
     process.stderr.write(`[Orchestrator] observe: ${e.message}\n`);
   }
 
-  // 7. Gemini 리뷰 실시간 피드백 (매 10번째 호출마다 확인)
+  // 7. Gemini 리뷰 실시간 피드백 (signal 기반 Fast-Pass)
   try {
-    if (!orchestrate._callCount) orchestrate._callCount = 0;
-    orchestrate._callCount++;
-    if (orchestrate._callCount % 10 === 0) {
-      checkGeminiReviewsRealtime();
+    const signalPath = path.join(
+      __dirname,
+      "../gemini-bridge/.review-signal.json",
+    );
+    let signalTriggered = false;
+
+    if (fs.existsSync(signalPath)) {
+      try {
+        const signal = JSON.parse(fs.readFileSync(signalPath, "utf8"));
+        if (signal.hasNew) {
+          // Signal 소비 (reset)
+          signal.hasNew = false;
+          fs.writeFileSync(signalPath, JSON.stringify(signal), "utf8");
+          if (signal.severity === "critical") {
+            checkGeminiReviewsRealtime();
+            signalTriggered = true;
+          }
+        }
+      } catch (_) {
+        // malformed signal, ignore
+      }
+    }
+
+    // Critical이 아니면 기존 10번째 호출 fallback 유지
+    if (!signalTriggered) {
+      if (!orchestrate._callCount) orchestrate._callCount = 0;
+      orchestrate._callCount++;
+      if (orchestrate._callCount % 10 === 0) {
+        checkGeminiReviewsRealtime();
+      }
     }
   } catch (e) {
     // 리뷰 피드백 실패는 무시

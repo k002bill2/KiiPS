@@ -67,6 +67,15 @@
             "command": "node ./.claude/hooks/postToolOrchestrator.js"
           }
         ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ./.claude/hooks/scssValidator.sh"
+          }
+        ]
       }
     ],
     "Stop": [
