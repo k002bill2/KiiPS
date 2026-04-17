@@ -98,6 +98,7 @@ opencode.json
 .claude/gemini-bridge/.last-review-at
 .claude/gemini-bridge/.review-signal.json
 .claude/gemini-bridge/.shown-reviews.json
+.superpowers/
 .claude/hooks/*.log
 .claude/.last-update-check
 .claude/learning/agent-state.json
