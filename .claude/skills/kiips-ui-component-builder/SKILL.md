@@ -191,17 +191,11 @@ KiiPS 프로젝트 전용 패턴입니다. Bootstrap 기본 클래스를 사용�
 
 ## Component Templates
 
-| Template | Purpose | File |
-|----------|---------|------|
-| **realgrid-basic** | 읽기 전용 데이터 그리드 | [templates/realgrid-basic.jsp](./templates/realgrid-basic.jsp) |
-| **realgrid-editable** | 편집 가능 데이터 그리드 | [templates/realgrid-editable.jsp](./templates/realgrid-editable.jsp) |
-| **realgrid-tree** | 트리 그리드 (계층 구조) | [templates/realgrid-tree.jsp](./templates/realgrid-tree.jsp) |
-| **apexcharts-line** | 선 차트 (추이 분석) | [templates/apexcharts-line.jsp](./templates/apexcharts-line.jsp) |
-| **apexcharts-donut** | 도넛 차트 (비율 분석) | [templates/apexcharts-donut.jsp](./templates/apexcharts-donut.jsp) |
-| **apexcharts-bar** | 바 차트 (비교 분석) | [templates/apexcharts-bar.jsp](./templates/apexcharts-bar.jsp) |
-| **bootstrap-search-form** | 검색 폼 레이아웃 | [templates/bootstrap-search-form.jsp](./templates/bootstrap-search-form.jsp) |
-| **bootstrap-modal** | 모달 팝업 | [templates/bootstrap-modal.jsp](./templates/bootstrap-modal.jsp) |
-| **bootstrap-tabs** | 탭 레이아웃 | [templates/bootstrap-tabs.jsp](./templates/bootstrap-tabs.jsp) |
+본 스킬은 인라인 코드 예제(위 Quick Reference 섹션)와 [reference.md](reference.md) / [examples.md](examples.md)를 통해 템플릿을 제공합니다. 별도 템플릿 파일 없이 SKILL.md 내 스니펫을 복사하여 사용하세요.
+
+- **RealGrid 기본/편집 그리드**: 위 "Quick Reference" 1~2번 참조
+- **ApexCharts 템플릿**: [reference.md](reference.md) 참조
+- **Bootstrap 폼/모달/탭**: 연관 스킬 `kiips-regist-modal-guide`, `kiips-search-filter-guide` 참조
 
 ## Security & Accessibility
 

@@ -4,8 +4,6 @@
 
 **User Request**: "월별 투자 추이 차트 추가해줘"
 
-**Template**: [templates/apexcharts-line.jsp](./templates/apexcharts-line.jsp)
-
 ```html
 <div class="chart-container card mb-3">
     <div class="card-header">
@@ -98,8 +96,6 @@ loadChartData();
 
 **User Request**: "펀드 유형별 비율 차트"
 
-**Template**: [templates/apexcharts-donut.jsp](./templates/apexcharts-donut.jsp)
-
 ```javascript
 {
     chart: {
@@ -135,8 +131,6 @@ loadChartData();
 ---
 
 ## Bootstrap 검색 폼
-
-**Template**: [templates/bootstrap-search-form.jsp](./templates/bootstrap-search-form.jsp)
 
 ```html
 <div class="search-area card mb-3">

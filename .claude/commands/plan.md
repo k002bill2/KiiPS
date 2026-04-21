@@ -67,7 +67,7 @@ Explore 에이전트 또는 Grep/Glob 활용:
 
 - 계획된 순서대로 구현
 - 중간 체크포인트 설정 (3개 파일마다)
-- 각 단계별 검증 (→ [verification.md](./verification.md) 참조)
+- 각 단계별 검증 (→ [verification.md](../rules/verification.md) 참조)
 - 완료 후 전체 빌드 검증
 
 ---

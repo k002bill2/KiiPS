@@ -4,7 +4,6 @@ description: Feature Lifecycle Orchestrator for KiiPS development
 model: sonnet
 role: orchestrator
 color: purple
-ace_layer: domain_orchestration
 hierarchy: manager
 ---
 
@@ -428,15 +427,13 @@ Feature Manager tracks:
 
 ## Shared Protocols
 
-This agent follows the shared parallel execution protocols:
-- **[parallel-agents-protocol.md](../shared/parallel-agents-protocol.md)**: ACE Framework 기반 병렬 실행 안전 프로토콜 (모듈 격리, 파일 락, 롤백)
-- **[ace-framework.md](../shared/ace-framework.md)**: 윤리적 검증 및 계층 아키텍처
+This agent follows the shared execution protocols:
 - **[quality-gates.md](../shared/quality-gates.md)**: 사전/사후 실행 검증 게이트
 - **[delegation-template.md](../shared/delegation-template.md)**: 서브에이전트 위임 템플릿
 - **[effort-scaling.md](../shared/effort-scaling.md)**: 작업 복잡도별 리소스 할당
 
 ---
 
-**Related Agents**: primary-coordinator, kiips-architect, kiips-developer, kiips-ui-designer, checklist-generator
+**Related Agents**: kiips-architect, kiips-developer, kiips-ui-designer, checklist-generator
 **Related Skills**: kiips-feature-planner, checklist-generator, feature-lifecycle-orchestration
 **Coordination Scripts**: task-allocator.js, manager-coordinator.js, checkpoint-manager.js

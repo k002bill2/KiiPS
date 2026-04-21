@@ -1,16 +1,16 @@
 ---
 name: checklist-generator
-description: "컨텍스트 기반 체크리스트 생성 — 코드 리뷰, 배포, 테스트, ACE 검증. Use when: checklist, 체크리스트, TODO, todo, task list, verification"
+description: "컨텍스트 기반 체크리스트 생성 — 코드 리뷰, 배포, 테스트, 품질 검증. Use when: checklist, 체크리스트, TODO, todo, task list, verification"
 disable-model-invocation: true
 ---
 
 # Checklist Generator
 
-코드 리뷰, 배포, 테스트, ACE Framework 검증을 위한 구조화된 체크리스트를 생성합니다.
+코드 리뷰, 배포, 테스트, 품질 검증을 위한 구조화된 체크리스트를 생성합니다.
 
 ## 역할
 
-- ACE Framework Layer 6 (Task Prosecution) 검증 담당
+- 작업 완료 후 품질 검증 체크리스트 생성
 - Feature Manager, Build Manager, UI Manager, Deployment Manager가 공유하는 검증 워커
 
 ## 체크리스트 유형
@@ -35,13 +35,6 @@ disable-model-invocation: true
 - Controller 엔드포인트 테스트
 - 에러 핸들링 및 엣지 케이스
 - 수동 스모크 테스트
-
-### 4. ACE Compliance
-- Layer 1: 윤리 검증 (위험 패턴 차단)
-- Layer 3: 에이전트 할당 적정성
-- Layer 4: 작업 분해 타당성
-- Layer 5: 모듈 잠금/해제 정상
-- Layer 6: 작업 완료 기준 충족
 
 ## 출력 형식
 

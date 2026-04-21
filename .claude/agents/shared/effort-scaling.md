@@ -169,8 +169,6 @@ deployment-manager
 ## Integration
 
 This guide is referenced by:
-- `primary-coordinator.md` - Uses for effort decisions
-- `parallel-coordinator/SKILL.md` - Embedded in workflow
 - Manager agents - For sub-task scaling within their domains
 
 ---

@@ -36,8 +36,6 @@
 │   │   ├── feature-manager.md
 │   │   └── ui-manager.md
 │   └── shared/                 # Shared agent protocols
-│       ├── ace-framework.md
-│       ├── parallel-agents-protocol.md
 │       ├── delegation-template.md
 │       ├── effort-scaling.md
 │       └── quality-gates.md
@@ -137,7 +135,7 @@
 | Skill | 용도 |
 |-------|------|
 | verification-loop | Boris Cherny 검증 피드백 루프 |
-| parallel-coordinator | ACE Framework 병렬 에이전트 실행 |
+| parallel-coordinator | 병렬 에이전트 실행 오케스트레이션 |
 | agent-improvement | 에이전트 자기 개선 루프 |
 | agent-observability | 에이전트 추적 + 메트릭 |
 

@@ -157,7 +157,7 @@ KiiPS-UI/src/main/webapp/WEB-INF/jsp/fund/
 └── fund-list.scss         (커스텀 스타일)
 ```
 
-**Full Example**: [examples/fund-list/](./examples/fund-list/)
+> 위 구조에 해당하는 완성 예제는 [reference.md](reference.md) 및 SKILL.md 내 인라인 스니펫을 조합해 사용하세요.
 
 ---
 
@@ -182,7 +182,7 @@ KiiPS-UI/src/main/webapp/WEB-INF/jsp/fund/
 └─────────────────────────────────────────────┘
 ```
 
-**Full Example**: [examples/dashboard/](./examples/dashboard/)
+> 대시보드 완성 예제는 [reference.md](reference.md)의 ApexCharts 섹션과 Bootstrap 검색 폼을 조합해 사용하세요.
 
 ---
 

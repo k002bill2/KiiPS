@@ -114,7 +114,6 @@
   },
 
   "integration": {
-    "feedbackLoop": "../coordination/feedback-loop.js",
-    "telemetryPath": "../ace-framework/telemetry/"
+    "feedbackLoop": "../coordination/feedback-loop.js"
   }
 }

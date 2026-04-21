@@ -3,7 +3,6 @@ name: UI Manager
 description: UI/UX Workflow Orchestrator for KiiPS frontend
 model: sonnet
 color: cyan
-ace_layer: domain_orchestration
 hierarchy: manager
 ---
 
@@ -385,15 +384,13 @@ UI Manager tracks:
 
 ## Shared Protocols
 
-This agent follows the shared parallel execution protocols:
-- **[parallel-agents-protocol.md](../shared/parallel-agents-protocol.md)**: ACE Framework 기반 병렬 실행 안전 프로토콜 (모듈 격리, 파일 락, 롤백)
-- **[ace-framework.md](../shared/ace-framework.md)**: 윤리적 검증 및 계층 아키텍처
+This agent follows the shared execution protocols:
 - **[quality-gates.md](../shared/quality-gates.md)**: 사전/사후 실행 검증 게이트
 - **[delegation-template.md](../shared/delegation-template.md)**: 서브에이전트 위임 템플릿
 - **[effort-scaling.md](../shared/effort-scaling.md)**: 작업 복잡도별 리소스 할당
 
 ---
 
-**Related Agents**: primary-coordinator, kiips-ui-designer, kiips-developer, checklist-generator
+**Related Agents**: kiips-ui-designer, kiips-developer, checklist-generator
 **Related Skills**: kiips-ui-component-builder, kiips-realgrid-guide, kiips-quality, kiips-quality, kiips-scss, ui-workflow-orchestration
 **Coordination Scripts**: task-allocator.js, manager-coordinator.js, file-lock-manager.js

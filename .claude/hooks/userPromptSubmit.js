@@ -4,7 +4,7 @@
  * Complexity Gate:
  *   TRIVIAL  -> 주입 없음 (원본 그대로 반환)
  *   STANDARD -> Skill 활성화 + KiiPS 모듈 감지만
- *   COMPLEX  -> 전체 파이프라인 (ACE + Manager + Effort)
+ *   COMPLEX  -> 전체 파이프라인 (Manager + Effort)
  *
  * @version 5.0.0-KiiPS
  */

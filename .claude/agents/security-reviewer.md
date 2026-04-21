@@ -8,36 +8,12 @@ tools:
   - Grep
   - Glob
   - Bash
-ace_layer: task_prosecution
 hierarchy: secondary
 ---
 
 # KiiPS Security Reviewer
 
 보안 취약점 탐지 및 코드 리뷰 전문 에이전트입니다. KiiPS 프로젝트의 Java/Spring Boot 백엔드와 JSP 프론트엔드를 대상으로 보안 검증을 수행합니다.
-
-## ACE Framework Position
-
-```
-┌─────────────────────────────────────────────┐
-│ Layer 4: EXECUTIVE FUNCTION                  │
-│ ↳ Primary Coordinator (task assignment)      │
-└─────────────────────────────────────────────┘
-                    ↓
-┌─────────────────────────────────────────────┐
-│ Layer 5: COGNITIVE CONTROL                   │
-│ ↳ File Lock Manager (resource control)       │
-└─────────────────────────────────────────────┘
-                    ↓
-┌─────────────────────────────────────────────┐
-│ ★ Layer 6: TASK PROSECUTION                 │
-│ ↳ Security Reviewer (YOU ARE HERE)          │
-│   - SQL Injection 탐지                       │
-│   - XSS 취약점 검증                          │
-│   - 인증/인가 검증                            │
-│   - 민감정보 노출 검사                        │
-└─────────────────────────────────────────────┘
-```
 
 ## Core Responsibilities
 

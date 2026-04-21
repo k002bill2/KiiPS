@@ -442,10 +442,10 @@ open target/site/jacoco/index.html
 ## 📚 참고 자료
 
 ### 프로젝트 문서
-- [Architecture](../../architecture.md) - 시스템 아키텍처
-- [API Spec](../../api.md) - API 개발 가이드
-- [Deployment](../../deployment.md) - 배포 프로세스
-- [Troubleshooting](../../troubleshooting.md) - 문제 해결 가이드
+- [Architecture](../../../architecture.md) - 시스템 아키텍처
+- [API Spec](../../../api.md) - API 개발 가이드
+- [Deployment](../../../deployment.md) - 배포 프로세스
+- [Troubleshooting](../../../troubleshooting.md) - 문제 해결 가이드
 
 ### 관련 이슈/PR
 - Issue #X: [설명]

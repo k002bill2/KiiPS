@@ -16,7 +16,7 @@ mvn test -pl :<module> -am             # JUnit test execution
 mvn package -pl :<module> -am          # Full package build
 ```
 
-## 0. Ethical Quality Gate (Layer 1) - FIRST
+## 0. Ethical Quality Gate - FIRST
 
 기술적 품질 검사 **전에** 윤리적 검증을 먼저 수행합니다. 이 게이트를 통과하지 못하면 다른 검사를 진행하지 않습니다.
 
@@ -49,8 +49,6 @@ Score = (통과한 윤리 체크 / 전체 윤리 체크) x 100
 - [ ] MyBatis ${} 파라미터 바인딩 사용
 - [ ] app-kiips.properties / app-stg.properties 커밋 시도
 - [ ] Primary-only 모듈 (HUB, COMMON, UTILS) 무단 수정
-
--> [ace-framework.md](./ace-framework.md)의 Ethical Veto Protocol 참조
 
 ---
 
@@ -156,4 +154,4 @@ grep -rn '\.theme-dark' KiiPS-UI/src/main/resources/static/css/sass/ --include="
 
 ---
 
-**Version**: 3.0.0-KiiPS | **Last Updated**: 2026-02-06 | **Layer 1 Ethical Gate + KiiPS Stack**
+**Version**: 3.1.0-KiiPS | **Last Updated**: 2026-04-21 | **Ethical Gate + KiiPS Stack**

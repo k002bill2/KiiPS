@@ -10,7 +10,7 @@
  * - recordExecutionFeedback (dead feedback-loop에 쓰기)
  * - considerAutoCheckpoint (체크포인트 누적, 정리 없음)
  * - aggregateSessionMetrics (존재하지 않을 수 있는 traces 읽기)
- * - ACE Feedback 요약 (dead feedback-loop에서 읽기)
+ * - Feedback 요약 (dead feedback-loop에서 읽기)
  *
  * @version 4.0.0-KiiPS
  */

@@ -39,7 +39,7 @@
     },
     "checklist-generator": {
       "file": ".claude/agents/checklist-generator.md",
-      "description": "Generates contextual checklists for code review, deployment, testing, and ACE validation",
+      "description": "Generates contextual checklists for code review, deployment, testing, and quality validation",
       "tools": ["Read", "Write", "TodoWrite"],
       "model": "haiku",
       "triggers": ["체크리스트", "checklist", "리뷰 목록", "검증 목록"]
@@ -64,13 +64,6 @@
       "tools": ["Read", "Bash", "Grep", "Glob"],
       "model": "sonnet",
       "triggers": ["검증", "verify", "빌드 확인", "테스트 확인", "증거 기반"]
-    },
-    "primary-coordinator": {
-      "file": "~/.claude/agents/primary-coordinator.md",
-      "description": "Multi-agent workflow coordinator (ACE Layer 4)",
-      "tools": ["Bash", "Read", "Write", "Edit", "Glob", "Grep", "Task", "TodoWrite"],
-      "model": "opus",
-      "triggers": ["coordinate", "orchestrate", "multi-agent", "병렬", "조율"]
     },
     "deployment-manager": {
       "file": ".claude/agents/managers/deployment-manager.md",
@@ -102,18 +95,17 @@
     }
   },
   "shared": {
-    "ace-framework": ".claude/agents/shared/ace-framework.md",
-    "parallel-agents-protocol": ".claude/agents/shared/parallel-agents-protocol.md",
     "delegation-template": ".claude/agents/shared/delegation-template.md",
     "effort-scaling": ".claude/agents/shared/effort-scaling.md",
-    "quality-gates": ".claude/agents/shared/quality-gates.md"
+    "quality-gates": ".claude/agents/shared/quality-gates.md",
+    "kiips-evaluation-criteria": ".claude/agents/shared/kiips-evaluation-criteria.md"
   },
   "stats": {
-    "totalAgents": 14,
-    "sharedProtocols": 5,
+    "totalAgents": 13,
+    "sharedProtocols": 4,
     "managers": 4,
     "specialists": 7,
-    "coordinators": 1,
+    "coordinators": 0,
     "system": 2
   }
 }

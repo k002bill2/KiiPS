@@ -17,7 +17,6 @@ whenToUse: |
   - 커스텀 렌더러 적용
   - 엑셀 내보내기 기능 추가
   - 그리드 데이터 로딩 패턴 구현
-ace_layer: task_prosecution
 hierarchy: secondary
 ---
 

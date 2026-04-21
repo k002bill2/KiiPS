@@ -30,7 +30,7 @@ disable-model-invocation: true
 - 테스트 실행 시간 측정
 
 ### 3. 피드백 루프 통합
-- 테스트 결과를 ACE Framework Layer 6에 기록
+- 테스트 결과를 피드백 루프에 기록
 - 실패 시 상세 로그 및 개선 제안 제공
 - 성공 시 체크포인트 자동 생성
 
@@ -173,14 +173,14 @@ execSync(`cd KiiPS-HUB && mvn test -pl :${moduleName} -DskipTests=false`, {
 | 자동 테스트 실행율 | 100% | ✅ 100% (Java) |
 | 테스트 실패 시 배포 차단 | Yes | ⚠️ 경고만 (향후 차단) |
 
-## Integration with ACE Framework
+## Integration with Feedback Loop
 
-### Layer 6 (Task Prosecution) 통합
+### stopEvent 훅 통합
 
 ```javascript
 // stopEvent.js
 async function onStopEvent(context) {
-  // Layer 6: 실제 작업 수행 후 자가 검증
+  // 실제 작업 수행 후 자가 검증
   testResults = await runAutoTests(editedFiles);
 
   // 피드백 루프에 결과 기록
@@ -274,7 +274,6 @@ timeout: 300000 // 5분으로 증가
 ## References
 
 - **Boris Cherny's Workflow #10**: "가장 중요한 팁은 Claude에게 검증 피드백 루프 제공"
-- **ACE Framework Layer 6**: Task Prosecution - 자가 검증 및 피드백
 - **Maven Surefire Plugin**: https://maven.apache.org/surefire/maven-surefire-plugin/
 - **JUnit 5**: https://junit.org/junit5/
 
