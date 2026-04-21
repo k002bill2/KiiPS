@@ -2,8 +2,30 @@
  * Ethical Validator Hook
  * PreToolUse 이벤트에서 실행되어 위험 작업을 사전 차단합니다.
  *
- * @version 3.1.0-KiiPS
+ * @version 3.2.0-KiiPS
  */
+
+const path = require("path");
+const fs = require("fs");
+
+let SCOPE_CACHE = { value: null, expiresAt: 0 };
+const SCOPE_CACHE_TTL_MS = 5000;
+
+function readScopeCached(scopePath) {
+  const now = Date.now();
+  if (now < SCOPE_CACHE.expiresAt) return SCOPE_CACHE.value;
+
+  let value = null;
+  if (fs.existsSync(scopePath)) {
+    try {
+      value = JSON.parse(fs.readFileSync(scopePath, "utf8"));
+    } catch (_) {
+      value = null;
+    }
+  }
+  SCOPE_CACHE = { value, expiresAt: now + SCOPE_CACHE_TTL_MS };
+  return value;
+}
 
 /**
  * 차단된 작업 패턴 (Layer 1 기반)
@@ -127,8 +149,6 @@ const PROTECTED_MODULES = [
  */
 function checkScopeExpansion(filePath) {
   try {
-    const path = require("path");
-    const fs = require("fs");
     const scopePath = path.join(
       __dirname,
       "../gemini-bridge/.scope-state.json",
@@ -139,14 +159,8 @@ function checkScopeExpansion(filePath) {
       return { inScope: true };
     }
 
-    if (!fs.existsSync(scopePath)) return { inScope: true };
-
-    let scope;
-    try {
-      scope = JSON.parse(fs.readFileSync(scopePath, "utf8"));
-    } catch (_) {
-      return { inScope: true };
-    }
+    const scope = readScopeCached(scopePath);
+    if (!scope) return { inScope: true };
 
     // 만료 또는 이미 확장된 scope
     const ageMs = Date.now() - (scope.capturedAt || 0);
