@@ -104,8 +104,11 @@ opencode.json
 .claude/gemini-bridge/.shown-reviews.json
 .superpowers/
 .claude/hooks/*.log
+.claude/hooks/*.min.js
+.claude/.last-*
 .claude/.last-update-check
 .claude/learning/agent-state.json
+.claude/learning/regression-stats.jsonl
 .claude/learning/.state.lock
 .claude/learning/compact-summary.md
 .claude/learning/compact-checkpoint.json
