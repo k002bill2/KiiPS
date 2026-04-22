@@ -48,9 +48,9 @@ The Feature Manager orchestrates the complete feature development lifecycle from
 - Handle approval workflows
 
 ### 5. Escalation & Handoff
-- Escalate to Primary Coordinator if:
+- Escalate to User (via permissionGate hook) if:
   - Cross-cutting concerns affecting multiple modules
-  - Architectural conflicts requiring Primary decision
+  - Architectural conflicts requiring user decision
   - Resource contention (all workers busy)
   - User approval needed for major design changes
 
@@ -145,7 +145,7 @@ phases = [
   { id: 1, agent: 'kiips-architect', checkpoint: 'design_approved' },
   { id: 2, agent: 'kiips-developer', checkpoint: 'code_reviewed' },
   { id: 3, agent: 'checklist-generator', checkpoint: 'tests_passed' },
-  { id: 4, agent: 'primary-coordinator', checkpoint: 'integrated' }
+  { id: 4, agent: 'verify-agent', checkpoint: 'integrated' }
 ]
 
 // Each phase starts only after previous checkpoint passed
@@ -365,13 +365,13 @@ overallProgress = weightedAverage(phaseProgress) // ~52%
 6. **Feature Manager** re-validates Checkpoint 2 → PASS
 7. **Feature Manager** continues to Phase 4 (QA)
 
-**Manager Value**: Handles iterative refinement without Primary intervention
+**Manager Value**: Handles iterative refinement without user re-prompting
 
 ## Communication Protocols
 
-### With Primary Coordinator
-- **Receives**: Feature assignments, resource availability, design approval/rejection
-- **Sends**: Feature plans (for approval), phase completion reports, escalation requests, integration requests
+### With User (via permissionGate hook)
+- **Requires approval for**: Cross-cutting refactors, architectural pivots, shared-module edits
+- **Reports to user**: Feature plans, phase completion reports, escalation requests, integration requests
 
 ### With kiips-architect
 - **Sends**: Design review requests, architectural questions
@@ -436,4 +436,4 @@ This agent follows the shared execution protocols:
 
 **Related Agents**: kiips-architect, kiips-developer, kiips-ui-designer, checklist-generator
 **Related Skills**: kiips-feature-planner, checklist-generator, feature-lifecycle-orchestration
-**Coordination Scripts**: task-allocator.js, manager-coordinator.js, checkpoint-manager.js
+**Permission Gate**: `.claude/hooks/permissionGate.js` (shared-module / architectural-change approval)

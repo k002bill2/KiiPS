@@ -43,6 +43,24 @@ async function onPostToolUse(event) {
       return { success: false, error: "File not found" };
     }
 
+    // 포매팅 skip 경로: 테스트 fixture/페이로드는 의도한 형식 그대로 보존
+    const SKIP_PATH_FRAGMENTS = [
+      "/.claude/tests/",
+      "/.claude/.test-payloads/",
+      "/.claude/rules/",
+      "/.claude/learning/",
+      "/.claude/gemini-bridge/",
+    ];
+    for (const frag of SKIP_PATH_FRAGMENTS) {
+      if (filePath.includes(frag)) {
+        return {
+          success: true,
+          skipped: true,
+          reason: `Skipped by path guard: ${frag}`,
+        };
+      }
+    }
+
     // 포매팅 대상 파일 확인
     const ext = path.extname(filePath);
     const supportedExtensions = [

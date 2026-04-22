@@ -1,0 +1,199 @@
+/**
+ * Permission Gate Hook
+ *
+ * PreToolUse 게이트로 "사용자 명시 승인" 을 요구하는 민감 작업을 차단.
+ *
+ * ─── 설계 배경 (2026-04-22, ACE Framework 유산 정리) ─────────
+ * 이전 primary-coordinator 에이전트가 담당하던 "배타적 권한" 역할을
+ * 에이전트(부탁 수준) 가 아닌 훅(강제 수준) 으로 이관.
+ *
+ * 커버 영역:
+ *   1. 서비스 제어: start.sh, stop.sh, kill -9, pkill, systemctl start/stop/restart
+ *   2. 공유 빌드 파일: 모든 pom.xml (모듈 파급 고위험)
+ *   3. 프로덕션/스테이징 설정: app-kiips.properties, app-stg.properties, app-production.properties
+ *   4. VCS 배포 명령: svn commit (작업 영구 기록)
+ *
+ * 기존 게이트와의 분담 (중복 없음):
+ *   - ethicalValidator.js : 파괴적 작업(rm/DROP/curl|bash)
+ *   - multiFileGate.js    : 3+ 파일 동시 변경
+ *   - impactAnalyzer.js   : KiiPS-COMMON/UTILS 의미적 영향
+ *   - jspXssGuard.js      : JSP XSS
+ *   - permissionGate.js   : (본 훅) 서비스 제어 + 공유 빌드 + 프로덕션 설정 + svn commit
+ *
+ * Rollback:
+ *   환경변수 `KIIPS_PERMISSION_GATE=off` 로 즉시 비활성.
+ *
+ * Fail-closed:
+ *   내부 예외 발생 시 block 유지 (보안 우선).
+ *
+ * @version 1.0.0
+ */
+
+"use strict";
+
+const path = require("path");
+
+/**
+ * 파일 경로 기반 차단 패턴 (Edit/Write 대상)
+ */
+const BLOCKED_PATHS = [
+  {
+    regex: /\/pom\.xml$/,
+    reason: "공유 빌드 파일 (pom.xml) 변경은 모듈 파급 고위험",
+  },
+  { regex: /\/start\.sh$/, reason: "서비스 제어 스크립트 (start.sh) 변경" },
+  { regex: /\/stop\.sh$/, reason: "서비스 제어 스크립트 (stop.sh) 변경" },
+  { regex: /app-kiips\.properties$/i, reason: "프로덕션 설정 파일 변경" },
+  { regex: /app-stg\.properties$/i, reason: "스테이징 설정 파일 변경" },
+  { regex: /app-production\.properties$/i, reason: "프로덕션 설정 파일 변경" },
+];
+
+/**
+ * Bash 명령 기반 차단 패턴
+ */
+const BLOCKED_BASH_PATTERNS = [
+  {
+    regex: /(?:^|[\s;&|])(?:\S*\/)?(start|stop)\.sh(?:\s|$|;|&|\|)/,
+    reason: "서비스 제어 스크립트 실행",
+  },
+  { regex: /\bpkill\s+-f\b/, reason: "프로세스 일괄 종료 (pkill -f)" },
+  { regex: /\bkill\s+-9\b/, reason: "프로세스 강제 종료 (kill -9)" },
+  {
+    regex: /\bsystemctl\s+(start|stop|restart)\b/,
+    reason: "systemctl 서비스 제어",
+  },
+  { regex: /\bsvn\s+commit\b/, reason: "SVN commit (영구 기록)" },
+];
+
+/**
+ * 권한 게이트 검증
+ *
+ * @param {string} toolName
+ * @param {object} toolInput
+ * @returns {{blocked: boolean, reason?: string, detail?: string}}
+ */
+function checkPermission(toolName, toolInput) {
+  const t = (toolName || "").toLowerCase();
+
+  if (t === "bash") {
+    const cmd = (toolInput && toolInput.command) || "";
+    for (const entry of BLOCKED_BASH_PATTERNS) {
+      const m = entry.regex.exec(cmd);
+      if (m) {
+        return {
+          blocked: true,
+          reason: entry.reason,
+          detail: m[0].trim(),
+        };
+      }
+    }
+    return { blocked: false };
+  }
+
+  if (t === "edit" || t === "write") {
+    const fp = (toolInput && toolInput.file_path) || "";
+    if (!fp) return { blocked: false };
+    for (const entry of BLOCKED_PATHS) {
+      if (entry.regex.test(fp)) {
+        return {
+          blocked: true,
+          reason: entry.reason,
+          detail: path.basename(fp),
+        };
+      }
+    }
+  }
+
+  return { blocked: false };
+}
+
+/**
+ * 차단 메시지 포맷
+ */
+function formatBlockMessage(result) {
+  return [
+    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+    "🔒 PERMISSION GATE - User Approval Required",
+    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+    "",
+    `❗ ${result.reason}`,
+    `   대상: ${result.detail}`,
+    "",
+    "이 작업은 **사용자 명시 승인** 이 필요합니다.",
+    "",
+    "진행 방법:",
+    "  1. 사용자와 변경 의도·영향 범위를 확인",
+    "  2. 필요 시 KIIPS_PERMISSION_GATE=off 환경변수로 게이트 비활성화",
+    "  3. 또는 작업을 수동 실행 후 결과 보고",
+    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+    "",
+  ].join("\n");
+}
+
+/**
+ * PreToolUse Hook Entry
+ */
+async function onPreToolUse(event) {
+  try {
+    if (process.env.KIIPS_PERMISSION_GATE === "off") {
+      return { decision: "allow" };
+    }
+    const result = checkPermission(event.tool_name, event.tool_input || {});
+    if (result.blocked) {
+      return { decision: "block", message: formatBlockMessage(result) };
+    }
+    return { decision: "allow" };
+  } catch (e) {
+    // fail-closed
+    return {
+      decision: "block",
+      message: `[PermissionGate] Internal error - blocking for safety: ${e.message}`,
+    };
+  }
+}
+
+// ─── CLI Entry (stdin JSON) ─────────────────────────────
+if (require.main === module) {
+  const chunks = [];
+  process.stdin.setEncoding("utf8");
+  process.stdin.on("data", (c) => chunks.push(c));
+  process.stdin.on("end", async () => {
+    try {
+      const input = chunks.join("");
+      if (!input.trim()) {
+        process.stderr.write(
+          "[PermissionGate] Empty input - blocking for safety\n",
+        );
+        process.exit(2);
+      }
+      const event = JSON.parse(input);
+      const result = await onPreToolUse(event);
+      if (result.decision === "block") {
+        if (result.message) process.stderr.write(result.message);
+        process.exit(2);
+      }
+      process.exit(0);
+    } catch (e) {
+      process.stderr.write(
+        `[PermissionGate] Parse error - blocking for safety: ${e.message}\n`,
+      );
+      process.exit(2);
+    }
+  });
+  const timer = setTimeout(() => {
+    process.stderr.write(
+      "[PermissionGate] stdin timeout - blocking for safety\n",
+    );
+    process.exit(2);
+  }, 10_000);
+  process.stdin.on("end", () => clearTimeout(timer));
+  process.stdin.resume();
+}
+
+module.exports = {
+  onPreToolUse,
+  checkPermission,
+  formatBlockMessage,
+  BLOCKED_PATHS,
+  BLOCKED_BASH_PATTERNS,
+};

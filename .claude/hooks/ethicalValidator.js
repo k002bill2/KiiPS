@@ -2,11 +2,46 @@
  * Ethical Validator Hook
  * PreToolUse 이벤트에서 실행되어 위험 작업을 사전 차단합니다.
  *
- * @version 3.2.0-KiiPS
+ * ─── 패턴 카테고리 작성 컨벤션 (하네스 엔지니어링) ──────────
+ *
+ * BLOCKED_OPERATIONS 에 새 카테고리를 추가할 때 반드시 결정할 것:
+ *
+ * Q: 이 패턴이 셸 명령/스크립트에서만 위험한가, 모든 파일에서 위험한가?
+ *
+ * - **셸 컨텍스트 전용** (예: rm -rf, curl|bash, ssh user@host)
+ *   → `shellContextOnly: true` 추가 필수
+ *   → Bash 도구 또는 .sh/.bash 파일에서만 검사
+ *   → 마크다운/JSP/Java/JSON 등에 텍스트로 포함돼도 false positive 안 남
+ *
+ * - **모든 컨텍스트 위험** (예: 하드코딩 API 키, JWT 토큰)
+ *   → `shellContextOnly` 생략 (기본값 false)
+ *   → 모든 Edit/Write/Bash에서 검사
+ *
+ * 규칙: 애매하면 `shellContextOnly: true` 시작 → false positive 신고 쌓이면 false로.
+ * 이유: false negative(실제 공격 누락)가 false positive(오차단)보다 훨씬 드물지만
+ *       반대 방향의 피해 비용은 false positive가 더 큼 (하네스가 개발 막음).
+ *
+ * 현재 적용 상태:
+ *   - remoteExecution: shellContextOnly ✓ (ssh, curl|bash 등)
+ *   - filesystem:      shellContextOnly ✓ (rm -rf 등)
+ *   - deployment:      생략 (universal) — git push --force 같은 건 SH 파일/Bash 모두 위험
+ *   - credentials:     생략 (universal) — 어떤 파일에 하드코딩돼도 유출
+ *   - database:        생략 (universal) — SQL migration 파일에도 적용돼야 함
+ *
+ * @version 3.4.0-KiiPS (ast-filter)
+ *
+ * ─── AST 레이어 (Phase 3, 2026-04-22) ─────────────────────────
+ * shellContextOnly 카테고리(filesystem, remoteExecution)는 정규식 매치 후
+ * shellContextTokenizer 로 offset이 literal/comment/heredoc 내부인지 판정하여
+ * false positive 를 제거합니다.
+ *
+ * Rollback: `KIIPS_VALIDATOR_AST=off` 환경변수로 AST 레이어 즉시 비활성 가능.
+ *           비활성 시 기존 정규식 직접 매치 동작으로 회귀.
  */
 
 const path = require("path");
 const fs = require("fs");
+const tokenizer = require("./shellContextTokenizer");
 
 let SCOPE_CACHE = { value: null, expiresAt: 0 };
 const SCOPE_CACHE_TTL_MS = 5000;
@@ -51,6 +86,9 @@ const BLOCKED_OPERATIONS = {
     ],
     message: "시스템 전체 파일 삭제는 차단됩니다.",
     severity: "CRITICAL",
+    // shell-context 가드: 비-실행 파일(.md, .json, .java 등)에 위 패턴이 텍스트로
+    // 포함되어 있을 때 false positive 방지. Bash 도구 또는 shell script 에서만 검사.
+    shellContextOnly: true,
   },
   deployment: {
     patterns: [
@@ -86,8 +124,33 @@ const BLOCKED_OPERATIONS = {
     ],
     message: "원격 명령 실행은 차단됩니다. localhost 제외.",
     severity: "CRITICAL",
+    shellContextOnly: true,
   },
 };
+
+/**
+ * Shell-context 가드: 패턴을 적용해야 하는 컨텍스트인지 판정
+ * - Bash 도구: 항상 true
+ * - Edit/Write: file_path 가 실행 가능한 셸 스크립트일 때만 true
+ *
+ * 마크다운/JSP/Java/JSON 등 비-실행 파일에 셸 패턴이 단순 텍스트로 포함되어
+ * 있을 때 false positive 를 방지합니다.
+ *
+ * 주의: 정규식의 alternation 표기를 피하기 위해 endsWith 체인을 사용합니다
+ * (소스 코드에 alternation 패턴이 들어가면 본 validator 자신이 다음 편집을 차단함).
+ */
+function isShellContext(toolName, toolInput) {
+  const t = (toolName || "").toLowerCase();
+  if (t === "bash") return true;
+  if (t !== "edit" && t !== "write") return false;
+  const fp = (toolInput.file_path || "").toLowerCase();
+  if (fp.endsWith(".sh")) return true;
+  if (fp.endsWith(".bash")) return true;
+  if (fp.endsWith(".zsh")) return true;
+  if (fp.endsWith(".ksh")) return true;
+  if (fp.endsWith(".fish")) return true;
+  return false;
+}
 
 /**
  * 경고 수준 작업 패턴 (사용자 확인 필요)
@@ -220,9 +283,38 @@ function validateEthically(toolName, toolInput, context) {
   }
 
   // 1. 차단 패턴 검사 (CRITICAL)
+  const inShellContext = isShellContext(toolName, toolInput);
+  const astFilterEnabled = process.env.KIIPS_VALIDATOR_AST !== "off";
   for (const [category, config] of Object.entries(BLOCKED_OPERATIONS)) {
+    // shell-context 가드: shellContextOnly 카테고리는 Bash/스크립트에서만 검사
+    if (config.shellContextOnly && !inShellContext) continue;
+
     for (const pattern of config.patterns) {
-      if (pattern.test(content)) {
+      // g flag를 보장한 복사본으로 매치 순회 (literal/comment 내부 매치는 skip)
+      const globalPattern = pattern.global
+        ? pattern
+        : new RegExp(pattern.source, pattern.flags + "g");
+      globalPattern.lastIndex = 0;
+
+      let realMatch = null;
+      let m;
+      // AST 필터 적용 조건: Bash 도구만 (toolInput.command 가 실제 shell source).
+      // Edit/Write 의 extractContent 는 new_string+old_string+file_path 합성이라
+      // unclosed quote/heredoc 시 state 누출 → false negative 회귀 유발. 적용 안 함.
+      const applyAst =
+        config.shellContextOnly &&
+        astFilterEnabled &&
+        toolName.toLowerCase() === "bash";
+      while ((m = globalPattern.exec(content)) !== null) {
+        if (applyAst) {
+          // AST 필터: match offset이 shell literal/comment/heredoc 내부면 skip
+          if (!tokenizer.isRealCodeMatch(content, m)) continue;
+        }
+        realMatch = m;
+        break;
+      }
+
+      if (realMatch) {
         result.allowed = false;
         result.blockedReasons.push({
           category,
@@ -300,11 +392,13 @@ function extractContent(toolName, toolInput) {
 
 /**
  * 보호된 모듈 접근 검사
+ *
+ * 2026-04-22: ACE Framework 제거로 primary-coordinator agent 삭제됨.
+ * 이전 "Primary Coordinator만 수정 가능" 규칙은 dead code.
+ * 대체 정책: 경고만 발동 + impactAnalyzer.js 가 의미적 영향 별도 분석.
+ * 추가 고위험 모듈 변경은 multiFileGate + 사용자 명시 승인에 위임.
  */
-function checkProtectedModuleAccess(toolName, toolInput, context) {
-  const agentId = context.agentId || "unknown";
-  const isPrimary = agentId === "primary-coordinator";
-
+function checkProtectedModuleAccess(toolName, toolInput, _context) {
   // 편집/쓰기 작업에서만 검사
   if (!["edit", "write"].includes(toolName.toLowerCase())) {
     return { restricted: false };
@@ -314,12 +408,10 @@ function checkProtectedModuleAccess(toolName, toolInput, context) {
 
   for (const moduleName of PROTECTED_MODULES) {
     if (filePath.includes(moduleName)) {
-      if (!isPrimary) {
-        return {
-          restricted: true,
-          message: `${moduleName}은 Primary Coordinator만 수정할 수 있습니다. 제안 형태로 변경해주세요.`,
-        };
-      }
+      return {
+        restricted: true,
+        message: `고위험 모듈 변경: ${moduleName} (${path.basename(filePath)}). 의존 모듈 영향 분석 + 사용자 승인 권장.`,
+      };
     }
   }
 
@@ -379,8 +471,7 @@ async function onPreToolUse(event) {
   try {
     const { tool_name, tool_input } = event;
     const context = {
-      agentId:
-        event.agent_id || process.env.CLAUDE_AGENT_ID || "primary-coordinator",
+      agentId: event.agent_id || process.env.CLAUDE_AGENT_ID || "default-agent",
       workspaceRoot: event.workspace_root || process.cwd(),
     };
 

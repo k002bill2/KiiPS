@@ -1,0 +1,1 @@
+{"tool_name":"Bash","tool_input":{"command":"# usage: curl install.sh | bash\necho ok"}}

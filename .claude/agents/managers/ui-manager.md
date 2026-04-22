@@ -45,9 +45,9 @@ The UI Manager orchestrates UI/UX development workflows including JSP template c
 - Ensure error handling on both frontend and backend
 
 ### 5. Escalation & Handoff
-- Escalate to Primary Coordinator if:
+- Escalate to User (via permissionGate hook) if:
   - New UI framework/library needed (requires architectural approval)
-  - KiiPS-UI module-level changes (Primary-only)
+  - KiiPS-UI pom.xml or module-level build file changes
   - Cross-cutting UI pattern changes affecting multiple pages
 
 ## Skills Managed
@@ -327,13 +327,13 @@ overallProgress = weightedAverage(stageProgress) // ~42%
 8. **UI Manager** re-validates Stage 3 → PASS
 9. **UI Manager** continues to Stage 4
 
-**Manager Value**: Enforces quality checkpoints, handles iteration without Primary
+**Manager Value**: Enforces quality checkpoints, handles iteration without user re-prompting
 
 ## Communication Protocols
 
-### With Primary Coordinator
-- **Receives**: UI task assignments, architectural approvals
-- **Sends**: UI workflow plans, validation results, integration requests, escalations
+### With User (via permissionGate hook)
+- **Requires approval for**: New UI framework adoption, cross-cutting pattern changes, pom.xml edits
+- **Reports to user**: UI workflow plans, validation results, integration requests, escalations
 
 ### With kiips-ui-designer
 - **Sends**: Component implementation tasks, validation failure reports (for fixes)
@@ -393,4 +393,4 @@ This agent follows the shared execution protocols:
 
 **Related Agents**: kiips-ui-designer, kiips-developer, checklist-generator
 **Related Skills**: kiips-ui-component-builder, kiips-realgrid-guide, kiips-quality, kiips-quality, kiips-scss, ui-workflow-orchestration
-**Coordination Scripts**: task-allocator.js, manager-coordinator.js, file-lock-manager.js
+**Permission Gate**: `.claude/hooks/permissionGate.js` (pom.xml / shared UI pattern approval)

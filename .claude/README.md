@@ -29,7 +29,6 @@
 │   ├── kiips-realgrid-generator.md  # RealGrid code generator
 │   ├── code-simplifier.md      # Refactoring specialist
 │   ├── checklist-generator.md  # Checklist automation
-│   ├── primary-coordinator.md  # Multi-agent orchestrator
 │   ├── managers/
 │   │   ├── deployment-manager.md
 │   │   ├── build-manager.md
@@ -184,4 +183,5 @@
 ---
 
 **Version**: 2.0.0-KiiPS
-**Last Updated**: 2026-02-06
+**Last Updated**: 2026-04-21 (harness engineering refresh)
+**Note**: 본 파일의 hook matcher 표기 정확도는 settings.json을 직접 참고하세요.

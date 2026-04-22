@@ -123,8 +123,78 @@ async function onStopEvent(context) {
 
     // 4. Garbage collection: old reviews & oversized logs
     gcGeminiBridge();
+
+    // 5. Weekly cleanup: backups + observations rolling (7d interval)
+    gcWeeklyCleanup();
   } catch (error) {
     console.error("[StopEvent] Error:", error.message);
+  }
+}
+
+/**
+ * Weekly Cleanup: 7일에 한 번 백업 GC + observations 롤링 실행
+ * 마지막 실행 시각은 .claude/.last-cleanup 에 기록
+ * fail-open: 실패해도 작업 진행
+ */
+function gcWeeklyCleanup() {
+  try {
+    const projectRoot = path.resolve(__dirname, "../..");
+    const lastCleanupFile = path.join(projectRoot, ".claude/.last-cleanup");
+    const INTERVAL_MS = 7 * 24 * 60 * 60 * 1000;
+
+    // 7일 인터벌 체크
+    if (fs.existsSync(lastCleanupFile)) {
+      const lastMs = fs.statSync(lastCleanupFile).mtimeMs;
+      if (Date.now() - lastMs < INTERVAL_MS) return;
+    }
+
+    // 1. 백업 디렉토리/임시 파일 후보 식별 알림 (자동 삭제 안함)
+    try {
+      const { execSync } = require("child_process");
+      const backupGc = path.join(__dirname, "backupGc.sh");
+      if (fs.existsSync(backupGc)) {
+        execSync(`bash "${backupGc}"`, {
+          stdio: ["ignore", "ignore", "inherit"],
+          timeout: 5000,
+        });
+      }
+    } catch (_) {
+      // fail-open
+    }
+
+    // 2. observations.jsonl 90일 롤링
+    try {
+      const { rollObservations } = require("./observationsRoller.js");
+      // 비동기지만 fire-and-forget (로그는 stderr로 직접)
+      rollObservations().catch(() => {});
+    } catch (_) {
+      // fail-open
+    }
+
+    // 3. 사용자 권장 커맨드 알림 (수동 실행 권유)
+    try {
+      const suggestion = [
+        "",
+        "┌─── WEEKLY HOUSEKEEPING SUGGESTIONS ─────────────────┐",
+        "│ 마지막 cleanup 후 7일 경과. 다음 명령 검토 권장:    │",
+        "│                                                     │",
+        "│  /check-rules        - rules/ 위반 스캔             │",
+        "│  /periodic-cleanup   - 코드 위생 스캔               │",
+        "│  /instinct-gc        - Instinct 수명 정리 (dry-run) │",
+        "│                                                     │",
+        "│ 자동 실행 안 됨 - 검토 후 수동 실행하세요.          │",
+        "└─────────────────────────────────────────────────────┘",
+        "",
+      ].join("\n");
+      process.stderr.write(suggestion);
+    } catch (_) {}
+
+    // 4. 마커 갱신
+    try {
+      fs.writeFileSync(lastCleanupFile, new Date().toISOString(), "utf8");
+    } catch (_) {}
+  } catch (_) {
+    // fail-open
   }
 }
 

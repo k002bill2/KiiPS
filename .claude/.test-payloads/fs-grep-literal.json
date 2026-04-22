@@ -1,0 +1,1 @@
+{"tool_name":"Bash","tool_input":{"command":"grep -E \"parse|bash\" /tmp/x.txt"}}

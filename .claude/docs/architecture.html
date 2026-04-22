@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>KiiPS Claude Code System Architecture (2026-04-21)</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #131a2e;
+    --panel-2: #1a2240;
+    --border: #2a3456;
+    --text: #e6e9f2;
+    --muted: #94a3b8;
+    --accent: #7dd3fc;
+    --layer-0: #64748b;
+    --layer-1: #22d3ee;
+    --layer-2a: #f87171;
+    --layer-2b: #a78bfa;
+    --layer-2c: #34d399;
+    --layer-3: #fbbf24;
+    --layer-4: #fb7185;
+    --rules: #f472b6;
+    --memory: #60a5fa;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
+    background: linear-gradient(180deg, #060915 0%, #0b1020 100%);
+    color: var(--text);
+    padding: 32px 24px 64px;
+    line-height: 1.5;
+  }
+  header {
+    max-width: 1400px;
+    margin: 0 auto 32px;
+  }
+  h1 {
+    margin: 0 0 6px;
+    font-size: 26px;
+    letter-spacing: -0.3px;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 18px;
+  }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend i {
+    width: 10px; height: 10px; border-radius: 2px; display: inline-block;
+  }
+
+  .canvas {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 240px 1fr 260px;
+    gap: 16px;
+  }
+
+  .col-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .col-main {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .layer {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    position: relative;
+  }
+  .layer h2 {
+    margin: 0 0 10px;
+    font-size: 13px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .layer h2 .tag {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: var(--panel-2);
+    color: var(--text);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .chip {
+    font-family: "SF Mono", ui-monospace, Menlo, monospace;
+    font-size: 11.5px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    padding: 5px 9px;
+    border-radius: 6px;
+    color: #d1d5db;
+    white-space: nowrap;
+    transition: transform .08s ease, border-color .08s ease;
+    cursor: default;
+  }
+  .chip:hover { transform: translateY(-1px); border-color: var(--accent); }
+  .chip.small { font-size: 11px; padding: 3px 7px; }
+  .chip .role {
+    color: var(--muted);
+    margin-left: 6px;
+    font-size: 10.5px;
+  }
+
+  .arrow {
+    text-align: center;
+    color: var(--muted);
+    font-size: 18px;
+    margin: -4px 0;
+    letter-spacing: 4px;
+  }
+
+  /* Layer color accents (left border) */
+  .l0 { border-left: 3px solid var(--layer-0); }
+  .l1 { border-left: 3px solid var(--layer-1); }
+  .l2a { border-left: 3px solid var(--layer-2a); }
+  .l2b { border-left: 3px solid var(--layer-2b); }
+  .l2c { border-left: 3px solid var(--layer-2c); }
+  .l3 { border-left: 3px solid var(--layer-3); }
+  .l4 { border-left: 3px solid var(--layer-4); }
+  .lr { border-left: 3px solid var(--rules); }
+  .lm { border-left: 3px solid var(--memory); }
+
+  .core {
+    background: linear-gradient(135deg, #1a2a4d 0%, #2a1f4d 100%);
+    border: 1px solid #3b4a7a;
+    border-radius: 12px;
+    padding: 16px 18px;
+    position: relative;
+  }
+  .core h2 { color: #cbd5e1; }
+  .core .badge {
+    position: absolute;
+    right: 14px; top: 14px;
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(125,211,252,0.08);
+    padding: 3px 8px; border-radius: 999px;
+    border: 1px solid rgba(125,211,252,0.3);
+  }
+
+  .fan-out {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 10px;
+  }
+  .fan-out .layer { padding: 12px 14px; }
+
+  .subgrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .callout {
+    background: rgba(248,113,113,0.08);
+    border: 1px solid rgba(248,113,113,0.35);
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    color: #fecaca;
+  }
+  .callout b { color: #fff; }
+
+  .note {
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+
+  .tier-title {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin: 8px 0 6px;
+  }
+
+  footer {
+    max-width: 1400px;
+    margin: 28px auto 0;
+    color: var(--muted);
+    font-size: 12px;
+    border-top: 1px dashed var(--border);
+    padding-top: 14px;
+  }
+
+  /* SVG connector backgrounds */
+  .flow-svg {
+    display: block;
+    width: 100%;
+    height: 28px;
+  }
+
+  @media (max-width: 1080px) {
+    .canvas { grid-template-columns: 1fr; }
+    .fan-out { grid-template-columns: 1fr; }
+    .subgrid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>KiiPS — Claude Code 시스템 아키텍처</h1>
+  <div class="subtitle">
+    Source: <code>.claude/settings.json</code> + <code>.claude/agents/</code> + <code>.claude/skills/</code> · 작성 2026-04-21 · 하네스 엔지니어링 관점
+  </div>
+  <div class="legend">
+    <span><i style="background:var(--layer-0)"></i> Layer 0 SessionStart</span>
+    <span><i style="background:var(--layer-1)"></i> Layer 1 UserPromptSubmit</span>
+    <span><i style="background:var(--layer-2a)"></i> Layer 2a PreToolUse Guards</span>
+    <span><i style="background:var(--layer-2b)"></i> Layer 2b Agents</span>
+    <span><i style="background:var(--layer-2c)"></i> Layer 2c Skills</span>
+    <span><i style="background:var(--layer-3)"></i> Layer 3 MCP</span>
+    <span><i style="background:var(--layer-4)"></i> Layer 4 Post-Turn</span>
+    <span><i style="background:var(--rules)"></i> Rules</span>
+    <span><i style="background:var(--memory)"></i> Memory/Telemetry</span>
+  </div>
+</header>
+
+<div class="canvas">
+
+  <!-- LEFT SIDEBAR: cross-cutting -->
+  <aside class="col-sidebar">
+    <div class="layer lr">
+      <h2>Rules Engine <span class="tag">.claude/rules/</span></h2>
+      <div class="chips">
+        <span class="chip">anti-rationalization.md</span>
+        <span class="chip">ralph-loop-detection.md</span>
+        <span class="chip">verification.md</span>
+        <span class="chip">dark-theme.md</span>
+        <span class="chip">editing.md</span>
+        <span class="chip">error-handling.md</span>
+        <span class="chip">validation.md</span>
+        <span class="chip">svn-workflow.md</span>
+        <span class="chip">power-stack.md</span>
+      </div>
+      <div class="note">훅이 규칙을 프로그래밍적으로 강제. 3회 반복 편집 시 Ralph Loop HALT.</div>
+    </div>
+
+    <div class="layer lm">
+      <h2>Persistence <span class="tag">장기 기억</span></h2>
+      <div class="chips">
+        <span class="chip">memory/ <span class="role">MEMORY.md 인덱스</span></span>
+        <span class="chip">learning/ <span class="role">observe.js 패턴</span></span>
+        <span class="chip">telemetry/ <span class="role">agentTracer JSONL</span></span>
+        <span class="chip">logs/ <span class="role">세션 + 훅 에러</span></span>
+        <span class="chip">evals/ <span class="role">평가 결과</span></span>
+      </div>
+    </div>
+
+    <div class="layer">
+      <h2>Permissions <span class="tag">settings.json</span></h2>
+      <div class="chips">
+        <span class="chip">deny: rm / rm -rf</span>
+        <span class="chip">deny: DROP/TRUNCATE/DELETE</span>
+        <span class="chip">deny: sudo</span>
+        <span class="chip">deny: .env / app-*.properties</span>
+        <span class="chip">allow: mvn / svn / git</span>
+        <span class="chip">allow: start.sh / stop.sh</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN COLUMN: flow -->
+  <main class="col-main">
+
+    <div class="layer l0">
+      <h2>Layer 0 · SessionStart <span class="tag">부팅 3중 체크</span></h2>
+      <div class="chips">
+        <span class="chip">update-reminder.sh <span class="role">버전 체크</span></span>
+        <span class="chip">crossToolReader.js <span class="role">Codex/Gemini 로그 동기화</span></span>
+        <span class="chip">regressionGuard.sh <span class="role">훅 자가 회귀 테스트</span></span>
+      </div>
+    </div>
+
+    <div class="arrow">▼</div>
+
+    <div class="layer l1">
+      <h2>Layer 1 · UserPromptSubmit <span class="tag">입력 전처리</span></h2>
+      <div class="chips">
+        <span class="chip">userPromptSubmit.js <span class="role">패턴 감지 → 스킬/에이전트 자동 추천</span></span>
+      </div>
+      <div class="note">상단 배너(<code>!legacy-compliance-checker, kiips-feature-planner · [Specialist] kiips-developer</code>)가 이 단계 출력.</div>
+    </div>
+
+    <div class="arrow">▼</div>
+
+    <div class="core">
+      <div class="badge">Opus 4.7 · 1M ctx</div>
+      <h2>Claude Code Core · Tool Dispatcher</h2>
+      <div class="chips">
+        <span class="chip">Read</span><span class="chip">Edit</span><span class="chip">Write</span>
+        <span class="chip">Bash</span><span class="chip">Grep</span><span class="chip">Glob</span>
+        <span class="chip">Task</span><span class="chip">Skill</span><span class="chip">LSP (jdtls)</span>
+        <span class="chip">ToolSearch</span><span class="chip">ScheduleWakeup</span><span class="chip">advisor</span>
+      </div>
+    </div>
+
+    <svg class="flow-svg" viewBox="0 0 600 28" preserveAspectRatio="none">
+      <line x1="300" y1="0" x2="100" y2="28" stroke="#475569" stroke-width="1.5" />
+      <line x1="300" y1="0" x2="300" y2="28" stroke="#475569" stroke-width="1.5" />
+      <line x1="300" y1="0" x2="500" y2="28" stroke="#475569" stroke-width="1.5" />
+    </svg>
+
+    <div class="fan-out">
+      <!-- Layer 2a: PreTool guards -->
+      <div class="layer l2a">
+        <h2>2a · PreToolUse <span class="tag">7중 가드</span></h2>
+        <div class="chips">
+          <span class="chip">1. ethicalValidator.js</span>
+          <span class="chip">2. inline python <span class="role">.env/properties 차단</span></span>
+          <span class="chip">3. mybatisBindingGuard.js</span>
+          <span class="chip">4. multiFileGate.js <span class="role">3+ 파일 승인</span></span>
+          <span class="chip">5. geminiReviewGate.js</span>
+          <span class="chip">6. jspXssGuard.js</span>
+          <span class="chip">7. impactAnalyzer.js</span>
+        </div>
+        <div class="note">Bash|Edit|Write 매처. 1개라도 exit 2면 도구 실행 차단.</div>
+      </div>
+
+      <!-- Layer 2b: Agents -->
+      <div class="layer l2b">
+        <h2>2b · Agents <span class="tag">13 총원</span></h2>
+        <div class="tier-title">Permission Gate (hook-based)</div>
+        <div class="chips">
+          <span class="chip">permissionGate.js</span>
+        </div>
+        <div class="tier-title">Manager (4)</div>
+        <div class="chips">
+          <span class="chip small">build-manager</span>
+          <span class="chip small">deployment-manager</span>
+          <span class="chip small">feature-manager</span>
+          <span class="chip small">ui-manager</span>
+        </div>
+        <div class="tier-title">Specialist (5)</div>
+        <div class="chips">
+          <span class="chip small">kiips-architect</span>
+          <span class="chip small">kiips-developer</span>
+          <span class="chip small">kiips-ui-designer</span>
+          <span class="chip small">kiips-planner</span>
+          <span class="chip small">kiips-realgrid-generator</span>
+        </div>
+        <div class="tier-title">Support (4)</div>
+        <div class="chips">
+          <span class="chip small">checklist-generator</span>
+          <span class="chip small">code-simplifier</span>
+          <span class="chip small">security-reviewer</span>
+          <span class="chip small">verify-agent</span>
+        </div>
+      </div>
+
+      <!-- Layer 2c: Skills -->
+      <div class="layer l2c">
+        <h2>2c · Skills <span class="tag">30+ 로컬</span></h2>
+        <div class="tier-title">KiiPS 도메인</div>
+        <div class="chips">
+          <span class="chip small">realgrid-guide</span>
+          <span class="chip small">ui-component-builder</span>
+          <span class="chip small">regist-modal-guide</span>
+          <span class="chip small">page-pattern-guide</span>
+          <span class="chip small">search-filter-guide</span>
+          <span class="chip small">button-guide</span>
+          <span class="chip small">mybatis-guide</span>
+          <span class="chip small">security-guide</span>
+          <span class="chip small">frontend-guidelines</span>
+          <span class="chip small">stitch-bridge</span>
+          <span class="chip small">page-harness</span>
+          <span class="chip small">feature-planner</span>
+          <span class="chip small">linked-approval-tmpl</span>
+          <span class="chip small">db-inspector / logs</span>
+          <span class="chip small">backend / build</span>
+          <span class="chip small">scss / quality</span>
+        </div>
+        <div class="tier-title">공용 / 플러그인</div>
+        <div class="chips">
+          <span class="chip small">legacy-compliance-checker</span>
+          <span class="chip small">stitch-design / -loop</span>
+          <span class="chip small">react-components</span>
+          <span class="chip small">design-md</span>
+          <span class="chip small">enhance-prompt</span>
+          <span class="chip small">ecc:* / superpowers:*</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow">▼</div>
+
+    <div class="subgrid">
+      <div class="layer l2a">
+        <h2>PostToolUse <span class="tag">2 hooks</span></h2>
+        <div class="chips">
+          <span class="chip">postToolOrchestrator.js <span class="role">buildChecker+observe 통합</span></span>
+          <span class="chip">scssValidator.sh <span class="role">다크테마 규칙</span></span>
+        </div>
+      </div>
+      <div class="layer l4">
+        <h2>Layer 4 · Stop / PreCompact / Notification</h2>
+        <div class="chips">
+          <span class="chip">Stop: stopEvent.js <span class="role">Java/JSP/SCSS 패턴 분석</span></span>
+          <span class="chip">PreCompact: pre-compact-save.sh <span class="role">Dev Docs 저장</span></span>
+          <span class="chip">Notification: notificationHandler.js <span class="role">macOS osascript</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <b>문서 ↔ 실제 격차:</b> README.md는 훅을 "8개"로 기록하나, <code>settings.json</code>에 실제 등록된 훅은
+      <b>14개</b>(PreToolUse 7 · PostToolUse 2 · SessionStart 3 · UserPromptSubmit 1 · Stop 1 · PreCompact 1 · Notification 1)입니다.
+      <code>*.min.js</code> 6개는 존재하나 settings.json이 풀버전을 호출 중 — 배포 최적화 미적용.
+    </div>
+
+  </main>
+
+  <!-- RIGHT SIDEBAR: MCP + Domain -->
+  <aside class="col-sidebar">
+    <div class="layer l3">
+      <h2>Layer 3 · MCP Servers</h2>
+      <div class="chips">
+        <span class="chip">context7 <span class="role">최신 라이브러리 문서</span></span>
+        <span class="chip">serena <span class="role">시맨틱 코드 탐색</span></span>
+        <span class="chip">playwright <span class="role">E2E 브라우저</span></span>
+        <span class="chip">pencil <span class="role">.pen 디자인 파일</span></span>
+        <span class="chip">claude-in-chrome <span class="role">Chrome DOM</span></span>
+        <span class="chip">computer-use <span class="role">데스크톱 (tier 제한)</span></span>
+        <span class="chip">ide <span class="role">VS Code 진단</span></span>
+        <span class="chip">claude_ai_Google_Drive</span>
+      </div>
+    </div>
+
+    <div class="layer">
+      <h2>Tech Stack <span class="tag">Target</span></h2>
+      <div class="chips">
+        <span class="chip">Spring Boot 2.4.2</span>
+        <span class="chip">Java 8</span>
+        <span class="chip">MyBatis</span>
+        <span class="chip">JSP · jQuery · Bootstrap</span>
+        <span class="chip">RealGrid 2.6.3</span>
+        <span class="chip">ApexCharts</span>
+        <span class="chip">Maven Multi-Module (HUB)</span>
+        <span class="chip">SVN (primary) · Git (.claude/)</span>
+        <span class="chip">PostgreSQL / Tibero</span>
+      </div>
+    </div>
+
+    <div class="layer">
+      <h2>Ports <span class="tag">KiiPS 서비스</span></h2>
+      <div class="chips">
+        <span class="chip small">Gateway 8088</span>
+        <span class="chip small">UI 8100</span>
+        <span class="chip small">FD 8601</span>
+        <span class="chip small">IL 8401</span>
+        <span class="chip small">Common 8701</span>
+        <span class="chip small">Login 8801</span>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<footer>
+  KiiPS Claude Code Architecture Diagram · 생성 스킴: ASCII blueprint → HTML grid · Rules: anti-rationalization, ralph-loop-detection, verification-first ·
+  본 다이어그램은 <code>settings.json</code>을 단일 진실 소스로 하여 그려졌으며, README.md의 기록과 불일치하는 경우 <code>settings.json</code>을 우선합니다.
+</footer>
+
+</body>
+</html>

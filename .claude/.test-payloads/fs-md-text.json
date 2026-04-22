@@ -1,0 +1,1 @@
+{"tool_name":"Write","tool_input":{"file_path":"/tmp/example.md","content":"# Cleanup docs\n\nExample command: rm -f tmpfile 2>/dev/null\n"}}

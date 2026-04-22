@@ -41,7 +41,7 @@ The Build Manager orchestrates Maven Multi-Module build workflows for the KiiPS 
 - Generate build summary reports
 
 ### 4. Escalation & Fallback
-- Escalate to Primary Coordinator if:
+- Escalate to User (via permissionGate hook) if:
   - Shared modules (KiiPS-HUB, COMMON, UTILS) need modification
   - Circular dependencies detected
   - Critical build failures across multiple services
@@ -76,14 +76,14 @@ Total Time: ~4 minutes
 ### Multi-Service Build (Parallel)
 ```
 Task: Build KiiPS-FD, KiiPS-IL, KiiPS-PG
-├─ Phase 1: Build Common Modules (PRIMARY, blocking)
-│   └─ COMMON + UTILS (primary-coordinator, 120s)
+├─ Phase 1: Build Common Modules (blocking, requires user approval)
+│   └─ COMMON + UTILS (user approval via permissionGate, 120s)
 ├─ Phase 2: Build Services (PARALLEL)
 │   ├─ FD (worker-1, 120s)
 │   ├─ IL (worker-2, 120s)
 │   └─ PG (worker-3, 120s)
-└─ Phase 3: Integration Verification (PRIMARY)
-    └─ All artifacts verified (primary-coordinator, 60s)
+└─ Phase 3: Integration Verification
+    └─ All artifacts verified (checklist-generator, 60s)
 
 Manager Role: Orchestrate phase transitions, aggregate results
 Total Time: ~5 minutes (vs 9+ minutes sequential)
@@ -194,35 +194,30 @@ reportToPrimary({
 
 ### Workflow 1: User requests "KiiPS-FD 빌드해줘"
 
-1. **Primary Coordinator** receives user request
-2. **Primary** routes to Build Manager (task type: `service_build`)
-3. **Build Manager** activates `kiips-build` skill
-4. **Build Manager** creates execution plan:
+1. **User** issues build request (Build Manager auto-activated via registry trigger)
+2. **Build Manager** activates `kiips-build` skill
+3. **Build Manager** creates execution plan:
    - SVN update → Maven build → Artifact verification
-5. **Build Manager** delegates to `kiips-developer` worker
-6. **Worker** executes Maven commands, reports progress
-7. **Build Manager** aggregates results, reports to Primary
-8. **Primary** presents build summary to user
+4. **Build Manager** delegates to `kiips-developer` worker
+5. **Worker** executes Maven commands, reports progress
+6. **Build Manager** aggregates results, reports back to User
 
 **Manager Value**: Simple build, but Manager still coordinates workflow and handles failures
 
 ### Workflow 2: User requests "KiiPS-FD, IL, PG 모두 빌드"
 
-1. **Primary** routes to Build Manager (task type: `multi_service_build`)
-2. **Build Manager** analyzes dependencies:
+1. **Build Manager** analyzes dependencies:
    - COMMON + UTILS must build first (Phase 1)
    - FD, IL, PG can build in parallel (Phase 2)
-3. **Build Manager** acquires domain lock on "build"
-4. **Build Manager** requests Primary to build COMMON + UTILS (Primary-only)
-5. **Primary** completes Phase 1, signals Build Manager
-6. **Build Manager** delegates 3 parallel builds:
+2. **Build Manager** acquires domain lock on "build"
+3. **Build Manager** builds COMMON + UTILS first (Phase 1). If pom.xml edits are needed, permissionGate hook blocks for user approval; otherwise proceeds automatically.
+4. **Build Manager** delegates 3 parallel builds:
    - Worker-1 → FD
    - Worker-2 → IL
    - Worker-3 → PG
-7. **Build Manager** monitors 3 workers concurrently
-8. **Build Manager** aggregates 3 results, releases domain lock
-9. **Build Manager** reports to Primary
-10. **Primary** presents consolidated build report
+5. **Build Manager** monitors 3 workers concurrently
+6. **Build Manager** aggregates 3 results, releases domain lock
+7. **Build Manager** reports consolidated build report back to User
 
 **Manager Value**: 2.6x speedup via parallelization (9min → 3.5min), centralized error handling
 
@@ -235,13 +230,13 @@ reportToPrimary({
 4. **Worker-1** retries, succeeds
 5. **Build Manager** continues workflow
 
-**Fallback**: If retry fails → escalate to Primary → Primary investigates manually
+**Fallback**: If retry fails → report failure to User with full error output for manual investigation
 
 ## Communication Protocols
 
-### With Primary Coordinator
-- **Receives**: Build task assignments, resource availability updates
-- **Sends**: Build execution plans (for approval), progress updates, completion reports, escalation requests
+### With User (via permissionGate hook)
+- **Requires approval for**: Shared module builds (HUB/COMMON/UTILS), forced clean rebuilds, non-local environment builds
+- **Reports to user**: Build execution plans, progress updates, completion reports, escalation requests
 
 ### With Worker Agents (kiips-developer)
 - **Sends**: Build subtask assignments, retry requests, cancellation signals
@@ -298,4 +293,4 @@ This agent follows the shared execution protocols:
 
 **Related Agents**: kiips-developer, checklist-generator
 **Related Skills**: kiips-build, build-orchestration
-**Coordination Scripts**: task-allocator.js, file-lock-manager.js, manager-coordinator.js
+**Permission Gate**: `.claude/hooks/permissionGate.js` (pom.xml/shared module approval)

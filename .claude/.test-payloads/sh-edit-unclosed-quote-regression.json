@@ -1,0 +1,1 @@
+{"tool_name":"Edit","tool_input":{"file_path":"/tmp/x.sh","old_string":"rm -rf /","new_string":"echo 'unclosed"}}

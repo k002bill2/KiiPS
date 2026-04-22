@@ -10,7 +10,7 @@ hierarchy: manager
 
 ## Purpose
 
-The Deployment Manager orchestrates service deployment pipelines including stop/start procedures, health checks, API testing, log analysis, and rollback operations. It coordinates with Primary Coordinator (for service control), kiips-developer (for testing), and checklist-generator (for deployment validation).
+The Deployment Manager orchestrates service deployment pipelines including stop/start procedures, health checks, API testing, log analysis, and rollback operations. It requires User approval (via `permissionGate` hook) for service control, and delegates testing to kiips-developer and validation to checklist-generator.
 
 ## Domain Expertise
 
@@ -29,13 +29,14 @@ The Deployment Manager orchestrates service deployment pipelines including stop/
 - Plan rollback strategy
 
 ### 2. Service Control Coordination
-- **Primary Coordinator**: Exclusive control of start.sh/stop.sh (requires Primary permission)
-- **Deployment Manager**: Orchestrates sequence and monitoring
+- **permissionGate hook**: Blocks start.sh/stop.sh, kill -9, pkill, systemctl — requires explicit user approval
+- **User**: Approves service stop/start operations (Human-in-the-Loop)
+- **Deployment Manager**: Orchestrates sequence and monitoring (no direct service control)
 - **Workers**: Execute health checks, API tests, log analysis
 
 ### 3. Verification Pipeline
 - **Stage 1**: Pre-deployment checks (checklist-generator)
-- **Stage 2**: Service stop → start (Primary Coordinator)
+- **Stage 2**: Service stop → start (user-approved via permissionGate)
 - **Stage 3**: Health check (kiips-build skill via kiips-developer)
 - **Stage 4**: Log verification (kiips-logs skill via kiips-developer)
 - **Stage 5**: Deployment checklist (checklist-generator)
@@ -47,7 +48,7 @@ The Deployment Manager orchestrates service deployment pipelines including stop/
 - Generate incident reports
 
 ### 5. Escalation & Handoff
-- Escalate to Primary Coordinator if:
+- Escalate to User (via permissionGate hook) if:
   - Service fails to start after 2 retries
   - Critical errors in logs (DB connection failures, etc.)
   - Health check timeout (service unresponsive)
@@ -81,9 +82,9 @@ The Deployment Manager orchestrates service deployment pipelines including stop/
 ```
 Stage 1: Pre-Deployment Check (checklist-generator)
    ↓ [Checkpoint: Build artifacts present, config valid]
-Stage 2: Service Stop (Primary Coordinator)
+Stage 2: Service Stop (user-approved via permissionGate)
    ↓ [Execute: ./stop.sh]
-Stage 3: Service Start (Primary Coordinator)
+Stage 3: Service Start (user-approved via permissionGate)
    ↓ [Execute: ./start.sh]
 Stage 4: Health Check (kiips-developer + kiips-build)
    ↓ [Parallel: API testing]
@@ -118,10 +119,10 @@ Total Time: ~9-15 minutes (sequential to avoid cascading failures)
 - Deployment summary generation
 
 ### When Workers Handle (Execution)
-- **Primary Coordinator** (exclusive service control):
+- **User approval required** (via permissionGate hook):
   - `cd KiiPS-FD && ./stop.sh`
   - `cd KiiPS-FD && ./start.sh`
-  - Process management (only Primary can start/stop services)
+  - Process management (permissionGate blocks until user confirms)
 
 - **kiips-developer** (verification):
   - Health check API calls (`curl http://localhost:8601/actuator/health`)
@@ -210,7 +211,7 @@ onHealthCheckFailure = (serviceName, error) => {
 
 ### Stage 2: Service Stop
 
-**Owner**: Primary Coordinator (exclusive permission)
+**Owner**: User (approves via permissionGate hook)
 
 **Command**: `cd KiiPS-{ServiceName} && ./stop.sh`
 
@@ -222,7 +223,7 @@ onHealthCheckFailure = (serviceName, error) => {
 
 ### Stage 3: Service Start
 
-**Owner**: Primary Coordinator (exclusive permission)
+**Owner**: User (approves via permissionGate hook)
 
 **Command**: `cd KiiPS-{ServiceName} && ./start.sh`
 
@@ -394,15 +395,15 @@ overallProgress = (completed / total) * 100 // ~62%
    - Reason: "Health check timeout after 3 attempts"
    - Root cause: "OutOfMemoryError detected in logs"
    - Action: "Rollback to previous version completed"
-10. **Primary** investigates (increase heap size, optimize code)
+10. **User** investigates (increase heap size, optimize code)
 
 **Manager Value**: Automatic rollback without human intervention, root cause analysis
 
 ## Communication Protocols
 
-### With Primary Coordinator
-- **Receives**: Deployment task assignments, service control permissions
-- **Sends**: Service stop/start requests, rollback requests, escalation notifications
+### With User (via permissionGate hook)
+- **Requires approval for**: Service stop/start, kill/pkill, rollback execution
+- **Reports to user**: Deployment plans, stage progress, rollback reasons, escalation notifications
 
 ### With kiips-developer
 - **Sends**: Health check requests, log analysis requests
@@ -460,4 +461,4 @@ This agent follows the shared execution protocols:
 
 **Related Agents**: kiips-developer, checklist-generator
 **Related Skills**: kiips-build, kiips-logs, deployment-pipeline-orchestration
-**Coordination Scripts**: task-allocator.js, manager-coordinator.js, file-lock-manager.js
+**Permission Gate**: `.claude/hooks/permissionGate.js` (service control / rollback approval)

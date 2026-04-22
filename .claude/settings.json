@@ -11,6 +11,15 @@
         ]
       },
       {
+        "matcher": "Bash|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ./.claude/hooks/permissionGate.js"
+          }
+        ]
+      },
+      {
         "matcher": "Edit|Write",
         "hooks": [
           {
@@ -43,6 +52,24 @@
           {
             "type": "command",
             "command": "node ./.claude/hooks/geminiReviewGate.js"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ./.claude/hooks/jspXssGuard.js"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ./.claude/hooks/impactAnalyzer.js"
           }
         ]
       }
@@ -122,6 +149,10 @@
           {
             "type": "command",
             "command": "node ./.claude/hooks/crossToolReader.js 2>>.claude/hooks/hook-errors.log || true"
+          },
+          {
+            "type": "command",
+            "command": "bash ./.claude/hooks/regressionGuard.sh || true"
           }
         ]
       }

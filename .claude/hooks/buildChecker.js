@@ -23,7 +23,41 @@ const PENDING_BUILD_FILE = path.join(
   "../gemini-bridge/.pending-build.json",
 );
 const BUILD_THRESHOLD = 3; // Java 파일 3개 이상 변경 시 빌드 실행
-const MAX_AUTO_FIX_ATTEMPTS = 3; // 자동 교정 최대 시도 횟수
+
+/**
+ * 환경변수 기반 임계값 (운영/개발 환경별 차등화 가능)
+ * - RALPH_LOOP_ATTEMPTS: 같은 에러 반복 허용 횟수 (default 3)
+ * - RALPH_LOOP_SHIFTS:   에러 시그니처 변경 허용 횟수 (default 3)
+ *
+ * 예시:
+ *   운영 (보수적):  RALPH_LOOP_ATTEMPTS=2 RALPH_LOOP_SHIFTS=2
+ *   개발 (관대):    RALPH_LOOP_ATTEMPTS=5 RALPH_LOOP_SHIFTS=5
+ */
+function envInt(name, fallback) {
+  const v = parseInt(process.env[name] || "", 10);
+  return Number.isFinite(v) && v > 0 ? v : fallback;
+}
+const MAX_AUTO_FIX_ATTEMPTS = envInt("RALPH_LOOP_ATTEMPTS", 3);
+const MAX_SIGNATURE_SHIFTS = envInt("RALPH_LOOP_SHIFTS", 3);
+
+/**
+ * 에러 배열에서 대표 시그니처 생성
+ * 시그니처 = 첫 에러 메시지 첫 50자 + 첫 에러 파일 베이스명
+ * 같은 코드 변경 → 같은 컴파일 에러 → 같은 시그니처
+ * 땜빵 → 새 에러 발생 → 다른 시그니처 (Ralph Loop A→B→C 패턴)
+ */
+function computeErrorSignature(errors) {
+  if (!Array.isArray(errors) || errors.length === 0) return "";
+  const top = errors[0] || {};
+  const msg = String(top.message || "")
+    .slice(0, 50)
+    .replace(/\s+/g, " ")
+    .trim();
+  const baseName = String(top.file || "")
+    .split("/")
+    .pop();
+  return `${baseName}::${msg}`;
+}
 
 /**
  * 빌드 대기 목록 로드
@@ -73,7 +107,45 @@ function clearPendingBuild() {
 function emitAutoCorrectFeedback(moduleName, errors) {
   const pending = loadPendingBuild();
 
-  // Ralph Loop 가드: 이미 한계 도달 상태면 즉시 반환 (재시작 방지)
+  // 에러 시그니처 추적 (Ralph Loop A→B→C 악순환 감지)
+  const currentSig = computeErrorSignature(errors);
+  if (!Array.isArray(pending.errorSignatureHistory)) {
+    pending.errorSignatureHistory = [];
+  }
+  if (currentSig) {
+    pending.errorSignatureHistory.push({
+      sig: currentSig,
+      ts: Date.now(),
+    });
+    // 최근 10개만 유지
+    if (pending.errorSignatureHistory.length > 10) {
+      pending.errorSignatureHistory = pending.errorSignatureHistory.slice(-10);
+    }
+  }
+
+  // 시그니처 변경 횟수 계산 (인접한 시그니처가 다른 경우)
+  const recent = pending.errorSignatureHistory.slice(-MAX_SIGNATURE_SHIFTS - 1);
+  let shifts = 0;
+  for (let i = 1; i < recent.length; i++) {
+    if (recent[i].sig !== recent[i - 1].sig) shifts++;
+  }
+
+  // Ralph Loop 가드 #1: 시그니처 악순환 감지 (A→B→C)
+  if (shifts >= MAX_SIGNATURE_SHIFTS) {
+    process.stderr.write(
+      `\n⛔ [BuildChecker] RALPH LOOP DETECTED — error signature shifted ${shifts} times in ${moduleName}.\n` +
+        `Pattern: ${recent.map((r) => r.sig.split("::")[1] || "?").join(" → ")}\n` +
+        `Each fix introduces a NEW error. STOP and re-design the approach.\n` +
+        `Reference: .claude/rules/ralph-loop-detection.md (자동 롤백 프로토콜)\n` +
+        `Reset: delete .claude/gemini-bridge/.pending-build.json\n\n`,
+    );
+    pending.autoFixAttempts = MAX_AUTO_FIX_ATTEMPTS; // 추가 자동 수정 차단
+    pending.errors = errors;
+    savePendingBuild(pending);
+    return;
+  }
+
+  // Ralph Loop 가드 #2: 이미 한계 도달 상태면 즉시 반환 (재시작 방지)
   if ((pending.autoFixAttempts || 0) >= MAX_AUTO_FIX_ATTEMPTS) {
     process.stderr.write(
       `\n⛔ [BuildChecker] AUTO-CORRECTION STILL HALTED for ${moduleName}.\n` +
@@ -262,6 +334,7 @@ async function checkBuild(moduleName) {
         );
         pending.autoFixAttempts = 0;
         pending.errors = [];
+        pending.errorSignatureHistory = []; // 빌드 성공 시 시그니처 히스토리 초기화
         savePendingBuild(pending);
       }
       return;
@@ -352,5 +425,17 @@ if (require.main === module) {
   }, 150000); // 빌드 타임아웃 2.5분
 }
 
-// Export for Claude Code Hook system
-module.exports = { onPostToolUse };
+// Export for Claude Code Hook system + 합성 테스트 가능성
+module.exports = {
+  onPostToolUse,
+  // 테스트 전용 export (Ralph Loop 시그니처 추적 + Maven 파싱 검증용)
+  computeErrorSignature,
+  emitAutoCorrectFeedback,
+  extractBuildErrors,
+  loadPendingBuild,
+  savePendingBuild,
+  clearPendingBuild,
+  PENDING_BUILD_FILE,
+  MAX_AUTO_FIX_ATTEMPTS,
+  MAX_SIGNATURE_SHIFTS,
+};
