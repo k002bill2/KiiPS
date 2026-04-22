@@ -133,6 +133,19 @@ run_test "$HOOKS/permissionGate.js" "$PAYLOADS/pg-block-pom-edit.json"     2 "po
 run_test "$HOOKS/permissionGate.js" "$PAYLOADS/pg-block-svn-commit.json"   2 "svn commit (blocked)"
 
 echo ""
+echo "┌─ permissionGate (AST filter active — default) ─"
+run_test "$HOOKS/permissionGate.js" "$PAYLOADS/pg-allow-svn-docstring.json"   0 "svn commit inside git -m dquote (AST: allowed)"
+run_test "$HOOKS/permissionGate.js" "$PAYLOADS/pg-allow-heredoc-docs.json"    0 "./start.sh inside heredoc body (AST: allowed)"
+run_test "$HOOKS/permissionGate.js" "$PAYLOADS/pg-allow-comment-docs.json"    0 "kill -9 inside shell comment (AST: allowed)"
+run_test "$HOOKS/permissionGate.js" "$PAYLOADS/pg-allow-v350-original-msg.json" 0 "v3.5.0 original commit msg (regression acceptance)"
+
+echo ""
+echo "┌─ permissionGate (AST rollback — KIIPS_PERMISSION_GATE_AST=off) ─"
+run_test_env "KIIPS_PERMISSION_GATE_AST=off" "$HOOKS/permissionGate.js" "$PAYLOADS/pg-allow-svn-docstring.json"   2 "svn docstring (AST rollback: blocked)"
+run_test_env "KIIPS_PERMISSION_GATE_AST=off" "$HOOKS/permissionGate.js" "$PAYLOADS/pg-allow-heredoc-docs.json"    2 "heredoc start.sh (AST rollback: blocked)"
+run_test_env "KIIPS_PERMISSION_GATE_AST=off" "$HOOKS/permissionGate.js" "$PAYLOADS/pg-block-start-sh.json"        2 "Real ./start.sh still blocked when AST off"
+
+echo ""
 echo "┌─ permissionGate (rollback — KIIPS_PERMISSION_GATE=off) ─"
 run_test_env "KIIPS_PERMISSION_GATE=off" "$HOOKS/permissionGate.js" "$PAYLOADS/pg-block-start-sh.json"    0 "./start.sh (rollback: allowed)"
 run_test_env "KIIPS_PERMISSION_GATE=off" "$HOOKS/permissionGate.js" "$PAYLOADS/pg-block-pom-edit.json"    0 "pom.xml edit (rollback: allowed)"

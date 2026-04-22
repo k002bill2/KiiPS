@@ -3,6 +3,45 @@
 > KiiPS Claude Code 설정 파일 변경 이력
 > 개별 파일의 @version 주석과 연동하되, 크로스 파일 변경 주제별로 정리
 
+## [3.5.1] - 2026-04-22 — permissionGate AST Filter
+
+### Changed (수정)
+- `permissionGate.js` — `@version 1.0.0 → 1.1.0 (ast-filter)`:
+  - `require("./shellContextTokenizer")` 추가
+  - Bash 패턴 루프를 `pattern.exec` + global 복사본 순회로 변경
+  - AST 필터 Bash 도구 전용 (Edit/Write file_path 는 shell source 가 아니므로 미적용)
+  - `KIIPS_PERMISSION_GATE_AST=off` 환경변수로 AST 레이어 rollback
+
+### Added (신규)
+- **페이로드 3개** (AST 필터 검증):
+  - `pg-allow-svn-docstring.json` — `git commit -m "... svn commit ..."` (dquote 내부)
+  - `pg-allow-heredoc-docs.json` — heredoc 내 `./start.sh`/`./stop.sh` 언급
+  - `pg-allow-comment-docs.json` — shell comment 내 `kill -9` 예시
+- **hook-regression.sh 섹션 2개**:
+  - permissionGate (AST filter active) — 3 페이로드 허용
+  - permissionGate (AST rollback) — 동일 페이로드 차단 + real attack 여전히 차단
+- **permission-gate.test.js 확장**: AST 필터 시나리오 8개 sub-test (literal/comment/heredoc/real-block)
+
+### Fixed (수정)
+- **Meta-level false positive**: v3.5.0 커밋 시 permissionGate 가 `git commit -m "... svn commit ..."` 메시지의 "svn commit" 문자열을 실제 명령으로 오판하여 커밋 차단. v3.4.0 에서 ethicalValidator 가 해결한 것과 동일한 구조적 문제 — shellContextTokenizer 재사용으로 근본 해결.
+
+### Security
+- AST 필터 적용 범위는 Bash 도구로 제한. Edit/Write 의 file_path 는 shell source 가 아니므로 기존 정규식 유지 (Advisor 지적 반영).
+- Fail-closed 유지, rollback 경로 2종 제공 (전체 `KIIPS_PERMISSION_GATE=off` · AST 만 `KIIPS_PERMISSION_GATE_AST=off`).
+
+### Metrics
+- Top-level 테스트 **46 → 52** (+6)
+- permission-gate.test.js sub-tests **30 → 38** (+8)
+
+### Known / Out of Scope (업데이트)
+- (해결) ~~permissionGate + shellContextTokenizer 통합~~ — 본 릴리즈에서 완료
+- `ethicalValidator.min.js` 0바이트 orphan — 여전히 이월
+- `architecture.html` Permission Gate tier 분류 — 여전히 이월
+- rollback env 의 세션 중간 한계(훅 spawn 시점 env 상속) — 문서화 필요, 이월
+- **AST 필터 한계 (신규)**: DQUOTE 내부의 `eval "cmd"` 또는 `"$(cmd)"` 같은 command substitution 은 실제 실행되지만 tokenizer 가 문자열 내부로 분류하여 skip. `ethicalValidator v3.4.0` + `permissionGate v3.5.1` 공통. 현실 공격 표면은 좁으나(대부분 Claude 가 구성하지 않는 패턴) harness 경계 문서화 차원에서 기록. 해결하려면 tokenizer 에 `$(...)` / backtick command substitution 중첩 상태 추가 필요.
+
+---
+
 ## [3.5.0] - 2026-04-22 — Permission Gate & Primary Coordinator Cleanup
 
 ### Added (신규)

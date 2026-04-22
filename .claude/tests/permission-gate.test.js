@@ -88,6 +88,40 @@ expectAllowed("Edit", { file_path: "/x/index.jsp" }, "JSP file");
 expectAllowed("Write", { file_path: "/x/readme.md" }, "README file");
 
 console.log("");
+console.log("┌─ AST filter: literal/comment/heredoc (allowed) ─");
+expectAllowed(
+  "Bash",
+  { command: 'git commit -m "docs: describe svn commit workflow"' },
+  "svn commit inside git commit -m dquote",
+);
+expectAllowed(
+  "Bash",
+  { command: "echo 'example: kill -9 <pid>'" },
+  "kill -9 inside single quote",
+);
+expectAllowed(
+  "Bash",
+  { command: "# run ./start.sh to boot\nls" },
+  "./start.sh inside shell comment",
+);
+expectAllowed(
+  "Bash",
+  { command: "cat <<EOF\nrun ./stop.sh then ./start.sh\nEOF" },
+  "./start.sh/./stop.sh inside heredoc body",
+);
+expectAllowed(
+  "Bash",
+  { command: 'svn status && echo "svn commit later"' },
+  "svn commit inside dquote after unrelated command",
+);
+
+console.log("");
+console.log("┌─ AST filter: real commands still blocked ─");
+expectBlocked("Bash", { command: "svn commit -m 'fix'" }, "real svn commit still blocked");
+expectBlocked("Bash", { command: "kill -9 1234" }, "real kill -9 still blocked");
+expectBlocked("Bash", { command: "./start.sh" }, "real ./start.sh still blocked");
+
+console.log("");
 console.log("┌─ Boundary / safety ─");
 expectAllowed("Bash", {}, "empty tool_input → allowed (no command field)");
 expectAllowed("Edit", {}, "empty tool_input → allowed (no file_path)");

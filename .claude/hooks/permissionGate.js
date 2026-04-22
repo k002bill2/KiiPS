@@ -21,17 +21,25 @@
  *   - permissionGate.js   : (본 훅) 서비스 제어 + 공유 빌드 + 프로덕션 설정 + svn commit
  *
  * Rollback:
- *   환경변수 `KIIPS_PERMISSION_GATE=off` 로 즉시 비활성.
+ *   - 전체 비활성: `KIIPS_PERMISSION_GATE=off`
+ *   - AST 필터만 비활성: `KIIPS_PERMISSION_GATE_AST=off` (기존 정규식 동작으로 회귀)
+ *
+ * AST 필터 (v1.1.0, 2026-04-22):
+ *   Bash 패턴 매치 offset 이 shell literal/comment/heredoc 내부이면 skip.
+ *   실증 배경 — 본 훅 도입 commit 자체가 자기 훅에 차단됨 (메시지 내 "svn commit"
+ *   문자열을 실제 명령으로 오판). ethicalValidator v3.4 에서 입증된 패턴을 재사용.
+ *   Bash 도구에만 적용 (Edit/Write file_path 는 shell source 가 아님).
  *
  * Fail-closed:
  *   내부 예외 발생 시 block 유지 (보안 우선).
  *
- * @version 1.0.0
+ * @version 1.1.0 (ast-filter)
  */
 
 "use strict";
 
 const path = require("path");
+const tokenizer = require("./shellContextTokenizer");
 
 /**
  * 파일 경로 기반 차단 패턴 (Edit/Write 대상)
@@ -77,13 +85,31 @@ function checkPermission(toolName, toolInput) {
 
   if (t === "bash") {
     const cmd = (toolInput && toolInput.command) || "";
+    const astFilterEnabled = process.env.KIIPS_PERMISSION_GATE_AST !== "off";
+
     for (const entry of BLOCKED_BASH_PATTERNS) {
-      const m = entry.regex.exec(cmd);
-      if (m) {
+      // g flag 를 보장한 복사본으로 매치 순회 (literal/comment 내부 매치는 skip)
+      const globalPattern = entry.regex.global
+        ? entry.regex
+        : new RegExp(entry.regex.source, entry.regex.flags + "g");
+      globalPattern.lastIndex = 0;
+
+      let realMatch = null;
+      let m;
+      while ((m = globalPattern.exec(cmd)) !== null) {
+        if (astFilterEnabled) {
+          // AST 필터: match offset 이 shell literal/comment/heredoc 내부면 skip
+          if (!tokenizer.isRealCodeMatch(cmd, m)) continue;
+        }
+        realMatch = m;
+        break;
+      }
+
+      if (realMatch) {
         return {
           blocked: true,
           reason: entry.reason,
-          detail: m[0].trim(),
+          detail: realMatch[0].trim(),
         };
       }
     }
