@@ -28,12 +28,17 @@
  *   - credentials:     생략 (universal) — 어떤 파일에 하드코딩돼도 유출
  *   - database:        생략 (universal) — SQL migration 파일에도 적용돼야 함
  *
- * @version 3.4.0-KiiPS (ast-filter)
+ * @version 3.5.3-KiiPS (ast-filter + .sh edit/write segmented)
  *
  * ─── AST 레이어 (Phase 3, 2026-04-22) ─────────────────────────
  * shellContextOnly 카테고리(filesystem, remoteExecution)는 정규식 매치 후
  * shellContextTokenizer 로 offset이 literal/comment/heredoc 내부인지 판정하여
  * false positive 를 제거합니다.
+ *
+ * v3.5.3 Issue #2 해결: .sh 계열 파일 Edit/Write 에도 AST 필터 확장.
+ * 합성 content 의 state 누출 방지를 위해 `extractShellSegments()` 로 각 필드
+ * (command / content / new_string / old_string) 를 독립 세그먼트로 분리, 세그먼트
+ * 별로 `tokenizer.isWellFormed()` 확인 후 AST 적용 (unclosed 시 regex-only fallback).
  *
  * Rollback: `KIIPS_VALIDATOR_AST=off` 환경변수로 AST 레이어 즉시 비활성 가능.
  *           비활성 시 기존 정규식 직접 매치 동작으로 회귀.
@@ -285,43 +290,55 @@ function validateEthically(toolName, toolInput, context) {
   // 1. 차단 패턴 검사 (CRITICAL)
   const inShellContext = isShellContext(toolName, toolInput);
   const astFilterEnabled = process.env.KIIPS_VALIDATOR_AST !== "off";
+  // v3.5.3 Issue #2: shellContextOnly 카테고리는 깨끗한 세그먼트 배열에서 독립 검사.
+  // Edit 은 [new_string, old_string] 두 세그먼트 모두 검사 (회귀 가드
+  // sh-edit-unclosed-quote-regression: old_string 의 위험 패턴도 차단 유지).
+  const shellSegments = extractShellSegments(toolName, toolInput);
   for (const [category, config] of Object.entries(BLOCKED_OPERATIONS)) {
     // shell-context 가드: shellContextOnly 카테고리는 Bash/스크립트에서만 검사
     if (config.shellContextOnly && !inShellContext) continue;
 
-    for (const pattern of config.patterns) {
-      // g flag를 보장한 복사본으로 매치 순회 (literal/comment 내부 매치는 skip)
-      const globalPattern = pattern.global
-        ? pattern
-        : new RegExp(pattern.source, pattern.flags + "g");
-      globalPattern.lastIndex = 0;
+    // shellContextOnly 카테고리: 깨끗한 세그먼트 배열에서만 매칭 & AST 필터.
+    // 비-shellContextOnly 는 기존 합성 content 유지 (넓은 prose 탐색 범위).
+    const matchTargets = config.shellContextOnly ? shellSegments : [content];
 
-      let realMatch = null;
-      let m;
-      // AST 필터 적용 조건: Bash 도구만 (toolInput.command 가 실제 shell source).
-      // Edit/Write 의 extractContent 는 new_string+old_string+file_path 합성이라
-      // unclosed quote/heredoc 시 state 누출 → false negative 회귀 유발. 적용 안 함.
+    for (const target of matchTargets) {
+      if (!target) continue;
+
+      // 세그먼트별 AST 적용 조건:
+      //   shellContextOnly + astFilterEnabled + 세그먼트 well-formed.
+      // unclosed quote/heredoc 세그먼트는 regex-only fallback (fail-closed) —
+      // state 누출 false-negative 공격을 구조적으로 차단.
       const applyAst =
         config.shellContextOnly &&
         astFilterEnabled &&
-        toolName.toLowerCase() === "bash";
-      while ((m = globalPattern.exec(content)) !== null) {
-        if (applyAst) {
-          // AST 필터: match offset이 shell literal/comment/heredoc 내부면 skip
-          if (!tokenizer.isRealCodeMatch(content, m)) continue;
-        }
-        realMatch = m;
-        break;
-      }
+        tokenizer.isWellFormed(target);
 
-      if (realMatch) {
-        result.allowed = false;
-        result.blockedReasons.push({
-          category,
-          severity: config.severity,
-          message: config.message,
-          pattern: pattern.toString(),
-        });
+      for (const pattern of config.patterns) {
+        const globalPattern = pattern.global
+          ? pattern
+          : new RegExp(pattern.source, pattern.flags + "g");
+        globalPattern.lastIndex = 0;
+
+        let realMatch = null;
+        let m;
+        while ((m = globalPattern.exec(target)) !== null) {
+          if (applyAst) {
+            if (!tokenizer.isRealCodeMatch(target, m)) continue;
+          }
+          realMatch = m;
+          break;
+        }
+
+        if (realMatch) {
+          result.allowed = false;
+          result.blockedReasons.push({
+            category,
+            severity: config.severity,
+            message: config.message,
+            pattern: pattern.toString(),
+          });
+        }
       }
     }
   }
@@ -365,7 +382,37 @@ function validateEthically(toolName, toolInput, context) {
 }
 
 /**
- * 도구 입력에서 검증할 내용 추출
+ * Shell-context 매칭용 깨끗한 세그먼트 배열 (v3.5.3, Issue #2 해결).
+ *
+ * extractContent 가 합성하는 `new_string+old_string+file_path` 를 그대로 AST 필터에
+ * 넣으면, 공격자가 new_string 의 unclosed quote 로 뒤이은 old_string 의 위험 패턴을
+ * DQUOTE 내부로 오판시켜 skip 시키는 state 누출 공격이 가능.
+ *
+ * 해결: 각 필드를 독립 세그먼트로 분리하여 tokenizer state 를 세그먼트 경계에서
+ * 초기화. 호출부에서 `tokenizer.isWellFormed()` 로 완결성 확인 후 AST 적용, unclosed
+ * 세그먼트는 regex-only fallback (fail-closed).
+ *
+ * 세그먼트 구성:
+ *   - Bash:  [command]
+ *   - Write: [content]            (file_path 제외 — shell source 아님)
+ *   - Edit:  [new_string, old_string]
+ *            (old_string 포함 이유: 회귀 가드 sh-edit-unclosed-quote-regression.
+ *             파일에 실제 존재했던 위험 패턴이므로 엄격 차단 기준 유지.)
+ */
+function extractShellSegments(toolName, toolInput) {
+  const t = (toolName || "").toLowerCase();
+  if (t === "bash") return [toolInput.command || ""];
+  if (t === "write") return [toolInput.content || ""];
+  if (t === "edit")
+    return [toolInput.new_string || "", toolInput.old_string || ""];
+  return [];
+}
+
+/**
+ * 도구 입력에서 검증할 내용 추출 (WARNING + 비-shellContextOnly 용도).
+ *
+ * 합성 content 는 넓은 prose 탐색 용도. shell AST 와 호환되지 않으므로
+ * shellContextOnly 카테고리는 extractShellSegments 를 사용.
  */
 function extractContent(toolName, toolInput) {
   switch (toolName.toLowerCase()) {

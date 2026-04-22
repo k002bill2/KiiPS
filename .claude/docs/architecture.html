@@ -338,26 +338,27 @@
     <div class="fan-out">
       <!-- Layer 2a: PreTool guards -->
       <div class="layer l2a">
-        <h2>2a · PreToolUse <span class="tag">7중 가드</span></h2>
+        <h2>2a · PreToolUse <span class="tag">8중 가드</span></h2>
+        <div class="tier-title">Tier A — AST-filtered (Bash-only)</div>
         <div class="chips">
-          <span class="chip">1. ethicalValidator.js</span>
-          <span class="chip">2. inline python <span class="role">.env/properties 차단</span></span>
-          <span class="chip">3. mybatisBindingGuard.js</span>
-          <span class="chip">4. multiFileGate.js <span class="role">3+ 파일 승인</span></span>
-          <span class="chip">5. geminiReviewGate.js</span>
-          <span class="chip">6. jspXssGuard.js</span>
-          <span class="chip">7. impactAnalyzer.js</span>
+          <span class="chip">1. ethicalValidator.js <span class="role">v3.4.0 · rm/DROP/curl|bash</span></span>
+          <span class="chip">2. permissionGate.js <span class="role">v3.5.1 · start.sh/pom.xml/SVN</span></span>
         </div>
-        <div class="note">Bash|Edit|Write 매처. 1개라도 exit 2면 도구 실행 차단.</div>
+        <div class="tier-title">Tier B — Regex / path-based (Edit|Write)</div>
+        <div class="chips">
+          <span class="chip">3. inline python <span class="role">.env/properties 차단</span></span>
+          <span class="chip">4. mybatisBindingGuard.js <span class="role">SQL ${} 방지</span></span>
+          <span class="chip">5. multiFileGate.js <span class="role">3+ 파일 승인</span></span>
+          <span class="chip">6. geminiReviewGate.js <span class="role">Gemini 교차검증</span></span>
+          <span class="chip">7. jspXssGuard.js <span class="role">JSP scriptlet XSS</span></span>
+          <span class="chip">8. impactAnalyzer.js <span class="role">COMMON/UTILS 영향</span></span>
+        </div>
+        <div class="note">Bash|Edit|Write 매처. 1개라도 exit 2면 도구 실행 차단. Tier A 는 shellContextTokenizer 로 literal/comment/heredoc 내부 false-positive 제거. 경계 한계는 <a href="harness-boundaries.md">harness-boundaries.md</a> 참조.</div>
       </div>
 
       <!-- Layer 2b: Agents -->
       <div class="layer l2b">
         <h2>2b · Agents <span class="tag">13 총원</span></h2>
-        <div class="tier-title">Permission Gate (hook-based)</div>
-        <div class="chips">
-          <span class="chip">permissionGate.js</span>
-        </div>
         <div class="tier-title">Manager (4)</div>
         <div class="chips">
           <span class="chip small">build-manager</span>

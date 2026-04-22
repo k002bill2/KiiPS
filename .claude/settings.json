@@ -153,6 +153,10 @@
           {
             "type": "command",
             "command": "bash ./.claude/hooks/regressionGuard.sh || true"
+          },
+          {
+            "type": "command",
+            "command": "bash ./.claude/tests/catalog-integrity.sh 2>/dev/null | grep -E 'FAIL|drift' | head -5 || true"
           }
         ]
       }

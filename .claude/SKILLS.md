@@ -1,6 +1,9 @@
-# KiiPS Active Skills
+# KiiPS Active Skills (30개)
 
 > CLAUDE.md에서 분리된 스킬 카탈로그. 스킬은 자동 발견되므로 이 파일은 참조용입니다.
+> 마지막 실측 동기화: 2026-04-22 (v3.5.2). `tests/catalog-integrity.sh` 로 drift 자동 검증.
+>
+> 구성: KiiPS 도메인 20 + 공통 3 + 디자인 7 = **30개**
 
 ## KiiPS 도메인 스킬
 

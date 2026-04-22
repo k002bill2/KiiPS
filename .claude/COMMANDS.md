@@ -1,6 +1,7 @@
 # KiiPS Active Commands (24개)
 
 > CLAUDE.md에서 분리된 커맨드 카탈로그. 커맨드는 자동 발견되므로 이 파일은 참조용입니다.
+> 마지막 실측 동기화: 2026-04-22 (v3.5.2). `tests/catalog-integrity.sh` 로 drift 자동 검증.
 
 ## Core — 핵심 워크플로우
 
@@ -13,6 +14,7 @@
 | `/evolve` | Instinct 클러스터링 → 스킬/커맨드 진화 |
 | `/diagnose` | 진단 우선 디버깅 |
 | `/scope-lock` | 파일 범위 제한 모드 |
+| `/commit-push-pr` | 검증 완료 후 SVN/Git 커밋 & PR 생성 |
 
 ## Utility — 보조 도구
 

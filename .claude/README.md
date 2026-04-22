@@ -6,15 +6,18 @@
 
 ## Overview
 
-| 항목 | 수량 |
-|------|------|
-| Agents | 11 (5 specialist + 4 manager + 2 coordinator) |
-| Shared Protocols | 5 (ACE, parallel, delegation, effort, quality) |
-| Skills | 21 (15 KiiPS + 6 meta/infra) |
-| Commands | 15+ |
-| Hooks | 8 (PreToolUse 2, PostToolUse 3, Stop 2, Others 4) |
-| Checklists | 4 (code-review, deployment, testing, jsp-spring) |
-| MCP Servers | context7, serena, playwright, pencil, claude-in-chrome |
+| 항목 | 실측 수량 | 단일 진실원 |
+|------|----------|------------|
+| Agents | 13 (Specialist 7 + Manager 4 + System 2) | [`agents-registry.json`](./agents-registry.json) (수동 유지) |
+| Shared 프로토콜 | 4 | `agents/shared/` |
+| Skills | 30 (KiiPS 도메인 20 + 공통 3 + 디자인 7) | [`skills-registry.json`](./skills-registry.json) (자동 생성) + [`SKILLS.md`](./SKILLS.md) |
+| Commands | 24 | [`commands-registry.json`](./commands-registry.json) (자동 생성) + [`COMMANDS.md`](./COMMANDS.md) |
+| Hooks (유니크) | 26 | `hooks/` (.min.js 제외, .js/.sh 순수 훅 스크립트) |
+| Hooks (settings 바인딩) | 17 across 9 events | [`settings.json`](./settings.json) |
+| Permission Gates | 8 (2a PreToolUse) | [`docs/architecture.html`](./docs/architecture.html) |
+| MCP Servers | context7, serena, playwright, pencil, claude-in-chrome | `mcp.json` |
+
+> drift 감지: `bash tests/catalog-integrity.sh` — 문서 수량 vs 실측 파일 수량 대조.
 
 ---
 
@@ -22,139 +25,94 @@
 
 ```
 .claude/
-├── agents/                     # Sub-agent definitions
-│   ├── kiips-architect.md      # System design expert
-│   ├── kiips-developer.md      # Coding specialist
-│   ├── kiips-ui-designer.md    # UI/UX expert (JSP, Bootstrap, RealGrid)
-│   ├── kiips-realgrid-generator.md  # RealGrid code generator
-│   ├── code-simplifier.md      # Refactoring specialist
-│   ├── checklist-generator.md  # Checklist automation
-│   ├── managers/
-│   │   ├── deployment-manager.md
-│   │   ├── build-manager.md
-│   │   ├── feature-manager.md
-│   │   └── ui-manager.md
-│   └── shared/                 # Shared agent protocols
-│       ├── delegation-template.md
-│       ├── effort-scaling.md
-│       └── quality-gates.md
-├── commands/                   # Slash commands (/command-name)
-│   ├── build-service.md        # Maven build
-│   ├── deploy-service.md       # Service deployment
-│   ├── service-status.md       # Service health check
-│   ├── view-logs.md            # Log viewer
-│   ├── review.md               # Code review
-│   ├── dev-docs.md             # Dev documentation
-│   ├── save-and-compact.md     # Context save + compact
-│   ├── resume.md               # Session restore
-│   ├── config-backup.md        # Config backup/restore
-│   ├── draft-commits.md        # Commit draft generator
-│   └── ...
-├── skills/                     # Active skills
-│   ├── kiips-realgrid-guide/   # RealGrid 2.6.3 guide
-│   ├── kiips-ui-component-builder/  # JSP component templates
-│   ├── kiips-scss/    # SCSS theme management
-│   ├── kiips-quality/  # Responsive design validation
-│   ├── kiips-scss/     # Dark theme workflow
-│   ├── kiips-quality/     # WCAG 2.1 AA accessibility
-│   ├── kiips-feature-planner/  # Feature planning
-│   ├── kiips-page-pattern-guide/   # Detail page planning
-│   ├── kiips-test-runner/      # Test execution (JUnit)
-│   ├── verification-loop/      # Boris Cherny verification
-│   ├── parallel-coordinator/   # ACE parallel execution
-│   ├── agent-improvement/      # Agent self-improvement
-│   ├── agent-observability/    # Agent tracing/metrics
-│   └── ...
-├── hooks/                      # Event hooks
-│   ├── ethicalValidator.js     # PreToolUse: dangerous operation blocker
-│   ├── autoFormatter.js        # PostToolUse: auto formatting
-│   ├── buildChecker.js         # PostToolUse: build validation
-│   ├── scssValidator.sh        # PostToolUse: SCSS rule enforcement
-│   ├── agentTracer.js          # PostToolUse:Task: agent spawn tracing
-│   ├── stopEvent.js            # Stop: code analysis + session metrics
-│   ├── contextMonitor.js       # Stop: interaction counter + save reminder
-│   ├── userPromptSubmit.js     # UserPromptSubmit: pattern detection
-│   ├── parallelCoordinator.js  # Pre/Post Task coordination
-│   └── update-reminder.sh      # SessionStart: update check
-├── checklists/                 # Quality checklists
-│   ├── code-review.md
-│   ├── deployment.md
-│   ├── testing.md
-│   └── jsp-spring-specific.md  # KiiPS-specific (JSP/Spring/SCSS/RealGrid)
+├── agents/                  # 13 에이전트 + 4 shared 프로토콜
+│   ├── managers/            # build/deployment/feature/ui
+│   ├── shared/              # delegation/effort/quality/kiips-evaluation
+│   └── {specialist}.md      # kiips-architect/-developer/-ui-designer/...
+├── commands/                # 24 커맨드 (/command-name)
+├── skills/                  # 30 스킬 (SKILL.md entry point)
+├── hooks/                   # 20 훅 (14 settings 바인딩 + 6 허브 위임)
+├── checklists/              # 품질 체크리스트
+├── docs/
+│   ├── architecture.html    # 하네스 시각 구조
+│   ├── harness-boundaries.md # AST·rollback 한계 문서 (v3.5.2 신규)
+│   └── GLOBAL_LOCAL_FILES.md
+├── rules/                   # CLAUDE.md에서 참조되는 rule 모듈
+├── memory/                  # 영속 메모리 (common-patterns, quick-reference)
 ├── output-styles/
-│   └── efficient.md            # Concise output mode
-├── memory/                     # Persistent memory
-│   ├── common-patterns.md
-│   └── kiips-quick-reference.md
-├── agents-registry.json        # Auto-generated agent registry
-├── skill-rules.json            # Skill trigger rules
-├── settings.json               # Hooks, permissions, LSP config
-├── settings.local.json         # Local permissions, MCP servers
-└── mcp.json                    # MCP server configuration
+├── scripts/                 # 빌드/유틸 스크립트 (build-registries.js)
+├── tests/                   # 회귀 테스트 (catalog-integrity, hook-regression, permission-gate, ...)
+├── evals/                   # 에이전트 평가
+├── gemini-bridge/           # Gemini 리뷰 파이프라인
+├── learning/                # Instinct/observations 영속화
+├── agents-registry.json     # 에이전트 레지스트리 (수동 유지)
+├── skills-registry.json     # 스킬 레지스트리 (자동 생성: build-registries.js)
+├── commands-registry.json   # 커맨드 레지스트리 (자동 생성: build-registries.js)
+├── skill-rules.json         # 스킬 자동 트리거 규칙
+├── settings.json            # 훅/권한/LSP 설정 (프로젝트 스코프)
+├── settings.local.json      # 로컬 bash 허용 + MCP 설정
+└── mcp.json                 # MCP 서버 정의
 ```
 
 ---
 
-## Hook Events
+## Hook Events (settings.json 실측)
 
-| Event | Hook | Purpose |
-|-------|------|---------|
-| **PreToolUse** | ethicalValidator.js | DB DROP/TRUNCATE, 파일 삭제, 인증 정보 차단 |
-| **PreToolUse** | (inline python) | .env, secrets, app-kiips.properties 파일 보호 |
-| **PostToolUse:Edit\|Write** | autoFormatter.js | 코드 자동 포맷팅 |
-| **PostToolUse:Edit\|Write** | buildChecker.js | 빌드 검증 |
-| **PostToolUse:Edit\|Write** | scssValidator.sh | SCSS 다크테마 규칙 검증 |
-| **PostToolUse:Task** | agentTracer.js | 에이전트 스폰 추적 (JSONL) |
-| **Stop** | stopEvent.js | Java/JSP/SCSS 패턴 분석 + 세션 메트릭 |
-| **Stop** | contextMonitor.js | 인터랙션 카운터 (15/25 임계값) |
-| **UserPromptSubmit** | userPromptSubmit.js | 패턴 감지 + 스킬 활성화 |
-| **Notification** | osascript | macOS 알림 (Claude Code - KiiPS) |
-| **SessionStart** | update-reminder.sh | 업데이트 확인 |
-| **PreCompact** | pre-compact-save.sh | 컨텍스트 자동 저장 |
+| Event | Matcher | Hook | Role |
+|-------|---------|------|------|
+| **PreToolUse** | `Bash\|Edit\|Write` | ethicalValidator.js | Tier A AST · rm/DROP/curl\|bash |
+| **PreToolUse** | `Bash\|Edit\|Write` | permissionGate.js | Tier A AST · service control/pom.xml/SVN |
+| **PreToolUse** | `Edit\|Write` | inline python | .env/app-*.properties 차단 |
+| **PreToolUse** | `Edit\|Write` | mybatisBindingGuard.js | SQL `${}` 방지 |
+| **PreToolUse** | `Edit\|Write` | multiFileGate.js | 3+ 파일 승인 |
+| **PreToolUse** | `Edit\|Write` | geminiReviewGate.js | Gemini 교차검증 |
+| **PreToolUse** | `Edit\|Write` | jspXssGuard.js | JSP scriptlet XSS |
+| **PreToolUse** | `Edit\|Write` | impactAnalyzer.js | COMMON/UTILS 의미 영향 |
+| **UserPromptSubmit** | `*` | userPromptSubmit.js | 스킬 활성화 + specialist 라우팅 + Gemini 리뷰 주입 |
+| **PostToolUse** | `Bash\|Edit\|Write` | postToolOrchestrator.js | **허브** — autoFormatter·buildChecker·observe·agentStateManager·geminiAutoTrigger·outputSecretFilter 순차 실행 |
+| **PostToolUse** | `Edit\|Write` | scssValidator.sh | 다크테마 규칙 강제 |
+| **Stop** | `*` | stopEvent.js | **허브** — backupGc.sh·observationsRoller.js 호출 + 세션 메트릭 |
+| **PreCompact** | `*` | pre-compact-save.sh | 컨텍스트 자동 저장 |
+| **Notification** | `*` | notificationHandler.js | macOS 알림 |
+| **SessionStart** | `*` | update-reminder.sh → crossToolReader.js → regressionGuard.sh | 업데이트 체크 + 교차 도구 상태 + 회귀 가드 |
 
----
-
-## Key Skills
-
-### KiiPS 도메인 스킬
-
-| Skill | 용도 | Trigger Keywords |
-|-------|------|-----------------|
-| kiips-realgrid-guide | RealGrid 그리드 생성/설정/Excel | realgrid, grid, 그리드 |
-| kiips-ui-component-builder | JSP 컴포넌트 템플릿 | component, 컴포넌트, 폼 |
-| kiips-scss | SCSS 테마 + 디자인 토큰 | scss, theme, 테마 |
-| kiips-scss | 다크테마 적용 워크플로우 | dark, 다크테마, 다크모드 |
-| kiips-quality | 반응형 디자인 검증 | responsive, 반응형 |
-| kiips-quality | WCAG 2.1 AA 접근성 | accessibility, 접근성 |
-| kiips-feature-planner | 기능 개발 계획 | plan, feature, 계획 |
-| kiips-test-runner | JUnit/Jest/Karma 테스트 | test, 테스트, 커버리지 |
-
-### 인프라 스킬
-
-| Skill | 용도 |
-|-------|------|
-| verification-loop | Boris Cherny 검증 피드백 루프 |
-| parallel-coordinator | 병렬 에이전트 실행 오케스트레이션 |
-| agent-improvement | 에이전트 자기 개선 루프 |
-| agent-observability | 에이전트 추적 + 메트릭 |
+총 17 바인딩 + 허브 내부 위임(postToolOrchestrator·stopEvent 경유) = **26개 유니크 훅 스크립트** (`.min.js` 미니파이 사본은 별도).
 
 ---
 
-## Quick Commands
+## Permission Gate Tiers
+
+| Tier | 특징 | 훅 |
+|------|------|-----|
+| **A — AST-filtered (Bash-only)** | shellContextTokenizer로 literal/comment/heredoc 내부 false-positive 제거 | ethicalValidator (v3.4.0), permissionGate (v3.5.1) |
+| **B — Regex / path-based (Edit\|Write)** | 순수 정규식 또는 파일 경로 매칭. AST 미적용 | inline python, mybatisBindingGuard, multiFileGate, geminiReviewGate, jspXssGuard, impactAnalyzer |
+
+**알려진 경계**: [docs/harness-boundaries.md](./docs/harness-boundaries.md)
+
+---
+
+## Quick Reference
 
 ```bash
-/build-service          # Maven 빌드
-/deploy-service         # 서비스 배포
-/service-status         # 서비스 상태 확인
-/view-logs              # 로그 조회
-/review                 # 코드 리뷰
-/verify-app             # 앱 종합 검증
-/draft-commits          # SVN/Git 커밋 초안
-/save-and-compact       # 컨텍스트 저장 + compact
-/resume                 # 세션 복원
-/config-backup          # 설정 백업/복원
-/dev-docs               # 개발 문서 생성
-/my-workflow            # 워크플로우 가이드
+# 카탈로그 (단일 진실원)
+cat .claude/agents-registry.json   # 13 에이전트 (수동 유지)
+cat .claude/skills-registry.json   # 30 스킬 (자동 생성)
+cat .claude/commands-registry.json # 24 커맨드 (자동 생성)
+
+# 레지스트리 재생성 (스킬/커맨드 추가/삭제 시)
+node .claude/scripts/build-registries.js
+
+# 하네스 상태 검증
+bash .claude/tests/hook-regression.sh            # 훅 회귀 테스트
+node .claude/tests/permission-gate.test.js       # permissionGate 38 sub-tests
+node .claude/tests/shell-context-tokenizer.test.js  # tokenizer 28 sub-tests
+bash .claude/tests/catalog-integrity.sh          # 문서-실측 drift 검증
+
+# 주요 커맨드
+/plan                 # 5단계 구조화 계획
+/verify               # Fresh-context 독립 검증
+/commit-push-pr       # 검증 후 커밋 + PR
+/check-health         # 프로젝트 종합 점검
 ```
 
 ---
@@ -164,9 +122,10 @@
 - **Backend**: Spring Boot 2.4.2, Java 8, MyBatis
 - **Frontend**: JSP, jQuery, Bootstrap, RealGrid 2.6.3, ApexCharts
 - **Build**: Maven Multi-Module (KiiPS-HUB)
-- **VCS**: SVN (primary), Git (secondary)
+- **VCS**: SVN (primary), Git (.claude/ 로컬 관리)
 - **DB**: PostgreSQL
 - **Ports**: Gateway 8088, UI 8100, FD 8601, IL 8401, Common 8701, Login 8801
+  ([PORTS.md](./PORTS.md) 참조)
 
 ---
 
@@ -174,14 +133,24 @@
 
 | File | Purpose |
 |------|---------|
-| `settings.json` | Hooks, permissions, LSP (Java/jdtls) |
-| `settings.local.json` | Local bash permissions, MCP config |
-| `mcp.json` | MCP server definitions |
-| `agents-registry.json` | Agent metadata registry |
-| `skill-rules.json` | Skill auto-trigger rules |
+| `settings.json` | 훅 바인딩 (14건), 권한 규칙 (deny/allow), LSP (Java/jdtls) |
+| `settings.local.json` | 로컬 bash 허용 패턴, MCP 서버 |
+| `mcp.json` | MCP 서버 정의 |
+| `agents-registry.json` | 에이전트 메타데이터 (수동 유지) |
+| `skill-rules.json` | 스킬 자동 트리거 규칙 (keywords + intentPatterns + fileTriggers) |
 
 ---
 
-**Version**: 2.0.0-KiiPS
-**Last Updated**: 2026-04-21 (harness engineering refresh)
-**Note**: 본 파일의 hook matcher 표기 정확도는 settings.json을 직접 참고하세요.
+## Version History
+
+- **3.5.2** (2026-04-22) — Harness Boundaries 문서화 (Known 3건 해결) · catalog-integrity 도입
+- **3.5.1** (2026-04-22) — permissionGate AST Filter
+- **3.5.0** (2026-04-22) — Permission Gate 도입 · primary-coordinator 제거
+- **3.4.0** — ethicalValidator AST Filter
+- **3.0.0** — 5 게이트 하네스 체계 확립
+- **2.0.0** — 초기 에이전트/스킬 체계 (deprecated)
+
+---
+
+**Last Updated**: 2026-04-22 (v3.5.2, harness boundaries documentation)
+**Single Source of Truth**: `agents-registry.json` · `SKILLS.md` · `COMMANDS.md` · `settings.json`
