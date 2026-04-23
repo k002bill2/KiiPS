@@ -312,7 +312,15 @@ gridView.editOptions.commitByCell = true;
 | **그리드 팝업** | RealGrid 데이터 표시 | `COMM_POPUP_OPINION.jsp` |
 | **Bootstrap Modal** | 페이지 내 오버레이 | data-backdrop="static" |
 
-팝업 생성 시 반드시 참조: [docs/POPUP_GUIDE.md](../../../docs/POPUP_GUIDE.md)
+#### ⚠️ 팝업 JSP 만들 때 반드시 수행 (3 단계)
+
+1. `KiiPS-UI/.../jsp/kiips/COM/COMM_POPUP_{POP_ID}.jsp` 파일 생성 (저장/조회 쌍이면 두 개)
+2. **`COMMONUIController.java` 의 `COM_POPUP()` 메서드에 `POP_ID` → `rtnJSP` 분기 추가** — 누락 시 팝업이 404 또는 기본 화면으로 떨어짐
+3. 부모 페이지에서 `COMM_POPUP_NEW('${KiiPS_GATE}', 'POP_ID', param, w, h)` 호출
+
+**체크리스트 쌍 네이밍 비대칭**: URL=`CHECKLIST{ID}` ↔ 파일=`COMM_POPUP_CHECKLIST_{ID}.jsp` (언더스코어). 컨트롤러 `rtnJSP` 문자열이 이 변환을 흡수하므로 반드시 등록해야 함.
+
+팝업 생성 시 반드시 참조: [docs/POPUP_GUIDE.md](../../../docs/POPUP_GUIDE.md) — `🧭 POP_ID 라우팅 등록` 섹션
 
 ### 5. 폼 입력 컴포넌트 표준 패턴 (CRITICAL)
 
