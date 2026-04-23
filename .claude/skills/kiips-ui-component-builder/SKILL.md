@@ -68,11 +68,34 @@ JSP 템플릿 기반의 UI 컴포넌트를 빠르게 생성하는 Skill입니다
 if (메인 페이지 조회 리스트) → createMainGrid
 else if (트리 구조)         → createTreeGrid
 else if (모달/팝업 내부) {
-    if (편집 가능)          → createSimpleEditGrid
-    else                     → createSimpleGrid
+    if (행추가/삭제/텍스트 편집 필요)  → createSimpleEditGrid
+    else if (체크박스 토글만 필요)      → createSimpleGrid + onCellClicked 수동 토글 ★
+    else                                → createSimpleGrid
 }
 else if (메인 내 서브 편집) → createEditGrid
 ```
+
+**★ 체크박스 토글만 필요한 모달 패턴** (설정/개인화 모달):
+`createSimpleEditGrid`를 쓰고 insertable/appendable/deletable/commitByCell을 다 끄면 코드가 비대해지고, 텍스트 에디터 충돌(common_grid.js:1326의 `showEditor` 자동 바인딩)로 체크박스 클릭 시 Y/N 텍스트 입력창이 뜨는 회귀가 발생합니다. 대신 `createSimpleGrid`(editable:false 기본)로 텍스트 에디터를 원천 차단하고, USE_YN 컬럼만 `onCellClicked`에서 수동 토글:
+```javascript
+createSimpleGrid("TB_SETTING", dp, gv, [
+    { fieldName:"USE_YN", width:120, editable:false,
+      renderer:{type:"check", useImages:true, trueValues:"Y", falseValues:"N"} }, ...
+]);
+gv.setCheckBar({visible:false}); gv.setFooters({visible:false}); gv.setRowIndicator({visible:false});
+gv.editOptions.movable = true;
+
+gv.onCellClicked = function(grid, clickData) {
+    if (clickData.cellType !== "data") return;
+    var col = grid.getColumns()[clickData.column];
+    if (!col || col.fieldName !== "USE_YN") return;
+    var cur = dp.getValue(clickData.dataRow, "USE_YN");
+    var next = (cur === "Y") ? "N" : "Y";
+    // 제한 있으면 여기서 사전 검사 후 return
+    dp.setValue(clickData.dataRow, "USE_YN", next);
+};
+```
+참조: AC1028.jsp `fnInitSettingGrid`.
 
 **호출 패턴** (KiiPS 관용구, AC0201_POP.jsp:329-335 기준):
 ```javascript
@@ -104,6 +127,8 @@ gv.editOptions.movable = true;
 - **모달 내 초기화**: `display:none` 상태에서 치수 0 → `shown.bs.modal` 이벤트에서 `gridView.resetSize()` 호출 필수
 - **행 순서 변경(검증 패턴)**: `gridView.editOptions.movable = true` + `dataProvider.onRowMoved = function(provider, row, newRow) { ... }` 콜백에서 순서 필드(ORD) 재계산. ⚠️ `displayOptions.rowMovable`만 설정하면 드래그가 **작동하지 않음**. `gridView.onRowsMoved`(복수)는 존재하지 않는 API — 반드시 `dataProvider.onRowMoved`(단수). 참조: SY0205.jsp:157-166, AC0201_POP.jsp:330-335
 - **Y/N 체크박스 토글**: `renderer: {type:"check", trueValues:"Y", falseValues:"N"}` + `editable: true` (AC1028.jsp `PRSNL_USE_YN` 패턴 참조)
+- **`clickData` 스키마 (KiiPS 관용구)**: `onCellClicked(grid, clickData)` 콜백의 `clickData.column`은 **필드명 문자열**입니다 (배열 인덱스 아님). 예: `if (clickData.column === "USE_YN") { ... }` (SY0210:366, AC0812:329, SY0801:163 등 확인). `clickData.itemIndex`가 행 인덱스. 데이터 외 영역 가드는 `clickData.cellType === "header" / "summary" / "groupPanel" / "groupFooter"`로 체크 (SY0215:140-144). ⚠️ `renderer:{type:"check"}` 셀의 cellType은 `"data"`가 아니라 **`"check"`로 분류**될 수 있으므로 `if (cellType !== "data") return;`로 과하게 거르면 체크 셀 클릭이 통과하지 못합니다 — cellType 포지티브 필터 금지, 네거티브 제외만 사용.
+- **`createSimpleEditGrid` + 체크박스 컬럼의 함정**: 이 헬퍼는 내부에서 `onCellClicked`에 `grid.showEditor(true)`를 자동 바인딩(common_grid.js:1326)합니다. 체크박스 컬럼 클릭 시에도 **텍스트 에디터가 열리는 회귀** 발생. 대처 — 헬퍼 호출 후 ① `gv.onCellClicked = function(){};`로 no-op 덮어쓰기 + ② `gv.onShowEditor = function(grid, index) { if (grid.getColumns()[index.column].fieldName === "USE_YN") return false; };`로 키보드 경로까지 차단. 체크 토글은 렌더러 내부 이벤트라 `onCellClicked` no-op과 무관하게 정상 동작. 참조: AC1028.jsp `fnInitSettingGrid`
 
 **모달 Close 버튼은 KiiPS 커스텀 테마 패턴 (Bootstrap 아님)**:
 ```html
@@ -119,6 +144,38 @@ gv.editOptions.movable = true;
 <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
 ```
 핵심: `<a>` 태그 + 3개 클래스 조합(`card-action card-action-dismiss modal-dismiss`) + `card-actions` 래퍼는 **`h2.card-title` 내부 인라인**. 아이콘은 CSS 배경으로 그려지므로 `<span>&times;</span>` 같은 텍스트 불필요.
+
+**설정/목록 성격 모달 프레임 — list_TODO(COMM_TODO.jsp) 패턴**:
+데이터가 많거나 넓은 작업 공간이 필요한 모달(설정 목록, 다중 선택, 관리 패널)은 단순 `modal-header/body/footer`가 아닌 **카드 섹션 래퍼** 구조를 사용합니다. KiiPS 테마의 card 전역 스타일이 모달에 상속되어 일관된 외관 확보.
+```html
+<div class="modal fade" id="xxx" aria-hidden="true" style="display:none; z-index:1060;"
+     data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <section class="card">
+                <header class="card-header">
+                    <h2 class="card-title">제목
+                        <span class="card-actions">
+                            <a href="#" class="card-action card-action-dismiss modal-dismiss" data-dismiss="modal"></a>
+                        </span>
+                    </h2>
+                </header>
+                <div class="card-body px-5 py-4">
+                    <!-- 본문: RealGrid, 탭, 리스트 등 -->
+                    <div id="TB_XXX" style="width:100%; height:420px;"></div>
+
+                    <!-- 하단 버튼은 card-body 내부의 bottom-btn -->
+                    <div class="bottom-btn">
+                        <button class="btn btn-primary font-weight-semibold btn-py-2 px-4" onclick="fnSave()">저장</button>
+                        <button class="btn btn-outline-secondary font-weight-semibold btn-py-2 px-4 modal-dismiss" data-dismiss="modal">닫기</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+```
+참조: `COMM_TODO.jsp` (원본 list_TODO), `AC1028.jsp` (대시보드 설정 적용 예). 단순 등록/수정 모달은 기존 `modal-header`/`modal-body` 평면 구조 유지, 설정/목록 UI만 이 카드 래퍼 사용.
 
 **금지 패턴**:
 ```html
