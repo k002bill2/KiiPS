@@ -193,6 +193,76 @@ gridView.onCellDblClicked = function(grid, clickData) {
 
 ---
 
+## 체크박스 토글 (필수 규약 — 반복 재발 방지)
+
+> **문제**: RealGrid 2.6.3 의 `renderer:{type:"check"}` 은 **표시 전용**이다. 셀을 `editable:true` 로 하면 텍스트 에디터가 열려 "Y"/"N" 원시값이 노출되고, `editable:false` 로 하면 클릭해도 아무 반응이 없다. `onCellClicked` 로 우회 토글해도 렌더러 빌드·이벤트 전파 조건에 따라 클릭이 누락되는 사례가 반복 보고되었다.
+>
+> **원인**: `type:"check"` 렌더러는 시각 이미지만 그리고 네이티브 클릭 이벤트를 래핑하지 않음. `onCellClicked` 는 cellType/fieldName 추출이 빌드에 따라 실패하기도 함.
+
+### 표준 해법: HTML 체크박스 렌더러 + 전역 토글 함수
+
+AC1028 대시보드 설정 모달, IL0120 투자계약서 점검 팝업(COMM_POPUP_CHECKIACHK.jsp)에서 검증된 패턴.
+
+```javascript
+// 1) 컬럼 정의 — type:"html" 렌더러로 네이티브 input 주입
+{ fieldName: "STD_YN", width: "70", header: { text: "기준" },
+  editable: false, sortable: false,
+  renderer: {
+    type: "html",
+    callback: function (grid, cell) {
+      var checked = cell.value === "Y" ? "checked" : "";
+      return "<div class='checkbox-custom checkbox-default in-bl m-0'>"
+           +   "<input type='checkbox' id='MY_STD_" + cell.dataRow + "' " + checked
+           +          " onclick='fnMyToggle(" + cell.dataRow + ",\"STD_YN\")'/>"
+           +   "<label for='MY_STD_" + cell.dataRow + "'>&nbsp;</label>"
+           + "</div>";
+    }
+  }
+}
+
+// 2) 전역 토글 함수 — dataProvider 값 직접 갱신
+window.fnMyToggle = function (dataRow, field) {
+  var cur  = dataProvider.getValue(dataRow, field);
+  var next = (cur === "Y") ? "N" : "Y";
+  dataProvider.setValue(dataRow, field, next);
+};
+```
+
+### 필수 규약
+
+| 항목 | 값 | 이유 |
+|------|----|------|
+| `editable` | **`false`** | 텍스트 에디터 폴백 차단 |
+| `sortable` | **`false`** | 클릭 = 정렬 방지 |
+| `renderer.type` | **`"html"`** | `"check"` 금지 |
+| `onclick` 파라미터 | **`cell.dataRow`** (itemIndex 아님) | 정렬·페이징 상황에서도 provider 기준 행 매핑 |
+| 값 갱신 API | **`dataProvider.setValue`** | `grid.setValue` 대신 provider 직접 — refresh 타이밍 불안정 회피 |
+| `<label for>` | **id 와 매칭** | KiiPS `checkbox-custom` 스타일 동작 조건 |
+| 저장 시 변경 추출 | `dataProvider.getJsonRows()` 순회 또는 `getAllStateRows()` | |
+
+### 절대 금지
+
+```javascript
+// ❌ 금지 1 — type:"check" 렌더러 + editable:true (텍스트 에디터 폴백)
+{ fieldName: "STD_YN", editable: true,
+  renderer: { type: "check", trueValues: "Y", falseValues: "N" } }
+
+// ❌ 금지 2 — onCellClicked 로 토글 시도 (빌드별 이벤트 누락)
+gridView.onCellClicked = function (grid, clickData) {
+  if (clickData.fieldName === "STD_YN") { /* 불안정 */ }
+};
+
+// ❌ 금지 3 — grid.setValue 4번째 인자 true (silent fail 사례 있음)
+grid.setValue(idx, field, val, true);
+```
+
+### 참조 구현
+
+- 표준 구현: `KiiPS-UI/.../COM/COMM_POPUP_CHECKIACHK.jsp` (HTML 체크박스 렌더러 + `fnIachkToggle`)
+- 비그리드 대체: `KiiPS-UI/.../AC/AC1028.jsp` (대시보드 설정 모달 — RealGrid 대신 HTML `<table>` + jQuery sortable)
+
+---
+
 ## Best Practices
 
 ### Do
@@ -237,6 +307,7 @@ gridView.onEditCommit = function(grid, index) {
 - [ ] 날짜 컬럼에 `StringUtil.toDate()` 렌더러 적용
 - [ ] 멀티 레벨 헤더 시 `header.heights` 배열 설정
 - [ ] 편집 가능 컬럼에 `styleName: "editable-column"` 적용
+- [ ] **체크박스 토글 컬럼은 `type:"html"` 렌더러 + 전역 토글 함수 사용** (`type:"check"` + `onCellClicked` 금지 — 상세는 "체크박스 토글" 섹션)
 - [ ] Excel Export 시 `fileName`에 날짜 포함
 - [ ] 대량 데이터 시 가상 스크롤 + 고정 rowHeight 확인
 

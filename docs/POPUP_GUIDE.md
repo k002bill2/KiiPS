@@ -601,6 +601,59 @@ table.print th {
 
 ---
 
+## 🧭 POP_ID 라우팅 등록 (필수 — 누락 시 404)
+
+팝업 JSP 파일을 `COM/` 밑에 **만들기만 하면 안 열립니다**. `COMM_POPUP_NEW(url, POP_ID, ...)` 가 POST 한 `POP_ID` 값은 반드시 `COMMONUIController.COM_POPUP()` 의 `if/else if` 분기에 등록되어야 뷰가 해석됩니다.
+
+**등록 위치**: `KiiPS-UI/src/main/java/com/kiips/ui/controller/COMMONUIController.java` — `COM_POPUP` 메서드 내부
+
+**필수 패턴**:
+
+```java
+else if(POP_ID.equals("{POP_ID_VALUE}")){
+    strACT_TXT = "{업무 설명} 팝업 " + strkeys;
+    rtnJSP    += "COM/{JSP_FILE_NAME_WITHOUT_EXT}";
+}
+```
+
+### 네이밍 컨벤션 (매우 중요)
+
+체크리스트 계열 팝업은 **저장/조회 쌍**으로 관리하며, URL과 JSP 파일명이 **비대칭**입니다:
+
+| 모드 | `gridCallCHKLIST`가 생성하는 URL | 등록해야 하는 POP_ID | JSP 파일명 |
+|------|-------------------------------|--------------------|-----------|
+| 저장 (미작성 클릭) | `CHECK{ID}` | `CHECK{ID}` | `COMM_POPUP_CHECK{ID}.jsp` |
+| 조회 (작성중/결재중/완료 클릭) | `CHECKLIST{ID}` | `CHECKLIST{ID}` | `COMM_POPUP_CHECKLIST_{ID}.jsp` ← **언더스코어** |
+
+조회 측 URL(`CHECKLIST{ID}`, 언더스코어 없음) → JSP 파일(`CHECKLIST_{ID}`, 언더스코어 있음) 비대칭을 **컨트롤러 `rtnJSP` 문자열이 흡수**합니다. 둘을 반드시 컨트롤러에서 연결하지 않으면 404가 납니다.
+
+### 등록 예시 (IACHK 쌍)
+
+```java
+//투자계약서 점검 팝업(저장)
+else if(POP_ID.equals("CHECKIACHK")){
+    strACT_TXT = "투자계약서 점검 팝업 " + strkeys;
+    rtnJSP    += "COM/COMM_POPUP_CHECKIACHK";
+}
+//투자계약서 점검 팝업(조회)
+else if(POP_ID.equals("CHECKLISTIACHK")){
+    strACT_TXT = "투자계약서 점검 팝업 " + strkeys;
+    rtnJSP    += "COM/COMM_POPUP_CHECKLIST_IACHK";
+}
+```
+
+### 삽입 위치 가이드
+
+동일 업무 그룹(예: `CHECKDDR`/`CHECKLIST_DDR`, `CHECKRA`/`CHECKLISTRA`)이 **인접 블록**에 위치하는 것이 기존 컨벤션이므로, 신규 쌍은 동일 업무 성격의 기존 블록 근처에 삽입해 일관성을 유지합니다.
+
+### 흔한 실수
+
+1. JSP만 만들고 컨트롤러 등록을 빠뜨려 "POP_ID 가 분기되지 않아 기본 JSP(또는 에러)로 떨어짐"
+2. 저장 쪽만 등록하고 조회 쪽(`CHECKLIST...`)을 빠뜨림 → 미작성 상태일 때는 열리지만 저장 후 다시 클릭 시 404
+3. URL 문자열과 JSP 파일명 언더스코어 규칙을 혼동 (`CHECKLISTIACHK` URL vs `COMM_POPUP_CHECKLIST_IACHK.jsp` 파일명)
+
+---
+
 ## ✅ 팝업 생성 체크리스트
 
 ### 일반 팝업
@@ -610,6 +663,7 @@ table.print th {
 - [ ] card-header, card-body, bottom-btn 구조
 - [ ] `closeCurrentWindow()` 닫기 함수
 - [ ] `logosAjax.requestToken()` API 호출
+- [ ] **`COMMONUIController.java` 에 `POP_ID` 분기 등록** (저장/조회 쌍이면 두 건 모두)
 
 ### 인쇄용 팝업
 
@@ -620,6 +674,7 @@ table.print th {
 - [ ] `page-break-always` 클래스로 페이지 구분
 - [ ] `window.print()` 출력 버튼
 - [ ] `sum-row` 클래스로 합계 행 스타일링
+- [ ] **`COMMONUIController.java` 에 `POP_ID` 분기 등록**
 
 ### 그리드 팝업
 
@@ -628,6 +683,7 @@ table.print th {
 - [ ] 그리드 높이 설정 (`css("height", "XXXpx")`)
 - [ ] `logosAjax.requestTokenGrid()` 사용
 - [ ] 읽기 전용 설정 (`editable: false`)
+- [ ] **`COMMONUIController.java` 에 `POP_ID` 분기 등록**
 
 ### Bootstrap Modal
 
@@ -635,6 +691,7 @@ table.print th {
 - [ ] `data-keyboard="false"` ESC 키 무시
 - [ ] `modal-dialog-centered` 중앙 정렬
 - [ ] 콜백 함수 처리
+- [ ] (Modal은 부모 페이지 내부라 `POP_ID` 등록 **불필요**)
 
 ---
 
