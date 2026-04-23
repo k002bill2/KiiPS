@@ -382,6 +382,61 @@
     }
   },
 
+  "kiips-checklist-list-popup": {
+    "type": "domain",
+    "enforcement": "require",
+    "priority": "high",
+    "description": "KiiPS 체크리스트 목록 팝업 표준 - 아이콘 버튼 바(등록/결재/삭제/인쇄/엑셀) + RealGrid 목록 + 셀 더블클릭 상세/결재 분기. 기준: COMM_POPUP_CHECKLIST_AF_IMM.jsp",
+    "promptTriggers": {
+      "keywords": [
+        "체크리스트 목록",
+        "체크리스트 리스트",
+        "체크리스트 팝업",
+        "작성한 리스트",
+        "작성한 체크리스트",
+        "작성된 체크리스트",
+        "목록 팝업",
+        "리스트 팝업",
+        "list popup",
+        "checklist popup",
+        "checklist list",
+        "CHECKLISTIACHK",
+        "CHECKLIST_AF_IMM",
+        "투자계약서 점검",
+        "인수금융 체크리스트"
+      ],
+      "intentPatterns": [
+        "(체크리스트|checklist).*(목록|리스트|list|팝업|popup)",
+        "작성.*?(한|된|리스트|목록).*(체크리스트|리스트|목록|보|조회)",
+        "(COMM_POPUP_CHECKLIST_[A-Z]+)",
+        "(CHECKLIST).*?(IACHK|AF_IMM|AA|DD|ESG|LAW|COMP)",
+        "(icon_plus|icon_approv|icon_trash|icon_print|icon_excel).*체크리스트",
+        "(btn-only-icon.*btn-xl.*btn-outline-primary)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": [
+        "**/COM/COMM_POPUP_CHECKLIST_*.jsp",
+        "**/COM/COMM_POPUP_CHECKLIST*IACHK*.jsp",
+        "**/COM/COMM_POPUP_CHECKLIST*AF*.jsp"
+      ],
+      "contentPatterns": [
+        "btn-only-icon btn-xl btn-outline-primary",
+        "icon_plus",
+        "icon_approv",
+        "icon_trash",
+        "icon_print",
+        "icon_excel",
+        "jce gap3x",
+        "ILAPI/IL0120/CHK/LIST",
+        "INVTEX_BEF_CHK_TPCD",
+        "APRV_STAT_TPCD",
+        "ERP_ELEC_APRV_IHRT_NO",
+        "arrpovalReportcallBack"
+      ]
+    }
+  },
+
   "kiips-mybatis-guide": {
     "type": "domain",
     "enforcement": "require",
