@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ./.claude/hooks/ethicalValidator.js"
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/ethicalValidator.js"
           }
         ]
       },
@@ -15,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ./.claude/hooks/permissionGate.js"
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/permissionGate.js"
           }
         ]
       },
@@ -33,7 +33,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ./.claude/hooks/mybatisBindingGuard.js"
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/mybatisBindingGuard.js"
           }
         ]
       },
@@ -42,7 +42,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ./.claude/hooks/multiFileGate.js"
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/multiFileGate.js"
           }
         ]
       },
@@ -51,7 +51,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ./.claude/hooks/geminiReviewGate.js"
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/geminiReviewGate.js"
           }
         ]
       },
@@ -60,7 +60,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ./.claude/hooks/jspXssGuard.js"
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/jspXssGuard.js"
           }
         ]
       },
@@ -69,7 +69,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ./.claude/hooks/impactAnalyzer.js"
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/impactAnalyzer.js"
           }
         ]
       }
@@ -80,7 +80,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ./.claude/hooks/userPromptSubmit.js"
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/userPromptSubmit.js"
           }
         ]
       }
@@ -91,7 +91,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ./.claude/hooks/postToolOrchestrator.js"
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/postToolOrchestrator.js"
           }
         ]
       },
@@ -100,7 +100,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ./.claude/hooks/scssValidator.sh"
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/scssValidator.sh"
           }
         ]
       }
@@ -111,7 +111,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cd \"$(git rev-parse --show-toplevel 2>/dev/null || echo .)\" && test -f ./.claude/hooks/stopEvent.js && node ./.claude/hooks/stopEvent.js || true"
+            "command": "test -f \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/stopEvent.js && node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/stopEvent.js || true"
           }
         ]
       }
@@ -122,7 +122,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ./.claude/hooks/pre-compact-save.sh"
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/pre-compact-save.sh"
           }
         ]
       }
@@ -133,7 +133,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node ./.claude/hooks/notificationHandler.js 2>>.claude/hooks/hook-errors.log || true"
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/notificationHandler.js 2>>\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/hook-errors.log || true"
           }
         ]
       }
@@ -144,19 +144,19 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ./.claude/hooks/update-reminder.sh"
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/update-reminder.sh"
           },
           {
             "type": "command",
-            "command": "node ./.claude/hooks/crossToolReader.js 2>>.claude/hooks/hook-errors.log || true"
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/crossToolReader.js 2>>\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/hook-errors.log || true"
           },
           {
             "type": "command",
-            "command": "bash ./.claude/hooks/regressionGuard.sh || true"
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/regressionGuard.sh || true"
           },
           {
             "type": "command",
-            "command": "bash ./.claude/tests/catalog-integrity.sh 2>/dev/null | grep -E 'FAIL|drift' | head -5 || true"
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/tests/catalog-integrity.sh 2>/dev/null | grep -E 'FAIL|drift' | head -5 || true"
           }
         ]
       }
