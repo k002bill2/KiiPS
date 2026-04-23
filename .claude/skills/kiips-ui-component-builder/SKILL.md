@@ -1,6 +1,6 @@
 ---
 name: kiips-ui-component-builder
-description: "JSP 컴포넌트 템플릿 기반 생성 (RealGrid, ApexCharts, Bootstrap 폼, 팝업). Use when: UI 컴포넌트, JSP 생성, 그리드 생성, 차트 추가, 페이지 생성, 화면 개발"
+description: "JSP 컴포넌트 템플릿 기반 생성 (RealGrid, ApexCharts, Bootstrap 폼, 팝업). 데이터 테이블은 기본 RealGrid 사용, HTML <table> 금지. Use when: UI 컴포넌트, JSP 생성, 그리드 생성, 차트 추가, 페이지 생성, 화면 개발"
 ---
 
 # KiiPS UI Component Builder
@@ -48,6 +48,127 @@ JSP 템플릿 기반의 UI 컴포넌트를 빠르게 생성하는 Skill입니다
 ```
 
 ## Quick Reference
+
+### 0. Table Default: RealGrid + 헬퍼 매트릭스 (MANDATORY)
+
+**원칙**: KiiPS의 모든 데이터 테이블은 **RealGrid 2.6.3** + `common_grid.js`의 공통 헬퍼를 사용합니다. 순수 HTML `<table>`은 금지. **개별 JSP에서 `setDataSource/setFields/setColumns`를 직접 호출하는 것도 금지** — 반드시 아래 헬퍼 중 하나를 선택.
+
+**헬퍼 선택 매트릭스** (`common_grid.js` 참조):
+
+| 위치 / 용도 | 헬퍼 | 특성 |
+|------------|------|------|
+| **페이지 본문 메인 조회** | `createMainGrid` | 그룹 패널, Excel 풀세팅, 헤더 합계, rowHeight 36, lookupDisplay, commitByCell |
+| **모달/팝업 편집** (행추가/삭제 있음) | `createSimpleEditGrid` | editable, insertable, 체크바, 높이 210px 기본 |
+| **모달/팝업 읽기 전용** | `createSimpleGrid` | editable:false, rows 선택 스타일, 체크바 |
+| **메인 내 서브 편집** (상세/등록) | `createEditGrid` | 컨텍스트 메뉴, Paste 옵션, margin-bottom 20px |
+| **트리 구조** | `createTreeGrid` | TreeProvider/TreeView |
+
+**선택 로직**:
+```
+if (메인 페이지 조회 리스트) → createMainGrid
+else if (트리 구조)         → createTreeGrid
+else if (모달/팝업 내부) {
+    if (편집 가능)          → createSimpleEditGrid
+    else                     → createSimpleGrid
+}
+else if (메인 내 서브 편집) → createEditGrid
+```
+
+**호출 패턴** (KiiPS 관용구, AC0201_POP.jsp:329-335 기준):
+```javascript
+var dp = new RealGrid.LocalDataProvider(true);
+var gv = new RealGrid.GridView("TB_SETTING");         // div id
+createSimpleEditGrid("TB_SETTING", dp, gv, columns);  // container는 ID 문자열(# 없음)
+
+// 호출 후 필요한 부분만 오버라이드
+gv.setCheckBar({ visible: false });
+gv.setFooters({ visible: false });
+gv.editOptions.movable = true;
+```
+
+**적용 범위**:
+- 조회/편집/서브 그리드 전부 포함
+- **모달 내부 설정/옵션 목록** — 10행 이하여도 RealGrid + 헬퍼 사용
+- 팝업 내 데이터 목록
+
+**예외 (HTML `<table>` 허용)**:
+- 인쇄 전용 레이아웃 (`POPUP_*_print.jsp`)
+- 순수 정적 정보 카드 (데이터 변경 없는 안내/레이블)
+
+**이유**:
+1. 다크테마 / 반응형 / 접근성 스타일이 RealGrid + 헬퍼에 일관 적용
+2. Excel 익스포트 border, 컬럼 너비 자동조절(`fitLayoutWidth`), 컨텍스트 메뉴 등 공통 기능 자동 상속
+3. `text-center` 사용 금지, 정렬/스타일 API 표준화 (`styleName: "center-column"` 등)
+
+**RealGrid 공통 주의사항**:
+- **모달 내 초기화**: `display:none` 상태에서 치수 0 → `shown.bs.modal` 이벤트에서 `gridView.resetSize()` 호출 필수
+- **행 순서 변경(검증 패턴)**: `gridView.editOptions.movable = true` + `dataProvider.onRowMoved = function(provider, row, newRow) { ... }` 콜백에서 순서 필드(ORD) 재계산. ⚠️ `displayOptions.rowMovable`만 설정하면 드래그가 **작동하지 않음**. `gridView.onRowsMoved`(복수)는 존재하지 않는 API — 반드시 `dataProvider.onRowMoved`(단수). 참조: SY0205.jsp:157-166, AC0201_POP.jsp:330-335
+- **Y/N 체크박스 토글**: `renderer: {type:"check", trueValues:"Y", falseValues:"N"}` + `editable: true` (AC1028.jsp `PRSNL_USE_YN` 패턴 참조)
+
+**모달 Close 버튼은 KiiPS 커스텀 테마 패턴 (Bootstrap 아님)**:
+```html
+<!-- ✅ KiiPS 표준 (SY0217.jsp:121, SY0210.jsp:52 동일 패턴) -->
+<div class="modal-header">
+    <h2 class="card-title py-2" id="xxxTitle">제목<span class="card-actions mt-2 mr-2"><a href="#" class="card-action card-action-dismiss modal-dismiss" data-dismiss="modal"></a></span></h2>
+</div>
+
+<!-- ❌ 금지: Bootstrap 5 btn-close (KiiPS는 BS4 기반) -->
+<button class="btn-close" data-dismiss="modal"></button>
+
+<!-- ❌ 금지: Bootstrap 4 button.close (KiiPS 테마에서 검정 네모로 깨짐) -->
+<button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+```
+핵심: `<a>` 태그 + 3개 클래스 조합(`card-action card-action-dismiss modal-dismiss`) + `card-actions` 래퍼는 **`h2.card-title` 내부 인라인**. 아이콘은 CSS 배경으로 그려지므로 `<span>&times;</span>` 같은 텍스트 불필요.
+
+**금지 패턴**:
+```html
+<!-- ❌ 금지: HTML table로 데이터 목록 -->
+<table class="table table-hover">
+    <thead><tr><th>항목</th></tr></thead>
+    <tbody id="myList"></tbody>
+</table>
+```
+```javascript
+// ❌ 금지: 헬퍼 무시하고 직접 초기화
+var dp = new RealGrid.LocalDataProvider(true);
+var gv = new RealGrid.GridView("TB_SETTING");
+gv.setDataSource(dp);
+dp.setFields([...]);
+gv.setColumns([...]);  // createMainGrid/SimpleEditGrid 등을 써야 함
+```
+
+**표준 패턴 (모달 설정 그리드 전체 예시)**:
+```html
+<div id="TB_SETTING" style="height: 320px;"></div>
+```
+```javascript
+var dp = new RealGrid.LocalDataProvider(true);
+var gv = new RealGrid.GridView("TB_SETTING");
+
+createSimpleEditGrid("TB_SETTING", dp, gv, [
+    { fieldName: "KEY",    visible: false },
+    { fieldName: "CAT_NM", header:{text:"항목"},   editable:false, styleName:"left-column" },
+    { fieldName: "USE_YN", header:{text:"사용여부"}, width:120, editable:true,
+      renderer:{type:"check", useImages:true, trueValues:"Y", falseValues:"N"} },
+    { fieldName: "ORD",    header:{text:"순서"},   width:80, editable:false, styleName:"center-column", dataType:"number" }
+]);
+
+// 설정 모달 오버라이드: 체크바/푸터 숨김 + 행추가/삭제 차단 + 이동만 허용
+gv.setCheckBar({ visible: false });
+gv.setFooters({ visible: false });
+gv.editOptions.insertable = false;
+gv.editOptions.appendable  = false;
+gv.editOptions.movable     = true;
+gv.editOptions.deletable   = false;
+$("#TB_SETTING").css("height", "320px");  // 헬퍼 기본 210px 덮어쓰기
+
+dp.onRowMoved = function(provider, row, newRow) {
+    for (var i = 0; i < provider.getRowCount(); i++) provider.setValue(i, "ORD", i + 1);
+    gv.setCurrent({ dataRow: newRow });
+};
+
+$("#myModal").on("shown.bs.modal", function() { gv.resetSize(); });
+```
 
 ### 1. RealGrid 기본 그리드 (Read-Only)
 
