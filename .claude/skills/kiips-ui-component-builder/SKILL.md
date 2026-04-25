@@ -21,6 +21,7 @@ JSP 템플릿 기반의 UI 컴포넌트를 빠르게 생성하는 Skill입니다
 - Java 백엔드 로직 작성
 - 데이터베이스 쿼리 작성
 - Maven 빌드 설정
+- SCSS 색상 작성 ([`kiips-scss`](../kiips-scss/SKILL.md) 참조) — **컴포넌트 색상은 반드시 `var(--*)` / `$grey-*` / `$primary-*` 시스템 변수 기반. hex 하드코딩 금지**
 
 ## When to Use
 

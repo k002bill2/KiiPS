@@ -18,7 +18,7 @@ KiiPS JSP 페이지의 표준 구조 패턴입니다. 검색필터, 버튼, 그�
 
 ### What This Skill Does NOT Do
 - 백엔드 Controller/Service/Mapper 생성 (별도 스킬)
-- SCSS 테마 적용 (kiips-scss 참조)
+- SCSS 테마 적용 (kiips-scss 참조) — **신규 페이지 색상은 반드시 `var(--*)` / `$grey-*` / `$primary-*` 시스템 변수 기반 작성. hex 하드코딩 금지**
 - RealGrid 상세 설정 (kiips-realgrid-guide 참조)
 
 ### Related Skills

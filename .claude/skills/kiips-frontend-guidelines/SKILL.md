@@ -6,6 +6,8 @@ description: "KiiPS 프론트엔드 개발 가이드 - JSP/jQuery/Bootstrap 표�
 # KiiPS Frontend Guidelines
 
 > KiiPS JSP/jQuery 프론트엔드 표준 패턴 가이드
+>
+> **🎨 색상 작성 원칙**: 신규 페이지 생성 또는 화면 수정 시 색상은 반드시 `themes/default/` 의 시스템 변수(`var(--primary)`, `var(--color)`, `$grey-5`, `$primary-50` 등) 기반으로 작성. hex 하드코딩 금지. 상세는 [`kiips-scss`](../kiips-scss/SKILL.md) 스킬의 "시스템 변수 우선 원칙" 섹션 참조.
 
 ---
 
