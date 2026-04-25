@@ -1,9 +1,9 @@
-# KiiPS Active Skills (30개)
+# KiiPS Active Skills (31개)
 
 > CLAUDE.md에서 분리된 스킬 카탈로그. 스킬은 자동 발견되므로 이 파일은 참조용입니다.
-> 마지막 실측 동기화: 2026-04-22 (v3.5.2). `tests/catalog-integrity.sh` 로 drift 자동 검증.
+> 마지막 실측 동기화: 2026-04-24 (v3.5.3). `tests/catalog-integrity.sh` 로 drift 자동 검증.
 >
-> 구성: KiiPS 도메인 20 + 공통 3 + 디자인 7 = **30개**
+> 구성: KiiPS 도메인 21 + 공통 3 + 디자인 7 = **31개**
 
 ## KiiPS 도메인 스킬
 
@@ -20,6 +20,7 @@
 | `kiips-search-filter-guide` | 검색필터 (MainComponent, Constant, 필터바) |
 | `kiips-button-guide` | 버튼 영역 (inc_main_button, 권한, 아이콘) |
 | `kiips-regist-modal-guide` | 등록/수정 모달 (폼, 그리드, columnGroup) |
+| `kiips-checklist-list-popup` | 체크리스트 목록 팝업 표준 패턴 (아이콘 버튼 바, 결재 연동) |
 | `kiips-linked-approval-template` | 결재 연계 문서 HTML 템플릿 + 데이터 바인딩 |
 | `kiips-scss` | SCSS 테마 + 다크테마 통합 (디자인 토큰, [data-theme=dark]) |
 | `kiips-quality` | 웹 접근성(WCAG) + 반응형 디자인 검증 통합 |
