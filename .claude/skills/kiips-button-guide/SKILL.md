@@ -1,6 +1,6 @@
 ---
 name: kiips-button-guide
-description: "KiiPS 버튼 영역 종합 가이드 - inc_main_button.jsp, 도메인별 버튼, 권한 처리, 아이콘 클래스. Use when: 버튼, 툴바, inc_main_button, btn_reload, btn_regist, 관리자 버튼"
+description: "KiiPS 버튼 영역 종합 가이드 - inc_main_button.jsp, 도메인별 버튼, 권한 처리, 아이콘 클래스. 단일 액션은 btn-outline-primary / 드롭다운만 btn-primary. Use when: 버튼, 툴바, inc_main_button, btn_reload, btn_regist, 관리자 버튼"
 ---
 
 # KiiPS Button Area Guide
@@ -208,6 +208,65 @@ SessionInfo.getMenuAuth()
 
 # Part 3: 표준 버튼 컴포넌트
 
+## 3.0 버튼 스타일 결정 매트릭스 🚨 Critical Rule
+
+> **단일 액션과 드롭다운 버튼은 색상이 다르다. 잘못 선택하면 디자인 시스템이 깨진다.**
+
+`main_gridRow`의 아이콘 버튼은 두 가지 스타일로 엄격히 분리된다:
+
+| 유형 | 트리거 조건 | class | 아이콘 처리 |
+|------|------------|-------|-------------|
+| **단일 액션** | `onClick="..."` 단일 핸들러, dropdown 없음 | `btn btn-only-icon btn-xl btn-outline-primary` | `<span class="icon_xxx"></span>` (필터 없음) |
+| **드롭다운** | `data-toggle="dropdown"` 존재 | `btn btn-only-icon btn-xl btn-primary` | `<span class="icon_xxx" style="filter: brightness(0) invert(1);"></span>` |
+| **관리자 강조** (예외) | `id="btn_setAdmin"` (권한 메뉴) | `btn btn-only-icon btn-primary btn-xl` | dropdown이 아니어도 채워진 배경 사용 (권한 강조 목적) |
+
+### 결정 플로우
+
+```
+새 버튼 추가
+    │
+    ├── data-toggle="dropdown" 인가?
+    │   └── YES → btn-primary + filter:brightness(0) invert(1)
+    │
+    ├── id="btn_setAdmin" (관리자 메뉴)인가?
+    │   └── YES → btn-primary (강조)
+    │
+    └── 그 외 모든 단일 액션 → btn-outline-primary, 필터 없음
+```
+
+### ❌ 흔한 실수
+
+```html
+<!-- 인쇄 dropdown(btn-primary)을 보고 단일 엑셀 버튼도 같은 스타일로 작성 -->
+<button id="btn_excel" class="btn btn-only-icon btn-xl btn-primary"
+    onClick="callExcelDown()">  <!-- ⚠ dropdown 아님 -->
+    <span class="icon_excel" style="filter: brightness(0) invert(1);"></span>
+</button>
+```
+
+### ✅ 올바른 작성
+
+```html
+<button id="btn_excel" class="btn btn-only-icon btn-xl btn-outline-primary"
+    data-toggle="tooltip" data-placement="top" title="엑셀 다운로드"
+    onClick="callExcelDown()">
+    <span class="icon_excel"></span>
+</button>
+```
+
+### 자기 검증 명령어
+
+새 버튼을 추가했다면, 같은 파일의 표준 단일 버튼과 class를 비교:
+
+```bash
+grep -n 'id="btn_reload"\|id="btn_help"' inc_xx_button.jsp
+# → 둘 다 btn-outline-primary 여야 함. 새 단일 버튼도 동일해야 함.
+```
+
+**Why this rule exists:** KiiPS UI에서 채워진 파란 배경(`btn-primary`)은 "추가 메뉴가 펼쳐진다"는 시각적 신호로만 사용된다. 단일 액션이 채워진 색을 쓰면 사용자가 dropdown으로 오해한다.
+
+---
+
 ## 3.1 기본 버튼 타입
 
 ### 조회 버튼 (모든 화면)
@@ -349,6 +408,7 @@ SessionInfo.getMenuAuth()
 버튼 영역 추가 시 확인사항:
 
 - [ ] **[🚨 Critical]** 기존 분기와 버튼 배열이 100% 동일한지 비교 — 동일하면 **`||` OR 체인으로 기존 조건에 추가** (1.3 원칙)
+- [ ] **[🚨 Critical]** 새 버튼이 dropdown인지 단일 액션인지 확인 → 단일 액션은 반드시 `btn-outline-primary`, dropdown만 `btn-primary` + 아이콘 반전 (3.0 원칙). 인쇄 dropdown 등 옆 버튼 스타일을 무지성 복사 금지
 - [ ] 버튼 구성이 일부라도 다르면 새로운 `else if` 분기 생성 (동일 HTML 복제 금지)
 - [ ] `inc_XX_button.jsp`에 MENU_SCREEN_ID별 조건 분기 추가 (OR 재사용 원칙 적용 후)
 - [ ] `gridpage_info` div (Total_Cnt + ADJ_GRID_COLUMN) 포함

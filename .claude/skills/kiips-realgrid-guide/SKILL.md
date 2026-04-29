@@ -263,6 +263,140 @@ grid.setValue(idx, field, val, true);
 
 ---
 
+## 헤더 체크박스 (열 단위 마스터 토글)
+
+> **용도**: 컬럼 헤더 자체에 체크박스를 두어 (1) 마스터 전체 행 일괄 셋/리셋, 또는 (2) 컬럼 단위 선택 표시.
+>
+> **표준**: `header.template` 속성에 KiiPS `checkbox-custom` HTML 직접 주입 + 전역 토글 함수.
+
+### 패턴 1 — 마스터 토글 (한 컬럼의 모든 행 값을 Y/N 일괄 변경)
+
+검증된 참조: `COMM_POPUP_CHECKDUTY.jsp` (의무사항기재확인서)
+
+```javascript
+{ fieldName: "CRPD_YN", width: "40", editable: false, sortable: false, type: "data",
+  header: {
+    text: "확인",
+    template: "확인"
+            + "<div class='checkbox-custom checkbox-default in-bl ml-1'>"
+            +   "<input type='checkbox' data-id='' data-gbn='checkbox' onclick='setCheck()' id='chk'/>"
+            +   "<label for='chk'></label>"
+            + "</div>"
+  },
+  renderer: { type: "check", trueValues: "Y", falseValues: "N", useImages: true }
+}
+
+// 마스터 토글 — 헤더 체크박스 클릭 시 전체 행에 Y/N 일괄 적용
+function setCheck(){
+    var checked = document.getElementById('chk').checked;
+    var v = checked ? 'Y' : 'N';
+    for (var i = 0; i < gridView.getItemCount(); i++) {
+        gridView.setValue(i, 'CRPD_YN', v);
+        gridView.commit(true);
+    }
+}
+```
+
+### 패턴 2 — 헤더 + 셀 통합 체크박스 (컬럼 선택 + 개별 셀 토글)
+
+검증된 참조: `IL/IL0920.jsp` 첨부파일 다운로드 모달
+
+같은 컬럼에서 헤더와 셀 모두 체크박스를 쓸 때는 동일한 `checkbox-custom checkbox-default` 클래스로 시각/다크모드 일관성 확보. 셀은 데이터 존재 시(`Y`)만 렌더, 미존재(`N`)는 공란.
+
+```javascript
+// 헤더 템플릿 (컬럼 선택용)
+function attachDocHeaderTemplate(fieldName, text){
+    return text
+        + "<div class='checkbox-custom checkbox-default in-bl ml-1'>"
+        + "<input type='checkbox' data-id='' data-gbn='checkbox'"
+        +    " onclick=\"toggleAttachDocCol('" + fieldName + "')\""
+        +    " id='chk_" + fieldName + "'/>"
+        + "<label for='chk_" + fieldName + "'></label>"
+        + "</div>";
+}
+
+// 셀 렌더러 (개별 셀 토글용) — type:"html" 사용, type:"icon"/"check" 금지
+function attachDocCellRenderer(grid, cell){
+    if (cell.value !== "Y") return "";  // 미존재 = 공란
+    var id = "chk_" + cell.column.fieldName + "_" + cell.dataRow;
+    return "<div class='checkbox-custom checkbox-default in-bl m-0'>"
+        +    "<input type='checkbox' data-id='' data-gbn='checkbox' checked"
+        +           " id='" + id + "'"
+        +           " onclick=\"toggleAttachDocCell(" + cell.dataRow + ",'" + cell.column.fieldName + "')\"/>"
+        +    "<label for='" + id + "'></label>"
+        + "</div>";
+}
+
+// 컬럼 정의 — 헤더 template + 셀 html callback 양쪽 다 KiiPS 체크박스
+{ fieldName: "DOC1_YN", width: "120", editable: false, sortable: false,
+  header: { text: "주주명부", template: attachDocHeaderTemplate("DOC1_YN", "주주명부") },
+  renderer: { type: "html", callback: attachDocCellRenderer }
+}
+
+// 선택 상태 추적 + 토글
+let selectedDocCols = new Set();
+function toggleAttachDocCol(fieldName){
+    let cb = document.getElementById('chk_' + fieldName);
+    if (cb && cb.checked) selectedDocCols.add(fieldName);
+    else selectedDocCols.delete(fieldName);
+}
+window.toggleAttachDocCell = function(dataRow, fieldName){
+    var cur = dataProvider.getValue(dataRow, fieldName);
+    dataProvider.setValue(dataRow, fieldName, cur === "Y" ? "N" : "Y");
+};
+function resetAttachColSelection(){
+    selectedDocCols.clear();
+    ['DOC1_YN','DOC2_YN','DOC3_YN'].forEach(function(f){
+        var cb = document.getElementById('chk_' + f);
+        if (cb) cb.checked = false;
+    });
+}
+```
+
+ID 네이밍 규칙:
+- 헤더: `chk_<field>` (컬럼당 1개)
+- 셀: `chk_<field>_<dataRow>` (행마다 별도)
+- 충돌 방지: `dataRow` 접미사로 헤더와 자연 분리
+
+Spacing 규칙:
+- 헤더: `ml-1` (텍스트 옆 좌측 마진)
+- 셀: `m-0` (셀 중앙 정렬)
+
+### 헤더 체크박스 필수 규약
+
+| 항목 | 값 | 이유 |
+|------|----|------|
+| `header.template` | **HTML 문자열** | `text` 단독으론 체크박스 표현 불가. template 우선 적용 |
+| 체크박스 클래스 | **`checkbox-custom checkbox-default in-bl ml-1`** | KiiPS 표준 + 인라인 + 텍스트와 간격 |
+| `<label for>` | **id 와 매칭** | KiiPS `checkbox-custom` 스타일 동작 조건 |
+| `onclick` 핸들러 | **전역 함수** (window scope) | RealGrid 헤더 컨텍스트는 inline JS 평가 시 `this`/스코프 제한 |
+| 모달 재오픈 시 초기화 | `resetXxxSelection()` 호출 | `cb.checked = false` 로 직접 리셋 (DOM 잔존 상태 회피) |
+| 셀 렌더러 | **요구사항에 따라 분리** | 마스터 토글 = `type:"check"` / read-only 표시 = `type:"icon"` |
+| `editable` | `false` | 데이터 자체는 읽기 전용, 헤더만 입력 |
+| `sortable` | `false` | 헤더 클릭 정렬 방지 (체크박스 클릭과 충돌) |
+
+### 절대 금지
+
+```javascript
+// ❌ 금지 1 — onColumnHeaderClicked + setColumnProperty 텍스트 토글 (시각적 불명확)
+gridView.onColumnHeaderClicked = function(grid, column) {
+    grid.setColumnProperty(column.fieldName, 'header', { text: '☑ ' + ... });
+};
+
+// ❌ 금지 2 — 헤더에 jQuery selector 로 직접 DOM 조작 (RealGrid 재렌더링 시 사라짐)
+$('#myGrid .header').append('<input type="checkbox">');
+
+// ❌ 금지 3 — Bootstrap `custom-control custom-checkbox` 패턴 (KiiPS 비표준)
+template: "<div class='custom-control custom-checkbox'><input class='custom-control-input'>...</div>"
+```
+
+### 참조 구현
+
+- 마스터 토글: `KiiPS-UI/.../COM/COMM_POPUP_CHECKDUTY.jsp:73-84` + `setCheck()` 함수
+- 컬럼 선택 토글: `KiiPS-UI/.../IL/IL0920.jsp` (첨부파일 다운로드 모달)
+
+---
+
 ## Best Practices
 
 ### Do

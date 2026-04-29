@@ -20,6 +20,126 @@ description: "KiiPS 프론트엔드 개발 가이드 - JSP/jQuery/Bootstrap 표�
 | Bootstrap | 4.x | 레이아웃, 컴포넌트 |
 | RealGrid | 2.6.3 | 데이터 그리드 |
 | ApexCharts | 3.x | 차트/대시보드 |
+| Bootstrap-Select | 1.13.x | `selectpicker` 드롭다운 |
+| flatpickr | 4.x | 날짜 입력 |
+| jquery-year-picker | - | 연도 입력 |
+
+---
+
+## 폼 컴포넌트 절대 규칙 (CRITICAL)
+
+> 신규 컴포넌트 생성 또는 기존 화면 수정 시 **반드시** 아래 패턴을 따를 것.
+> 일반 `<select class="form-control">`, `<input type="date">`, Bootstrap 4 기본 컨트롤 사용 금지.
+
+### 셀렉트박스 → `selectpicker`
+
+```html
+<select class="selectpicker show-tick form-control"
+        data-hide-disabled="true"
+        data-gbn="select"
+        id="FIELD_ID"
+        data-id="FIELD_ID"
+        title="선택해주세요"
+        multiple data-max-options="1">
+    <option value="A">옵션A</option>
+    <option value="B">옵션B</option>
+</select>
+```
+
+규칙:
+- 클래스: `selectpicker show-tick form-control` (3종 모두 필수)
+- 단일선택이라도 `multiple data-max-options="1"` 조합 사용 (KiiPS 표준)
+- placeholder는 `title="..."` 속성 (빈 옵션 `<option value="">선택해주세요</option>` 금지)
+- `data-gbn="select"` 필수 (저장/조회 자동 매핑)
+- JS에서 값 변경 후 `$('#FIELD_ID').val(v).selectpicker('refresh');` 호출 필수
+
+### 날짜 (전체) → `flatpickr-basic`
+
+```html
+<input type="text" class="form-control flatpickr-basic"
+       data-id="FIELD_ID" data-gbn="date" name="FIELD_ID"
+       placeholder="YYYY-MM-DD">
+```
+
+### 연도 → `yearpicker nopickerTag`
+
+```html
+<input type="text" class="form-control yearpicker nopickerTag"
+       id="FIELD_ID" data-id="FIELD_ID" data-gbn="date"
+       placeholder="YYYY" maxlength="4">
+```
+
+규칙:
+- `nopickerTag` 클래스 필수 (flatpickr 자동 초기화 차단 + jquery-year-picker가 처리)
+- `data-gbn="date"` 사용
+
+### 분기 → `selectpicker` 4옵션
+
+```html
+<select class="selectpicker show-tick form-control"
+        data-hide-disabled="true" data-gbn="select"
+        id="QUAT_SEQ" data-id="QUAT_SEQ"
+        multiple data-max-options="1">
+    <option value="1Q">1Q</option>
+    <option value="2Q">2Q</option>
+    <option value="3Q">3Q</option>
+    <option value="4Q">4Q</option>
+</select>
+```
+
+### 폼 그룹 레이아웃 → `form-group new`
+
+```html
+<div class="form-group new row">
+    <div class="col-sm-6 col-lg-3">
+        <label class="control-label" for="FIELD_ID">레이블</label>
+        <!-- selectpicker / yearpicker / flatpickr-basic -->
+    </div>
+    <!-- 반복 -->
+</div>
+```
+
+규칙:
+- 모달 폼은 `form-group new` (+ `row` + `col-sm-X col-lg-Y`) 사용
+- `<ul class="data_flex"><li class="tbl_item flex-dynamic">` 패턴은 **메인 화면 검색필터 외에는 사용 금지**
+- `<span class="control-label">` 대신 `<label class="control-label">` 사용 (접근성 + Bootstrap form-group 호환)
+- `d-flex gap3x` + `flex-fill` 폼 패턴 금지
+
+### 체크박스 → `checkbox-custom`
+
+```html
+<div class="form-check-inline">
+    <div class="checkbox-custom checkbox-default mb-2">
+        <input type="checkbox" data-id="FIELD_ID" data-gbn="checkbox" id="FIELD_ID">
+        <label for="FIELD_ID">&nbsp;라벨</label>
+    </div>
+</div>
+```
+
+### 라디오 → `custom-control custom-radio`
+
+```html
+<div class="custom-control custom-radio">
+    <input type="radio" name="FIELD_NAME" id="FIELD_ID_1"
+           data-gbn="radio" data-id="FIELD_NAME" value="1"
+           class="custom-control-input" checked>
+    <label class="custom-control-label" for="FIELD_ID_1"> 라벨1</label>
+</div>
+```
+
+### 금지 패턴 매트릭스
+
+| 금지 | 사용 |
+|------|------|
+| `<select class="form-control">` | `selectpicker show-tick form-control` |
+| `<option value="">선택...</option>` | `title="선택해주세요"` 속성 |
+| `<input type="date">` | `flatpickr-basic` 클래스 |
+| `<input class="datepicker">` | `flatpickr-basic` 클래스 |
+| 단일 select에 `multiple` 미사용 | `multiple data-max-options="1"` |
+| `.val()` 후 refresh 누락 | `.val(v).selectpicker('refresh')` |
+| `<span class="control-label">` (폼 내부) | `<label class="control-label">` |
+| `custom-control custom-checkbox` | `checkbox-custom checkbox-default` |
+| `<ul class="data_flex">` 모달 내 폼 | `<div class="form-group new row">` |
 
 ---
 
