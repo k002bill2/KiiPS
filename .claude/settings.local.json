@@ -47,7 +47,8 @@
   "enabledMcpjsonServers": [
     "context7",
     "playwright",
-    "serena"
+    "serena",
+    "obsidian"
   ],
   "disabledMcpjsonServers": [],
   "outputStyle": "Explanatory",

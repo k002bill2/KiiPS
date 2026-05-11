@@ -19,8 +19,8 @@
       "env": {
         "OBSIDIAN_VAULT_PATH": "${OBSIDIAN_VAULT_PATH}"
       },
-      "disabled": true,
-      "_setup": "1) export OBSIDIAN_VAULT_PATH='/Users/$USER/Library/Mobile Documents/iCloud~md~obsidian/Documents/MyVault' 2) Set disabled:false 3) Restart Claude Code"
+      "disabled": false,
+      "_setup": "OBSIDIAN_VAULT_PATH는 ~/.zshrc 에 export 되어 있음. 변경 시 'export OBSIDIAN_VAULT_PATH=...' 갱신 후 Claude Code 재시작"
     }
   }
 }
