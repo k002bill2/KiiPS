@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KiiPS Page Harness — Agent Mindmap</title>
+  <style>
+    :root {
+      --bg: #0e1117;
+      --panel: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-2: #f0883e;
+      --ok: #3fb950;
+      --warn: #d29922;
+      --bad: #f85149;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+    body {
+      font-family: -apple-system, "Pretendard", "Apple SD Gothic Neo",
+                   "Noto Sans KR", "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      z-index: 10;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    header h1 .accent { color: var(--accent); }
+    header .meta { font-size: 12px; color: var(--muted); }
+    header .legend {
+      margin-left: auto;
+      display: flex;
+      gap: 14px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    header .legend span { display: inline-flex; align-items: center; gap: 5px; }
+    header .legend i {
+      width: 10px; height: 10px; border-radius: 2px; display: inline-block;
+    }
+
+    main {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+    #canvas {
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+      display: block;
+    }
+    #canvas:active { cursor: grabbing; }
+
+    .toolbar {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px;
+      display: flex;
+      gap: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      z-index: 5;
+    }
+    .toolbar button {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: inherit;
+    }
+    .toolbar button:hover { background: #1f2937; border-color: var(--accent); }
+
+    .help {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      font-size: 11px;
+      color: var(--muted);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 6px 10px;
+      z-index: 5;
+    }
+
+    /* SVG 노드 스타일 */
+    .node-rect {
+      stroke-width: 1.5;
+      cursor: pointer;
+    }
+    .node-rect:hover { filter: brightness(1.3); }
+    .node-text {
+      font-family: -apple-system, "Pretendard", "Apple SD Gothic Neo",
+                   "Noto Sans KR", sans-serif;
+      font-size: 13px;
+      fill: var(--text);
+      pointer-events: none;
+      dominant-baseline: middle;
+    }
+    .node-text.root { font-size: 18px; font-weight: 700; }
+    .node-text.h2 { font-size: 14px; font-weight: 600; }
+    .link {
+      fill: none;
+      stroke-width: 1.5;
+      opacity: 0.6;
+    }
+    .collapse-mark {
+      fill: var(--bg);
+      stroke-width: 1.5;
+    }
+    .collapse-mark-text {
+      font-size: 11px;
+      font-weight: 700;
+      pointer-events: none;
+      dominant-baseline: middle;
+      text-anchor: middle;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1><span class="accent">KiiPS Page Harness</span> — Agent Mindmap</h1>
+    <span class="meta">3-Agent Pipeline + Controller Routing · 2026-05-08 · 의존성 없음 (오프라인 작동)</span>
+    <span class="legend">
+      <span><i style="background:#58a6ff"></i>단계 (①~⑥)</span>
+      <span><i style="background:#3fb950"></i>합격</span>
+      <span><i style="background:#d29922"></i>재시도</span>
+      <span><i style="background:#f85149"></i>금지/Skip</span>
+      <span><i style="background:#f0883e"></i>신규(Controller)</span>
+    </span>
+  </header>
+
+  <main>
+    <svg id="canvas" xmlns="http://www.w3.org/2000/svg"></svg>
+
+    <div class="help">
+      🖱 드래그: 이동 · 휠: 확대/축소 · 노드 클릭: 펼치기/접기
+    </div>
+
+    <div class="toolbar">
+      <button onclick="fit()">전체 보기</button>
+      <button onclick="zoomBy(1.25)">＋</button>
+      <button onclick="zoomBy(0.8)">－</button>
+      <button onclick="expandAll()">모두 펼치기</button>
+      <button onclick="collapseToLevel(2)">2단계 접기</button>
+    </div>
+  </main>
+
+  <script>
+    // ============ 데이터 ============
+    const TREE = {
+      text: "KiiPS Page Harness",
+      level: 0,
+      children: [
+        {
+          text: "입력",
+          children: [
+            { text: '1줄 프롬프트', children: [
+              { text: '예: "PG0444 펀드 목록 페이지 만들어줘"' },
+            ]},
+            { text: "트리거 키워드", children: [
+              { text: "자동 생성 / 하네스 / harness" },
+              { text: "PG\\d{4} 패턴" },
+            ]},
+          ]
+        },
+        {
+          text: "① Planner",
+          children: [
+            { text: "에이전트: Plan 서브에이전트" },
+            { text: "역할: 페이지 기획 + 유사 페이지 탐색" },
+            { text: "참조 스킬", children: [
+              { text: "kiips-page-pattern-guide" },
+              { text: "kiips-search-filter-guide" },
+              { text: "kiips-button-guide" },
+            ]},
+            { text: "출력: PAGE_SPEC.md", children: [
+              { text: "개요" },
+              { text: "파일 구조" },
+              { text: "검색 조건 (MainComponent)" },
+              { text: "버튼 구성 + 권한" },
+              { text: "그리드 컬럼 (RealGrid)" },
+              { text: "기능 목록 (≥ 5개)" },
+              { text: "참조 페이지 경로" },
+            ]},
+          ]
+        },
+        {
+          text: "② Generator",
+          children: [
+            { text: "에이전트: KiiPS Developer" },
+            { text: "역할: JSP + inc 파일 구현" },
+            { text: "입력", children: [
+              { text: "PAGE_SPEC.md" },
+              { text: "kiips-evaluation-criteria.md" },
+              { text: "kiips-page-pattern-guide" },
+            ]},
+            { text: "안티패턴 금지", children: [
+              { text: "인라인 style 금지" },
+              { text: "checkbox-custom 사용" },
+              { text: "logosAjax (raw $.ajax 금지)" },
+              { text: "data-theme=dark (.dark 금지)" },
+              { text: "flatpickr-basic 날짜" },
+              { text: "MyBatis #{} 전용" },
+            ]},
+            { text: "출력", children: [
+              { text: "PAGE_ID_P.jsp" },
+              { text: "inc_filter_main.jsp" },
+              { text: "inc_main_button.jsp" },
+              { text: "inc_grid_main.jsp" },
+              { text: "SELF_CHECK.md" },
+            ]},
+          ]
+        },
+        {
+          text: "③ Evaluator",
+          children: [
+            { text: "에이전트: verify-agent (별도 컨텍스트)" },
+            { text: "원칙: 절대 관대하게 보지 말 것" },
+            { text: "채점 4항목 (10점 만점)", children: [
+              { text: "패턴 적합도" },
+              { text: "기능 구현" },
+              { text: "접근성/반응형" },
+              { text: "보안" },
+            ]},
+            { text: "검수 절차", children: [
+              { text: "SPEC 기능별 PASS/FAIL" },
+              { text: "안티패턴 위반 검사" },
+              { text: "최종 판정" },
+            ]},
+            { text: "출력: QA_REPORT.md", children: [
+              { text: "가중 점수" },
+              { text: "개선 지시 (WHERE/WHY/HOW)" },
+            ]},
+          ]
+        },
+        {
+          text: "④ 판정",
+          children: [
+            { text: "합격 (가중 ≥ 7.0) → ⑤" },
+            { text: "조건부 (5.0~6.9) → ② 재생성" },
+            { text: "불합격 (< 5.0) → ② 재설계" },
+            { text: "R3 미합격 → 미해결 보고, ⑤ skip" },
+            { text: "최대 반복: R1 + R2 + R3" },
+          ]
+        },
+        {
+          text: "⑤ Controller 등록 [NEW]",
+          children: [
+            { text: "호출: kiips-page-pattern-guide Part 10-A" },
+            { text: "입력", children: [
+              { text: "PAGE_ID" },
+              { text: "JSP_PATH (view name)" },
+            ]},
+            { text: "자동화 7단계", children: [
+              { text: "1. 도메인 추출 — kiips/([A-Z]+)/" },
+              { text: "2. Controller 파일명 결정" },
+              { text: "3. 파일 존재 확인" },
+              { text: "4. 중복 메서드 grep 검사" },
+              { text: "5. 표준 메서드 삽입" },
+              { text: "6. mvn compile 검증" },
+              { text: "7. 결과 출력" },
+            ]},
+            { text: "매핑 규칙", children: [
+              { text: "PG → PGUIController" },
+              { text: "FD → FDUIController" },
+              { text: "IL → ILUIController" },
+              { text: "AC → ACUIController" },
+              { text: "EL → ELUIController" },
+              { text: "IV → IVUIController" },
+              { text: "MG → MGUIController" },
+              { text: "MI → MIUIController" },
+              { text: "RM → RMUIController" },
+              { text: "RT → RTUIController" },
+              { text: "ST → STUIController" },
+              { text: "SY → SYUIController" },
+              { text: "PR → KiiPSUIController (특수)" },
+              { text: "COM → COMMONUIController (예외)" },
+              { text: "POPUP → ui-component-builder 위임" },
+            ]},
+            { text: "표준 메서드 템플릿", children: [
+              { text: '@RequestMapping(value="/PAGE_ID", method={GET,POST})' },
+              { text: "public String PAGE_ID(Locale, Req, Res)" },
+              { text: 'return "kiips/도메인/PAGE_ID"' },
+            ]},
+            { text: "안전장치 5종", children: [
+              { text: "중복 시 skip (멱등성)" },
+              { text: "신규 도메인 승인 게이트" },
+              { text: "컴파일 실패 → svn revert" },
+              { text: "기존 메서드 수정 금지" },
+              { text: "Ralph Loop 감지 (3회)" },
+            ]},
+          ]
+        },
+        {
+          text: "⑥ 완료 보고",
+          children: [
+            { text: "결과물", children: [
+              { text: "생성된 JSP/inc 파일 목록" },
+              { text: "SPEC 기능 수" },
+              { text: "QA 반복 횟수" },
+              { text: "4항목 점수 + 가중 점수" },
+            ]},
+            { text: "Controller 등록 결과", children: [
+              { text: "파일 경로" },
+              { text: "메서드명" },
+              { text: "매핑 URL (예: /PG/PG0444)" },
+              { text: "View name" },
+              { text: "컴파일: SUCCESS / skip / revert" },
+            ]},
+          ]
+        },
+        {
+          text: "비범위",
+          children: [
+            { text: "Service/DAO/Mapper 자동 생성" },
+            { text: "DB 스키마 변경" },
+            { text: "TB_MENU 메뉴 등록" },
+            { text: "권한(role) 매핑" },
+            { text: "기존 페이지 수정" },
+            { text: "POPUP 라우팅 (별도 스킬)" },
+          ]
+        },
+        {
+          text: "적용 규칙 (KiiPS Rules)",
+          children: [
+            { text: "verification.md", children: [
+              { text: "컴파일 게이트 = 증거 기반 완료" },
+            ]},
+            { text: "anti-rationalization.md", children: [
+              { text: "신규 Controller 파일 = 고위험" },
+              { text: "범위 고정 (Bonus fix 금지)" },
+            ]},
+            { text: "error-handling.md", children: [
+              { text: "악화 시 즉시 되돌리기" },
+            ]},
+            { text: "editing.md", children: [
+              { text: "범위 제한, 정확한 복원" },
+            ]},
+            { text: "ralph-loop-detection.md", children: [
+              { text: "동일 파일 3회 편집 → HALT" },
+            ]},
+          ]
+        },
+      ]
+    };
+
+    // ============ 색상 매핑 ============
+    function colorOf(text, isLeaf, level) {
+      const t = text.toLowerCase();
+      if (t.includes('[new]') || (level === 1 && t.includes('controller'))) return '#f0883e';
+      if (t.includes('합격') && !t.includes('불합격') && !t.includes('미합격')) return '#3fb950';
+      if (t.includes('조건부') || t.includes('재생성') || t.includes('재설계')) return '#d29922';
+      if (t.includes('불합격') || t.includes('미합격') || t.includes(' skip') ||
+          t.includes('금지') || t.includes('비범위') || t.includes('halt')) return '#f85149';
+      if (/^[①②③④⑤⑥]/.test(text)) return '#58a6ff';
+      if (level === 1) return '#7c93ad';
+      return '#8b949e';
+    }
+
+    // ============ 레이아웃 ============
+    const NODE_PADDING_X = 12;
+    const NODE_PADDING_Y = 6;
+    const ROW_HEIGHT = 28;
+    const COL_GAP = 50;
+    const FONT_AVG_WIDTH = 7.5;
+
+    function measure(text, fontSize = 13) {
+      // 한글은 더 넓음
+      let w = 0;
+      for (const ch of text) {
+        if (/[ㄱ-힝]/.test(ch)) w += fontSize * 1.0;
+        else w += fontSize * 0.6;
+      }
+      return Math.min(w + NODE_PADDING_X * 2, 380);
+    }
+
+    function assignLevel(node, lvl = 0) {
+      node.level = lvl;
+      node.collapsed = false;
+      node.width = measure(node.text, lvl === 0 ? 18 : (lvl === 1 ? 14 : 13));
+      node.height = ROW_HEIGHT;
+      (node.children || []).forEach(c => assignLevel(c, lvl + 1));
+    }
+
+    let leafCounter;
+    function layout(node, depth = 0, prevSibX = null) {
+      // x: 부모 x + 부모 width + COL_GAP
+      node.depth = depth;
+
+      const visibleChildren = (!node.collapsed && node.children) ? node.children : [];
+
+      if (visibleChildren.length === 0) {
+        node.y = leafCounter * ROW_HEIGHT;
+        leafCounter += 1;
+      } else {
+        for (const c of visibleChildren) {
+          c.x = node.x + node.width + COL_GAP;
+          layout(c, depth + 1);
+        }
+        const ys = visibleChildren.map(c => c.y);
+        node.y = (Math.min(...ys) + Math.max(...ys)) / 2;
+      }
+    }
+
+    function relayout() {
+      leafCounter = 0;
+      TREE.x = 40;
+      layout(TREE, 0);
+
+      // 전체 영역
+      let maxX = 0, maxY = 0;
+      walk(TREE, n => {
+        maxX = Math.max(maxX, n.x + n.width);
+        maxY = Math.max(maxY, n.y + ROW_HEIGHT);
+      });
+      return { width: maxX + 40, height: maxY + ROW_HEIGHT };
+    }
+
+    function walk(node, fn) {
+      fn(node);
+      if (!node.collapsed) (node.children || []).forEach(c => walk(c, fn));
+    }
+    function walkAll(node, fn) {
+      fn(node);
+      (node.children || []).forEach(c => walkAll(c, fn));
+    }
+
+    // ============ 렌더링 ============
+    const SVG_NS = "http://www.w3.org/2000/svg";
+    const svg = document.getElementById('canvas');
+    let viewport;  // 줌/팬 적용되는 g
+    let bounds = { width: 2000, height: 2000 };
+
+    function el(name, attrs = {}, parent = null) {
+      const e = document.createElementNS(SVG_NS, name);
+      for (const k in attrs) e.setAttribute(k, attrs[k]);
+      if (parent) parent.appendChild(e);
+      return e;
+    }
+
+    function render() {
+      bounds = relayout();
+
+      // 클리어
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+      viewport = el('g', { id: 'viewport' }, svg);
+
+      // 링크
+      walk(TREE, n => {
+        if (!n.children || n.collapsed) return;
+        const px = n.x + n.width;
+        const py = n.y + ROW_HEIGHT / 2;
+        for (const c of n.children) {
+          const cx = c.x;
+          const cy = c.y + ROW_HEIGHT / 2;
+          const midX = (px + cx) / 2;
+          const d = `M ${px} ${py} C ${midX} ${py}, ${midX} ${cy}, ${cx} ${cy}`;
+          el('path', {
+            d, class: 'link', stroke: colorOf(c.text, !c.children, c.level)
+          }, viewport);
+        }
+      });
+
+      // 노드
+      walk(TREE, n => {
+        const color = colorOf(n.text, !n.children || n.children.length === 0, n.level);
+        const isRoot = n.level === 0;
+        const isH2 = n.level === 1;
+
+        const g = el('g', {
+          class: 'node',
+          transform: `translate(${n.x}, ${n.y})`
+        }, viewport);
+
+        const fontSize = isRoot ? 18 : (isH2 ? 14 : 13);
+
+        el('rect', {
+          x: 0, y: 0,
+          width: n.width, height: ROW_HEIGHT,
+          rx: 6, ry: 6,
+          fill: isRoot ? color : (isH2 ? color + '33' : 'rgba(22,27,34,0.7)'),
+          stroke: color,
+          class: 'node-rect',
+        }, g);
+
+        const text = el('text', {
+          x: NODE_PADDING_X,
+          y: ROW_HEIGHT / 2,
+          class: 'node-text' + (isRoot ? ' root' : (isH2 ? ' h2' : '')),
+          fill: isRoot ? '#0e1117' : 'var(--text)',
+          'font-size': fontSize,
+          'font-weight': isRoot ? '700' : (isH2 ? '600' : '400'),
+        }, g);
+        text.textContent = n.text;
+
+        // 클릭 핸들러
+        g.style.cursor = 'pointer';
+        g.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (!n.children || n.children.length === 0) return;
+          n.collapsed = !n.collapsed;
+          render();
+        });
+
+        // 접힌 표시
+        if (n.collapsed && n.children && n.children.length > 0) {
+          const cx = n.width + 10;
+          const cy = ROW_HEIGHT / 2;
+          el('circle', {
+            cx, cy, r: 9,
+            class: 'collapse-mark',
+            fill: '#0e1117', stroke: color
+          }, g);
+          const t = el('text', {
+            x: cx, y: cy + 1,
+            class: 'collapse-mark-text',
+            fill: color
+          }, g);
+          t.textContent = '+' + countDescendants(n);
+        }
+      });
+
+      // SVG 사이즈
+      svg.setAttribute('viewBox', `0 0 ${bounds.width} ${bounds.height}`);
+      applyTransform();
+    }
+
+    function countDescendants(node) {
+      let c = 0;
+      walkAll(node, n => { if (n !== node) c += 1; });
+      return c;
+    }
+
+    // ============ 줌/팬 ============
+    let tx = 0, ty = 0, scale = 1;
+    function applyTransform() {
+      if (viewport) {
+        viewport.setAttribute('transform', `translate(${tx},${ty}) scale(${scale})`);
+      }
+    }
+    function fit() {
+      const rect = svg.getBoundingClientRect();
+      const sx = rect.width / bounds.width;
+      const sy = rect.height / bounds.height;
+      scale = Math.min(sx, sy) * 0.92;
+      tx = (rect.width - bounds.width * scale) / 2;
+      ty = (rect.height - bounds.height * scale) / 2;
+      applyTransform();
+    }
+    function zoomBy(factor) {
+      const rect = svg.getBoundingClientRect();
+      const cx = rect.width / 2;
+      const cy = rect.height / 2;
+      const newScale = Math.max(0.1, Math.min(4, scale * factor));
+      tx = cx - (cx - tx) * (newScale / scale);
+      ty = cy - (cy - ty) * (newScale / scale);
+      scale = newScale;
+      applyTransform();
+    }
+
+    // 휠 줌
+    svg.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const rect = svg.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      const factor = e.deltaY < 0 ? 1.1 : 0.9;
+      const newScale = Math.max(0.1, Math.min(4, scale * factor));
+      tx = mx - (mx - tx) * (newScale / scale);
+      ty = my - (my - ty) * (newScale / scale);
+      scale = newScale;
+      applyTransform();
+    }, { passive: false });
+
+    // 드래그 팬
+    let dragging = false, lastX = 0, lastY = 0;
+    svg.addEventListener('mousedown', (e) => {
+      // 노드 클릭이 아닐 때만 드래그
+      if (e.target.closest('.node')) return;
+      dragging = true; lastX = e.clientX; lastY = e.clientY;
+    });
+    window.addEventListener('mousemove', (e) => {
+      if (!dragging) return;
+      tx += e.clientX - lastX;
+      ty += e.clientY - lastY;
+      lastX = e.clientX; lastY = e.clientY;
+      applyTransform();
+    });
+    window.addEventListener('mouseup', () => { dragging = false; });
+
+    // ============ 펼치기/접기 ============
+    function expandAll() {
+      walkAll(TREE, n => { n.collapsed = false; });
+      render();
+      fit();
+    }
+    function collapseToLevel(maxLevel) {
+      walkAll(TREE, n => {
+        n.collapsed = (n.level >= maxLevel) && n.children && n.children.length > 0;
+      });
+      render();
+      fit();
+    }
+
+    // ============ 초기화 ============
+    assignLevel(TREE);
+    // 처음에는 3단계까지만 펼침 (적정 밀도)
+    walkAll(TREE, n => {
+      n.collapsed = (n.level >= 2) && n.children && n.children.length > 0;
+    });
+    render();
+    // 초기 fit
+    setTimeout(fit, 50);
+    window.addEventListener('resize', () => { /* fit 유지 안 함 */ });
+  </script>
+</body>
+</html>

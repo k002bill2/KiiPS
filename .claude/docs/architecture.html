@@ -235,7 +235,8 @@
 <header>
   <h1>KiiPS — Claude Code 시스템 아키텍처</h1>
   <div class="subtitle">
-    Source: <code>.claude/settings.json</code> + <code>.claude/agents/</code> + <code>.claude/skills/</code> · 작성 2026-04-21 · 하네스 엔지니어링 관점
+    Source: <code>.claude/settings.json</code> + <code>.claude/agents/</code> + <code>.claude/skills/</code> · 갱신 2026-05-04 · 하네스 엔지니어링 관점 ·
+    Companion: <a href="workflow.html" style="color:var(--accent);">workflow.html</a> (턴 라이프사이클)
   </div>
   <div class="legend">
     <span><i style="background:var(--layer-0)"></i> Layer 0 SessionStart</span>
@@ -244,9 +245,9 @@
     <span><i style="background:var(--layer-2b)"></i> Layer 2b Agents</span>
     <span><i style="background:var(--layer-2c)"></i> Layer 2c Skills</span>
     <span><i style="background:var(--layer-3)"></i> Layer 3 MCP</span>
-    <span><i style="background:var(--layer-4)"></i> Layer 4 Post-Turn</span>
+    <span><i style="background:var(--layer-4)"></i> Layer 4 Stop / PreCompact / Notification</span>
     <span><i style="background:var(--rules)"></i> Rules</span>
-    <span><i style="background:var(--memory)"></i> Memory/Telemetry</span>
+    <span><i style="background:var(--memory)"></i> Persistence</span>
   </div>
 </header>
 
@@ -298,12 +299,13 @@
   <main class="col-main">
 
     <div class="layer l0">
-      <h2>Layer 0 · SessionStart <span class="tag">부팅 3중 체크</span></h2>
+      <h2>Layer 0 · SessionStart <span class="tag">1훅 (3중 내부 호출)</span></h2>
       <div class="chips">
-        <span class="chip">update-reminder.sh <span class="role">버전 체크</span></span>
-        <span class="chip">crossToolReader.js <span class="role">Codex/Gemini 로그 동기화</span></span>
-        <span class="chip">regressionGuard.sh <span class="role">훅 자가 회귀 테스트</span></span>
+        <span class="chip">update-reminder.sh <span class="role">SessionStart 진입점 · 등록 1건</span></span>
+        <span class="chip">crossToolReader.js <span class="role">내부 호출 · Codex/Gemini 동기화</span></span>
+        <span class="chip">regressionGuard.sh <span class="role">내부 호출 · 훅 자가 회귀</span></span>
       </div>
+      <div class="note"><code>settings.json</code>에 등록된 SessionStart 훅은 <b>1개</b>(update-reminder.sh)이며, 그 안에서 나머지 둘을 invoke. 즉 "3중 체크" 표현은 의미상 정확하지만 등록 카운트는 1.</div>
     </div>
 
     <div class="arrow">▼</div>
@@ -358,14 +360,7 @@
 
       <!-- Layer 2b: Agents -->
       <div class="layer l2b">
-        <h2>2b · Agents <span class="tag">13 총원</span></h2>
-        <div class="tier-title">Manager (4)</div>
-        <div class="chips">
-          <span class="chip small">build-manager</span>
-          <span class="chip small">deployment-manager</span>
-          <span class="chip small">feature-manager</span>
-          <span class="chip small">ui-manager</span>
-        </div>
+        <h2>2b · Agents <span class="tag">9개 (.claude/agents/)</span></h2>
         <div class="tier-title">Specialist (5)</div>
         <div class="chips">
           <span class="chip small">kiips-architect</span>
@@ -381,38 +376,52 @@
           <span class="chip small">security-reviewer</span>
           <span class="chip small">verify-agent</span>
         </div>
+        <div class="note">초기 설계의 Manager 4명(build/deployment/feature/ui-manager)은 미구현 상태 — 매니저 역할은 현재 Skill(<code>kiips-orchestration</code>, <code>kiips-build</code>)로 이행 중.</div>
       </div>
 
       <!-- Layer 2c: Skills -->
       <div class="layer l2c">
-        <h2>2c · Skills <span class="tag">30+ 로컬</span></h2>
-        <div class="tier-title">KiiPS 도메인</div>
+        <h2>2c · Skills <span class="tag">31개 (.claude/skills/)</span></h2>
+        <div class="tier-title">KiiPS 도메인 — UI/패턴 (9)</div>
         <div class="chips">
-          <span class="chip small">realgrid-guide</span>
-          <span class="chip small">ui-component-builder</span>
-          <span class="chip small">regist-modal-guide</span>
-          <span class="chip small">page-pattern-guide</span>
-          <span class="chip small">search-filter-guide</span>
-          <span class="chip small">button-guide</span>
-          <span class="chip small">mybatis-guide</span>
-          <span class="chip small">security-guide</span>
-          <span class="chip small">frontend-guidelines</span>
-          <span class="chip small">stitch-bridge</span>
-          <span class="chip small">page-harness</span>
-          <span class="chip small">feature-planner</span>
-          <span class="chip small">linked-approval-tmpl</span>
-          <span class="chip small">db-inspector / logs</span>
-          <span class="chip small">backend / build</span>
-          <span class="chip small">scss / quality</span>
+          <span class="chip small">kiips-realgrid-guide</span>
+          <span class="chip small">kiips-ui-component-builder</span>
+          <span class="chip small">kiips-regist-modal-guide</span>
+          <span class="chip small">kiips-page-pattern-guide</span>
+          <span class="chip small">kiips-search-filter-guide</span>
+          <span class="chip small">kiips-button-guide</span>
+          <span class="chip small">kiips-checklist-list-popup</span>
+          <span class="chip small">kiips-frontend-guidelines</span>
+          <span class="chip small">kiips-page-harness</span>
         </div>
-        <div class="tier-title">공용 / 플러그인</div>
+        <div class="tier-title">KiiPS 도메인 — 데이터/보안 (3)</div>
+        <div class="chips">
+          <span class="chip small">kiips-mybatis-guide</span>
+          <span class="chip small">kiips-security-guide</span>
+          <span class="chip small">kiips-db-inspector</span>
+        </div>
+        <div class="tier-title">KiiPS 도메인 — 빌드/품질/오케스트레이션 (8)</div>
+        <div class="chips">
+          <span class="chip small">kiips-build</span>
+          <span class="chip small">kiips-backend</span>
+          <span class="chip small">kiips-quality</span>
+          <span class="chip small">kiips-test-runner</span>
+          <span class="chip small">kiips-scss</span>
+          <span class="chip small">kiips-logs</span>
+          <span class="chip small">kiips-orchestration</span>
+          <span class="chip small">kiips-learning</span>
+        </div>
+        <div class="tier-title">KiiPS 도메인 — 통합 (2)</div>
+        <div class="chips">
+          <span class="chip small">kiips-stitch-bridge</span>
+          <span class="chip small">kiips-linked-approval-template</span>
+        </div>
+        <div class="tier-title">메타 / 보조 (4)</div>
         <div class="chips">
           <span class="chip small">legacy-compliance-checker</span>
-          <span class="chip small">stitch-design / -loop</span>
-          <span class="chip small">react-components</span>
-          <span class="chip small">design-md</span>
-          <span class="chip small">enhance-prompt</span>
-          <span class="chip small">ecc:* / superpowers:*</span>
+          <span class="chip small">checklist-generator</span>
+          <span class="chip small">code-simplifier</span>
+          <span class="chip small">kiips-feature-planner</span>
         </div>
       </div>
     </div>
@@ -438,9 +447,11 @@
     </div>
 
     <div class="callout">
-      <b>문서 ↔ 실제 격차:</b> README.md는 훅을 "8개"로 기록하나, <code>settings.json</code>에 실제 등록된 훅은
-      <b>14개</b>(PreToolUse 7 · PostToolUse 2 · SessionStart 3 · UserPromptSubmit 1 · Stop 1 · PreCompact 1 · Notification 1)입니다.
-      <code>*.min.js</code> 6개는 존재하나 settings.json이 풀버전을 호출 중 — 배포 최적화 미적용.
+      <b>문서 ↔ 실제 격차 (2026-05-04 검증):</b> README.md는 훅을 "8개"로 기록하나, <code>settings.json</code>에 등록된 훅은
+      <b>15개</b>(PreToolUse <b>8</b> · PostToolUse 2 · SessionStart <b>1</b> · UserPromptSubmit 1 · Stop 1 · PreCompact 1 · Notification 1)입니다.
+      <code>*.min.js</code>는 <b>3개</b>(ethicalValidator/permissionGate/shellContextTokenizer) 존재하나 settings.json이 풀버전을 호출 중 — 배포 최적화 미적용.
+      <br>
+      <code>.claude/hooks/</code> 디렉토리에는 <b>33개</b> 파일이 있으며, 그 중 settings.json 미등록 보조 훅(autoFormatter / agentStateManager / outputSecretFilter / gemini-bridge / geminiAutoTrigger / observationsRoller / backupGc 등)은 <b>다른 훅이 내부 호출하거나 수동 실행</b>하는 형태로 운영됩니다.
     </div>
 
   </main>
@@ -448,17 +459,18 @@
   <!-- RIGHT SIDEBAR: MCP + Domain -->
   <aside class="col-sidebar">
     <div class="layer l3">
-      <h2>Layer 3 · MCP Servers</h2>
+      <h2>Layer 3 · MCP Servers <span class="tag">~/.claude/</span></h2>
       <div class="chips">
         <span class="chip">context7 <span class="role">최신 라이브러리 문서</span></span>
         <span class="chip">serena <span class="role">시맨틱 코드 탐색</span></span>
         <span class="chip">playwright <span class="role">E2E 브라우저</span></span>
-        <span class="chip">pencil <span class="role">.pen 디자인 파일</span></span>
+        <span class="chip">pencil <span class="role">.pen (현재 disconnected)</span></span>
         <span class="chip">claude-in-chrome <span class="role">Chrome DOM</span></span>
         <span class="chip">computer-use <span class="role">데스크톱 (tier 제한)</span></span>
         <span class="chip">ide <span class="role">VS Code 진단</span></span>
-        <span class="chip">claude_ai_Google_Drive</span>
+        <span class="chip">gdrive <span class="role">Google Drive</span></span>
       </div>
+      <div class="note">프로젝트 <code>.claude/settings.json</code>의 <code>mcpServers</code>는 비어있음 — 글로벌 <code>~/.claude/settings.json</code>에서 정의됨.</div>
     </div>
 
     <div class="layer">
@@ -492,7 +504,9 @@
 </div>
 
 <footer>
-  KiiPS Claude Code Architecture Diagram · 생성 스킴: ASCII blueprint → HTML grid · Rules: anti-rationalization, ralph-loop-detection, verification-first ·
+  KiiPS Claude Code Architecture Diagram · 작성 2026-04-21 / 갱신 2026-05-04 · 생성 스킴: ASCII blueprint → HTML grid ·
+  Companion: <a href="workflow.html" style="color:var(--accent);">workflow.html</a> (턴 라이프사이클) ↔ architecture.html (컴포넌트 카탈로그) ·
+  Rules: anti-rationalization · ralph-loop-detection · verification-first ·
   본 다이어그램은 <code>settings.json</code>을 단일 진실 소스로 하여 그려졌으며, README.md의 기록과 불일치하는 경우 <code>settings.json</code>을 우선합니다.
 </footer>
 
