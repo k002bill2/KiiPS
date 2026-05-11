@@ -1,6 +1,6 @@
 ---
 name: kiips-ui-component-builder
-description: "JSP 컴포넌트 템플릿 기반 생성 (RealGrid, ApexCharts, Bootstrap 폼, 팝업). 데이터 테이블은 기본 RealGrid 사용, HTML <table> 금지. Use when: UI 컴포넌트, JSP 생성, 그리드 생성, 차트 추가, 페이지 생성, 화면 개발"
+description: "기존 KiiPS 페이지에 UI 컴포넌트 단건 추가 (RealGrid, ApexCharts, Bootstrap 폼, 팝업). 데이터 테이블=RealGrid 기본, HTML <table> 금지. Use when: 그리드/차트/폼/팝업 추가, 컴포넌트 단건 삽입. NOT for: 신규 페이지 전체 생성(kiips-page-harness 또는 kiips-page-pattern-guide)"
 ---
 
 # KiiPS UI Component Builder

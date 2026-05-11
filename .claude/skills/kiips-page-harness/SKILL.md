@@ -1,6 +1,6 @@
 ---
 name: kiips-page-harness
-description: "KiiPS 페이지 자동 생성 하네스 - 1줄 프롬프트로 Plan→Generate→Evaluate 파이프라인 실행. Use when: 페이지 자동 생성, 하네스, harness, 자동 QA, 페이지 파이프라인, 신규 화면 자동"
+description: "KiiPS 신규 JSP 페이지 자동 생성 (Plan→Generate→Evaluate 3-agent 파이프라인). Use when: 1줄 프롬프트로 페이지 자동 생성, harness 실행, 신규 화면, 자동 QA 포함 페이지. NOT for: 기존 페이지 수정(kiips-page-pattern-guide), 컴포넌트 단건 추가(kiips-ui-component-builder), 디자인 변환(kiips-stitch-bridge)"
 ---
 
 # KiiPS Page Harness (3-Agent Pipeline)
@@ -20,8 +20,11 @@ description: "KiiPS 페이지 자동 생성 하네스 - 1줄 프롬프트로 Pla
 
 ### What This Skill Does NOT Do
 - 기존 페이지 수정/리팩토링 (신규 생성 전용)
-- Backend 코드 생성 (Controller/Service/DAO는 별도 스킬)
+- Backend 비즈니스 로직 생성 (Service/DAO/Mapper는 별도 스킬)
 - 데이터베이스 스키마 변경
+
+### What This Skill Does Do (Backend 측 한정)
+- **Controller RequestMapping 한 줄 자동 등록** — 단계 5에서 `kiips-page-pattern-guide` Part 10-A 절차를 호출하여 `*UIController.java`에 메서드 1개 삽입 + 컴파일 검증. (URL 라우팅이 빠지면 페이지가 동작하지 않으므로 자동화의 일부로 포함)
 
 ### Related Skills
 
@@ -68,8 +71,15 @@ description: "KiiPS 페이지 자동 생성 하네스 - 1줄 프롬프트로 Pla
      → QA_REPORT.md 작성 (4항목 채점)
        ↓
   ④ 판정 확인
-     → 합격 (≥7.0): 완료 보고
+     → 합격 (≥7.0): ⑤로 진행
      → 조건부/불합격: ②→③ 반복 (최대 2회)
+       ↓
+  ⑤ Controller RequestMapping 등록
+     → kiips-page-pattern-guide Part 10-A 절차 호출
+     → {도메인}UIController.java에 메서드 삽입
+     → mvn compile -pl :KiiPS-UI -am 통과 확인
+       ↓
+  ⑥ 완료 보고
 ```
 
 ---
@@ -218,10 +228,34 @@ description: "KiiPS 페이지 자동 생성 하네스 - 1줄 프롬프트로 Pla
 
 | 판정 | 조치 |
 |------|------|
-| **합격** (가중 ≥ 7.0) | 완료 보고 |
+| **합격** (가중 ≥ 7.0) | 단계 5(Controller 등록)로 진행 |
 | **조건부** (가중 5.0~6.9) | 단계 2로 → 피드백 반영 재생성 |
 | **불합격** (가중 < 5.0) | 단계 2로 → 근본 재설계 |
-| **R3 이후 미합격** | 현재 상태 전달 + 미해결 이슈 보고 |
+| **R3 이후 미합격** | 현재 상태 전달 + 미해결 이슈 보고 (단계 5 실행 안 함) |
+
+---
+
+### 단계 5: Controller RequestMapping 등록
+
+**호출 절차**: `kiips-page-pattern-guide` 스킬의 **Part 10-A**를 그대로 따른다 (절차 본문은 그쪽에 정의됨, 여기서 중복 정의 금지).
+
+**입력**:
+- `PAGE_ID` — 단계 1의 PAGE_SPEC.md에서 추출
+- `JSP_PATH` — 단계 2에서 생성된 JSP의 view name 경로 (예: `kiips/PG/PG0444`)
+
+**오케스트레이터 책임**:
+1. Part 10-A "자동화 절차 (의사코드)" 단계 1~7을 순차 실행
+2. 신규 도메인이면 사용자에게 `*UIController.java` 신규 생성 승인 요청 (`AskUserQuestion`)
+3. 중복 메서드면 skip 보고 (멱등성 보장)
+4. **컴파일 게이트** — `cd KiiPS-HUB && mvn compile -pl :KiiPS-UI -am` BUILD SUCCESS 확인 후에만 단계 6(완료 보고) 진행
+5. 컴파일 실패 시 — `svn revert` 즉시 실행, 사용자에게 에러 보고, 단계 6 진행 안 함
+
+**완료 조건**: Controller 메서드 등록됨 + `mvn compile` BUILD SUCCESS (또는 정당한 skip)
+
+**금지 사항**:
+- Service/DAO/Mapper 추가 (범위 외)
+- 기존 Controller 메서드 수정 (범위 외)
+- 컴파일 검증 건너뛰기 (verification.md 위반)
 
 ---
 
@@ -247,6 +281,13 @@ description: "KiiPS 페이지 자동 생성 하네스 - 1줄 프롬프트로 Pla
 - `JSP경로/inc_filter_main.jsp` — 검색 필터
 - `JSP경로/inc_main_button.jsp` — 버튼 영역
 - `JSP경로/inc_grid_main.jsp` — 그리드 영역
+
+### Controller 등록 결과
+- 파일: `KiiPS-UI/.../{도메인}UIController.java`
+- 메서드: `{PAGE_ID}()`
+- 매핑 URL: `/{도메인}/{PAGE_ID}`
+- View name: `kiips/{도메인}/{PAGE_ID}`
+- 컴파일: BUILD SUCCESS / skip(이미 존재) / 실패 후 revert 중 하나 명시
 ```
 
 ---
@@ -258,6 +299,8 @@ description: "KiiPS 페이지 자동 생성 하네스 - 1줄 프롬프트로 Pla
 3. Evaluator는 코드를 수정하지 않음 (평가만 수행)
 4. 최대 반복: 2회 (R1 + R2 + R3 = 총 3라운드)
 5. 안티패턴 금지 목록은 Generator와 Evaluator 모두 참조
+6. **Controller 등록(단계 5)은 합격 판정 후에만 실행** — 불합격 페이지에 미리 매핑하지 않음
+7. **컴파일 게이트 우회 금지** — `mvn compile` 실패 시 `svn revert` + 보고, "그래도 거의 됐으니 진행" 합리화 금지 (verification.md)
 
 ---
 

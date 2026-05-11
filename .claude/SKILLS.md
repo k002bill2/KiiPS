@@ -1,9 +1,9 @@
-# KiiPS Active Skills (31개)
+# KiiPS Active Skills (26개)
 
 > CLAUDE.md에서 분리된 스킬 카탈로그. 스킬은 자동 발견되므로 이 파일은 참조용입니다.
-> 마지막 실측 동기화: 2026-04-24 (v3.5.3). `tests/catalog-integrity.sh` 로 drift 자동 검증.
+> 마지막 실측 동기화: 2026-05-11. `tests/skills-integrity.test.js` 로 drift 자동 검증.
 >
-> 구성: KiiPS 도메인 21 + 공통 3 + 디자인 7 = **31개**
+> 구성: KiiPS 도메인 21 + 공통 3 + 디자인 2 = **26개**
 
 ## KiiPS 도메인 스킬
 
@@ -43,10 +43,5 @@
 
 | Skill | 용도 |
 |-------|------|
-| `stitch-design` | Stitch/Pencil MCP 통합 디자인 워크플로우 |
-| `stitch-loop` | 자율적 멀티페이지 생성 루프 (baton-passing 패턴) |
-| `design-md` | 디자인 시스템 문서 자동 생성 (DESIGN.md) |
-| `enhance-prompt` | UI 프롬프트 최적화 (디자인 시스템 일관성) |
-| `react-components` | Stitch 디자인 → React 컴포넌트 변환 |
 | `kiips-stitch-bridge` | Stitch 디자인 → KiiPS JSP 변환 브리지 |
 | `kiips-page-harness` | 페이지 자동 생성 하네스 (Plan→Generate→Evaluate 파이프라인) |

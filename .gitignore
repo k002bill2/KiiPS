@@ -94,6 +94,8 @@ opencode.json
 .claude/learning/observations.jsonl
 .claude/learning/observer-health.json
 .claude/learning/archive/
+# observe.js 훅 cwd 부작용으로 생성되는 중첩 .claude 디렉토리 차단
+.claude/**/.claude/
 .claude/gemini-bridge/daemon.pid
 .claude/gemini-bridge/.last-collect
 .claude/gemini-bridge/.pending-build.json

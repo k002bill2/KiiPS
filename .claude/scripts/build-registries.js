@@ -71,17 +71,7 @@ function categorizeSkill(name) {
   ) {
     return "common";
   }
-  if (
-    [
-      "stitch-design",
-      "stitch-loop",
-      "design-md",
-      "enhance-prompt",
-      "react-components",
-      "kiips-stitch-bridge",
-      "kiips-page-harness",
-    ].includes(name)
-  ) {
+  if (["kiips-stitch-bridge", "kiips-page-harness"].includes(name)) {
     return "design";
   }
   return "domain";

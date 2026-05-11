@@ -1,6 +1,6 @@
 ---
 name: kiips-page-pattern-guide
-description: "KiiPS JSP 페이지 표준 패턴 종합 가이드 - 페이지 레이아웃, Include 체계, 검색필터+버튼+그리드 연동. Use when: 페이지 생성, 화면 만들, JSP 만들, 새 화면, 페이지 패턴, 표준 패턴"
+description: "KiiPS JSP 페이지 표준 패턴 학습/참조 (수동 생성 가이드). 레이아웃, Include 체계, 검색필터+버튼+그리드 연동 구조. Use when: 페이지 패턴, 표준 패턴, JSP 구조, 페이지 레이아웃, Include 체계, 검색+버튼+그리드 연결, 수동으로 페이지 만들. NOT for: 자동 생성 파이프라인(use kiips-page-harness), 컴포넌트 단위 추가(use kiips-ui-component-builder)"
 ---
 
 # KiiPS Page Pattern Guide
@@ -265,8 +265,164 @@ KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/
 - [ ] Excel 다운로드 함수
 - [ ] 모달 (필요 시)
 - [ ] footer_sidemenu.jsp Include
-- [ ] Controller에 화면 매핑 추가
+- [ ] **Controller RequestMapping 등록** → Part 10-A 절차 따름 (필수, 누락 시 URL 접근 불가)
 - [ ] **다크모드 호환** (아래 규칙 참조)
+
+---
+
+# Part 10-A: Controller RequestMapping 자동 등록
+
+> JSP 파일을 만든 직후 반드시 수행. 이 단계가 빠지면 페이지가 만들어졌어도 URL로 접근할 수 없음.
+> 자동화 흐름(`kiips-page-harness`)도 이 절차를 그대로 호출함 — 단일 진실의 원천(SoT).
+
+## 1. 도메인 → Controller 파일 매핑 (확정 규칙)
+
+기준 경로: `KiiPS-UI/src/main/java/com/kiips/ui/controller/`
+
+| JSP 디렉토리 | Controller 파일 | URL Prefix | 비고 |
+|---|---|---|---|
+| `kiips/PG/` | `PGUIController.java` | `/PG/*` | |
+| `kiips/FD/` | `FDUIController.java` | `/FD/*` | |
+| `kiips/IL/` | `ILUIController.java` | `/IL/*` | |
+| `kiips/AC/` | `ACUIController.java` | `/AC/*` | |
+| `kiips/EL/` | `ELUIController.java` | `/EL/*` | |
+| `kiips/IV/` | `IVUIController.java` | `/IV/*` | |
+| `kiips/MG/` | `MGUIController.java` | `/MG/*` | |
+| `kiips/MI/` | `MIUIController.java` | `/MI/*` | |
+| `kiips/RM/` | `RMUIController.java` | `/RM/*` | |
+| `kiips/RT/` | `RTUIController.java` | `/RT/*` | |
+| `kiips/ST/` | `STUIController.java` | `/ST/*` | |
+| `kiips/SY/` | `SYUIController.java` | `/SY/*` | |
+| `kiips/PR/` | `KiiPSUIController.java` | (특수) | 변경 금지 |
+| **`kiips/COM/`** | **`COMMONUIController.java`** | `/COM/*` | 명명 예외 |
+| `kiips/POPUP/` | `COMMONUIController.COM_POPUP()` | — | **이 절차 적용 안 함** → `kiips-ui-component-builder` 위임 |
+
+**규칙**: 일반적으로 `{도메인}` → `{도메인}UIController.java`. 예외 1건(COM → COMMON).
+
+## 2. 표준 메서드 템플릿
+
+기존 메서드(예: `PGUIController.java:27-30`)와 100% 동일한 시그니처를 유지:
+
+```java
+@RequestMapping(value="/{PAGE_ID}", method={RequestMethod.GET,RequestMethod.POST})
+public String {PAGE_ID}(Locale locale, HttpServletRequest req, HttpServletResponse res) {
+    return "kiips/{도메인}/{PAGE_ID}";
+}
+```
+
+- `Model` 파라미터는 **추가하지 않음** (기본 시그니처는 미포함)
+- 들여쓰기는 탭 1개 (기존 메서드와 동일)
+- 어노테이션 위치·줄바꿈도 기존 메서드와 동일하게
+
+## 3. 자동화 절차 (의사코드)
+
+```
+입력: PAGE_ID (예: "PG0444"), JSP_PATH (예: "kiips/PG/PG0444.jsp")
+
+1. 도메인 추출
+   - 정규식: kiips/([A-Z]+)/  →  도메인 = "PG"
+
+2. Controller 파일명 결정
+   - 일반: "{도메인}UIController.java"
+   - 예외: COM → "COMMONUIController.java"
+   - POPUP: 이 절차 적용 안 함, kiips-ui-component-builder로 위임
+
+3. Controller 파일 존재 확인
+   - 없으면 → [신규 도메인 분기] AskUserQuestion으로 신규 파일 생성 승인 요청
+              승인 시: 표준 클래스 템플릿으로 작성
+              거절/응답 없음 시: 자동화 중단, 수동 처리 안내
+   - 있으면 → 다음 단계
+
+4. 중복 메서드 검사 (필수, 멱등성)
+   - 명령: grep -E '"/{PAGE_ID}"' {Controller 파일 경로}
+   - hit 발견 시 → 등록 skip + "이미 존재함" 보고
+
+5. 메서드 삽입
+   - 위치: 클래스 마지막 메서드 다음, 클래스 닫는 '}' 직전
+   - 내용: 위 "표준 메서드 템플릿" 그대로
+   - 기존 메서드 수정 금지 (editing.md 범위 제한)
+
+6. 컴파일 검증
+   - cd KiiPS-HUB && mvn compile -pl :KiiPS-UI -am
+   - BUILD SUCCESS 확인 후에만 완료 보고
+   - 실패 시 → svn revert {Controller 파일} → 에러 메시지 사용자 보고
+
+7. 결과 출력
+   - 추가된 파일 경로
+   - 등록된 메서드명
+   - 매핑 URL (예: "/PG/PG0444")
+   - 컴파일 결과
+```
+
+## 4. 신규 도메인 — Controller 파일 신규 생성 템플릿
+
+도메인이 처음 등장하는 경우(`{도메인}UIController.java`가 존재하지 않음), 사용자 승인 후 다음 템플릿으로 생성:
+
+```java
+package com.kiips.ui.controller;
+
+import com.kiips.ui.config.MessageUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Locale;
+
+@Controller
+@RequestMapping("/{도메인}/*")
+public class {도메인}UIController {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    @Autowired
+    MessageUtil messageUtil;
+
+    // 메서드는 Part 10-A 절차로 추가
+}
+```
+
+## 5. 안전장치 (필수)
+
+| 가드 | 근거 규칙 | 동작 |
+|---|---|---|
+| 중복 메서드 시 skip | `verification.md` | grep으로 사전 확인, 중복 시 등록 안 함 |
+| 신규 Controller 파일 승인 게이트 | `anti-rationalization.md` 고위험 파일 | AskUserQuestion 호출, 거절 시 중단 |
+| 컴파일 실패 시 자동 revert | `error-handling.md` 악화 시 되돌리기 | `svn revert` + 에러 보고 |
+| 기존 메서드 수정 금지 | `editing.md` 범위 제한 | 신규 메서드 삽입만, 다른 행 건드리지 않음 |
+| Ralph Loop 감지 | `ralph-loop-detection.md` | 동일 Controller 3회 편집 시 자동 HALT |
+
+## 6. 비범위 (이 절차가 다루지 않는 것)
+
+- Service/DAO/Mapper 자동 생성
+- 메뉴(`TB_MENU`) 데이터 등록
+- 권한(role) 매핑 / 보안 어노테이션
+- 팝업(POPUP/) 라우팅 — `kiips-ui-component-builder`의 `COMMONUIController.COM_POPUP()` 분기 흐름 사용
+
+## 7. 검증 결과 보고 형식
+
+완료 시 다음 정보를 사용자에게 보고:
+
+```
+✅ Controller 등록 완료
+   - 파일: KiiPS-UI/.../{도메인}UIController.java
+   - 메서드: {PAGE_ID}()
+   - 매핑 URL: /{도메인}/{PAGE_ID}
+   - View: kiips/{도메인}/{PAGE_ID}
+   - 컴파일: BUILD SUCCESS
+```
+
+또는 skip된 경우:
+
+```
+⏭ Controller 등록 skip
+   - 사유: {PAGE_ID} 메서드 이미 존재
+   - 위치: {파일}:{대략 라인}
+```
 
 ---
 

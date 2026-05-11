@@ -1,6 +1,6 @@
 ---
 name: kiips-stitch-bridge
-description: Stitch 디자인을 KiiPS JSP 페이지로 변환하는 브리지 스킬 - 디자인 → JSP/Bootstrap/RealGrid 변환
+description: "Stitch/Pencil 디자인(.pen, .stitch)을 KiiPS JSP/Bootstrap/RealGrid로 변환. Use when: stitch 디자인, pencil, .pen 파일, 디자인 변환, 디자인을 JSP로. NOT for: 디자인 없이 새 페이지(kiips-page-pattern-guide), 컴포넌트만 추가(kiips-ui-component-builder)"
 allowed-tools:
   - "mcp__pencil__*"
   - "Read"
@@ -14,15 +14,18 @@ globs:
 
 # KiiPS-Stitch Bridge
 
-Stitch/Pencil 디자인을 KiiPS JSP 페이지로 변환하는 브리지 스킬입니다.
+사용자가 사전 준비한 Stitch/Pencil 디자인(.pen, .stitch)을 KiiPS JSP 페이지로 변환하는 브리지 스킬입니다.
+
+> **Prerequisite:** Pencil MCP가 연결되어 있어야 `.pen` 파일을 직접 읽을 수 있습니다.
+> MCP 미연결 시에는 사용자가 PNG/HTML 산출물을 첨부하거나 `kiips-page-pattern-guide`를 사용하세요.
 
 ## 워크플로우: Design-to-JSP
 
-### 1단계: Stitch 디자인 생성
-`stitch-design` 스킬을 사용하여 UI 디자인을 생성합니다.
+### 1단계: 디자인 입력 수집
+사용자가 제공한 Pencil `.pen` 파일을 `mcp__pencil__open_document`로 열거나, 첨부 이미지/HTML을 분석합니다.
 
 ### 2단계: 디자인 분석
-생성된 디자인의 구조를 분석하여 KiiPS 컴포넌트로 매핑합니다.
+디자인의 구조를 파악하여 KiiPS 컴포넌트로 매핑합니다.
 
 | Stitch 컴포넌트 | KiiPS JSP 컴포넌트 |
 |-----------------|-------------------|
@@ -69,7 +72,7 @@ $(document).ready(function() {
 
 ### 4단계: 스타일 변환
 
-Stitch 디자인의 색상/스타일을 KiiPS SCSS 변수로 매핑합니다:
+디자인의 색상/스타일을 KiiPS SCSS 변수로 매핑합니다:
 
 | Stitch Token | KiiPS SCSS Variable |
 |-------------|-------------------|
@@ -87,43 +90,38 @@ Stitch 디자인의 색상/스타일을 KiiPS SCSS 변수로 매핑합니다:
 ### 새 페이지 생성 (Full Workflow)
 
 ```
-사용자: "PG0500 펀드 운용현황 페이지 만들어줘"
+사용자: "PG0500 펀드 운용현황 페이지 만들어줘 — 디자인은 PG0500.pen 첨부"
 
-1. enhance-prompt → 디자인 프롬프트 최적화
-2. stitch-design → Pencil로 UI 디자인 생성 (.pen 파일)
-3. kiips-stitch-bridge → 디자인을 JSP로 변환
-4. kiips-page-pattern-guide → JSP 표준 패턴 적용
-5. kiips-search-filter-guide → 검색필터 구성
-6. kiips-button-guide → 버튼 영역 구성
-7. kiips-realgrid-guide → 그리드 설정
+1. kiips-stitch-bridge      → .pen 디자인 분석 + KiiPS 컴포넌트 매핑 + JSP 변환
+2. kiips-page-pattern-guide → JSP 표준 패턴 적용 (Include, 레이아웃)
+3. kiips-search-filter-guide → 검색필터 구성
+4. kiips-button-guide       → 버튼 영역 구성
+5. kiips-realgrid-guide     → 그리드 설정
 ```
 
 ### 기존 페이지 리디자인
 
 ```
-사용자: "PG0357 페이지를 Stitch로 리디자인해줘"
+사용자: "PG0357 페이지를 첨부 디자인대로 리디자인해줘"
 
-1. 기존 JSP 분석 → 구조 파악
-2. stitch-design → 새 디자인 생성
-3. kiips-stitch-bridge → 디자인 요소를 기존 JSP에 반영
+1. 기존 JSP 분석            → 구조 파악 (kiips-page-pattern-guide 참조)
+2. kiips-stitch-bridge      → 디자인 요소를 기존 JSP에 반영
 ```
 
 ## 디렉토리 구조
 
 ```
-.stitch/
-├── DESIGN.md           # KiiPS 디자인 시스템 (design-md 스킬로 생성)
-├── SITE.md             # 페이지 목록 및 로드맵
-├── next-prompt.md      # 다음 생성할 페이지 (stitch-loop용)
-├── metadata.json       # Stitch 프로젝트 메타데이터
-└── designs/            # 디자인 산출물
-    ├── PG0500.html     # 생성된 HTML
-    ├── PG0500.png      # 스크린샷
-    └── PG0500.pen      # Pencil 원본
+.stitch/                     # (선택) Pencil 작업물 저장소
+├── SITE.md                  # 페이지 목록 및 로드맵
+├── metadata.json            # Pencil 프로젝트 메타데이터
+└── designs/                 # 디자인 산출물
+    ├── PG0500.html          # 생성된 HTML
+    ├── PG0500.png           # 스크린샷
+    └── PG0500.pen           # Pencil 원본
 
 KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/
-└── {domain}/           # 도메인별 JSP (FD, IL, AC 등)
-    ├── PG0500.jsp      # 변환된 메인 페이지
+└── {domain}/                # 도메인별 JSP (FD, IL, AC 등)
+    ├── PG0500.jsp           # 변환된 메인 페이지
     ├── inc_filter_main.jsp
     ├── inc_main_button.jsp
     └── inc_regist_modal.jsp
@@ -131,7 +129,8 @@ KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/
 
 ## 주의사항
 
-- Stitch 디자인은 시각적 참조용이며, JSP 코드는 KiiPS 표준 패턴을 따릅니다
+- 디자인은 시각적 참조용이며, JSP 코드는 KiiPS 표준 패턴을 따릅니다
 - React/Tailwind 출력은 KiiPS에서 사용하지 않습니다 (JSP/Bootstrap/jQuery 사용)
 - 다크테마는 `[data-theme=dark]` 셀렉터로 별도 SCSS에서 처리합니다
-- RealGrid는 Stitch 테이블과 1:1 매핑되지 않을 수 있으므로 별도 설정이 필요합니다
+- RealGrid는 디자인의 테이블과 1:1 매핑되지 않을 수 있으므로 별도 설정이 필요합니다
+- Pencil MCP가 연결되지 않은 환경에서는 사용자가 첨부 이미지나 HTML 산출물을 제공해야 합니다

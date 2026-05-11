@@ -1,6 +1,6 @@
 ---
 name: kiips-test-runner
-description: "Automated test execution and validation for KiiPS microservices (JUnit, Jest, Karma). Use when: 테스트, test, junit, 검증, validation, 테스트 실행"
+description: "KiiPS JUnit 테스트 자동 실행 + 결과 분석. 명시 호출 전용(disable-model-invocation). Use when: JUnit 실행, 테스트 실행, mvn test, 테스트 돌려, 단위 테스트, KiiPS 검증 실행. NOT for: 테스트 코드 작성(use kiips-backend), TDD 가이드(use ecc:springboot-tdd)"
 disable-model-invocation: true
 ---
 

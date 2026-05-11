@@ -1,6 +1,6 @@
 ---
 name: kiips-feature-planner
-description: "Creates practical feature plans for KiiPS microservices. Use when planning new features, organizing development work, or structuring implementation strategy."
+description: "KiiPS 마이크로서비스 기능 기획/구조화. Phase별 구현 계획 + 품질 게이트. 명시 호출 전용(disable-model-invocation). Use when: 기능 기획, 신규 기능 계획, 구현 전략, feature plan, KiiPS roadmap, 마이크로서비스 기획"
 disable-model-invocation: true
 ---
 
