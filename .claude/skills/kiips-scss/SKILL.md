@@ -1,6 +1,6 @@
 ---
 name: kiips-scss
-description: "SCSS 테마 시스템, 시스템 변수(디자인 토큰) 기반 색상 작성, 다크테마 적용 통합. Use when: SCSS, 스타일, 테마, 다크테마, dark theme, 다크모드, CSS 변수, 시스템 변수, 디자인 토큰, color token, var(--*), 새 페이지, 화면 수정"
+description: "SCSS 테마 시스템, 시스템 변수(디자인 토큰) 기반 색상 작성, 다크테마 적용, theme.css 변경 시 header 캐시 버전 갱신. Use when: SCSS, 스타일, 테마, 다크테마, dark theme, 다크모드, CSS 변수, 시스템 변수, 디자인 토큰, color token, var(--*), 새 페이지, 화면 수정, theme.css, 캐시 버전, ?ver=, 버전 갱신"
 disable-model-invocation: true
 ---
 
@@ -286,6 +286,89 @@ el.style.color = isDark ? "#e6e6e6" : "#262626";
 6. [ ] JS 커스텀 렌더러에서 하드코딩 색상이 테마 분기로 처리됐는지
 7. [ ] `text-dark`, `bg-light` 등 Bootstrap 유틸이 다크 지원되는지
 8. [ ] SCSS 컴파일 후 `theme.css`에 반영 확인 (`mvn clean package -DskipTests`)
+9. [ ] **`header.jsp:85`의 `?ver=YYMMDD_N` 캐시 버스터 갱신** (theme.css 영향 변경 시 필수) 🆕
+
+---
+
+## 🆕 theme.css 변경 시 header 캐시 버전 갱신 (필수 후속 작업)
+
+> **`theme.scss` / `theme.css` 또는 그 의존 파일(`themes/default/_*.scss`, `layouts/_*.scss`, `custom.scss`, `index/_*.scss` 등)을 수정했다면 반드시 `header.jsp`의 캐시 버스터 버전을 갱신해야 한다.**
+> 갱신하지 않으면 운영 배포 후 사용자 브라우저가 이전 `theme.css`를 캐싱한 채로 표시되어 변경사항이 보이지 않는다.
+
+### 갱신 대상 (단 한 곳)
+
+| 파일 | 라인 | 패턴 |
+|------|------|------|
+| `KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/include/header.jsp` | 85 | `<link rel="stylesheet" href="${KiiPS_GATE}/css/sass/theme.css?ver=YYMMDD_N" />` |
+
+> `header_popup.jsp:67`은 `?ver=` 쿼리 자체가 없으므로 갱신 대상 아님. 변경 금지.
+
+### 버전 포맷 규칙 — `YYMMDD_N`
+
+- `YYMMDD` — 오늘 날짜 6자리 (예: 2026-05-18 → `260518`)
+- `_N` — 같은 날 N번째 수정 시퀀스, 0부터 시작
+  - 동일 날짜에 이미 `_0` 존재 → `_1`로 증가
+  - 새 날짜로 바뀌면 다시 `_0`부터
+
+### 갱신 결정 트리
+
+```
+1. 오늘 날짜 YYMMDD 계산
+2. header.jsp:85 현재 ver 값 읽기
+   현재 ver의 YYMMDD == 오늘 ?
+     YES → 끝의 _N 을 N+1 로 증가
+     NO  → ver 를 오늘날짜_0 으로 교체
+3. Edit 으로 header.jsp:85 한 줄만 수정
+4. svn diff 로 변경 1줄만인지 확인
+```
+
+### 적용 예시
+
+| 현재 ver | 오늘 날짜 | 갱신 후 |
+|----------|----------|---------|
+| `250427_0` | 2026-05-18 | `260518_0` |
+| `260518_0` | 2026-05-18 | `260518_1` |
+| `260518_3` | 2026-05-18 | `260518_4` |
+| `260518_5` | 2026-05-19 | `260519_0` |
+
+### 갱신이 필요한 변경 범위
+
+| 수정 파일 | 갱신 필요? | 사유 |
+|----------|----------|------|
+| `theme.scss` | ✅ | 엔트리포인트 직접 변경 |
+| `themes/default/_*.scss` | ✅ | theme.css에 컴파일됨 |
+| `layouts/_*.scss` | ✅ | theme.css에 컴파일됨 |
+| `custom.scss` | ✅ | theme.css에 컴파일됨 |
+| `index/_index_style.scss` | ✅ | theme.css에 컴파일됨 |
+| `config/_variables.scss` | ✅ | 모든 SCSS에서 import |
+| 컴파일된 `theme.css` 직접 수정 | ⚠️ | 원칙적 금지. SCSS만 수정 |
+| JSP/JS만 수정 | ❌ | theme.css 변경 아님 |
+
+### 체크리스트 (theme.css 영향 변경 시)
+
+1. [ ] SCSS 수정 완료
+2. [ ] `mvn clean package -DskipTests` 로 SCSS → CSS 컴파일 BUILD SUCCESS 확인
+3. [ ] **`header.jsp:85`의 `?ver=` 값을 위 규칙대로 갱신** ← 잊지 말 것
+4. [ ] `svn diff header.jsp` 로 ver 1줄만 변경됐는지 확인
+5. [ ] (선택) 브라우저에서 `Network` 탭으로 새 ver의 theme.css 응답 200 확인
+
+### 자동 감지 (PostToolUse hook)
+
+`.claude/hooks/themeCssVerGuard.sh` 가 SCSS 편집 시 자동으로 `header.jsp:85` ver 날짜를 확인하고, 오늘 날짜와 불일치하면 경고를 출력한다 (non-blocking, 세션당 1회). 경고를 보면 위 결정 트리대로 갱신할 것.
+
+### 안티패턴
+
+```jsp
+<!-- ❌ 잘못된 갱신 — 날짜 포맷 다름 -->
+<link href="${KiiPS_GATE}/css/sass/theme.css?ver=20260518" />     <!-- 8자리 -->
+<link href="${KiiPS_GATE}/css/sass/theme.css?ver=260518" />        <!-- _N 누락 -->
+<link href="${KiiPS_GATE}/css/sass/theme.css?v=260518_0" />        <!-- ver → v -->
+
+<!-- ❌ 잘못된 위치 — header_popup.jsp 는 ?ver= 없음, 추가 금지 -->
+
+<!-- ✅ 올바른 갱신 -->
+<link href="${KiiPS_GATE}/css/sass/theme.css?ver=260518_0" />
+```
 
 ---
 
@@ -360,4 +443,4 @@ grep -nE "var\(--|^\\\$grey-|^\\\$primary-" path/to/_xxx.scss   # 시스템 변�
 
 ---
 
-**Version**: 3.1.0 (시스템 변수 우선 원칙 + 카탈로그 추가)
+**Version**: 3.2.0 (theme.css 변경 시 header.jsp 캐시 버전 갱신 규칙 추가)

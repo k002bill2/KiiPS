@@ -8,6 +8,7 @@
  *   1. autoFormatter.js   - 코드 포맷팅 (Edit|Write)
  *   2. buildChecker.js    - Maven 빌드 검증 (Edit|Write)
  *   3. scssValidator.sh   - SCSS 다크테마 검증 (Edit|Write, .scss only)
+ *   3-b. themeCssVerGuard.sh - theme.css ?ver= 캐시 버스터 누락 감지 (Edit|Write, .scss only)
  *   4. geminiAutoTrigger.js - Gemini lazy daemon trigger (Edit|Write)
  *   5. observe.js          - 학습 관찰 (Bash|Edit|Write)
  *   6. outputSecretFilter.js - 비밀번호 필터링 (Bash only)
@@ -163,6 +164,11 @@ async function orchestrate(event) {
   // 3. SCSS Validator (Edit|Write only, .scss files)
   if (isEditWrite && isScss) {
     runShellHook("scssValidator.sh", event);
+  }
+
+  // 3-b. theme.css ?ver= cache-buster guard (Edit|Write, .scss only)
+  if (isEditWrite && isScss) {
+    runShellHook("themeCssVerGuard.sh", event);
   }
 
   // 4. Gemini Auto-Trigger (Edit|Write only)
