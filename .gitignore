@@ -104,6 +104,8 @@ opencode.json
 .claude/gemini-bridge/.last-review-at
 .claude/gemini-bridge/.review-signal.json
 .claude/gemini-bridge/.shown-reviews.json
+.claude/gemini-bridge/.completion-evidence.json
+.claude/gemini-bridge/.impact-analysis.json
 .superpowers/
 .claude/hooks/*.log
 .claude/hooks/*.min.js
