@@ -1,6 +1,6 @@
 ---
 name: kiips-scss
-description: "SCSS 테마 시스템, 시스템 변수(디자인 토큰) 기반 색상 작성, 다크테마 적용, theme.css 변경 시 header 캐시 버전 갱신. Use when: SCSS, 스타일, 테마, 다크테마, dark theme, 다크모드, CSS 변수, 시스템 변수, 디자인 토큰, color token, var(--*), 새 페이지, 화면 수정, theme.css, 캐시 버전, ?ver=, 버전 갱신"
+description: "SCSS 테마 시스템, 시스템 변수(디자인 토큰) 기반 색상 작성, 다크테마 적용, theme.css 변경 시 header 캐시 버전 갱신, 운용사 헤더 로고 클래스 정의(_logos.scss). Use when: SCSS, 스타일, 테마, 다크테마, dark theme, 다크모드, CSS 변수, 시스템 변수, 디자인 토큰, color token, var(--*), 새 페이지, 화면 수정, theme.css, 캐시 버전, ?ver=, 버전 갱신, 로고, logo, _logos.scss, 운용사 로고"
 disable-model-invocation: true
 ---
 
@@ -372,6 +372,91 @@ el.style.color = isDark ? "#e6e6e6" : "#262626";
 
 ---
 
+## 🆕 운용사 헤더 로고 클래스 (`gui/_logos.scss`)
+
+> 신규 운용사 등록 시 헤더 좌상단 로고를 표시하기 위한 SCSS 클래스 정의. **`LibConfiguration.java` 매핑과 짝지어야** 한다 — 매핑만 추가하고 SCSS 클래스를 누락하면 헤더 로고 영역이 빈 공간으로 표시된다 (CSS 셀렉터 미매칭).
+> 운용사 추가 전체 파이프라인은 [[kiips-operator-onboarding]] 스킬을 사용. 이 섹션은 클래스 정의 패턴/검증만 다룬다.
+
+### 위치
+
+`KiiPS-UI/src/main/resources/static/css/sass/gui/_logos.scss` 의 `.header { ... }` 블록 내부, 기존 `.logo_*` 정의 마지막 줄 다음.
+
+### 표준 블록 패턴
+
+```scss
+.logo_{CODE} {
+  width: 140px;        /* 60~180px 범위, 디자인 시안에 맞게 조정 */
+  height: 60px;
+  margin: 0 0 0 24px;  /* 좌측 마진 표준 24px (운용사별 미세조정 가능) */
+  background:url(../../img/logo_{code}.svg) no-repeat 0 center/contain;
+}
+```
+
+`{CODE}` 는 LibConfiguration의 운용사 코드 (대문자, 예: `HANWHA`, `IBKVC`). `{code}` 는 SVG 파일명 소문자/혼합 (예: `hanwha`, `ibkvc`). LibConfiguration의 `put("CODE", "sign-CODE|logo_FILE|...")` 에서 `logo_FILE` 부분이 SCSS 셀렉터와 정확히 일치해야 한다.
+
+### 디자이너 SVG 자산 미도착 시 placeholder
+
+```scss
+/* TODO: 디자이너 SVG 자산 도착 후 background-url 주석 해제 — {운용사명} (LibConfiguration: {CODE}) */
+.logo_{CODE} {
+  width: 140px;
+  height: 60px;
+  margin: 0 0 0 24px;
+  /* background:url(../../img/logo_{code}.svg) no-repeat 0 center/contain; */
+}
+```
+
+자산 도착 시 한 줄(`/* background... */`) 의 주석만 풀고 너비/높이를 시안 기준으로 조정. 이때 header.jsp ver 한 번 더 갱신.
+
+### 다크 테마 처리
+
+파일 하단의 광역 필터가 **자동 적용**되므로 별도 오버라이드 불필요:
+
+```scss
+/* _logos.scss 끝부분 — 이미 존재. 모든 .logo_* 에 자동 적용됨 */
+[data-theme=dark] .header [class*="logo_"] {
+  filter: brightness(0) invert(1);  /* 검정 로고 → 흰색 반전 */
+}
+```
+
+**예외 — 단색 로고 / 컬러 보존 필요**: `_wh.svg` 별도 자산을 받아 다크 오버라이드 블록에 추가:
+
+```scss
+[data-theme=dark] .header {
+  .logo_{CODE} {
+    background:url(../../img/logo_{code}_wh.svg) no-repeat 0 center/contain;
+    filter: none;   /* 광역 필터 해제 */
+  }
+}
+```
+
+### Java↔SCSS 일관성 검증 명령
+
+LibConfiguration 매핑과 SCSS 정의가 어긋난 운용사를 자동 식별:
+
+```bash
+J=$(mktemp); S=$(mktemp)
+grep -oE 'logo_[A-Za-z]+' KiiPS-UTILS/src/main/java/com/kiips/util/LibConfiguration.java | sort -u > "$J"
+grep -oE '\.logo_[A-Za-z]+\s*\{' KiiPS-UI/src/main/resources/static/css/sass/gui/_logos.scss | sed 's/\.\(logo_[A-Za-z]*\).*/\1/' | sort -u > "$S"
+
+echo "[누락] Java 매핑 있는데 SCSS 정의 없음 — 헤더 로고 빈 공간 위험"
+comm -23 "$J" "$S"   # 기대: 빈 출력
+
+echo "[잉여] SCSS 정의 있는데 Java 매핑 없음 — 미사용 또는 다른 위치 사용"
+comm -13 "$J" "$S"   # 정보성, 즉시 정리 대상 아님
+```
+
+CI/SVN pre-commit 또는 정기 헬스체크에 포함 권장.
+
+### 신규 로고 추가 후 필수 후속 작업
+
+1. `_logos.scss` 에 `.logo_{CODE}` 블록 추가 (위 표준 패턴)
+2. SCSS 컴파일 검증 — `mvn clean package -DskipTests` 또는 `sass theme.scss theme.css`
+3. **`header.jsp:85` 의 `theme.css?ver=YYMMDD_N` 갱신** (위 "theme.css 변경 시 header 캐시 버전 갱신" 섹션 참조) — 자동 감지 hook(`themeCssVerGuard.sh`)이 알림
+4. (자산 미도착 시) 디자이너에게 SVG 요청 + 도착 후 주석 해제 + 다시 ver 갱신
+
+---
+
 ## 커스텀 컴포넌트 추가 프로세스 (시스템 변수 기반)
 
 1. `custom.scss` 또는 `index/_index_style.scss` 끝에 컴포넌트 추가
@@ -443,4 +528,4 @@ grep -nE "var\(--|^\\\$grey-|^\\\$primary-" path/to/_xxx.scss   # 시스템 변�
 
 ---
 
-**Version**: 3.2.0 (theme.css 변경 시 header.jsp 캐시 버전 갱신 규칙 추가)
+**Version**: 3.3.0 (운용사 헤더 로고 클래스 정의 섹션 + Java↔SCSS 일관성 검증 명령 추가)

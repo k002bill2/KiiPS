@@ -60,6 +60,8 @@ put("{CODE}", "sign-{class}|logo_{file}|{LIB_NAME}|{signup_jsp}");
 | 5 | `KiiPS-UI/.../static/img/login/login_img_{code}.png` | **사람이 추가** (스킬은 placeholder 경로 안내만) | 디자이너 산출물 |
 | 6 | `KiiPS-UI/.../static/img/logo_{code}.svg` | **사람이 추가** (placeholder 안내) | 디자이너 산출물 |
 | 7 | `KiiPS-UI/.../jsp/kiips/signup/signup.jsp` 또는 `signup_{code}.jsp` | CSS/JS `?ver=` 캐시버스팅 갱신 | 없음 |
+| 8 | `KiiPS-UI/.../sass/gui/_logos.scss` | **헤더 로고 `.logo_{CODE}` 클래스 정의 추가** (width/height/margin/background-url) | 없음 (단, scss 컴파일 검증 필수) |
+| 9 | `KiiPS-UI/.../jsp/kiips/include/header.jsp:85` | `theme.css?ver=YYMMDD_N` 캐시버스팅 갱신 (_logos.scss 변경 동반) | 없음 |
 
 ## 5. 자동 생성 파이프라인 (4단계)
 
@@ -73,7 +75,10 @@ grep -n "put(\"{CODE}\"," KiiPS-UTILS/src/main/java/com/kiips/util/LibConfigurat
 # SCSS 클래스 중복 검사
 grep -n "\.sign-{CODE}\s*{" KiiPS-UI/src/main/resources/static/css/signup.scss
 
-# 이미지 파일 존재 확인
+# 헤더 로고 클래스 중복 검사 (_logos.scss)
+grep -n "\.logo_{CODE}\s*{" KiiPS-UI/src/main/resources/static/css/sass/gui/_logos.scss
+
+# 이미지 파일 존재 확인 (로그인 배경 + 헤더 로고 SVG)
 ls KiiPS-UI/src/main/resources/static/img/login/login_img_{code}.png 2>/dev/null
 ls KiiPS-UI/src/main/resources/static/img/logo_{code}.svg 2>/dev/null
 ```
@@ -116,17 +121,31 @@ ls KiiPS-UI/src/main/resources/static/img/logo_{code}.svg 2>/dev/null
    - `LIB_STG_List` 도 동일 방식으로 신규 라인 삽입
    - 이미 폐쇄 처리된(`//` 주석) 라인 사이에 끼우지 말 것 — 활성 그룹 말미에 추가
 
-2. **signup.scss 수정**
+2. **signup.scss 수정** (로그인 페이지 배경)
    - `sign-{기존마지막}` 블록 뒤에 신규 `.sign-{CODE}` 블록 추가 (들여쓰기 탭 기준 - 기존 패턴 따름)
 
-3. **(커스텀형만) signup_{code}.jsp 생성**
+3. **gui/_logos.scss 수정** (헤더 로고 — 🆕 누락 방지 step)
+   - `.logo_{기존마지막}` 블록 뒤에 `.logo_{CODE}` 블록 추가
+   - 표준 패턴:
+     ```scss
+     .logo_{CODE} {
+       width: 140px;       /* 디자인에 맞게 조정 (60~180px 범위) */
+       height: 60px;
+       margin: 0 0 0 24px;
+       background:url(../../img/logo_{code}.svg) no-repeat 0 center/contain;
+     }
+     ```
+   - 디자이너 SVG 자산 미도착 시 **placeholder 패턴**: `background:url(...)` 부분을 CSS 주석 `/* ... */` 처리 + `/* TODO: 자산 도착 후 주석 해제 */` 헤더 코멘트 추가
+   - 다크모드: 광역 필터 `[data-theme=dark] .header [class*="logo_"] { filter: brightness(0) invert(1); }` 가 자동 적용됨 → 별도 처리 불필요. 단색 로고만 `_wh.svg` 자산 별도 + 파일 하단 다크 오버라이드 블록에 추가
+
+4. **(커스텀형만) signup_{code}.jsp 생성**
    - 가장 유사한 기존 파일(`signup_quantum.jsp` 등)을 base로 복사
    - `LIB_INDEX_IMG`, `LIB_LOGO` 변수는 그대로 (런타임 주입)
    - 운용사별 분기 로직만 코드에 맞춰 치환
 
-4. **CSS/JS `?ver=` 캐시버스팅 갱신**
-   - 대상: `signup.jsp` 의 line 50-51 (`?ver=YYYYMMDD` 패턴)
-   - 신규 SCSS가 추가되었으므로 버전을 **오늘 날짜(YYYYMMDD)** 로 갱신
+5. **CSS/JS `?ver=` 캐시버스팅 갱신 (2종)**
+   - **signup.jsp** line 50-51 (`?ver=YYYYMMDD` 패턴) — signup.scss 변경분 반영
+   - **header.jsp:85** (`theme.css?ver=YYMMDD_N` 패턴) — _logos.scss 변경분 반영 🆕
    - 같은 운용사의 signup_{code}.jsp 도 동일 갱신
 
 ### Phase 4: 검증 (Evidence-based)
@@ -142,9 +161,16 @@ grep -c "put(\"{CODE}\"," KiiPS-UTILS/src/main/java/com/kiips/util/LibConfigurat
 ls KiiPS-UI/src/main/resources/static/css/sass/  # 변환 경로 확인
 # 또는 sass --check 또는 KiiPS-UI/CLAUDE.md 명시된 scssValidator.sh
 
-# 3. JSP의 ?ver= 패턴 갱신 확인
+# 3. JSP의 ?ver= 패턴 갱신 확인 (signup + header 둘 다)
 grep -n "?ver=" KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/signup/signup.jsp
+grep -n "theme.css?ver=" KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/include/header.jsp
 # 오늘 날짜로 갱신됐는지 확인
+
+# 3-b. Java↔SCSS 헤더 로고 일관성 (🆕 잠재 누락 자동 감지)
+J=$(mktemp); S=$(mktemp)
+grep -oE 'logo_[A-Za-z]+' KiiPS-UTILS/src/main/java/com/kiips/util/LibConfiguration.java | sort -u > "$J"
+grep -oE '\.logo_[A-Za-z]+\s*\{' KiiPS-UI/src/main/resources/static/css/sass/gui/_logos.scss | sed 's/\.\(logo_[A-Za-z]*\).*/\1/' | sort -u > "$S"
+comm -23 "$J" "$S"   # 기대: 빈 출력 (모든 LibConfiguration logo_* 가 _logos.scss에 정의됨)
 
 # 4. 빌드 검증 (KiiPS-UTILS 변경)
 cd KiiPS-HUB && mvn clean install -pl :KiiPS-UTILS -am
@@ -171,12 +197,15 @@ echo "  - KiiPS-UI/src/main/resources/static/img/logo_{code}.svg"
 
 신규 SCSS 추가로 인한 캐시 갱신은 **반드시** 동반:
 
-| JSP 파일 | 갱신 라인 패턴 |
-|---------|--------------|
-| `signup.jsp` | `<link ... href="...signup.css?ver=YYYYMMDD">` |
-| `signup_{code}.jsp` | (커스텀형 신규 생성시 자동 적용) |
+| JSP 파일 | 갱신 라인 패턴 | 트리거 |
+|---------|--------------|---------|
+| `signup.jsp` | `<link ... href="...signup.css?ver=YYYYMMDD">` | `signup.scss` 변경 |
+| `signup_{code}.jsp` | (커스텀형 신규 생성시 자동 적용) | 신규 생성 |
+| `include/header.jsp:85` 🆕 | `<link ... href="...theme.css?ver=YYMMDD_N">` | `_logos.scss` 또는 다른 theme 의존 SCSS 변경 |
 
-**값 형식:** `YYYYMMDD` (예: `20260518`) — `kiips-scss` 스킬의 `themeCssVerGuard.sh` 훅과 동일 규칙.
+**값 형식 (2종 공존):**
+- `signup.jsp` 패턴: `YYYYMMDD` (예: `20260518`, 8자리)
+- `header.jsp` 패턴: `YYMMDD_N` (예: `260518_0`, 6자리 + 시퀀스) — `kiips-scss` v3.2.0 의 `themeCssVerGuard.sh` 훅과 동일 규칙
 
 `themeCssVerGuard.sh`가 PostToolUse로 SCSS 편집을 감지하면, 동일 SCSS의 버전이 갱신되지 않은 경우 경고합니다 — 이 스킬은 그 경고를 사전에 차단하기 위해 같은 트랜잭션에서 `?ver=` 도 갱신합니다.
 
@@ -213,17 +242,22 @@ User: y
 [Phase 3] 적용
   Edit: LibConfiguration.java (PRD list)
   Edit: LibConfiguration.java (STG list)
-  Edit: signup.scss
+  Edit: signup.scss            (.sign-HANWHA 추가)
+  Edit: gui/_logos.scss        (.logo_hanwha 추가 — 자산 미도착 시 background-url 주석)
   Edit: signup.jsp (?ver= 갱신)
+  Edit: header.jsp:85 (theme.css?ver= 갱신)
 
 [Phase 4] 검증
   ✓ put("HANWHA", ...) 2회 확인
   ✓ .sign-HANWHA 블록 1개 추가됨
-  ✓ ?ver=20260518 갱신 확인
+  ✓ .logo_hanwha 블록 1개 추가됨
+  ✓ Java↔SCSS logo 일관성: comm -23 빈 출력 (누락 0건)
+  ✓ signup.jsp ?ver=20260518 갱신 확인
+  ✓ header.jsp theme.css?ver=260518_0 갱신 확인
   ⏳ mvn install -pl :KiiPS-UTILS 실행 중... BUILD SUCCESS
   📌 다음 이미지를 디자이너에게 요청하세요:
      - login_img_hanwha.png (1140x664)
-     - logo_hanwha.svg
+     - logo_hanwha.svg  (도착 후 _logos.scss의 background-url 주석 해제)
 ```
 
 ## 10. 보안 / 외부 의존성 고려
@@ -239,7 +273,8 @@ User: y
 | 신규 운용사 URL 접근시 `main_intro.jsp` 로 폴백 | `LibConfiguration.put()` 누락 또는 코드 오타(대소문자) | 두 HashMap 모두 대문자 코드 확인 |
 | 로그인 페이지 배경 흰 화면 | `.sign-{CODE}` 클래스 누락 또는 이미지 파일 없음 | SCSS 컴파일 + 이미지 파일 경로 확인 |
 | 로고 X자(broken image) | `logo_{file}.svg/png` 파일 미배치 | `/img/` 직하 경로 확인 |
-| 캐시된 옛 스타일 표시 | `?ver=` 갱신 누락 | `themeCssVerGuard.sh` 훅 알림 확인 후 수동 갱신 |
+| **헤더 로고 영역이 아예 안 보임 (빈 공간)** 🆕 | `_logos.scss`에 `.logo_{CODE}` 클래스 정의 누락 (SVG 파일은 있어도 CSS 셀렉터 매칭 안 됨) | `grep "\.logo_{CODE}" sass/gui/_logos.scss` 로 확인 후 누락이면 표준 블록 추가 + header.jsp ver 갱신 |
+| 캐시된 옛 스타일 표시 | `?ver=` 갱신 누락 (signup.jsp 또는 header.jsp) | `themeCssVerGuard.sh` 훅 알림 확인 후 수동 갱신 |
 | `mvn install` 실패: 중복 키 | 동일 운용사 코드 이중 등록 | 새로 추가한 `put()` 제거 후 재시도 |
 
 ## 12. 변경 이력 추적
