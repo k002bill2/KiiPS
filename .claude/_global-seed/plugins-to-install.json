@@ -1,0 +1,24 @@
+{
+  "plugins": [
+    "agent-sdk-dev@claude-code-plugins",
+    "awesome-statusline@awesome-claude-plugins",
+    "code-review@claude-plugins-official",
+    "context7@claude-plugins-official",
+    "document-skills@anthropic-agent-skills",
+    "ecc@ecc",
+    "example-skills@anthropic-agent-skills",
+    "explanatory-output-style@claude-plugins-official",
+    "feature-dev@claude-code-plugins",
+    "frontend-design@claude-plugins-official",
+    "jdtls-lsp@claude-plugins-official",
+    "playwright@claude-plugins-official",
+    "plugin-dev@claude-code-plugins",
+    "ralph-loop@claude-plugins-official",
+    "serena@claude-plugins-official",
+    "skill-creator@claude-plugins-official",
+    "supabase@claude-plugins-official",
+    "superpowers@claude-plugins-official",
+    "typescript-lsp@claude-plugins-official",
+    "warp@claude-code-warp"
+  ]
+}
