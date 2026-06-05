@@ -1,0 +1,12 @@
+# _global-seed manifest (PROJ_KEY=-Users-younghwankang-WORK-WORKSPACE-KiiPS)
+## overlay 포함 키:
+  - advisorModel
+  - effortLevel
+  - enabledPlugins
+  - extraKnownMarketplaces
+  - language
+## leak-guard (false 여야 안전 — 위험 플래그 미포함):
+  skipDangerousModePermissionPrompt: false
+  permissions:                       false
+  statusLine:                        false
+  remoteControlAtStartup:            false

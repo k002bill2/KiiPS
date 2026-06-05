@@ -1,0 +1,35 @@
+{
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true,
+    "serena@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "ralph-loop@claude-plugins-official": false,
+    "skill-creator@claude-plugins-official": true,
+    "ecc@ecc": true,
+    "plugin-dev@claude-code-plugins": false,
+    "document-skills@anthropic-agent-skills": true,
+    "code-review@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "awesome-statusline@awesome-claude-plugins": true,
+    "warp@claude-code-warp": true
+  },
+  "extraKnownMarketplaces": {
+    "ecc": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/affaan-m/everything-claude-code.git"
+      }
+    },
+    "claude-code-warp": {
+      "source": {
+        "source": "github",
+        "repo": "warpdotdev/claude-code-warp"
+      }
+    }
+  },
+  "language": "한국어",
+  "advisorModel": "opus",
+  "effortLevel": "high"
+}
