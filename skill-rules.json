@@ -4,7 +4,7 @@
     "enforcement": "suggest",
     "priority": "high",
     "promptTriggers": {
-      "keywords": ["JSP", "JavaScript", "UI", "프론트엔드", "화면", "페이지", "jQuery"],
+      "keywords": ["JSP", "JavaScript", "프론트엔드", "jQuery"],
       "intentPatterns": [
         "(create|update|modify).*?(page|screen|UI|화면)",
         "(fix|style).*?(JSP|JavaScript)"
@@ -205,9 +205,7 @@
     "type": "validation",
     "enforcement": "require",
     "priority": "critical",
-    "description": "Automated test execution (Boris Cherny's feedback loop principle)",
-    "autoActivationLevel": "hook",
-    "triggeredBy": "stopEvent Hook",
+    "description": "JUnit 테스트 명시 실행 + 결과 분석 (Boris Cherny feedback loop). 명시 호출 전용.",
     "promptTriggers": {
       "keywords": [
         "테스트",
@@ -248,8 +246,7 @@
       ]
     },
     "activationConditions": {
-      "automatic": "Triggered by stopEvent Hook when .java files are modified",
-      "manual": "Can be invoked explicitly for test execution",
+      "manual": "명시 호출 전용 — stopEvent 자동 테스트 실행은 v4.0에서 제거됨(과도하여)",
       "preventDuplicates": true
     }
   },
@@ -395,9 +392,6 @@
         "작성한 리스트",
         "작성한 체크리스트",
         "작성된 체크리스트",
-        "목록 팝업",
-        "리스트 팝업",
-        "list popup",
         "checklist popup",
         "checklist list",
         "CHECKLISTIACHK",
