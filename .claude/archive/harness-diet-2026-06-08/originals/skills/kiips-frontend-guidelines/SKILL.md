@@ -1,6 +1,6 @@
 ---
 name: kiips-frontend-guidelines
-description: "KiiPS 프론트엔드 공통 가이드 - JSP 폼 컴포넌트 규칙, jQuery AJAX 호출, XSS 방어, text-indent 표준. Use when: JSP 공통 폼 규칙, jQuery AJAX 호출, XSS 방어, 프론트엔드 표준 패턴. NOT for: 그리드(use kiips-realgrid-guide), 검색필터(use kiips-search-filter-guide), 등록모달(use kiips-regist-modal-guide), 버튼(use kiips-button-guide), SCSS/다크테마(use kiips-scss)"
+description: "KiiPS 프론트엔드 개발 가이드 - JSP/jQuery/Bootstrap 표준 패턴, AJAX 호출 규칙, RealGrid 연동. Use when: JSP, JavaScript, UI, 프론트엔드, 화면, 페이지"
 ---
 
 # KiiPS Frontend Guidelines
@@ -246,15 +246,58 @@ ${fn:escapeXml(data.name)}
 
 ---
 
-## 사용하지 말아야 할 때
-
-구체적 컴포넌트는 전용 스킬 우선 — 그리드=kiips-realgrid-guide, 검색필터=kiips-search-filter-guide, 등록모달=kiips-regist-modal-guide, 버튼=kiips-button-guide, SCSS·다크테마=kiips-scss. 본 스킬은 공통 폼 규칙·AJAX·XSS 기준용.
-
 ---
 
-## 관련 파일
+## 다크모드 자동 연동 (CRITICAL)
 
-- [reference.md](reference.md): 다크모드 자동 연동 상세 규칙 (다크모드 작업 시 반드시 읽을 것)
+모든 프론트엔드 코드에서 다크모드를 자동 지원해야 합니다.
+
+### HTML/JSP 규칙
+
+```jsp
+<%-- ❌ 인라인 색상 → 다크모드에서 깨짐 --%>
+<div style="background:#f8f9fa; color:#333;">
+
+<%-- ✅ CSS 클래스 사용 --%>
+<div class="summary-bar">
+```
+
+### JavaScript 동적 DOM 규칙
+
+```javascript
+// 테마 감지 유틸 (페이지 상단에 1회 선언)
+var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+// ❌ 하드코딩
+el.style.color = "#333";
+
+// ✅ 방법 1: CSS 클래스 (권장)
+el.classList.add("my-component");
+
+// ✅ 방법 2: 불가피 시 분기
+el.style.color = isDark ? "#ddd" : "#333";
+```
+
+### HTML 문자열 연결 시
+
+```javascript
+// ❌ 인라인 색상
+html += '<span style="color:#333;">내용</span>';
+
+// ✅ 클래스 사용
+html += '<span class="text-body">내용</span>';
+```
+
+### 새 CSS 클래스 추가 시
+
+`custom.scss`에 라이트+다크 **쌍으로** 정의:
+
+```scss
+.my-component { background: #f8f9fa; color: #333; }
+[data-theme=dark] .my-component { background: $dark-color-3; color: $dark-default-text; }
+```
+
+> 색상 매핑, 변수 목록: [kiips-scss](../kiips-scss/SKILL.md) 참조
 
 ---
 

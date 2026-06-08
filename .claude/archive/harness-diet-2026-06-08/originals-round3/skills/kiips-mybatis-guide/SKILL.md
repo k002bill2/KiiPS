@@ -1,11 +1,11 @@
 ---
 name: kiips-mybatis-guide
-description: "MyBatis 문법 참조 가이드 - mapper.xml 패턴, 동적 SQL, TypeHandler 문법. ⚠️ 이 프로젝트는 mapper XML 미사용(inline SQL DAO). 문법 참조 전용. Use when: MyBatis 문법, mapper.xml 작성법, 동적 SQL 문법, TypeHandler"
+description: "MyBatis 종합 가이드 - mapper.xml 패턴, 동적 SQL, TypeHandler, 성능 최적화. Use when: MyBatis, 마이바티스, mapper, 매퍼, SQL, 쿼리"
 ---
 
 # KiiPS MyBatis Guide
 
-> ⚠️ **중요**: 이 프로젝트는 MyBatis mapper XML을 사용하지 않습니다 (mapper XML 0개). SQL은 Java DAO 내 StringBuffer **inline SQL**로 작성합니다. 이 문서는 MyBatis *문법 참조용*이며, 실제 SQL 작성 시 기존 DAO 패턴(inline)을 따르세요.
+> KiiPS 프로젝트의 MyBatis 사용 표준 패턴 및 보안 가이드
 
 ---
 

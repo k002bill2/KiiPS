@@ -1,6 +1,6 @@
 ---
 name: kiips-frontend-guidelines
-description: "KiiPS 프론트엔드 공통 가이드 - JSP 폼 컴포넌트 규칙, jQuery AJAX 호출, XSS 방어, text-indent 표준. Use when: JSP 공통 폼 규칙, jQuery AJAX 호출, XSS 방어, 프론트엔드 표준 패턴. NOT for: 그리드(use kiips-realgrid-guide), 검색필터(use kiips-search-filter-guide), 등록모달(use kiips-regist-modal-guide), 버튼(use kiips-button-guide), SCSS/다크테마(use kiips-scss)"
+description: "KiiPS 프론트엔드 개발 가이드 - JSP/jQuery/Bootstrap 표준 패턴, AJAX 호출 규칙, RealGrid 연동. Use when: JSP, JavaScript, UI, 프론트엔드, 화면, 페이지"
 ---
 
 # KiiPS Frontend Guidelines

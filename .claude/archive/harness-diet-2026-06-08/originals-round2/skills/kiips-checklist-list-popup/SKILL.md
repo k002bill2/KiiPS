@@ -1,6 +1,6 @@
 ---
 name: kiips-checklist-list-popup
-description: "KiiPS 체크리스트 목록 팝업 표준 패턴 - 아이콘 버튼 바(등록/결재/삭제/인쇄/엑셀) + RealGrid 목록 + 셀 더블클릭으로 상세팝업/결재팝업 분기. 기준: COMM_POPUP_CHECKLIST_AF_IMM.jsp. Use when: 체크리스트 목록 조회 팝업, 작성일/작성자/수정일시/결재 컬럼, checklist popup. NOT for: 체크리스트와 무관한 일반 목록/그리드 팝업(use kiips-realgrid-guide / kiips-regist-modal-guide)"
+description: "KiiPS 체크리스트 목록 팝업 표준 패턴 - 아이콘 버튼 바(등록/결재/삭제/인쇄/엑셀) + RealGrid 목록 + 셀 더블클릭으로 상세팝업/결재팝업 분기. 기준: COMM_POPUP_CHECKLIST_AF_IMM.jsp. Use when: 체크리스트 목록 조회 팝업, 작성일/작성자/수정일시/결재 컬럼, 목록 팝업, list popup, checklist popup"
 ---
 
 # KiiPS Checklist List Popup Pattern
