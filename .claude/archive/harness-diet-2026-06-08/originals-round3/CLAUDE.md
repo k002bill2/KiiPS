@@ -25,11 +25,11 @@ cd KiiPS-HUB && mvn clean package -pl :KiiPS-SERVICE -am
 
 | 규칙 | 요약 | 상세 |
 |------|------|------|
+| Dark Theme | `[data-theme=dark]` 셀렉터, 색상만 변경 | [→](.claude/rules/dark-theme.md) |
 | Editing | 범위 제한, 정확한 복원, 최소 편집 | [→](.claude/rules/editing.md) |
-
-> 도메인 한정 규칙은 always-on 대신 **조건부**(작업 시 해당 스킬/커맨드가 참조)로 전환:
-> Dark Theme→`kiips-scss`, Validation→`legacy-compliance-checker`, Error Handling→`/diagnose`, Power Stack→보류(`.gstack/.gsd/.superpowers` 미존재).
-> 전체 규칙 위반 스캔은 `/check-rules`(`.claude/rules/` 직접 읽음 — 파일은 보존).
+| Error Handling | 근본 원인 우선, 한 번에 하나 | [→](.claude/rules/error-handling.md) |
+| Validation | Controller 입력 검증, Boundary 원칙 | [→](.claude/rules/validation.md) |
+| Power Stack | 4단계 프레임워크 파이프라인 | [→](.claude/rules/power-stack.md) |
 
 ## Tech Stack & Structure
 

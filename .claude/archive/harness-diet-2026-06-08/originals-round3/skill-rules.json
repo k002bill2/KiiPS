@@ -437,7 +437,7 @@
     "priority": "critical",
     "description": "MyBatis 종합 가이드 - #{} vs ${}, mapper.xml 패턴, 동적 SQL",
     "promptTriggers": {
-      "keywords": ["MyBatis", "마이바티스", "mapper.xml", "동적SQL", "TypeHandler"],
+      "keywords": ["MyBatis", "마이바티스", "mapper", "매퍼", "SQL", "쿼리", "동적SQL"],
       "intentPatterns": [
         "(mybatis|마이바티스).*(작성|생성|수정)",
         "(mapper|매퍼).*(xml|작성|추가)",

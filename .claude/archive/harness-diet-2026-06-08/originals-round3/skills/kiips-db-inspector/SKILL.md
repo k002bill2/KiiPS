@@ -1,12 +1,12 @@
 ---
 name: kiips-db-inspector
-description: "KiiPS inline SQL DAO 기반 테이블/컬럼 구조 조회 전용 스킬. Use when: 테이블 구조, 컬럼, DB 구조, 스키마 확인, DAO SQL 분석, TB_"
+description: "KiiPS MyBatis mapper 기반 테이블/컬럼 구조 조회 전용 스킬. Use when: 테이블 구조, 컬럼, DB 구조, 스키마 확인, mapper 분석, TB_"
 user-invocable: false
 ---
 
 # KiiPS DB Inspector
 
-Java DAO 내 inline SQL(StringBuffer) 및 Entity 기반으로 구조를 분석하는 **조회 전용** 스킬입니다. (이 프로젝트는 MyBatis mapper XML을 쓰지 않습니다.)
+MyBatis mapper XML 및 Java Entity 기반으로 구조를 분석하는 **조회 전용** 스킬입니다.
 
 ## Purpose
 
