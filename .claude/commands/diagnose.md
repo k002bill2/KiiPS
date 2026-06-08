@@ -7,6 +7,8 @@ argument-hint: <에러 설명 또는 증상>
 
 에러나 문제를 해결할 때, **코드를 먼저 변경하지 않고** 진단 보고서를 먼저 작성합니다.
 
+> **에러 처리 규칙** → `.claude/rules/error-handling.md`: 근본 원인 우선·가설 최소 2개·한 번에 하나·**캐시(.m2/node_modules) 삭제 금지**·악화 시 즉시 되돌리기. (always-on 아님 — 디버깅 시 이 커맨드에서 참조)
+
 **Usage:** `/diagnose <에러 메시지 또는 증상 설명>`
 
 **Examples:**

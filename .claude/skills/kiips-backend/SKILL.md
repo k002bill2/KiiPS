@@ -41,6 +41,8 @@ public class FundController {
 }
 ```
 
+> **입력 검증 규칙** → `.claude/rules/validation.md` (Boundary Validation): null/길이/타입/범위 검증은 **Controller 책임**, Service/DAO는 검증된 데이터를 신뢰. `${}` 바인딩 금지. (always-on 아님 — Controller 작업 시 이 스킬에서 참조)
+
 ---
 
 ## Service 표준 패턴
