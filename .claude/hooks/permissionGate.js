@@ -74,6 +74,59 @@ const BLOCKED_BASH_PATTERNS = [
 ];
 
 /**
+ * 시크릿/민감 파일 접근 차단 패턴 (Read/Grep/Edit/Write file_path 대상)
+ *
+ * P0-2026-06-09: permissionRules(비공식 키, inert) 가 담당하던 시크릿 보호를
+ * 작동하는 fail-CLOSED 게이트로 이관. Read 축(cat/Read 도구) 무방비 해소.
+ */
+const SECRET_FILE_PATTERNS = [
+  { regex: /app-kiips\.properties$/i, reason: "프로덕션 설정 파일 접근" },
+  { regex: /app-stg\.properties$/i, reason: "스테이징 설정 파일 접근" },
+  { regex: /app-production\.properties$/i, reason: "프로덕션 설정 파일 접근" },
+  { regex: /app-local\.properties$/i, reason: "로컬 설정 파일 접근" },
+  { regex: /app-tibero\.properties$/i, reason: "Tibero DB 설정 파일 접근" },
+  { regex: /(^|\/)\.env(\.[\w.-]+)?$/i, reason: "환경변수 시크릿(.env) 접근" },
+  { regex: /credentials(\.[\w.-]+)?$/i, reason: "자격증명 파일 접근" },
+  { regex: /\.secret(s)?$/i, reason: "시크릿 파일 접근" },
+];
+
+/**
+ * Bash 명령에서 시크릿 파일을 읽/복사/전송하려는 시도 차단.
+ * AST 필터로 따옴표/주석 내부 문자열 매치는 skip (false-positive 방지).
+ * 파일명 토큰을 직접 매칭하므로 cat/less/head/cp/scp/tee 등 동사 무관하게 보호.
+ */
+const SECRET_BASH_PATTERNS = [
+  {
+    regex: /app-kiips\.properties/i,
+    reason: "Bash 를 통한 프로덕션 설정 파일 접근",
+  },
+  {
+    regex: /app-stg\.properties/i,
+    reason: "Bash 를 통한 스테이징 설정 파일 접근",
+  },
+  {
+    regex: /app-production\.properties/i,
+    reason: "Bash 를 통한 프로덕션 설정 파일 접근",
+  },
+  {
+    regex: /app-local\.properties/i,
+    reason: "Bash 를 통한 로컬 설정 파일 접근",
+  },
+  {
+    regex: /app-tibero\.properties/i,
+    reason: "Bash 를 통한 Tibero DB 설정 파일 접근",
+  },
+  {
+    regex: /(?:^|[\s=:/'"])\.env(?:\.[\w.-]+)?\b/i,
+    reason: "Bash 를 통한 .env 시크릿 접근",
+  },
+  {
+    regex: /\bcredentials(?:\.[\w.-]+)?\b/i,
+    reason: "Bash 를 통한 자격증명 파일 접근",
+  },
+];
+
+/**
  * 권한 게이트 검증
  *
  * @param {string} toolName
@@ -87,7 +140,7 @@ function checkPermission(toolName, toolInput) {
     const cmd = (toolInput && toolInput.command) || "";
     const astFilterEnabled = process.env.KIIPS_PERMISSION_GATE_AST !== "off";
 
-    for (const entry of BLOCKED_BASH_PATTERNS) {
+    for (const entry of BLOCKED_BASH_PATTERNS.concat(SECRET_BASH_PATTERNS)) {
       // g flag 를 보장한 복사본으로 매치 순회 (literal/comment 내부 매치는 skip)
       const globalPattern = entry.regex.global
         ? entry.regex
@@ -117,9 +170,27 @@ function checkPermission(toolName, toolInput) {
   }
 
   if (t === "edit" || t === "write") {
+    // Edit/Write 는 기존 계약 유지 (prod/staging/pom/start/stop).
+    // 시크릿 파일 Edit/Write 차단은 인라인 python 가드(fail-closed)가 담당하고,
+    // app-local 등 로컬 dev 설정 편집은 의도적으로 허용. (Read/Grep 분기에서만 SECRET 차단)
     const fp = (toolInput && toolInput.file_path) || "";
     if (!fp) return { blocked: false };
     for (const entry of BLOCKED_PATHS) {
+      if (entry.regex.test(fp)) {
+        return {
+          blocked: true,
+          reason: entry.reason,
+          detail: path.basename(fp),
+        };
+      }
+    }
+  }
+
+  // Read/Grep: 시크릿 파일 직접 열람/검색 차단 (P0-2026-06-09 Read 축 보호)
+  if (t === "read" || t === "grep") {
+    const fp = (toolInput && (toolInput.file_path || toolInput.path)) || "";
+    if (!fp) return { blocked: false };
+    for (const entry of SECRET_FILE_PATTERNS) {
       if (entry.regex.test(fp)) {
         return {
           blocked: true,
@@ -222,4 +293,6 @@ module.exports = {
   formatBlockMessage,
   BLOCKED_PATHS,
   BLOCKED_BASH_PATTERNS,
+  SECRET_FILE_PATTERNS,
+  SECRET_BASH_PATTERNS,
 };
