@@ -18,10 +18,7 @@ const util = require("util");
 const execAsync = util.promisify(exec);
 
 // 빌드 대기 파일 추적
-const PENDING_BUILD_FILE = path.join(
-  __dirname,
-  "../gemini-bridge/.pending-build.json",
-);
+const PENDING_BUILD_FILE = path.join(__dirname, "../state/.pending-build.json");
 const BUILD_THRESHOLD = 3; // Java 파일 3개 이상 변경 시 빌드 실행
 
 /**
@@ -137,7 +134,7 @@ function emitAutoCorrectFeedback(moduleName, errors) {
         `Pattern: ${recent.map((r) => r.sig.split("::")[1] || "?").join(" → ")}\n` +
         `Each fix introduces a NEW error. STOP and re-design the approach.\n` +
         `Reference: .claude/rules/ralph-loop-detection.md (자동 롤백 프로토콜)\n` +
-        `Reset: delete .claude/gemini-bridge/.pending-build.json\n\n`,
+        `Reset: delete .claude/state/.pending-build.json\n\n`,
     );
     pending.autoFixAttempts = MAX_AUTO_FIX_ATTEMPTS; // 추가 자동 수정 차단
     pending.errors = errors;
@@ -150,7 +147,7 @@ function emitAutoCorrectFeedback(moduleName, errors) {
     process.stderr.write(
       `\n⛔ [BuildChecker] AUTO-CORRECTION STILL HALTED for ${moduleName}.\n` +
         `Run: cd KiiPS-HUB && mvn clean compile -pl :${moduleName} -am\n` +
-        `Then manually clear: delete .claude/gemini-bridge/.pending-build.json\n\n`,
+        `Then manually clear: delete .claude/state/.pending-build.json\n\n`,
     );
     return;
   }

@@ -11,9 +11,9 @@
 | Agents | 13 (Specialist 7 + Manager 4 + System 2) | [`agents-registry.json`](./agents-registry.json) (수동 유지) |
 | Shared 프로토콜 | 4 | `agents/shared/` |
 | Skills | 27 (KiiPS 도메인 22 + 공통 3 + 디자인 2) | [`skills-registry.json`](./skills-registry.json) (자동 생성) + [`SKILLS.md`](./SKILLS.md) |
-| Commands | 24 | [`commands-registry.json`](./commands-registry.json) (자동 생성) + [`COMMANDS.md`](./COMMANDS.md) |
-| Hooks (유니크) | 27 | `hooks/` (.min.js 제외, .js/.sh 순수 훅 스크립트) |
-| Hooks (settings 바인딩) | 16 across 9 events | [`settings.json`](./settings.json) |
+| Commands | 23 | [`commands-registry.json`](./commands-registry.json) (자동 생성) + [`COMMANDS.md`](./COMMANDS.md) |
+| Hooks (유니크) | 23 | `hooks/` (.min.js 제외, .js/.sh 순수 훅 스크립트) |
+| Hooks (settings 바인딩) | 14 across 9 events | [`settings.json`](./settings.json) |
 | Permission Gates | 8 (2a PreToolUse) | [`docs/architecture.html`](./docs/architecture.html) |
 | MCP Servers | context7, serena, playwright, pencil, claude-in-chrome | `mcp.json` |
 
@@ -29,7 +29,7 @@
 │   ├── managers/            # build/deployment/feature/ui
 │   ├── shared/              # delegation/effort/quality/kiips-evaluation
 │   └── {specialist}.md      # kiips-architect/-developer/-ui-designer/...
-├── commands/                # 24 커맨드 (/command-name)
+├── commands/                # 23 커맨드 (/command-name)
 ├── skills/                  # 31 스킬 (SKILL.md entry point)
 ├── hooks/                   # 20 훅 (14 settings 바인딩 + 6 허브 위임)
 ├── checklists/              # 품질 체크리스트
@@ -43,7 +43,7 @@
 ├── scripts/                 # 빌드/유틸 스크립트 (build-registries.js)
 ├── tests/                   # 회귀 테스트 (catalog-integrity, hook-regression, permission-gate, ...)
 ├── evals/                   # 에이전트 평가
-├── gemini-bridge/           # Gemini 리뷰 파이프라인
+├── state/                   # 훅 공용 상태 (빌드 카운터·scope·evidence)
 ├── learning/                # Instinct/observations 영속화
 ├── agents-registry.json     # 에이전트 레지스트리 (수동 유지)
 ├── skills-registry.json     # 스킬 레지스트리 (자동 생성: build-registries.js)
@@ -65,17 +65,16 @@
 | **PreToolUse** | `Edit\|Write` | inline python | .env/app-*.properties 차단 |
 | **PreToolUse** | `Edit\|Write` | mybatisBindingGuard.js | SQL `${}` 방지 |
 | **PreToolUse** | `Edit\|Write` | multiFileGate.js | 3+ 파일 승인 |
-| **PreToolUse** | `Edit\|Write` | geminiReviewGate.js | Gemini 교차검증 |
 | **PreToolUse** | `Edit\|Write` | jspXssGuard.js | JSP scriptlet XSS |
 | **PreToolUse** | `Edit\|Write` | impactAnalyzer.js | COMMON/UTILS 의미 영향 |
-| **UserPromptSubmit** | `*` | userPromptSubmit.js | 스킬 활성화 + specialist 라우팅 + Gemini 리뷰 주입 |
-| **PostToolUse** | `Bash\|Edit\|Write` | postToolOrchestrator.js | **허브** — autoFormatter·buildChecker·scssValidator·themeCssVerGuard·observe·agentStateManager·geminiAutoTrigger·outputSecretFilter 순차 실행 |
+| **UserPromptSubmit** | `*` | userPromptSubmit.js | 스킬 활성화 + specialist 라우팅 |
+| **PostToolUse** | `Bash\|Edit\|Write` | postToolOrchestrator.js | **허브** — autoFormatter·buildChecker·scssValidator·themeCssVerGuard·pendingFiles·observe·agentStateManager·outputSecretFilter 순차 실행 |
 | **Stop** | `*` | stopEvent.js | **허브** — backupGc.sh·observationsRoller.js 호출 + 세션 메트릭 |
 | **PreCompact** | `*` | pre-compact-save.sh | 컨텍스트 자동 저장 |
 | **Notification** | `*` | notificationHandler.js | macOS 알림 |
-| **SessionStart** | `*` | update-reminder.sh → crossToolReader.js → regressionGuard.sh | 업데이트 체크 + 교차 도구 상태 + 회귀 가드 |
+| **SessionStart** | `*` | update-reminder.sh → regressionGuard.sh | 업데이트 체크 + 회귀 가드 |
 
-총 16 바인딩 + 허브 내부 위임(postToolOrchestrator·stopEvent 경유) = **27개 유니크 훅 스크립트** (`.min.js` 미니파이 사본은 별도).
+총 14 바인딩 + 허브 내부 위임(postToolOrchestrator·stopEvent 경유) = **23개 유니크 훅 스크립트** (`.min.js` 미니파이 사본은 별도).
 
 ---
 
@@ -84,7 +83,7 @@
 | Tier | 특징 | 훅 |
 |------|------|-----|
 | **A — AST-filtered (Bash-only)** | shellContextTokenizer로 literal/comment/heredoc 내부 false-positive 제거 | ethicalValidator (v3.4.0), permissionGate (v3.5.1) |
-| **B — Regex / path-based (Edit\|Write)** | 순수 정규식 또는 파일 경로 매칭. AST 미적용 | inline python, mybatisBindingGuard, multiFileGate, geminiReviewGate, jspXssGuard, impactAnalyzer |
+| **B — Regex / path-based (Edit\|Write)** | 순수 정규식 또는 파일 경로 매칭. AST 미적용 | inline python, mybatisBindingGuard, multiFileGate, jspXssGuard, impactAnalyzer |
 
 **알려진 경계**: [docs/harness-boundaries.md](./docs/harness-boundaries.md)
 

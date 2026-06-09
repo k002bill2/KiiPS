@@ -18,7 +18,7 @@ const path = require("path");
 const THRESHOLD = 3;
 
 const STATE_FILE =
-  "/Users/younghwankang/WORK/WORKSPACE/KiiPS/.claude/gemini-bridge/.session-edits.json";
+  "/Users/younghwankang/WORK/WORKSPACE/KiiPS/.claude/state/.session-edits.json";
 
 /** 세션 스탈니스 판정 기준 (30분, ms) */
 const STALE_MS = 30 * 60 * 1000;

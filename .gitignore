@@ -87,25 +87,13 @@ GEMINI.md
 KiiPSRulesAll.md
 KiiPSrules2.md
 opencode.json
-.claude/gemini-bridge/reviews/*
-.claude/gemini-bridge/gemini-state.json
-.claude/gemini-bridge/gemini-prompt-*.txt
-.claude/gemini-bridge/pending-files.txt
+# 훅 공용 런타임 상태 (빌드카운터·scope·evidence·pending-files — gemini-bridge에서 이전)
+.claude/state/
 .claude/learning/observations.jsonl
 .claude/learning/observer-health.json
 .claude/learning/archive/
 # observe.js 훅 cwd 부작용으로 생성되는 중첩 .claude 디렉토리 차단
 .claude/**/.claude/
-.claude/gemini-bridge/daemon.pid
-.claude/gemini-bridge/.last-collect
-.claude/gemini-bridge/.pending-build.json
-.claude/gemini-bridge/.scope-state.json
-.claude/gemini-bridge/.session-edits.json
-.claude/gemini-bridge/.last-review-at
-.claude/gemini-bridge/.review-signal.json
-.claude/gemini-bridge/.shown-reviews.json
-.claude/gemini-bridge/.completion-evidence.json
-.claude/gemini-bridge/.impact-analysis.json
 .superpowers/
 .claude/hooks/*.log
 .claude/hooks/*.min.js

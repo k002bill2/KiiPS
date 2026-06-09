@@ -217,10 +217,7 @@ const PROTECTED_MODULES = [
  */
 function checkScopeExpansion(filePath) {
   try {
-    const scopePath = path.join(
-      __dirname,
-      "../gemini-bridge/.scope-state.json",
-    );
+    const scopePath = path.join(__dirname, "../state/.scope-state.json");
 
     // .claude/ 내부 파일은 항상 허용
     if (filePath.includes("/.claude/") || filePath.includes("\\.claude\\")) {

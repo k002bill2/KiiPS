@@ -3,7 +3,6 @@
  *
  * Claude 응답 완료 후 실행:
  * 1. 코드 변경사항 자가 검증 체크리스트 표시
- * 2. Gemini 백그라운드 코드 리뷰 트리거
  *
  * 제거됨 (v4.0):
  * - runAutoTests (Stop 이벤트에서 Maven 테스트 자동 실행은 과도)
@@ -21,7 +20,7 @@ const path = require("path");
 // ─── Evidence State Path ────────────────────────────────────
 const EVIDENCE_PATH = path.join(
   __dirname,
-  "../gemini-bridge/.completion-evidence.json",
+  "../state/.completion-evidence.json",
 );
 
 /**
@@ -113,18 +112,10 @@ async function onStopEvent(context) {
       analyzeCodeChanges(editedFiles);
     }
 
-    // 2. Gemini 백그라운드 코드 리뷰
-    if (editedFiles.length > 0) {
-      triggerGeminiReview(editedFiles);
-    }
-
-    // 3. Evidence-based completion check
+    // 2. Evidence-based completion check
     checkCompletionEvidence();
 
-    // 4. Garbage collection: old reviews & oversized logs
-    gcGeminiBridge();
-
-    // 5. Weekly cleanup: backups + observations rolling (7d interval)
+    // 3. Weekly cleanup: backups + observations rolling (7d interval)
     gcWeeklyCleanup();
   } catch (error) {
     console.error("[StopEvent] Error:", error.message);
@@ -196,107 +187,6 @@ function gcWeeklyCleanup() {
   } catch (_) {
     // fail-open
   }
-}
-
-/**
- * Gemini Bridge GC: 최신 리뷰 20개만 보존, 로그 100KB 초과 시 truncate
- */
-function gcGeminiBridge() {
-  try {
-    const reviewsDir = path.join(__dirname, "../gemini-bridge/reviews");
-    if (!fs.existsSync(reviewsDir)) return;
-
-    const files = fs
-      .readdirSync(reviewsDir)
-      .filter((f) => f.endsWith(".json"))
-      .sort()
-      .reverse(); // newest first (timestamp in filename)
-
-    const MAX_REVIEWS = 20;
-    if (files.length > MAX_REVIEWS) {
-      const toDelete = files.slice(MAX_REVIEWS);
-      for (const f of toDelete) {
-        try {
-          fs.unlinkSync(path.join(reviewsDir, f));
-        } catch (_) {}
-      }
-    }
-
-    // Log rotation: truncate logs over 100KB
-    const LOG_MAX = 100 * 1024;
-    const logs = ["trigger.log", "errors.log"].map((f) =>
-      path.join(__dirname, "../gemini-bridge", f),
-    );
-    for (const logPath of logs) {
-      try {
-        if (fs.existsSync(logPath) && fs.statSync(logPath).size > LOG_MAX) {
-          fs.writeFileSync(logPath, "", "utf8");
-        }
-      } catch (_) {}
-    }
-  } catch (_) {
-    // GC failure is non-critical
-  }
-}
-
-/**
- * Gemini 백그라운드 리뷰 트리거
- * lazy daemon이 활성이면 socket으로 전달, 아니면 direct spawn fallback
- */
-function triggerGeminiReview(editedFiles) {
-  try {
-    const socketPath = path.join(__dirname, "../gemini-bridge/gemini.sock");
-
-    if (fs.existsSync(socketPath)) {
-      // daemon 활성 → socket으로 파일 전송
-      const net = require("net");
-      const client = net.createConnection({ path: socketPath });
-      client.on("connect", () => {
-        editedFiles.forEach((f) =>
-          client.write(JSON.stringify({ file: f }) + "\n"),
-        );
-        client.end();
-        console.log("[StopEvent] Files sent to lazy daemon via socket.");
-      });
-      client.on("error", () => {
-        spawnDirectReview(editedFiles);
-      });
-      client.setTimeout(2000, () => {
-        client.destroy();
-        spawnDirectReview(editedFiles);
-      });
-      return;
-    }
-
-    spawnDirectReview(editedFiles);
-  } catch (e) {
-    try {
-      const errLog = path.join(__dirname, "../gemini-bridge/errors.log");
-      fs.appendFileSync(
-        errLog,
-        `[${new Date().toISOString()}] stopEvent: ${e.message}\n`,
-        "utf8",
-      );
-    } catch (_) {}
-  }
-}
-
-function spawnDirectReview(files) {
-  try {
-    const { spawn } = require("child_process");
-    const bridgePath = path.join(__dirname, "gemini-bridge.js");
-    const cleanEnv = { ...process.env };
-    delete cleanEnv.CLAUDE_SANDBOX;
-    delete cleanEnv.SANDBOX_MODE;
-    const child = spawn("node", [bridgePath, "review", ...files], {
-      detached: true,
-      stdio: "ignore",
-      cwd: process.cwd(),
-      env: cleanEnv,
-    });
-    child.unref();
-    console.log("[StopEvent] Gemini review spawned (direct fallback).");
-  } catch (_) {}
 }
 
 /**
@@ -415,10 +305,7 @@ function extractModuleName(filePath) {
 
 // ─── stdin 진입점 ─────────────────────────────────────────────
 
-const PENDING_FILES_PATH = path.join(
-  __dirname,
-  "../gemini-bridge/pending-files.txt",
-);
+const PENDING_FILES_PATH = path.join(__dirname, "../state/pending-files.txt");
 
 function readPendingFiles() {
   try {

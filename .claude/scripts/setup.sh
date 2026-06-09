@@ -11,7 +11,7 @@
 #   4) statusLine 스크립트 설치 + 경로를 $HOME 기준으로
 #   5) 머신 종속 경로 sanitize (jdtls/openjdk/JDK8 — brew prefix 동적, brew 부재 시 가드)
 #   6) settings.local.json 머신별 serena dead-entry 제거
-#   7) 외부 도구 진단 (gemini 는 sunset 예정이라 warn, 나머지 누락은 ❌ 비치명적)
+#   7) 외부 도구 진단 (누락은 ❌ 비치명적)
 #   8) self-verify (실패 시 exit 1)
 #
 # 플래그: --install-tools (brew/누락도구 설치 시도)   --no-zshrc (zshrc 자동편집 안내 생략)
@@ -124,7 +124,6 @@ for tool in node python3 jq sass jdtls mvn java svn; do
     printf '  ❌ %-8s 미설치\n' "$tool"; MISS=$((MISS+1))
   fi
 done
-command -v gemini >/dev/null 2>&1 || echo "  ⚠ gemini 미설치 (2026-06-18 sunset 예정 — warn, 치명적 아님)"
 if [ "$INSTALL_TOOLS" = 1 ] && command -v brew >/dev/null 2>&1; then
   for tool in jq sass; do command -v "$tool" >/dev/null 2>&1 || brew install "$tool"; done
 fi
