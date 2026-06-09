@@ -34,10 +34,18 @@ KiiPS `.claude` 에이전트 시스템은 **하부 정합성은 견고하나 상
 | **P1-3** 미배선 스킬 3종 (WIRE) | skill-rules.json에 promptTriggers 3종 등재(priority normal) | `skill-rules.json` | 3종 모두 자동 트리거 발동 확인 ✅ |
 | **P1-2** 미존재 orchestration 스킬 4종 (SHRINK) | 매니저 4종의 가공 스킬 참조 8건 → 공유 `kiips-orchestration` 정합 | `{build,feature,deployment,ui}-manager.md` | 잔존 참조 0 ✅ |
 | **P1-1** skill-rules dead config (정리+문서화) | managerAgent/orchestrationSkill/autoActivationLevel/delegationRules 제거 + 라우팅 정본 문서화 | `skill-rules.json`, `kiips-orchestration/SKILL.md` | dead 필드 0, JSON valid, catalog 새 drift 0 ✅ |
+| **P2-1** drift/catalog/scss/중복 | README 카운트 정정(Skills 27·훅 27·바인딩 16) + catalog 사각지대 2축(README Skills·산문 훅) + scssValidator 이중실행 제거 + ui-manager 중복 | `README.md`, `tests/catalog-integrity.sh`, `settings.json`, `ui-manager.md` | catalog **ALL PASS 12/12** ✅ |
+| **P2-2** mybatis priority | ref-only kiips-mybatis-guide critical→normal (`!` 노이즈 제거) | `skill-rules.json` | plain 제안 확인 ✅ |
+| **P2-3** DQUOTE `$()` + 문서정합 | tokenizer v1.1.0 STATE stack(`$()` 코드 탐지) + ralph 문서 현실화 + effort-scaling 밴드 런타임 정합 | `shellContextTokenizer.js`, `ralph-loop-detection.md`, `anti-rationalization.md`, `kiips-orchestration/SKILL.md` | `echo "$(rm -rf)"` exit 0→**2**, tokenizer **34/34** ✅ |
 
 **Read 축 보호 메커니즘 주의**: 검증된 보호는 **permissionGate 훅**(settings.json·커밋·전파, `cat`/Read/Grep 시크릿 → exit 2 실증). 단 (a) Read/Grep을 matcher에 넣어 **모든 read가 fail-closed 게이트를 거침** — perf 비용 + 훅 오류 시 정상 read도 차단되는 trade-off(저확률, 추후 deny-only 전환으로 튜닝 가능). (b) 선언적 `permissions.deny`는 **미검증 패턴 형식(`**/` vs 문서의 `./`)+로컬 전용(전파 X)** 이라 inert 거짓안심 방지 위해 **제거함**. 향후 defense-in-depth 원하면 커밋되는 settings.json에 문서 형식(`Read(./**/app-kiips.properties)`)으로 추가 후 재시작 검증 권장(특히 `KIIPS_PERMISSION_GATE=off` 시나리오 대비).
 
-**미적용(범위 외, 잔존 권고)**: P1 외 모든 P2 — README L13/L15/L79 카운트 drift(catalog FAIL 1건 = README 훅 26/27), catalog 사각지대 3축, ralph-loop 카운터 drift, scssValidator 이중실행, .min.js·backups/·worktrees/ 정리, ethicalValidator DQUOTE 우회.
+**잔존(보류·별개 과제, 사용자 결정 반영)**:
+- **사용자 보류**: orphan 삭제(.min.js 4종 + 빈 `backups/`·`worktrees/`) — rm 권한 차단 + 무해해 defer.
+- **sunset 연계 보류**: `orchestrate._callCount` dead counter + Gemini 리뷰 환각 → 2026-06-18 Gemini sunset과 함께 정리.
+- **별개 한계로 명시(범위 분리)**: ethicalValidator의 `bash -c "리터럴 명령"` 인터프리터 우회 + DQUOTE 내부 backtick 명령치환 — tokenizer `$()` STATE-stack 수정(P2-3) 범위 밖, 인터프리터 인자 인식이라는 다른 메커니즘 필요. `telemetry/`·`agent-team.log`는 무해 placeholder/로그라 변경 불필요로 결정.
+- **선언적 defense-in-depth(선택)**: Read 축 `permissions.deny`를 검증된 문서 형식(`Read(./**/app-kiips.properties)`)으로 커밋되는 settings.json에 추가 + 재시작 검증 — `KIIPS_PERMISSION_GATE=off` 대비용. 현재는 permissionGate 훅이 단독 보호.
+- **catalog 3번째 축 보류**: skill-rules↔disk 양방향 대조는 agent/tool/manual 항목 false-positive 위험으로 정밀 설계 후 추가 권장(README Skills·산문 훅 2축은 P2-1에서 추가 완료).
 
 ---
 
