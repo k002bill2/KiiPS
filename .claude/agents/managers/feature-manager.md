@@ -66,7 +66,7 @@ The Feature Manager orchestrates the complete feature development lifecycle from
   - Generates code review, testing, and deployment checklists
 
 ### Orchestration Skill
-- **feature-lifecycle-orchestration** (new skill for this Manager)
+- **kiips-orchestration** (shared orchestration skill)
   - Coordination patterns for feature development
   - Agent handoff strategies
   - Quality checkpoint enforcement
@@ -435,5 +435,5 @@ This agent follows the shared execution protocols:
 ---
 
 **Related Agents**: kiips-architect, kiips-developer, kiips-ui-designer, checklist-generator
-**Related Skills**: kiips-feature-planner, checklist-generator, feature-lifecycle-orchestration
+**Related Skills**: kiips-feature-planner, checklist-generator, kiips-orchestration
 **Permission Gate**: `.claude/hooks/permissionGate.js` (shared-module / architectural-change approval)

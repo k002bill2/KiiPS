@@ -70,7 +70,7 @@ The Deployment Manager orchestrates service deployment pipelines including stop/
   - Delegated to kiips-developer
 
 ### Orchestration Skill
-- **deployment-pipeline-orchestration** (new skill for this Manager)
+- **kiips-orchestration** (shared orchestration skill)
   - Deployment patterns and rollback strategies
   - Health check verification patterns
   - Incident response workflows
@@ -460,5 +460,5 @@ This agent follows the shared execution protocols:
 ---
 
 **Related Agents**: kiips-developer, checklist-generator
-**Related Skills**: kiips-build, kiips-logs, deployment-pipeline-orchestration
+**Related Skills**: kiips-build, kiips-logs, kiips-orchestration
 **Permission Gate**: `.claude/hooks/permissionGate.js` (service control / rollback approval)

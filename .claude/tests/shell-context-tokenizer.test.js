@@ -87,6 +87,15 @@ checkNeedle('echo "say \\"rm\\""', "rm", true, "'rm' inside dquote with escaped 
 checkNeedle('echo "ok" && rm x', "rm", false, "'rm' after closing dquote");
 
 console.log("");
+console.log("┌─ DQUOTE 내부 명령 치환 $() (v1.1.0) ─");
+checkNeedle('echo "$(rm -rf /tmp/x)"', "rm", false, "'rm' inside $() in dquote = CODE (차단 대상)");
+checkNeedle('echo "before $(rm x) after"', "before", true, "dquote 리터럴 텍스트(before)는 literal 유지");
+checkNeedle('echo "before $(rm x) after"', "rm", false, "$() 내부 = code");
+checkNeedle('echo "${HOME}/rm-stuff"', "rm-stuff", true, "${VAR} 파라미터확장은 명령아님 = literal 유지");
+checkNeedle('echo "$(echo "$(rm)")"', "rm", false, "중첩 $() = code");
+checkNeedle('echo "$(ls)" done', "done", false, "$() 종료 후 dquote 닫고 OUTSIDE 복귀");
+
+console.log("");
 console.log("┌─ COMMENT ─");
 checkNeedle("# rm -rf /", "rm", true, "'rm' in full-line comment");
 checkNeedle("ls ok # rm -rf /", "rm", true, "'rm' in trailing comment");

@@ -34,12 +34,14 @@ COMMON → UTILS → 서비스 모듈 (순서 무시 시 빌드 실패)
 
 ### 에이전트 할당 기준 (effort-scaling)
 
-| 복잡도 | 에이전트 수 | 예시 |
-|--------|-----------|------|
-| SIMPLE (1-3) | 1 | 단일 파일 수정 |
-| MODERATE (4-5) | 2 | 한 모듈 기능 추가 |
-| COMPLEX (6-7) | 3-4 | 멀티 모듈 기능 |
-| CRITICAL (8+) | 5+ | 아키텍처 변경 |
+| 복잡도 (점수/8) | 에이전트 수 | 예시 |
+|----------------|-----------|------|
+| SIMPLE (≤4) | 1 | 단일 파일 수정 |
+| MODERATE (5-6) | 2-3 | 한 모듈 기능 추가 |
+| COMPLEX (7-8) | 5+ | 멀티 모듈 / 아키텍처 변경 |
+
+> **정본**: `hooks/userPromptSubmit.js` effort 스코어러(`score<=4?SIMPLE:score<=6?MODERATE:COMPLEX`).
+> `agents/shared/effort-scaling.md`(Trivial/Simple/Moderate/Complex)는 Anthropic 일반 원칙 참고용 — 런타임 밴드와 별개.
 
 ---
 
@@ -59,6 +61,21 @@ kiips-feature-planner → kiips-backend → kiips-frontend-guidelines → /verif
 ```
 kiips-logs → /diagnose → fix → /verify → kiips-build(deploy)
 ```
+
+---
+
+## 라우팅/배선 정본 (Source of Truth)
+
+> 2026-06-09 정리. 매니저 자동 라우팅의 실제 동작 위치를 명시.
+
+- **매니저 선택 라우팅 = `hooks/userPromptSubmit.js`의 `detectManagerAgent()` 하드코딩 키워드.**
+  이것이 유일한 런타임 정본이다. (build/feature/deployment/ui-manager 매핑)
+- `skill-rules.json`의 `managerAgent`/`orchestrationSkill`/`autoActivationLevel`/`delegationRules`
+  필드는 **어떤 훅도 읽지 않던 dead config 였으며 제거됨.** 매니저↔워커 위임 설명은 각 매니저 `.md` 문서가 정본.
+- `skill-rules.json`의 `enforcement` 값 중 런타임 소비는 **`"block"`(blockRules 게이트)뿐**.
+  `"require"`/`"suggest"`는 advisory 표기일 뿐 강제력 없음.
+- 매니저 4종이 참조하던 per-manager orchestration 스킬(build/feature/deployment/ui-*-orchestration)은
+  **존재한 적 없으며**, 통합 오케스트레이션은 본 스킬(`kiips-orchestration`)이 단독 수행한다.
 
 ---
 

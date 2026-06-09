@@ -55,7 +55,7 @@ The Build Manager orchestrates Maven Multi-Module build workflows for the KiiPS 
   - Delegation: Manager plans workflow, workers execute Maven commands
 
 ### Orchestration Skill
-- **build-orchestration** (new skill for this Manager)
+- **kiips-orchestration** (shared orchestration skill)
   - Coordination patterns for parallel builds
   - Dependency resolution strategies
   - Build optimization techniques
@@ -292,5 +292,5 @@ This agent follows the shared execution protocols:
 ---
 
 **Related Agents**: kiips-developer, checklist-generator
-**Related Skills**: kiips-build, build-orchestration
+**Related Skills**: kiips-build, kiips-orchestration
 **Permission Gate**: `.claude/hooks/permissionGate.js` (pom.xml/shared module approval)

@@ -61,6 +61,10 @@ if [ -f .claude/skills-registry.json ]; then
 else
   printf "  ${YELLOW}[WARN]${NC} skills-registry.json 부재 — node .claude/scripts/build-registries.js 실행 권장\n"
 fi
+
+# README.md Overview 표의 Skills 카운트도 대조 (이전 SILENT GAP: README L13 미검사)
+README_SKILLS=$(grep -E '^\| Skills \|' .claude/README.md | grep -oE '[0-9]+' | head -1)
+check_count "README Skills 수" "$README_SKILLS" "$ACTUAL_SKILLS"
 echo ""
 
 # ─── 3. Commands ─────────────────────────────────────────────
@@ -87,7 +91,11 @@ check_count "훅 바인딩 수" "$README_BINDINGS" "$ACTUAL_BINDINGS"
 # 유니크 훅 파일 수 (min.js / log / README 제외 — 순수 훅 스크립트만)
 ACTUAL_UNIQUE=$(find .claude/hooks -maxdepth 1 -type f \( -name "*.js" -o -name "*.sh" \) -not -name "*.min.js" | wc -l | tr -d ' ')
 README_UNIQUE=$(grep 'Hooks (유니크)' .claude/README.md | grep -oE '\| [0-9]+' | grep -oE '[0-9]+' | head -1)
-check_count "유니크 훅 파일 수" "$README_UNIQUE" "$ACTUAL_UNIQUE"
+check_count "유니크 훅 파일 수 (README 표)" "$README_UNIQUE" "$ACTUAL_UNIQUE"
+
+# README.md 산문의 유니크 훅 카운트도 대조 (이전 SILENT GAP: 표만 검사, L79 산문 미검사)
+README_PROSE_HOOKS=$(grep -oE '[0-9]+개 유니크 훅' .claude/README.md | grep -oE '[0-9]+' | head -1)
+check_count "유니크 훅 수 (README 산문)" "$README_PROSE_HOOKS" "$ACTUAL_UNIQUE"
 echo ""
 
 # ─── 5. Commands 개별 파일 존재 검증 ────────────────────────

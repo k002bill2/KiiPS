@@ -10,10 +10,10 @@
 |------|----------|------------|
 | Agents | 13 (Specialist 7 + Manager 4 + System 2) | [`agents-registry.json`](./agents-registry.json) (수동 유지) |
 | Shared 프로토콜 | 4 | `agents/shared/` |
-| Skills | 31 (KiiPS 도메인 21 + 공통 3 + 디자인 7) | [`skills-registry.json`](./skills-registry.json) (자동 생성) + [`SKILLS.md`](./SKILLS.md) |
+| Skills | 27 (KiiPS 도메인 22 + 공통 3 + 디자인 2) | [`skills-registry.json`](./skills-registry.json) (자동 생성) + [`SKILLS.md`](./SKILLS.md) |
 | Commands | 24 | [`commands-registry.json`](./commands-registry.json) (자동 생성) + [`COMMANDS.md`](./COMMANDS.md) |
-| Hooks (유니크) | 26 | `hooks/` (.min.js 제외, .js/.sh 순수 훅 스크립트) |
-| Hooks (settings 바인딩) | 17 across 9 events | [`settings.json`](./settings.json) |
+| Hooks (유니크) | 27 | `hooks/` (.min.js 제외, .js/.sh 순수 훅 스크립트) |
+| Hooks (settings 바인딩) | 16 across 9 events | [`settings.json`](./settings.json) |
 | Permission Gates | 8 (2a PreToolUse) | [`docs/architecture.html`](./docs/architecture.html) |
 | MCP Servers | context7, serena, playwright, pencil, claude-in-chrome | `mcp.json` |
 
@@ -69,14 +69,13 @@
 | **PreToolUse** | `Edit\|Write` | jspXssGuard.js | JSP scriptlet XSS |
 | **PreToolUse** | `Edit\|Write` | impactAnalyzer.js | COMMON/UTILS 의미 영향 |
 | **UserPromptSubmit** | `*` | userPromptSubmit.js | 스킬 활성화 + specialist 라우팅 + Gemini 리뷰 주입 |
-| **PostToolUse** | `Bash\|Edit\|Write` | postToolOrchestrator.js | **허브** — autoFormatter·buildChecker·observe·agentStateManager·geminiAutoTrigger·outputSecretFilter 순차 실행 |
-| **PostToolUse** | `Edit\|Write` | scssValidator.sh | 다크테마 규칙 강제 |
+| **PostToolUse** | `Bash\|Edit\|Write` | postToolOrchestrator.js | **허브** — autoFormatter·buildChecker·scssValidator·themeCssVerGuard·observe·agentStateManager·geminiAutoTrigger·outputSecretFilter 순차 실행 |
 | **Stop** | `*` | stopEvent.js | **허브** — backupGc.sh·observationsRoller.js 호출 + 세션 메트릭 |
 | **PreCompact** | `*` | pre-compact-save.sh | 컨텍스트 자동 저장 |
 | **Notification** | `*` | notificationHandler.js | macOS 알림 |
 | **SessionStart** | `*` | update-reminder.sh → crossToolReader.js → regressionGuard.sh | 업데이트 체크 + 교차 도구 상태 + 회귀 가드 |
 
-총 17 바인딩 + 허브 내부 위임(postToolOrchestrator·stopEvent 경유) = **26개 유니크 훅 스크립트** (`.min.js` 미니파이 사본은 별도).
+총 16 바인딩 + 허브 내부 위임(postToolOrchestrator·stopEvent 경유) = **27개 유니크 훅 스크립트** (`.min.js` 미니파이 사본은 별도).
 
 ---
 

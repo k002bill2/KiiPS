@@ -14,17 +14,19 @@
  *   - 완전한 AST 파싱이 아닌 offset-based state scan
  *   - 의존성 0 (순수 JS)
  *
- * 알려진 한계 (harness-boundaries.md 참조):
- *   - DQUOTE 내부의 $(...) / backtick 은 현재 STATE_DQUOTE 를 유지하여 "literal
- *     내부" 로 분류됩니다. 예: `bash -c "rm $(evil_cmd)"` 의 `rm` 매치는
- *     DQUOTE 안에서 발견되어 isInsideShellLiteralOrComment === true 가 되고,
- *     가드가 차단을 skip 할 수 있습니다. 실제 shell 실행 의미상 $() 내부는
- *     새 명령 문맥이므로 차단되어야 하나, 본 tokenizer 는 이를 구분하지 않습니다.
- *   - 회피/해결: docs/harness-boundaries.md §1 참조.
- *   - 해결 시에는 STATE stack 을 도입하여 DQUOTE 중 '$(' 에 OUTSIDE 재진입,
- *     ')' 에서 복귀하는 방식이 필요합니다.
+ * DQUOTE 내부 명령 치환 (v1.1.0 해결):
+ *   - DQUOTE 내부의 $(...) 는 STATE stack 으로 OUTSIDE(코드) 문맥에 재진입하고
+ *     매칭 ')' 에서 복귀하여 올바르게 "코드" 로 분류됩니다.
+ *     예: `bash -c "rm $(evil)"` 의 `rm` 은 isInside===false → 가드 차단 유지.
+ *   - ${VAR} 파라미터 확장은 명령 실행이 아니므로 제외('$(' 만 매칭).
  *
- * @version 1.0.1 (한계 주석 정정 — drift 수정)
+ * 잔존 한계 (harness-boundaries.md §1):
+ *   - 레거시 backtick `...` 명령 치환은 아직 DQUOTE 내부에서 literal 로 분류됨.
+ *   - `bash -c "rm -rf /"` 처럼 인터프리터(-c)가 따옴표 리터럴을 명령으로 실행하는
+ *     경우는 본 tokenizer 범위 밖 (별개 메커니즘 — 인터프리터 인자 인식 필요).
+ *     실무 빈도 낮음 — 필요 시 $( 와 동일 패턴으로 확장 가능.
+ *
+ * @version 1.1.0 (DQUOTE 내부 $() 명령 치환 STATE stack 처리)
  */
 
 "use strict";
@@ -98,6 +100,10 @@ function isInsideShellLiteralOrComment(source, targetOffset) {
   let heredocStripTabs = false;
   let pendingHeredoc = null;
   let escapeNext = false;
+  // 명령 치환 $(...) 스택 (v1.1.0): shell 실행 의미상 $() 내부는 새 코드 문맥이므로
+  // DQUOTE/OUTSIDE 어디서 진입하든 OUTSIDE(코드)로 재진입하고 복귀 상태를 보존.
+  // 각 프레임의 parenDepth 로 중첩 괄호를 추적해 매칭되는 ')' 에서 복귀.
+  const subStack = [];
 
   for (let i = 0; i < source.length; i++) {
     if (i === targetOffset) {
@@ -136,6 +142,28 @@ function isInsideShellLiteralOrComment(source, targetOffset) {
           state = STATE_DQUOTE;
           break;
         }
+        // 명령 치환 진입: $(  (OUTSIDE 에서도 발생 가능 — 코드 문맥 유지하며 깊이 추적)
+        if (ch === "$" && source[i + 1] === "(") {
+          subStack.push({ returnState: STATE_OUTSIDE, parenDepth: 0 });
+          i++; // '(' 건너뜀
+          break;
+        }
+        // 명령 치환 내부의 괄호 깊이 추적 → 매칭 ')' 에서 복귀
+        if (subStack.length > 0) {
+          const sub = subStack[subStack.length - 1];
+          if (ch === "(") {
+            sub.parenDepth++;
+            break;
+          }
+          if (ch === ")") {
+            if (sub.parenDepth > 0) sub.parenDepth--;
+            else {
+              state = sub.returnState;
+              subStack.pop();
+            }
+            break;
+          }
+        }
         if (ch === "<" && source[i + 1] === "<" && !pendingHeredoc) {
           const marker = parseHeredocMarker(source, i + 2);
           if (marker) {
@@ -159,6 +187,14 @@ function isInsideShellLiteralOrComment(source, targetOffset) {
       case STATE_DQUOTE:
         if (ch === "\\") {
           escapeNext = true;
+          break;
+        }
+        // DQUOTE 내부의 $( → 명령 치환은 실제 새 명령 실행 → 코드 문맥(OUTSIDE) 재진입.
+        // ( ${VAR} 파라미터 확장은 명령 실행이 아니므로 제외 — '$(' 만 매칭 )
+        if (ch === "$" && source[i + 1] === "(") {
+          subStack.push({ returnState: STATE_DQUOTE, parenDepth: 0 });
+          state = STATE_OUTSIDE;
+          i++; // '(' 건너뜀
           break;
         }
         if (ch === '"') state = STATE_OUTSIDE;

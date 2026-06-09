@@ -11,7 +11,7 @@
         ]
       },
       {
-        "matcher": "Bash|Edit|Write",
+        "matcher": "Bash|Edit|Write|Read|Grep",
         "hooks": [
           {
             "type": "command",
@@ -24,7 +24,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 -c \"import json,sys; p=json.load(sys.stdin).get('tool_input',{}).get('file_path',''); blocked=['.env','secrets','.git/','app-kiips.properties','app-stg.properties','app-local.properties','app-tibero.properties','credentials','.secret','password']; sys.exit(2 if any(b in p for b in blocked) else 0)\""
+            "command": "python3 -c \"import json,sys\ntry:\n p=json.load(sys.stdin).get('tool_input',{}).get('file_path','')\nexcept Exception:\n sys.exit(2)\nblocked=['.env','secrets','.git/','app-kiips.properties','app-stg.properties','app-local.properties','app-tibero.properties','app-production.properties','credentials','.secret','password']\nsys.exit(2 if any(b in p for b in blocked) else 0)\""
           }
         ]
       },
@@ -92,15 +92,6 @@
           {
             "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/postToolOrchestrator.js"
-          }
-        ]
-      },
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/scssValidator.sh"
           }
         ]
       }

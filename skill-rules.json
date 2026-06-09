@@ -35,13 +35,6 @@
     "type": "domain",
     "enforcement": "require",
     "priority": "high",
-    "managerAgent": "feature-manager",
-    "orchestrationSkill": "kiips-orchestration",
-    "autoActivationLevel": "manager",
-    "delegationRules": {
-      "managerHandles": "기능 개발 라이프사이클 조정, 단계별 handoff (architect→developer→QA), 품질 체크포인트 강제, dev docs 관리",
-      "workerHandles": "아키텍처 설계 (kiips-architect), 코드 구현 (kiips-developer), UI 개발 (kiips-ui-designer), 검증 (checklist-generator)"
-    },
     "promptTriggers": {
       "keywords": ["기능", "feature", "개발", "계획", "plan", "구현", "implement"],
       "intentPatterns": [
@@ -62,13 +55,6 @@
     "enforcement": "require",
     "priority": "high",
     "description": "JSP 컴포넌트 템플릿 기반 생성 (RealGrid, ApexCharts, Bootstrap 폼, 팝업)",
-    "managerAgent": "ui-manager",
-    "orchestrationSkill": "kiips-orchestration",
-    "autoActivationLevel": "worker",
-    "delegationRules": {
-      "managerHandles": "UI 컴포넌트 구현 계획, 템플릿 선택 조정, 검증 파이프라인 조정 (반응형→접근성→크로스브라우저)",
-      "workerHandles": "JSP 파일 생성, RealGrid 초기화 코드, ApexCharts 설정, Bootstrap 레이아웃, SCSS 스타일 작성, 팝업 템플릿 생성"
-    },
     "promptTriggers": {
       "keywords": [
         "UI 컴포넌트",
@@ -113,13 +99,6 @@
     "enforcement": "require",
     "priority": "critical",
     "description": "RealGrid 2.6.3 종합 가이드 - 그리드 생성, 설정, 에디터, Excel, 성능 최적화",
-    "managerAgent": "ui-manager",
-    "orchestrationSkill": "kiips-orchestration",
-    "autoActivationLevel": "worker",
-    "delegationRules": {
-      "managerHandles": "RealGrid 생성/설정 감독, 멀티 레벨 헤더 설계 검토, KiiPS 표준 패턴 검증, Excel export/import 전략, 성능 최적화",
-      "workerHandles": "GridView/DataProvider 초기화, 컬럼 정의 생성, 멀티 레벨 헤더 구현, 커스텀 렌더러 연동, 셀 에디터 설정, 필터/정렬/그룹핑 구현"
-    },
     "promptTriggers": {
       "keywords": [
         "RealGrid",
@@ -165,14 +144,6 @@
     "type": "tool",
     "enforcement": "suggest",
     "priority": "normal",
-    "managerAgent": "shared",
-    "orchestrationSkill": "shared",
-    "autoActivationLevel": "worker",
-    "delegationRules": {
-      "managerHandles": "체크리스트 요청 조정, 체크포인트 타이밍 결정, 검증 결과 평가",
-      "workerHandles": "도메인별 체크리스트 생성 (빌드, 배포, 코드 리뷰, UI 검증, 테스트)",
-      "sharedBy": ["build-manager", "feature-manager", "ui-manager", "deployment-manager"]
-    },
     "promptTriggers": {
       "keywords": [
         "checklist",
@@ -258,7 +229,6 @@
     "description": "Post-implementation code refactoring and simplification (Boris Cherny principle)",
     "agentFile": ".claude/agents/code-simplifier.md",
     "model": "haiku",
-    "autoActivationLevel": "manual",
     "promptTriggers": {
       "keywords": [
         "simplify",
@@ -434,7 +404,7 @@
   "kiips-mybatis-guide": {
     "type": "domain",
     "enforcement": "require",
-    "priority": "critical",
+    "priority": "normal",
     "description": "MyBatis 종합 가이드 - #{} vs ${}, mapper.xml 패턴, 동적 SQL",
     "promptTriggers": {
       "keywords": ["MyBatis", "마이바티스", "mapper.xml", "동적SQL", "TypeHandler"],
@@ -725,6 +695,51 @@
         "(학습|learning|instinct).*?(패턴|pattern)",
         "(스킬|skill).*?(생성|create|factory)",
         "(관찰|observe).*?(분석|analyze)"
+      ]
+    }
+  },
+
+  "kiips-operator-onboarding": {
+    "type": "domain",
+    "enforcement": "suggest",
+    "priority": "normal",
+    "description": "신규 운용사 로그인 페이지 자동 설정 파이프라인 (LibConfiguration 매핑, signup SCSS 분기, 로고/배경, 캐시버스팅)",
+    "promptTriggers": {
+      "keywords": ["신규 운용사", "운용사 코드", "운용사 추가", "로그인 페이지 분기", "신규 LIB", "operator onboarding"],
+      "intentPatterns": [
+        "(신규|new).*?(운용사|operator|LIB)",
+        "(운용사|operator).*?(추가|등록|add|onboard)",
+        "(로그인|login).*?(페이지|page).*?(분기|설정|branch)"
+      ]
+    }
+  },
+
+  "kiips-page-harness": {
+    "type": "domain",
+    "enforcement": "suggest",
+    "priority": "normal",
+    "description": "신규 JSP 페이지 자동 생성 (Plan→Generate→Evaluate 3-agent 파이프라인). 자동 QA 포함. 기존 페이지 수정/컴포넌트 단건 추가는 대상 아님",
+    "promptTriggers": {
+      "keywords": ["페이지 자동 생성", "harness", "하네스 실행", "자동 생성 파이프라인", "페이지 하네스", "자동 QA 페이지"],
+      "intentPatterns": [
+        "(페이지|화면|page).*?(자동|auto).*?(생성|create)",
+        "(harness|하네스).*?(실행|run|생성)",
+        "(1줄|한 줄|one.?line).*?(프롬프트|prompt).*?(페이지|생성)"
+      ]
+    }
+  },
+
+  "kiips-stitch-bridge": {
+    "type": "domain",
+    "enforcement": "suggest",
+    "priority": "normal",
+    "description": "Stitch/Pencil 디자인(.pen, .stitch)을 KiiPS JSP/Bootstrap/RealGrid로 변환",
+    "promptTriggers": {
+      "keywords": ["stitch", "pencil", ".pen", ".stitch", "디자인 변환", "디자인을 JSP"],
+      "intentPatterns": [
+        "(stitch|pencil).*?(디자인|design|변환|convert)",
+        "(\\.pen|\\.stitch).*?",
+        "(디자인|design).*?(변환|convert|JSP|페이지)"
       ]
     }
   }

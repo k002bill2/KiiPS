@@ -129,6 +129,25 @@ expectAllowed("Read", { file_path: "/x/start.sh" }, "Read tool on start.sh → a
 expectAllowed("Glob", { pattern: "start.sh" }, "Glob on start.sh → allowed");
 
 console.log("");
+console.log("┌─ 시크릿 파일 접근 차단 (P0-2026-06-09) ─");
+// Read/Grep 축: 실 크리덴셜 파일 열람/검색 차단
+expectBlocked("Read", { file_path: "/x/src/main/resources/app-kiips.properties" }, "Read app-kiips.properties (prod)");
+expectBlocked("Read", { file_path: "/x/app-stg.properties" }, "Read app-stg.properties (staging)");
+expectBlocked("Grep", { path: "/x/app-tibero.properties" }, "Grep app-tibero.properties (DB)");
+expectBlocked("Read", { file_path: "/x/.env" }, "Read .env");
+expectBlocked("Read", { file_path: "/x/.env.local" }, "Read .env.local");
+// Bash 축: cat/less 등으로 시크릿 읽기 차단
+expectBlocked("Bash", { command: "cat /opt/kiips/app-kiips.properties" }, "cat app-kiips.properties");
+expectBlocked("Bash", { command: "less app-tibero.properties" }, "less app-tibero.properties");
+expectBlocked("Bash", { command: "cat .env" }, "cat .env");
+// 허용: 일반 파일 + AST 따옴표 필터 + app-local(로컬 dev, 의도적 허용)
+expectAllowed("Read", { file_path: "/x/FooController.java" }, "Read Foo.java → allowed");
+expectAllowed("Read", { file_path: "/x/app-local.properties" }, "Read app-local.properties → allowed (로컬 dev/DB 디버깅)");
+expectAllowed("Edit", { file_path: "/x/app-local.properties" }, "Edit app-local.properties → allowed (dev 편집)");
+expectAllowed("Bash", { command: 'echo "see app-kiips.properties docs"' }, "echo with app-kiips in dquote (AST: allowed)");
+expectAllowed("Bash", { command: "mvn clean package" }, "mvn package → allowed");
+
+console.log("");
 console.log("═══════════════════════════════════════════════════════");
 const total = pass + fail;
 if (fail === 0) {
