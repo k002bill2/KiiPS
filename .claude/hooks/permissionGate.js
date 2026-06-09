@@ -79,11 +79,12 @@ const BLOCKED_BASH_PATTERNS = [
  * P0-2026-06-09: permissionRules(비공식 키, inert) 가 담당하던 시크릿 보호를
  * 작동하는 fail-CLOSED 게이트로 이관. Read 축(cat/Read 도구) 무방비 해소.
  */
+// 주: app-local.properties 는 로컬 dev 설정(편집 허용 + 로컬 DB 디버깅 시 열람 필요)
+// 이므로 read-block 대상에서 의도적으로 제외. 실 크리덴셜(prod/stg/production/tibero)만 차단.
 const SECRET_FILE_PATTERNS = [
   { regex: /app-kiips\.properties$/i, reason: "프로덕션 설정 파일 접근" },
   { regex: /app-stg\.properties$/i, reason: "스테이징 설정 파일 접근" },
   { regex: /app-production\.properties$/i, reason: "프로덕션 설정 파일 접근" },
-  { regex: /app-local\.properties$/i, reason: "로컬 설정 파일 접근" },
   { regex: /app-tibero\.properties$/i, reason: "Tibero DB 설정 파일 접근" },
   { regex: /(^|\/)\.env(\.[\w.-]+)?$/i, reason: "환경변수 시크릿(.env) 접근" },
   { regex: /credentials(\.[\w.-]+)?$/i, reason: "자격증명 파일 접근" },
@@ -107,10 +108,6 @@ const SECRET_BASH_PATTERNS = [
   {
     regex: /app-production\.properties/i,
     reason: "Bash 를 통한 프로덕션 설정 파일 접근",
-  },
-  {
-    regex: /app-local\.properties/i,
-    reason: "Bash 를 통한 로컬 설정 파일 접근",
   },
   {
     regex: /app-tibero\.properties/i,

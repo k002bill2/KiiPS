@@ -38,7 +38,10 @@ KiiPS `.claude` 에이전트 시스템은 **하부 정합성은 견고하나 상
 | **P2-2** mybatis priority | ref-only kiips-mybatis-guide critical→normal (`!` 노이즈 제거) | `skill-rules.json` | plain 제안 확인 ✅ |
 | **P2-3** DQUOTE `$()` + 문서정합 | tokenizer v1.1.0 STATE stack(`$()` 코드 탐지) + ralph 문서 현실화 + effort-scaling 밴드 런타임 정합 | `shellContextTokenizer.js`, `ralph-loop-detection.md`, `anti-rationalization.md`, `kiips-orchestration/SKILL.md` | `echo "$(rm -rf)"` exit 0→**2**, tokenizer **34/34** ✅ |
 
-**Read 축 보호 메커니즘 주의**: 검증된 보호는 **permissionGate 훅**(settings.json·커밋·전파, `cat`/Read/Grep 시크릿 → exit 2 실증). 단 (a) Read/Grep을 matcher에 넣어 **모든 read가 fail-closed 게이트를 거침** — perf 비용 + 훅 오류 시 정상 read도 차단되는 trade-off(저확률, 추후 deny-only 전환으로 튜닝 가능). (b) 선언적 `permissions.deny`는 **미검증 패턴 형식(`**/` vs 문서의 `./`)+로컬 전용(전파 X)** 이라 inert 거짓안심 방지 위해 **제거함**. 향후 defense-in-depth 원하면 커밋되는 settings.json에 문서 형식(`Read(./**/app-kiips.properties)`)으로 추가 후 재시작 검증 권장(특히 `KIIPS_PERMISSION_GATE=off` 시나리오 대비).
+**Read 축 보호 메커니즘 주의**:
+- **검증 등급**: permissionGate 훅 *로직*은 단위테스트로 검증됨(`permission-gate.test.js` 51/51 — 시크릿 Read/Grep/Bash 차단 + app-local/일반파일 허용 영구 회귀). Bash 축은 기존 `Bash` matcher라 **live**. 단 **Read/Grep matcher 배선은 런타임 미검증**(이 repo에서 Read를 matcher에 넣은 훅이 처음 — CC가 Read에 permissionGate를 실제 발화하는지 무전례). settings.json은 hot-reload 안 됨 → **다음 세션 재시작 후 스모크 테스트 필수**: `cat app-kiips.properties` 실제 차단 + 일반 `Read foo.java` 정상 동작(matcher가 정상 read를 막지 않는지) 둘 다 확인. 즉 "exit 2"는 logic-verified, runtime-pending.
+- (a) Read/Grep을 matcher에 넣어 **모든 read가 fail-closed 게이트를 거침** — perf 비용 + 훅 오류 시 정상 read도 차단되는 trade-off(저확률, 추후 deny-only 전환으로 튜닝 가능). (b) 선언적 `permissions.deny`는 **미검증 패턴 형식(`**/` vs 문서의 `./`)+로컬 전용(전파 X)** 이라 inert 거짓안심 방지 위해 **제거함**. 향후 defense-in-depth 원하면 커밋되는 settings.json에 문서 형식(`Read(./**/app-kiips.properties)`)으로 추가 후 재시작 검증 권장(특히 `KIIPS_PERMISSION_GATE=off` 시나리오 대비).
+- app-local.properties 는 read-block에서 **제외**(로컬 dev 설정 — 편집 허용과 대칭 + 로컬 DB 디버깅 시 열람 필요). 차단 대상은 prod(app-kiips)·staging(app-stg/production)·DB(app-tibero)·`.env`·credentials.
 
 **잔존(보류·별개 과제, 사용자 결정 반영)**:
 - **사용자 보류**: orphan 삭제(.min.js 4종 + 빈 `backups/`·`worktrees/`) — rm 권한 차단 + 무해해 defer.
