@@ -392,5 +392,5 @@ This agent follows the shared execution protocols:
 ---
 
 **Related Agents**: kiips-ui-designer, kiips-developer, checklist-generator
-**Related Skills**: kiips-ui-component-builder, kiips-realgrid-guide, kiips-quality, kiips-quality, kiips-scss, kiips-orchestration
+**Related Skills**: kiips-ui-component-builder, kiips-realgrid-guide, kiips-quality, kiips-scss, kiips-orchestration
 **Permission Gate**: `.claude/hooks/permissionGate.js` (pom.xml / shared UI pattern approval)
