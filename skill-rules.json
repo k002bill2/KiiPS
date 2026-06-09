@@ -404,7 +404,7 @@
   "kiips-mybatis-guide": {
     "type": "domain",
     "enforcement": "require",
-    "priority": "critical",
+    "priority": "normal",
     "description": "MyBatis 종합 가이드 - #{} vs ${}, mapper.xml 패턴, 동적 SQL",
     "promptTriggers": {
       "keywords": ["MyBatis", "마이바티스", "mapper.xml", "동적SQL", "TypeHandler"],
