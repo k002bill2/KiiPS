@@ -49,7 +49,7 @@ async function onPostToolUse(event) {
       "/.claude/.test-payloads/",
       "/.claude/rules/",
       "/.claude/learning/",
-      "/.claude/gemini-bridge/",
+      "/.claude/state/",
     ];
     for (const frag of SKIP_PATH_FRAGMENTS) {
       if (filePath.includes(frag)) {

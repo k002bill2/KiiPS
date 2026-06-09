@@ -1,4 +1,4 @@
-# KiiPS Active Commands (24개)
+# KiiPS Active Commands (23개)
 
 > CLAUDE.md에서 분리된 커맨드 카탈로그. 커맨드는 자동 발견되므로 이 파일은 참조용입니다.
 > 마지막 실측 동기화: 2026-04-22 (v3.5.2). `tests/catalog-integrity.sh` 로 drift 자동 검증.
@@ -28,7 +28,6 @@
 | `/test-coverage` | JUnit 테스트 + JaCoCo 커버리지 |
 | `/my-workflow` | 개발 워크플로우 |
 | `/eval` | AI 에이전트 평가 |
-| `/gemini-scan` | Gemini 보안 스캔 |
 | `/service-status` | 서비스 상태 확인 |
 | `/view-logs` | 로그 조회 |
 | `/instinct-status` | 학습 패턴 조회 |

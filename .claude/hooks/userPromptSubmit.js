@@ -87,10 +87,7 @@ function classifyPromptComplexity(prompt) {
  */
 function captureScope(prompt) {
   try {
-    const scopePath = path.join(
-      __dirname,
-      "../gemini-bridge/.scope-state.json",
-    );
+    const scopePath = path.join(__dirname, "../state/.scope-state.json");
 
     // 기존 scope 확인 — 만료되지 않은 scope가 있으면 덮어쓰지 않음
     if (fs.existsSync(scopePath)) {
@@ -185,10 +182,6 @@ async function onUserPromptSubmit(prompt, context) {
     // Specialist Agent 라우팅 (STANDARD 이상)
     const specialistRoute = routeToSpecialist(prompt);
     if (specialistRoute) messages.push(specialistRoute);
-
-    // Gemini 리뷰 주입 (최신 1개, 최적화된 로딩)
-    const geminiReview = loadLatestGeminiReview();
-    if (geminiReview) messages.unshift(geminiReview);
 
     // --- COMPLEX만: Manager + Effort ---
     if (complexity === "COMPLEX") {
@@ -580,58 +573,11 @@ function shouldActivateSkill(prompt, rule) {
   return false;
 }
 
-// ─── Gemini Review 로딩 (최적화: 파일명 정렬 + 최신 5개만) ──
-
-function loadLatestGeminiReview() {
-  try {
-    const reviewsDir = path.join(__dirname, "../gemini-bridge/reviews");
-    if (!fs.existsSync(reviewsDir)) return null;
-
-    // 파일명에 타임스탬프가 포함 → 파일명 역순 정렬로 최신 순 확보
-    const allFiles = fs
-      .readdirSync(reviewsDir)
-      .filter((f) => f.endsWith(".json"))
-      .sort((a, b) => b.localeCompare(a));
-
-    // 최신 5개만 읽고, 첫 completed 발견 시 중단
-    const maxScan = Math.min(allFiles.length, 5);
-    for (let i = 0; i < maxScan; i++) {
-      try {
-        const fullPath = path.join(reviewsDir, allFiles[i]);
-        const data = JSON.parse(fs.readFileSync(fullPath, "utf8"));
-        if (data.status !== "completed") continue;
-
-        // 'shown' 마킹
-        data.status = "shown";
-        data.shownAt = new Date().toISOString();
-        fs.writeFileSync(fullPath, JSON.stringify(data, null, 2), "utf8");
-
-        // 메시지 포맷
-        const attention = data.needsAttention ? "ATTENTION" : "OK";
-        let msg = `[GEMINI] ${attention} - ${data.summary || data.verdict || "(no summary)"}`;
-
-        const criticals = (data.issues || []).filter(
-          (i) => i.severity === "critical",
-        );
-        if (criticals.length > 0) {
-          msg += "\n  CRITICAL: " + criticals.map((i) => i.text).join(" | ");
-        }
-        return msg;
-      } catch (_) {
-        continue;
-      }
-    }
-    return null;
-  } catch (_) {
-    return null;
-  }
-}
-
 // ─── Token Budget (컨텍스트 윈도우 보호) ────────────────────
 
 /**
  * 주입 메시지 총량을 버짓 내로 제한
- * 우선순위: BLOCKED > Gemini > Skills > Specialist > 나머지
+ * 우선순위: BLOCKED > Skills > Specialist > 나머지
  * @param {string[]} messages
  * @param {number} budgetChars - 최대 문자 수
  * @returns {string}

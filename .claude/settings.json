@@ -51,15 +51,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/geminiReviewGate.js"
-          }
-        ]
-      },
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/jspXssGuard.js"
           }
         ]
@@ -136,10 +127,6 @@
           {
             "type": "command",
             "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/update-reminder.sh"
-          },
-          {
-            "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/crossToolReader.js 2>>\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/hook-errors.log || true"
           },
           {
             "type": "command",
@@ -418,24 +405,6 @@
       "tool": "Bash",
       "pattern": "mkdir:*",
       "description": "Allow creating directories"
-    },
-    {
-      "type": "allow",
-      "tool": "Bash",
-      "pattern": "node ./.claude/hooks/gemini-bridge.js:*",
-      "description": "Allow Gemini bridge execution for code review"
-    },
-    {
-      "type": "allow",
-      "tool": "Bash",
-      "pattern": "gemini:*",
-      "description": "Allow Gemini CLI binary execution"
-    },
-    {
-      "type": "allow",
-      "tool": "Bash",
-      "pattern": "mkdir:./.claude/gemini-bridge*",
-      "description": "Allow creating gemini-bridge directories"
     },
     {
       "type": "allow",

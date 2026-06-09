@@ -21,7 +21,7 @@ const PROJECT_ROOT = path.resolve(__dirname, "../..");
 const SHARED_MODULE_PATTERN = /(KiiPS-COMMON|KiiPS-UTILS)\//;
 const STATE_FILE = path.join(
   PROJECT_ROOT,
-  ".claude/gemini-bridge/.impact-analysis.json",
+  ".claude/state/.impact-analysis.json",
 );
 const NOTIFY_INTERVAL_MS = 30 * 60 * 1000; // 동일 파일 30분에 한 번만 알림
 const REFERENCE_THRESHOLD = 5; // 5개 모듈 이상 참조 시 경고

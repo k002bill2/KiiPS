@@ -43,11 +43,6 @@
       "description": "Instinct 클러스터링 → 스킬/커맨드/에이전트 진화",
       "allowedTools": null
     },
-    "gemini-scan": {
-      "file": ".claude/commands/gemini-scan.md",
-      "description": "Gemini CLI 보안 취약점 스캔 (검증 전용)",
-      "allowedTools": null
-    },
     "instinct-gc": {
       "file": ".claude/commands/instinct-gc.md",
       "description": "Instinct garbage collection - archive stale/low-confidence instincts",
@@ -125,6 +120,6 @@
     }
   },
   "stats": {
-    "totalCommands": 24
+    "totalCommands": 23
   }
 }

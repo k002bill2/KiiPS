@@ -9,14 +9,13 @@
  *   2. buildChecker.js    - Maven 빌드 검증 (Edit|Write)
  *   3. scssValidator.sh   - SCSS 다크테마 검증 (Edit|Write, .scss only)
  *   3-b. themeCssVerGuard.sh - theme.css ?ver= 캐시 버스터 누락 감지 (Edit|Write, .scss only)
- *   4. geminiAutoTrigger.js - Gemini lazy daemon trigger (Edit|Write)
+ *   4. pendingFiles 적재  - 편집 파일 큐잉 (stopEvent 자가검증 입력, Edit|Write)
  *   5. observe.js          - 학습 관찰 (Bash|Edit|Write)
  *   6. outputSecretFilter.js - 비밀번호 필터링 (Bash only)
- *   7. geminiRealtimeFeedback - Gemini 리뷰 완료 결과 실시간 주입 (v1.1)
  *
  * 성능: 6 프로세스 → 1 프로세스 (shell hooks는 child_process.execSync)
  *
- * @version 1.1.0 - Gemini 실시간 피드백 추가
+ * @version 2.0.0 - 외부 CLI 리뷰 통합 제거 (Antigravity 전환 선행정리)
  */
 
 const path = require("path");
@@ -40,7 +39,7 @@ try {
 // ─── Evidence State Path ────────────────────────────────────
 const EVIDENCE_PATH = path.join(
   __dirname,
-  "../gemini-bridge/.completion-evidence.json",
+  "../state/.completion-evidence.json",
 );
 
 /**
@@ -171,15 +170,25 @@ async function orchestrate(event) {
     runShellHook("themeCssVerGuard.sh", event);
   }
 
-  // 4. Gemini Auto-Trigger (Edit|Write only)
+  // 4. Pending files 적재 (stopEvent 자가검증 입력) — Edit|Write only
+  //    편집 파일을 큐잉해 Stop 시점 자가검증 체크리스트가 소비한다.
   if (isEditWrite && filePath) {
     try {
-      const geminiTrigger = require(
-        path.join(hooksDir, "geminiAutoTrigger.js"),
-      );
-      geminiTrigger.trigger(filePath);
+      const pendingPath = path.join(__dirname, "../state/pending-files.txt");
+      let existing = [];
+      if (fs.existsSync(pendingPath)) {
+        existing = fs
+          .readFileSync(pendingPath, "utf8")
+          .split("\n")
+          .filter(Boolean);
+      }
+      if (!existing.includes(filePath)) {
+        const dir = path.dirname(pendingPath);
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+        fs.appendFileSync(pendingPath, filePath + "\n", "utf8");
+      }
     } catch (e) {
-      process.stderr.write(`[Orchestrator] geminiAutoTrigger: ${e.message}\n`);
+      process.stderr.write(`[Orchestrator] pendingFiles: ${e.message}\n`);
     }
   }
 
@@ -199,45 +208,11 @@ async function orchestrate(event) {
     process.stderr.write(`[Orchestrator] observe: ${e.message}\n`);
   }
 
-  // 7. Gemini 리뷰 실시간 피드백 (signal 기반 Fast-Pass)
+  // 7. Agent State: stale 에이전트 정리 (매 50번째 호출마다)
+  //    _callCount 증가 로직은 이전 외부 리뷰 섹션에 있었으나 여기로 이전(결합 보존).
   try {
-    const signalPath = path.join(
-      __dirname,
-      "../gemini-bridge/.review-signal.json",
-    );
-    let signalTriggered = false;
-
-    if (fs.existsSync(signalPath)) {
-      try {
-        const signal = JSON.parse(fs.readFileSync(signalPath, "utf8"));
-        if (signal.hasNew) {
-          // Signal 소비 (reset)
-          signal.hasNew = false;
-          fs.writeFileSync(signalPath, JSON.stringify(signal), "utf8");
-          if (signal.severity === "critical") {
-            checkGeminiReviewsRealtime();
-            signalTriggered = true;
-          }
-        }
-      } catch (_) {
-        // malformed signal, ignore
-      }
-    }
-
-    // Critical이 아니면 기존 10번째 호출 fallback 유지
-    if (!signalTriggered) {
-      if (!orchestrate._callCount) orchestrate._callCount = 0;
-      orchestrate._callCount++;
-      if (orchestrate._callCount % 10 === 0) {
-        checkGeminiReviewsRealtime();
-      }
-    }
-  } catch (e) {
-    // 리뷰 피드백 실패는 무시
-  }
-
-  // 8. Agent State: stale 에이전트 정리 (매 50번째 호출마다)
-  try {
+    if (!orchestrate._callCount) orchestrate._callCount = 0;
+    orchestrate._callCount++;
     if (orchestrate._callCount % 50 === 0) {
       agentState.cleanupStale();
     }
@@ -251,103 +226,6 @@ async function orchestrate(event) {
   } catch (e) {
     // 증거 수집 실패는 무시
   }
-}
-
-/**
- * Gemini 리뷰 실시간 피드백 (v1.1)
- *
- * .claude/gemini-bridge/reviews/ 에 새로 완료된 리뷰가 있으면
- * 현재 세션에 즉시 피드백을 주입합니다.
- * SessionStart가 아닌 PostToolUse 시점에서 실행되어 "실시간" 효과.
- */
-function checkGeminiReviewsRealtime() {
-  const reviewsDir = path.join(__dirname, "../gemini-bridge/reviews");
-  const shownFile = path.join(
-    __dirname,
-    "../gemini-bridge/.shown-reviews.json",
-  );
-
-  if (!fs.existsSync(reviewsDir)) return;
-
-  // 이미 표시한 리뷰 목록 로드
-  let shown = [];
-  try {
-    if (fs.existsSync(shownFile)) {
-      shown = JSON.parse(fs.readFileSync(shownFile, "utf8"));
-    }
-  } catch (_) {
-    shown = [];
-  }
-
-  // 리뷰 파일 스캔
-  const reviewFiles = fs
-    .readdirSync(reviewsDir)
-    .filter((f) => f.endsWith(".json") && !shown.includes(f));
-
-  if (reviewFiles.length === 0) return;
-
-  const newReviews = [];
-  for (const f of reviewFiles) {
-    try {
-      const data = JSON.parse(
-        fs.readFileSync(path.join(reviewsDir, f), "utf8"),
-      );
-      if (data.status === "completed" && data.needsAttention) {
-        newReviews.push({ name: f, data });
-      }
-      // 완료된 리뷰는 표시 여부와 관계없이 shown에 추가 (재표시 방지)
-      if (data.status === "completed") {
-        shown.push(f);
-      }
-    } catch (_) {
-      // 파싱 실패 무시
-    }
-  }
-
-  // shown 목록 저장 (중복 표시 방지)
-  try {
-    const dir = path.dirname(shownFile);
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(shownFile, JSON.stringify(shown, null, 2), "utf8");
-  } catch (_) {}
-
-  // 주의가 필요한 리뷰만 실시간 피드백
-  if (newReviews.length === 0) return;
-
-  const feedback = [
-    ``,
-    `┌─── GEMINI REVIEW FEEDBACK (realtime) ───────────────┐`,
-  ];
-
-  for (const review of newReviews) {
-    const d = review.data;
-    const issues = d.issues || [];
-    const critical = issues.filter((x) => x.severity === "critical");
-    const type = (d.scanType || "review").toUpperCase();
-
-    feedback.push(`│ [${type}] ${review.name}`);
-    feedback.push(
-      `│   Issues: ${issues.length} (critical: ${critical.length})`,
-    );
-
-    // Critical 이슈 최대 3개 표시
-    critical.slice(0, 3).forEach((issue) => {
-      const text = (issue.text || "").substring(0, 70);
-      feedback.push(`│   CRITICAL: ${text}`);
-    });
-
-    if (d.verdict) {
-      feedback.push(`│   Verdict: ${d.verdict}`);
-    }
-  }
-
-  feedback.push(`│`);
-  feedback.push(`│ Run /gemini-handoff read for full details`);
-  feedback.push(`└────────────────────────────────────────────────────┘`);
-  feedback.push(``);
-
-  // stderr로 출력하여 Claude가 인식
-  process.stderr.write(feedback.join("\n"));
 }
 
 // ─── CLI Entry Point ────────────────────────────────────────
