@@ -34,12 +34,14 @@ COMMON → UTILS → 서비스 모듈 (순서 무시 시 빌드 실패)
 
 ### 에이전트 할당 기준 (effort-scaling)
 
-| 복잡도 | 에이전트 수 | 예시 |
-|--------|-----------|------|
-| SIMPLE (1-3) | 1 | 단일 파일 수정 |
-| MODERATE (4-5) | 2 | 한 모듈 기능 추가 |
-| COMPLEX (6-7) | 3-4 | 멀티 모듈 기능 |
-| CRITICAL (8+) | 5+ | 아키텍처 변경 |
+| 복잡도 (점수/8) | 에이전트 수 | 예시 |
+|----------------|-----------|------|
+| SIMPLE (≤4) | 1 | 단일 파일 수정 |
+| MODERATE (5-6) | 2-3 | 한 모듈 기능 추가 |
+| COMPLEX (7-8) | 5+ | 멀티 모듈 / 아키텍처 변경 |
+
+> **정본**: `hooks/userPromptSubmit.js` effort 스코어러(`score<=4?SIMPLE:score<=6?MODERATE:COMPLEX`).
+> `agents/shared/effort-scaling.md`(Trivial/Simple/Moderate/Complex)는 Anthropic 일반 원칙 참고용 — 런타임 밴드와 별개.
 
 ---
 
