@@ -464,6 +464,32 @@ function detectKiipsModules(prompt) {
 
 // ─── Skill 활성화 (캐시 사용) ────────────────────────────────
 
+// 모델이 Skill 도구로 호출할 수 없는 스킬(frontmatter: disable-model-invocation: true)
+// 판별. P1-2026-06-09: 호출 불가 스킬에 "!"(호출 지시) 접두를 붙이던 모순 해소.
+const _modelInvocationDisabledCache = {};
+function isModelInvocationDisabled(skillName, projectRoot) {
+  if (skillName in _modelInvocationDisabledCache) {
+    return _modelInvocationDisabledCache[skillName];
+  }
+  let disabled = false;
+  try {
+    const skillPath = path.join(
+      projectRoot,
+      ".claude",
+      "skills",
+      skillName,
+      "SKILL.md",
+    );
+    // frontmatter 만 확인 (선두 1.5KB)
+    const head = fs.readFileSync(skillPath, "utf8").slice(0, 1500);
+    disabled = /disable-model-invocation:\s*true/i.test(head);
+  } catch (_) {
+    disabled = false; // 파일 없으면 기존 동작 유지 (보수적)
+  }
+  _modelInvocationDisabledCache[skillName] = disabled;
+  return disabled;
+}
+
 function activateSkills(prompt, projectRoot) {
   const rules = getSkillRules(projectRoot);
   if (!rules) return null;
@@ -486,11 +512,21 @@ function activateSkills(prompt, projectRoot) {
 
   if (activatedSkills.length === 0) return null;
 
+  // disable-model-invocation 스킬은 "!" 호출 지시 대상에서 제외하고
+  // 일반 제안(plain)으로 강등 — 호출 불가 스킬에 호출 지시 주입 방지.
   const critical = activatedSkills
-    .filter((s) => s.priority === "critical")
+    .filter(
+      (s) =>
+        s.priority === "critical" &&
+        !isModelInvocationDisabled(s.name, projectRoot),
+    )
     .map((s) => "!" + s.name);
   const others = activatedSkills
-    .filter((s) => s.priority !== "critical")
+    .filter(
+      (s) =>
+        s.priority !== "critical" ||
+        isModelInvocationDisabled(s.name, projectRoot),
+    )
     .map((s) => s.name);
   return `[Skills] ${[...critical, ...others].join(", ")}`;
 }

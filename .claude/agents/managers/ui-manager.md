@@ -69,7 +69,7 @@ The UI Manager orchestrates UI/UX development workflows including JSP template c
   - SCSS variables, mixins, theming support
 
 ### Orchestration Skill
-- **ui-workflow-orchestration** (new skill for this Manager)
+- **kiips-orchestration** (shared orchestration skill)
   - UI development patterns and validation workflows
   - Component assembly strategies
   - Progressive enhancement patterns
@@ -392,5 +392,5 @@ This agent follows the shared execution protocols:
 ---
 
 **Related Agents**: kiips-ui-designer, kiips-developer, checklist-generator
-**Related Skills**: kiips-ui-component-builder, kiips-realgrid-guide, kiips-quality, kiips-quality, kiips-scss, ui-workflow-orchestration
+**Related Skills**: kiips-ui-component-builder, kiips-realgrid-guide, kiips-quality, kiips-quality, kiips-scss, kiips-orchestration
 **Permission Gate**: `.claude/hooks/permissionGate.js` (pom.xml / shared UI pattern approval)

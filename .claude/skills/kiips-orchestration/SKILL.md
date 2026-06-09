@@ -62,5 +62,20 @@ kiips-logs → /diagnose → fix → /verify → kiips-build(deploy)
 
 ---
 
+## 라우팅/배선 정본 (Source of Truth)
+
+> 2026-06-09 정리. 매니저 자동 라우팅의 실제 동작 위치를 명시.
+
+- **매니저 선택 라우팅 = `hooks/userPromptSubmit.js`의 `detectManagerAgent()` 하드코딩 키워드.**
+  이것이 유일한 런타임 정본이다. (build/feature/deployment/ui-manager 매핑)
+- `skill-rules.json`의 `managerAgent`/`orchestrationSkill`/`autoActivationLevel`/`delegationRules`
+  필드는 **어떤 훅도 읽지 않던 dead config 였으며 제거됨.** 매니저↔워커 위임 설명은 각 매니저 `.md` 문서가 정본.
+- `skill-rules.json`의 `enforcement` 값 중 런타임 소비는 **`"block"`(blockRules 게이트)뿐**.
+  `"require"`/`"suggest"`는 advisory 표기일 뿐 강제력 없음.
+- 매니저 4종이 참조하던 per-manager orchestration 스킬(build/feature/deployment/ui-*-orchestration)은
+  **존재한 적 없으며**, 통합 오케스트레이션은 본 스킬(`kiips-orchestration`)이 단독 수행한다.
+
+---
+
 **Merged from**: parallel-coordinator, chain-of-skills, kiips-ace-essentials
 **Version**: 2.0.0
