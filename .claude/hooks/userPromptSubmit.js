@@ -191,9 +191,6 @@ async function onUserPromptSubmit(prompt, context) {
       const taskDecomposition = suggestTaskDecomposition(prompt);
       if (taskDecomposition) messages.push(taskDecomposition);
 
-      const managerRouting = detectManagerAgent(prompt);
-      if (managerRouting) messages.push(managerRouting);
-
       const effortScaling = assessEffortScaling(prompt);
       if (effortScaling) messages.push(effortScaling);
     }
@@ -367,66 +364,6 @@ function suggestTaskDecomposition(prompt) {
   const match = complexPatterns.find(({ pattern }) => pattern.test(prompt));
   if (!match) return null;
   return `[L4 Task] Complex: ${match.type}`;
-}
-
-// ─── Manager Agent 감지 ──────────────────────────────────────
-
-function detectManagerAgent(prompt) {
-  try {
-    const lowerPrompt = prompt.toLowerCase();
-    const rules = [
-      {
-        manager: "build-manager",
-        keywords: ["빌드", "build", "maven", "compile", "package", "mvn"],
-      },
-      {
-        manager: "deployment-manager",
-        keywords: [
-          "배포",
-          "deploy",
-          "start",
-          "stop",
-          "restart",
-          "시작",
-          "중지",
-          "재시작",
-        ],
-      },
-      {
-        manager: "feature-manager",
-        keywords: ["기능", "feature", "개발", "구현", "implement"],
-      },
-      {
-        manager: "ui-manager",
-        keywords: [
-          "UI",
-          "화면",
-          "페이지",
-          "그리드",
-          "차트",
-          "JSP",
-          "RealGrid",
-          "ApexCharts",
-          "반응형",
-          "접근성",
-        ],
-      },
-    ];
-    const matched = rules.find((r) =>
-      r.keywords.some((kw) => lowerPrompt.includes(kw.toLowerCase())),
-    );
-    if (!matched) return null;
-
-    let complexity = "simple";
-    if (/(전체|모든|all|multi|multiple|여러)/.test(lowerPrompt))
-      complexity = "multi_service";
-    else if (/(배포.*테스트|build.*deploy|빌드.*배포)/.test(lowerPrompt))
-      complexity = "complex";
-
-    return `[L4.5 Manager] ${matched.manager} (${complexity})`;
-  } catch (_) {
-    return null;
-  }
 }
 
 // ─── KiiPS 모듈 감지 ────────────────────────────────────────

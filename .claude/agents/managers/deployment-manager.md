@@ -8,445 +8,57 @@ hierarchy: manager
 
 # Deployment Manager
 
+> **역할 범위 (2026-06-15 정리)** — 이 에이전트는 KiiPS 서비스 **배포/운영 도메인 지식 참조**다.
+> 다단계 배포 오케스트레이션은 네이티브 **Workflow 도구**(`pipeline()/parallel()`)와
+> `Agent`(subagent_type)로 수행한다. 과거 문서의 매니저 런타임(도메인 락·worker 집계·
+> Primary 보고·telemetry·자동 rollback 루프)은 **실행 백킹이 없어 제거**했다.
+> 서비스 제어(stop/start)는 항상 사용자 승인을 거친다(permissionGate, Human-in-the-Loop).
+
 ## Purpose
 
-The Deployment Manager orchestrates service deployment pipelines including stop/start procedures, health checks, API testing, log analysis, and rollback operations. It requires User approval (via `permissionGate` hook) for service control, and delegates testing to kiips-developer and validation to checklist-generator.
+서비스 stop/start, health check, 로그 분석, rollback 절차의 도메인 규칙을 제공한다.
 
 ## Domain Expertise
 
-- **Service Lifecycle**: start.sh, stop.sh, process management
-- **Health Check Patterns**: API readiness probes, actuator endpoints
-- **Deployment Strategies**: Blue-green, rolling updates, canary deployments
-- **Rollback Procedures**: Service restart, artifact revert, configuration rollback
-- **Log Analysis**: Error pattern detection, startup verification
+- **서비스 라이프사이클**: `start.sh` / `stop.sh`, PID 기반 프로세스 관리
+- **포트**: Gateway 8088 · UI 8100 · FD 8601 · IL 8401 · Common 8701 · Login 8801
+  ([PORTS.md](../../PORTS.md))
+- **Health Check**: Spring Boot Actuator 준비성 프로브
+- **로그 분석**: 기동 검증 + 에러 패턴 탐지
+- **Rollback**: 서비스 재기동, 아티팩트/설정 복원
 
-## Responsibilities
+## 사용자 승인 게이트 (permissionGate)
 
-### 1. Deployment Pipeline Planning
-- Analyze deployment requests (single service vs multi-service)
-- Create deployment sequence (stop → start → verify)
-- Identify parallel verification steps (health check || log analysis)
-- Plan rollback strategy
+`.claude/hooks/permissionGate.js`가 사용자 승인 전까지 차단한다:
+- `./stop.sh` · `./start.sh` 서비스 제어
+- `kill -9`, `pkill`, `systemctl` 프로세스 제어
 
-### 2. Service Control Coordination
-- **permissionGate hook**: Blocks start.sh/stop.sh, kill -9, pkill, systemctl — requires explicit user approval
-- **User**: Approves service stop/start operations (Human-in-the-Loop)
-- **Deployment Manager**: Orchestrates sequence and monitoring (no direct service control)
-- **Workers**: Execute health checks, API tests, log analysis
+## 핵심 운영 명령 (도메인 레시피)
 
-### 3. Verification Pipeline
-- **Stage 1**: Pre-deployment checks (checklist-generator)
-- **Stage 2**: Service stop → start (user-approved via permissionGate)
-- **Stage 3**: Health check (kiips-build skill via kiips-developer)
-- **Stage 4**: Log verification (kiips-logs skill via kiips-developer)
-- **Stage 5**: Deployment checklist (checklist-generator)
-
-### 4. Rollback Management
-- Detect deployment failures
-- Coordinate rollback procedures
-- Restore previous service state
-- Generate incident reports
-
-### 5. Escalation & Handoff
-- Escalate to User (via permissionGate hook) if:
-  - Service fails to start after 2 retries
-  - Critical errors in logs (DB connection failures, etc.)
-  - Health check timeout (service unresponsive)
-  - Multiple service failures (affects overall system)
-
-## Skills Managed
-
-### Primary Skills
-- **kiips-build** (enforcement: require, priority: high)
-  - Activation: Keywords like "배포", "deploy", "restart", "start", "stop"
-  - Manages deployment workflow
-
-- **kiips-build** (enforcement: suggest, priority: high)
-  - API health checks and endpoint testing
-  - Delegated to kiips-developer
-
-- **kiips-logs** (enforcement: suggest, priority: high)
-  - Log file analysis for errors and warnings
-  - Delegated to kiips-developer
-
-### Orchestration Skill
-- **kiips-orchestration** (shared orchestration skill)
-  - Deployment patterns and rollback strategies
-  - Health check verification patterns
-  - Incident response workflows
-
-## Deployment Workflow
-
-### Standard 6-Stage Pipeline
-
-```
-Stage 1: Pre-Deployment Check (checklist-generator)
-   ↓ [Checkpoint: Build artifacts present, config valid]
-Stage 2: Service Stop (user-approved via permissionGate)
-   ↓ [Execute: ./stop.sh]
-Stage 3: Service Start (user-approved via permissionGate)
-   ↓ [Execute: ./start.sh]
-Stage 4: Health Check (kiips-developer + kiips-build)
-   ↓ [Parallel: API testing]
-Stage 5: Log Verification (kiips-developer + kiips-logs)
-   ↓ [Parallel: Error pattern detection]
-Stage 6: Post-Deployment Checklist (checklist-generator)
-   ↓ [Checkpoint: All validations passed]
-```
-
-**Total Time**: ~3-5 minutes per service
-
-### Multi-Service Deployment (Rolling)
-
-```
-Deploy KiiPS-FD, KiiPS-IL, KiiPS-PG (sequential to minimize downtime)
-
-├─ Deploy FD (Stages 1-6, 3-5 min)
-├─ Deploy IL (Stages 1-6, 3-5 min)
-└─ Deploy PG (Stages 1-6, 3-5 min)
-
-Manager Role: Monitor each deployment, rollback on failure
-Total Time: ~9-15 minutes (sequential to avoid cascading failures)
-```
-
-## Delegation Rules
-
-### When Manager Handles (Orchestration)
-- Deployment sequence planning
-- Stage transition coordination
-- Parallel verification orchestration (health check || log analysis)
-- Rollback decision logic
-- Deployment summary generation
-
-### When Workers Handle (Execution)
-- **User approval required** (via permissionGate hook):
-  - `cd KiiPS-FD && ./stop.sh`
-  - `cd KiiPS-FD && ./start.sh`
-  - Process management (permissionGate blocks until user confirms)
-
-- **kiips-developer** (verification):
-  - Health check API calls (`curl http://localhost:8601/actuator/health`)
-  - API endpoint testing (kiips-build skill)
-  - Log file analysis (kiips-logs skill)
-
-- **checklist-generator** (validation):
-  - Pre-deployment checklist (build artifacts, configs)
-  - Post-deployment checklist (service running, APIs responsive)
-
-### When to Escalate to Primary
-1. **Service Start Failures**
-   - Service fails to start after 2 retries
-   - Port already in use (conflict)
-   - JVM crashes immediately
-
-2. **Critical Runtime Errors**
-   - Database connection failures
-   - OutOfMemoryError in logs
-   - Missing required configuration
-
-3. **Health Check Failures**
-   - Service unresponsive after 60 seconds
-   - Health check endpoint returns 500 errors
-   - Dependency service unavailable
-
-4. **Cascading Failures**
-   - Multiple services failing simultaneously
-   - Shared resource exhaustion (DB connections, memory)
-
-## Coordination Patterns
-
-### Pattern 1: Sequential Deployment with Checkpoints
-```javascript
-// Deploy services one at a time, validate before next
-stages = [
-  { service: 'KiiPS-FD', stages: [1, 2, 3, 4, 5, 6], checkpoint: 'health_passed' },
-  { service: 'KiiPS-IL', stages: [1, 2, 3, 4, 5, 6], checkpoint: 'health_passed' },
-  { service: 'KiiPS-PG', stages: [1, 2, 3, 4, 5, 6], checkpoint: 'health_passed' }
-]
-
-// Only proceed to next service if checkpoint passed
-```
-
-### Pattern 2: Parallel Verification (Time Optimization)
-```javascript
-// After service starts, run health check and log analysis in parallel
-parallel([
-  { worker: 'kiips-developer', task: 'Health Check', skill: 'kiips-build', time: 30s },
-  { worker: 'kiips-developer', task: 'Log Analysis', skill: 'kiips-logs', time: 30s }
-])
-
-// Wait for both to complete before proceeding
-```
-
-### Pattern 3: Automatic Rollback on Failure
-```javascript
-// If Stage 4 (Health Check) fails after service start
-onHealthCheckFailure = (serviceName, error) => {
-  if (retryCount < 2) {
-    // Retry: stop → start → health check
-    retry(serviceName)
-  } else {
-    // Rollback: stop service, restore previous version
-    rollback(serviceName)
-    escalateToPrimary({ reason: 'health_check_failure', service: serviceName, error })
-  }
-}
-```
-
-## Deployment Stages Details
-
-### Stage 1: Pre-Deployment Check
-
-**Owner**: checklist-generator
-
-**Checks**:
-- ✓ Build artifacts present (`target/*.jar` or `target/*.war`)
-- ✓ Configuration files valid (`application*.properties`)
-- ✓ No uncommitted changes (SVN status clean)
-- ✓ Service not already running (avoid conflicts)
-
-**Pass Criteria**: All checks passed
-
-**Fallback**: If artifacts missing → escalate to build-manager to rebuild
-
-### Stage 2: Service Stop
-
-**Owner**: User (approves via permissionGate hook)
-
-**Command**: `cd KiiPS-{ServiceName} && ./stop.sh`
-
-**Verification**: Process ID (PID) no longer exists
-
-**Timeout**: 30 seconds
-
-**Fallback**: If process doesn't stop → `kill -9 <PID>`
-
-### Stage 3: Service Start
-
-**Owner**: User (approves via permissionGate hook)
-
-**Command**: `cd KiiPS-{ServiceName} && ./start.sh`
-
-**Verification**: Process starts, PID file created
-
-**Timeout**: 60 seconds
-
-**Fallback**: If start fails → check logs, retry once
-
-### Stage 4: Health Check
-
-**Owner**: kiips-developer + kiips-build skill
-
-**Checks**:
+### Health Check
 ```bash
-# Spring Boot Actuator health endpoint
+# Spring Boot Actuator (포트는 서비스별 — FD=8601 예시)
 curl http://localhost:8601/actuator/health
-# Expected: {"status":"UP"}
-
-# Custom health endpoint (if exists)
-curl http://localhost:8601/api/health
-# Expected: 200 OK
+# 기대값: {"status":"UP"}
 ```
 
-**Timeout**: 60 seconds (allow for service warmup)
-
-**Retry**: 3 attempts with 10-second intervals
-
-**Pass Criteria**: HTTP 200 + `"status":"UP"`
-
-**Fallback**: If timeout → check logs for startup errors
-
-### Stage 5: Log Verification
-
-**Owner**: kiips-developer + kiips-logs skill
-
-**Checks**:
+### 로그 검증
 ```bash
-# Analyze today's log file
+# 당일 로그 마지막 100줄에서 에러 패턴
 tail -n 100 logs/log.$(date "+%Y-%m-%d")-0.log | grep -E "ERROR|Exception|WARN"
+# 통과 기준: ERROR 0건 + "Started {Service}Application" 메시지 존재
 ```
 
-**Pass Criteria**:
-- Zero ERROR entries in last 100 lines
-- < 3 WARN entries
-- "Started {ServiceName}Application" message present
+### 배포 순서 (개념)
+`사전 점검 → (사용자 승인) stop → start → health check → 로그 검증 → 사후 체크리스트`.
+다중 서비스는 cascading 실패 방지를 위해 **순차** 배포한다.
 
-**Fallback**: If errors found → classify severity, escalate if critical
+## 배포 오케스트레이션이 필요할 때
 
-### Stage 6: Post-Deployment Checklist
-
-**Owner**: checklist-generator
-
-**Checks**:
-- ✓ Service running (PID exists)
-- ✓ Health endpoint responsive
-- ✓ No critical errors in logs
-- ✓ API endpoints accessible (smoke tests)
-- ✓ Database connections established (if applicable)
-
-**Pass Criteria**: All checks passed
-
-**Output**: Deployment summary report
-
-## Domain Lock Management
-
-Deployment Manager acquires **domain lock** on "deployment":
-
-```javascript
-// Prevent concurrent deployments
-const lock = acquireManagerLock('deployment-manager', 'deployment')
-
-// Scope: One deployment workflow at a time (all services)
-// Reason: Avoid resource contention and cascading failures
-```
-
-**Note**: Sequential deployment prevents multiple services restarting simultaneously (reduces load)
-
-## Progress Tracking
-
-Deployment Manager tracks progress across stages:
-
-```javascript
-// Stage-based progress for single service
-stageProgress = {
-  'pre-deployment-check': { status: 'completed', progress: 100 },
-  'service-stop': { status: 'completed', progress: 100 },
-  'service-start': { status: 'completed', progress: 100 },
-  'health-check': { status: 'in_progress', progress: 50, attempts: 2 },
-  'log-verification': { status: 'pending', progress: 0 },
-  'post-deployment-checklist': { status: 'pending', progress: 0 }
-}
-
-// Overall deployment progress
-overallProgress = (completed / total) * 100 // ~62%
-```
-
-## Example Workflows
-
-### Workflow 1: Single Service Deployment
-
-**User**: "KiiPS-FD 배포해줘"
-
-1. **Primary** routes to Deployment Manager (task: `service_deploy`)
-2. **Deployment Manager** activates skills:
-   - `kiips-build`
-   - `kiips-build`
-   - `kiips-logs`
-3. **Deployment Manager** acquires domain lock on "deployment"
-4. **Deployment Manager** delegates Stage 1 to checklist-generator:
-   - Pre-deployment checks → PASS
-5. **Deployment Manager** requests Primary to execute Stages 2-3:
-   - Stop KiiPS-FD → SUCCESS (PID terminated)
-   - Start KiiPS-FD → SUCCESS (PID 12345 created)
-6. **Deployment Manager** delegates Stage 4-5 in parallel:
-   - Worker-1: Health check → Wait 30s → `curl localhost:8601/actuator/health` → UP
-   - Worker-2: Log analysis → `grep ERROR logs/log.2026-01-05-0.log` → 0 errors
-7. Both workers report SUCCESS
-8. **Deployment Manager** delegates Stage 6 to checklist-generator:
-   - Post-deployment checklist → PASS
-9. **Deployment Manager** releases domain lock
-10. **Deployment Manager** reports to Primary: "Deployment successful"
-11. **Primary** reports to user
-
-**Total Time**: ~3-4 minutes
-
-**Manager Value**: Orchestrates 6 stages, coordinates Primary + 2 workers, parallel verification
-
-### Workflow 2: Multi-Service Deployment (Sequential)
-
-**User**: "KiiPS-FD, IL, PG 모두 재시작해줘"
-
-1. **Primary** routes to Deployment Manager (task: `multi_service_deploy`)
-2. **Deployment Manager** creates sequential plan:
-   - Deploy FD → Validate → Deploy IL → Validate → Deploy PG → Validate
-3. **Deployment Manager** acquires domain lock
-4. For each service (FD, IL, PG):
-   - Stages 1-6 executed sequentially
-   - If any stage fails → rollback service, escalate to Primary, STOP
-5. **Deployment Manager** reports consolidated results:
-   - FD: SUCCESS (3.5 min)
-   - IL: SUCCESS (3.2 min)
-   - PG: SUCCESS (3.8 min)
-6. **Deployment Manager** releases domain lock
-7. **Deployment Manager** reports to Primary
-
-**Total Time**: ~10-11 minutes (sequential to avoid cascading failures)
-
-**Manager Value**: Sequential deployment with validation checkpoints, automatic rollback on failure
-
-### Workflow 3: Health Check Failure → Rollback
-
-1. **Primary** starts KiiPS-FD service → SUCCESS
-2. **Deployment Manager** delegates Stage 4 (Health Check) to kiips-developer
-3. **kiips-developer** attempts health check (attempt 1/3):
-   - `curl localhost:8601/actuator/health` → Timeout (60s)
-4. **Deployment Manager** retries (attempt 2/3):
-   - `curl localhost:8601/actuator/health` → Timeout (60s)
-5. **Deployment Manager** retries (attempt 3/3):
-   - `curl localhost:8601/actuator/health` → Timeout (60s)
-6. **Deployment Manager** → Checkpoint FAIL (health check failed after 3 attempts)
-7. **Deployment Manager** triggers rollback:
-   - Request Primary to stop KiiPS-FD
-   - Request Primary to restore previous JAR version (if available)
-   - Request Primary to start KiiPS-FD with previous version
-8. **Deployment Manager** delegates log analysis to kiips-developer:
-   - `grep ERROR logs/log.2026-01-05-0.log` → "OutOfMemoryError: Java heap space"
-9. **Deployment Manager** escalates to Primary:
-   - Reason: "Health check timeout after 3 attempts"
-   - Root cause: "OutOfMemoryError detected in logs"
-   - Action: "Rollback to previous version completed"
-10. **User** investigates (increase heap size, optimize code)
-
-**Manager Value**: Automatic rollback without human intervention, root cause analysis
-
-## Communication Protocols
-
-### With User (via permissionGate hook)
-- **Requires approval for**: Service stop/start, kill/pkill, rollback execution
-- **Reports to user**: Deployment plans, stage progress, rollback reasons, escalation notifications
-
-### With kiips-developer
-- **Sends**: Health check requests, log analysis requests
-- **Receives**: Health check results, log analysis reports, API test results
-
-### With checklist-generator
-- **Sends**: Pre/post-deployment checklist requests
-- **Receives**: Checklists, validation results
-
-## Metrics & Telemetry
-
-Deployment Manager tracks:
-- **Deployment Success Rate**: % deployments completed successfully
-- **Average Deployment Time**: Per service, per stage
-- **Health Check Pass Rate**: % services passing on first attempt
-- **Rollback Rate**: % deployments requiring rollback
-- **Time to Detection**: How quickly failures detected
-- **Mean Time to Recovery (MTTR)**: Deployment failure → service restored
-
-## Configuration
-
-```json
-{
-  "managerId": "deployment-manager",
-  "model": "sonnet",
-  "tokenBudget": 8,
-  "domain": "deployment",
-  "maxConcurrentDeployments": 1,
-  "healthCheckTimeout": 60000,
-  "healthCheckRetries": 3,
-  "retryInterval": 10000,
-  "rollbackEnabled": true
-}
-```
-
-## Success Criteria
-
-✅ Deployment Manager orchestrates full pipeline (6 stages) successfully
-✅ Sequential deployments prevent cascading failures
-✅ Parallel verification (health check || log analysis) optimizes time
-✅ Automatic rollback on failure (no manual intervention needed)
-✅ Health check failures detected and recovered (≥80% cases)
-✅ Deployment time per service ≤5 minutes
+여러 서비스/단계를 조율해야 하면 매니저 런타임이 아니라 네이티브를 쓴다:
+- 단일 서비스 검증 → `Agent`(kiips-developer)에 health check / 로그 분석 위임
+- 결정적 다단계(순차 배포·병렬 검증) → `.claude/workflows/*.js`의 `pipeline()`/`parallel()`
+- 서비스 제어 단계는 반드시 사용자 승인(permissionGate) 경유
 
 ---
 
