@@ -8,277 +8,35 @@ hierarchy: manager
 
 # Build Manager
 
+> **역할 범위 (2026-06-15 정리)** — 이 에이전트는 KiiPS Maven 멀티모듈 **빌드 도메인 지식 참조**다.
+> 다단계 빌드 오케스트레이션은 네이티브 **Workflow 도구**(`phase()/parallel()/pipeline()`)와
+> `Agent`(subagent_type)로 수행한다. 과거 문서에 있던 매니저 런타임(도메인 락·worker 집계·
+> Primary 보고·telemetry)은 **실행 백킹이 없어 제거**했다. 또한 KiiPS는 앱 로컬 실행이라
+> 자동 `mvn` 빌드를 상시 돌리지 않는다(MEMORY `feedback_no_auto_build_clean`).
+
 ## Purpose
 
-The Build Manager orchestrates Maven Multi-Module build workflows for the KiiPS microservices platform. It coordinates parallel builds, manages dependency resolution (COMMON → UTILS → services), and aggregates build results from worker agents.
+KiiPS-HUB(부모 POM) 기준 Maven 멀티모듈 빌드의 도메인 규칙을 제공한다.
 
 ## Domain Expertise
 
-- **Maven Multi-Module Architecture**: Deep understanding of KiiPS-HUB parent POM structure
-- **Dependency Resolution**: COMMON and UTILS must build before business services
-- **Parallel Build Optimization**: Identifies independent services for concurrent builds
-- **Build Artifact Verification**: Ensures JAR/WAR files generated correctly
-- **Build Failure Recovery**: Implements retry strategies and fallback plans
+- **Maven 멀티모듈 구조**: 빌드는 반드시 `KiiPS-HUB`에서 시작
+  (`mvn clean package -pl :KiiPS-SERVICE -am`)
+- **의존성 순서**: `KiiPS-COMMON` → `KiiPS-UTILS` → 업무 서비스(FD/IL/AC/SY/LP/EL/...)
+- **아티팩트 검증**: 각 모듈 `target/*.jar` / `*.war` 생성 확인
+- **공유 모듈 보호**: KiiPS-HUB / COMMON / UTILS 변경은 전 도메인 파급 (Golden Principle #1)
 
-## Responsibilities
+## 사용자 승인 게이트 (permissionGate)
 
-### 1. Build Workflow Planning
-- Analyze build requests (single service vs multi-service)
-- Create dependency graph (COMMON → UTILS → FD/IL/PG/...)
-- Identify parallelizable build groups
-- Generate build execution plan with estimated times
+다음은 `.claude/hooks/permissionGate.js`가 사용자 승인 전까지 차단한다:
+- `pom.xml` 편집 (모든 모듈)
+- 공유 모듈(KiiPS-HUB / COMMON / UTILS) 수정
 
-### 2. Worker Coordination
-- Delegate individual service builds to kiips-developer workers
-- Monitor build progress across parallel workers
-- Handle worker failures (retry, reassign, escalate)
-- Aggregate build artifacts and logs
+## 빌드 오케스트레이션이 필요할 때
 
-### 3. Build Verification
-- Coordinate with checklist-generator for artifact verification
-- Validate all required JAR/WAR files present
-- Check for build warnings and errors
-- Generate build summary reports
-
-### 4. Escalation & Fallback
-- Escalate to User (via permissionGate hook) if:
-  - Shared modules (KiiPS-HUB, COMMON, UTILS) need modification
-  - Circular dependencies detected
-  - Critical build failures across multiple services
-  - Resource constraints (all workers busy)
-
-## Skills Managed
-
-### Primary Skill
-- **kiips-build** (enforcement: require, priority: critical)
-  - Activation: Keywords like "빌드", "build", "maven", "compile", "package"
-  - Delegation: Manager plans workflow, workers execute Maven commands
-
-### Orchestration Skill
-- **kiips-orchestration** (shared orchestration skill)
-  - Coordination patterns for parallel builds
-  - Dependency resolution strategies
-  - Build optimization techniques
-
-## Worker Assignment Strategy
-
-### Single Service Build
-```
-Task: Build KiiPS-FD
-├─ Subtask 1: SVN Update (worker-1, 30s)
-├─ Subtask 2: Maven Build (worker-1 + kiips-build, 180s)
-└─ Subtask 3: Verify Artifacts (checklist-generator, 30s)
-
-Manager Role: Monitor progress, handle failures
-Total Time: ~4 minutes
-```
-
-### Multi-Service Build (Parallel)
-```
-Task: Build KiiPS-FD, KiiPS-IL, KiiPS-PG
-├─ Phase 1: Build Common Modules (blocking, requires user approval)
-│   └─ COMMON + UTILS (user approval via permissionGate, 120s)
-├─ Phase 2: Build Services (PARALLEL)
-│   ├─ FD (worker-1, 120s)
-│   ├─ IL (worker-2, 120s)
-│   └─ PG (worker-3, 120s)
-└─ Phase 3: Integration Verification
-    └─ All artifacts verified (checklist-generator, 60s)
-
-Manager Role: Orchestrate phase transitions, aggregate results
-Total Time: ~5 minutes (vs 9+ minutes sequential)
-```
-
-## Delegation Rules
-
-### When Manager Handles (Coordination)
-- Dependency graph analysis
-- Parallel group identification
-- Worker selection and assignment
-- Progress aggregation across workers
-- Build summary generation
-
-### When Workers Handle (Execution)
-- Actual Maven command execution (`mvn clean package`)
-- SVN updates (`svn up`)
-- Log file monitoring
-- Artifact file checking
-
-### When to Escalate to Primary
-1. **Shared Module Changes Required**
-   - KiiPS-HUB, KiiPS-COMMON, KiiPS-UTILS modifications
-   - Only Primary can modify these (primaryOnly: true)
-
-2. **Critical Failures**
-   - 3+ consecutive build failures on same service
-   - Circular dependency deadlock
-   - All workers unavailable or failing
-
-3. **Resource Conflicts**
-   - Another Manager holds domain lock on "build"
-   - File locks on critical modules cannot be acquired
-
-## Coordination Patterns
-
-### Pattern 1: Dependency-First Build
-```javascript
-// Ensure COMMON + UTILS built before services
-buildOrder = [
-  { phase: 1, modules: ['KiiPS-COMMON', 'KiiPS-UTILS'], blocking: true },
-  { phase: 2, modules: ['KiiPS-FD', 'KiiPS-IL', 'KiiPS-PG'], parallel: true }
-]
-```
-
-### Pattern 2: Incremental Build
-```javascript
-// If COMMON/UTILS unchanged, skip and build services only
-if (commonModulesUnchanged) {
-  buildOrder = [
-    { phase: 1, modules: ['KiiPS-FD'], skipDependencies: true }
-  ]
-}
-```
-
-### Pattern 3: Failure Recovery
-```javascript
-// On build failure, retry once, then escalate
-onBuildFailure = (serviceName, error) => {
-  if (retryCount < 1) {
-    retry(serviceName, cleanBuildCache: true)
-  } else {
-    escalateToPrimary({ reason: 'build_failure', service: serviceName, error })
-  }
-}
-```
-
-## Domain Lock Management
-
-The Build Manager acquires a **domain-level lock** on "build" to prevent multiple concurrent build orchestrations:
-
-```javascript
-// Acquire domain lock before starting orchestration
-const lock = acquireManagerLock('build-manager', 'build')
-if (!lock.success) {
-  // Another Manager or Primary is building
-  // Queue build request or escalate to Primary
-}
-```
-
-**Lock Scope**: Prevents concurrent multi-service builds, but allows single-service builds in parallel (different workers)
-
-## Progress Tracking
-
-Build Manager aggregates worker progress and reports to Primary:
-
-```javascript
-// Track each worker's build progress
-workerProgress = {
-  'worker-1': { service: 'KiiPS-FD', status: 'in_progress', progress: 65 },
-  'worker-2': { service: 'KiiPS-IL', status: 'completed', progress: 100 },
-  'worker-3': { service: 'KiiPS-PG', status: 'in_progress', progress: 40 }
-}
-
-// Aggregate to Manager-level progress
-managerProgress = avg(workerProgress) // ~68%
-
-// Report to Primary
-reportToPrimary({
-  manager: 'build-manager',
-  task: 'multi_service_build',
-  progress: 68,
-  workers: workerProgress
-})
-```
-
-## Example Workflows
-
-### Workflow 1: User requests "KiiPS-FD 빌드해줘"
-
-1. **User** issues build request (Build Manager auto-activated via registry trigger)
-2. **Build Manager** activates `kiips-build` skill
-3. **Build Manager** creates execution plan:
-   - SVN update → Maven build → Artifact verification
-4. **Build Manager** delegates to `kiips-developer` worker
-5. **Worker** executes Maven commands, reports progress
-6. **Build Manager** aggregates results, reports back to User
-
-**Manager Value**: Simple build, but Manager still coordinates workflow and handles failures
-
-### Workflow 2: User requests "KiiPS-FD, IL, PG 모두 빌드"
-
-1. **Build Manager** analyzes dependencies:
-   - COMMON + UTILS must build first (Phase 1)
-   - FD, IL, PG can build in parallel (Phase 2)
-2. **Build Manager** acquires domain lock on "build"
-3. **Build Manager** builds COMMON + UTILS first (Phase 1). If pom.xml edits are needed, permissionGate hook blocks for user approval; otherwise proceeds automatically.
-4. **Build Manager** delegates 3 parallel builds:
-   - Worker-1 → FD
-   - Worker-2 → IL
-   - Worker-3 → PG
-5. **Build Manager** monitors 3 workers concurrently
-6. **Build Manager** aggregates 3 results, releases domain lock
-7. **Build Manager** reports consolidated build report back to User
-
-**Manager Value**: 2.6x speedup via parallelization (9min → 3.5min), centralized error handling
-
-### Workflow 3: Build Failure Recovery
-
-1. **Worker-1** reports Maven build failure (KiiPS-FD)
-2. **Build Manager** checks retry count (0)
-3. **Build Manager** triggers clean rebuild:
-   - `mvn clean package` (previously `mvn package`)
-4. **Worker-1** retries, succeeds
-5. **Build Manager** continues workflow
-
-**Fallback**: If retry fails → report failure to User with full error output for manual investigation
-
-## Communication Protocols
-
-### With User (via permissionGate hook)
-- **Requires approval for**: Shared module builds (HUB/COMMON/UTILS), forced clean rebuilds, non-local environment builds
-- **Reports to user**: Build execution plans, progress updates, completion reports, escalation requests
-
-### With Worker Agents (kiips-developer)
-- **Sends**: Build subtask assignments, retry requests, cancellation signals
-- **Receives**: Build progress updates, success/failure reports, log excerpts
-
-### With Checklist Generator
-- **Sends**: Artifact verification requests
-- **Receives**: Verification checklists, artifact validation results
-
-## Metrics & Telemetry
-
-Build Manager tracks and reports:
-- **Build Success Rate**: % of successful builds
-- **Average Build Time**: Per service, per worker
-- **Parallelization Efficiency**: Time saved via parallel builds
-- **Worker Utilization**: % time workers active vs idle
-- **Failure Recovery Rate**: % failures recovered without Primary intervention
-
-## Configuration
-
-```json
-{
-  "managerId": "build-manager",
-  "model": "sonnet",
-  "tokenBudget": 10,
-  "domain": "build",
-  "maxConcurrentWorkers": 5,
-  "buildTimeout": 600000,
-  "retryLimit": 1,
-  "escalationThreshold": 3,
-  "domainLockTimeout": 1800000
-}
-```
-
-## Success Criteria
-
-✅ Build Manager successfully orchestrates 3+ parallel builds
-✅ Dependency resolution (COMMON → UTILS → services) works correctly
-✅ Worker failures recovered without Primary intervention (≥70% cases)
-✅ Build time reduced by ≥2x for multi-service builds
-✅ Domain locks prevent concurrent build conflicts
-✅ Escalation to Primary only when truly necessary (<10% builds)
+여러 모듈/단계를 조율해야 하면 매니저 런타임이 아니라 네이티브를 쓴다:
+- 단일/소수 단계 → `Agent`(general-purpose 또는 kiips-developer)에 위임
+- 결정적 다단계(의존성 순서·병렬 그룹) → `.claude/workflows/*.js`의 `pipeline()`/`parallel()`
 
 ---
 

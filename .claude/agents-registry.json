@@ -46,8 +46,8 @@
     },
     "kiips-planner": {
       "file": ".claude/agents/kiips-planner.md",
-      "description": "KiiPS 구조화된 계획 수립 에이전트 - 코드 탐색 및 영향 분석",
-      "tools": ["Read", "Glob", "Grep", "Bash", "Agent"],
+      "description": "KiiPS 구조화된 계획 수립 에이전트 - 코드 탐색 및 영향 분석 (읽기 전용)",
+      "tools": ["Read", "Glob", "Grep", "Bash"],
       "model": "sonnet",
       "triggers": ["계획", "plan", "영향 분석", "impact analysis"]
     },
@@ -60,7 +60,7 @@
     },
     "verify-agent": {
       "file": ".claude/agents/verify-agent.md",
-      "description": "Fresh-context 검증 에이전트. 구현 후 별도 컨텍스트에서 빌드/테스트/검증 파이프라인을 실행하여 확인 편향을 제거",
+      "description": "KiiPS 검증 레시피 에이전트 — Maven 빌드순서·MyBatis #{}·다크테마·Java 8 호환을 빌드/테스트 증거로 독립 검증",
       "tools": ["Read", "Bash", "Grep", "Glob"],
       "model": "sonnet",
       "triggers": ["검증", "verify", "빌드 확인", "테스트 확인", "증거 기반"]

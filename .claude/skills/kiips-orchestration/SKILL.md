@@ -66,10 +66,12 @@ kiips-logs → /diagnose → fix → /verify → kiips-build(deploy)
 
 ## 라우팅/배선 정본 (Source of Truth)
 
-> 2026-06-09 정리. 매니저 자동 라우팅의 실제 동작 위치를 명시.
+> 2026-06-09 정리 · 2026-06-15 갱신(detectManagerAgent 제거).
 
-- **매니저 선택 라우팅 = `hooks/userPromptSubmit.js`의 `detectManagerAgent()` 하드코딩 키워드.**
-  이것이 유일한 런타임 정본이다. (build/feature/deployment/ui-manager 매핑)
+- **매니저 자동 라우팅 scorer는 2026-06-15 제거됨.** `hooks/userPromptSubmit.js`의 `detectManagerAgent()`
+  (`[L4.5 Manager]` 주입)는 advisory 텍스트만 내던 dead injection scorer였고 어떤 흐름도 소비하지 않아
+  삭제했다. build/feature/deployment/ui-manager는 **호출 가능한 named `subagent_type`(도메인 지식 참조)**으로
+  남고, 결정적 다단계 오케스트레이션은 **네이티브 Workflow 도구**(`pipeline()/parallel()`)가 수행한다.
 - `skill-rules.json`의 `managerAgent`/`orchestrationSkill`/`autoActivationLevel`/`delegationRules`
   필드는 **어떤 훅도 읽지 않던 dead config 였으며 제거됨.** 매니저↔워커 위임 설명은 각 매니저 `.md` 문서가 정본.
 - `skill-rules.json`의 `enforcement` 값 중 런타임 소비는 **`"block"`(blockRules 게이트)뿐**.
