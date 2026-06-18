@@ -1,0 +1,14 @@
+// =============================================================
+// 신규 운용사 sign 배경 클래스 스니펫
+// 적용 위치: KiiPS-UI/src/main/resources/static/css/signup.scss
+// 삽입 지점: 기존 마지막 .sign-XXX 블록 직후
+// 들여쓰기: 탭 1단계 (기존 패턴과 일치)
+//
+// 치환 변수:
+//   {CODE}        : 운용사 코드 (대문자, 예: HANWHA)
+//   {code_lower}  : 운용사 코드 소문자 (이미지 파일명용, 예: hanwha)
+// =============================================================
+
+.sign-{CODE} {
+	background:transparent url(../img/login/login_img_{code_lower}.png) no-repeat 0 0 ;
+}

@@ -1,0 +1,13 @@
+{
+  "totalEvents": 1,
+  "recordedEvents": 1,
+  "skippedEvents": 0,
+  "droppedEvents": 0,
+  "lastEventAt": "2026-06-09T00:43:43.969Z",
+  "startedAt": "2026-06-09T00:43:43.964Z",
+  "updatedAt": "2026-06-09T00:43:43.970Z",
+  "dropRate": "0.0%",
+  "observationsFileExists": true,
+  "observationsFileSizeKB": 2,
+  "lastErrors": []
+}
