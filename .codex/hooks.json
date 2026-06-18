@@ -1,0 +1,130 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node '/Users/younghwankang/WORK/WORKSPACE/KiiPS/.codex/hooks/ethicalValidator.js'"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|Edit|Write|Read|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node '/Users/younghwankang/WORK/WORKSPACE/KiiPS/.codex/hooks/permissionGate.js'"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import json,sys\ntry:\n p=json.load(sys.stdin).get('tool_input',{}).get('file_path','')\nexcept Exception:\n sys.exit(2)\nblocked=['.env','secrets','.git/','app-kiips.properties','app-stg.properties','app-local.properties','app-tibero.properties','app-production.properties','credentials','.secret','password']\nsys.exit(2 if any(b in p for b in blocked) else 0)\""
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node '/Users/younghwankang/WORK/WORKSPACE/KiiPS/.codex/hooks/mybatisBindingGuard.js'"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node '/Users/younghwankang/WORK/WORKSPACE/KiiPS/.codex/hooks/multiFileGate.js'"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node '/Users/younghwankang/WORK/WORKSPACE/KiiPS/.codex/hooks/jspXssGuard.js'"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node '/Users/younghwankang/WORK/WORKSPACE/KiiPS/.codex/hooks/impactAnalyzer.js'"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node '/Users/younghwankang/WORK/WORKSPACE/KiiPS/.codex/hooks/postToolOrchestrator.js'"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '/Users/younghwankang/WORK/WORKSPACE/KiiPS/.codex/hooks/pre-compact-save.sh'"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '/Users/younghwankang/WORK/WORKSPACE/KiiPS/.codex/hooks/update-reminder.sh'"
+          },
+          {
+            "type": "command",
+            "command": "bash '/Users/younghwankang/WORK/WORKSPACE/KiiPS/.codex/hooks/regressionGuard.sh' || true"
+          },
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/tests/catalog-integrity.sh 2>/dev/null | grep -E 'FAIL|drift' | head -5 || true"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node '/Users/younghwankang/WORK/WORKSPACE/KiiPS/.codex/hooks/userPromptSubmit.js'"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "test -f '/Users/younghwankang/WORK/WORKSPACE/KiiPS/.codex/hooks/stopEvent.js' && node '/Users/younghwankang/WORK/WORKSPACE/KiiPS/.codex/hooks/stopEvent.js' || true"
+          }
+        ]
+      }
+    ]
+  }
+}

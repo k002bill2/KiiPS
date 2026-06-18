@@ -1,0 +1,645 @@
+/**
+ * UserPromptSubmit Hook (Lightweight v5.0)
+ *
+ * Complexity Gate:
+ *   TRIVIAL  -> 주입 없음 (원본 그대로 반환)
+ *   STANDARD -> Skill 활성화 + KiiPS 모듈 감지만
+ *   COMPLEX  -> 전체 파이프라인 (Manager + Effort)
+ *
+ * @version 5.0.0-KiiPS
+ */
+
+const fs = require("fs");
+const path = require("path");
+
+// ─── 모듈 레벨 캐시 (TTL 30초) ─────────────────────────────
+let _skillRulesCache = null;
+let _skillRulesCacheTs = 0;
+const SKILL_CACHE_TTL = 30_000;
+
+function getSkillRules(projectRoot) {
+  const now = Date.now();
+  if (_skillRulesCache && now - _skillRulesCacheTs < SKILL_CACHE_TTL) {
+    return _skillRulesCache;
+  }
+  try {
+    const rulesPath = path.join(projectRoot, "skill-rules.json");
+    if (!fs.existsSync(rulesPath)) return null;
+    _skillRulesCache = JSON.parse(fs.readFileSync(rulesPath, "utf8"));
+    _skillRulesCacheTs = now;
+    return _skillRulesCache;
+  } catch (_) {
+    return null;
+  }
+}
+
+// ─── Complexity Gate ─────────────────────────────────────────
+
+/**
+ * 프롬프트 복잡도를 3단계로 분류
+ * @returns {'TRIVIAL'|'STANDARD'|'COMPLEX'}
+ */
+function classifyPromptComplexity(prompt) {
+  const trimmed = prompt.trim();
+
+  // TRIVIAL: 10단어 이하 단순 입력
+  const wordCount = trimmed.split(/\s+/).length;
+  if (wordCount <= 10) {
+    // 슬래시 명령
+    if (/^\/\w+/.test(trimmed)) return "TRIVIAL";
+    // yes/no 응답
+    if (/^(yes|no|y|n|네|아니|ㅇ|ㄴ|ok|확인|맞아|응|ㅇㅇ)$/i.test(trimmed))
+      return "TRIVIAL";
+    // 단순 질문 (복잡 키워드 없는 짧은 것)
+    if (
+      wordCount <= 3 &&
+      !/KiiPS|빌드|배포|deploy|build|기능|feature|아키텍처|architecture|설계|리팩토링|refactor|테스트|test|분석|analyze/i.test(
+        trimmed,
+      )
+    )
+      return "TRIVIAL";
+    // 단순 인사/감사
+    if (/^(안녕|hello|hi|thanks|감사|고마워|ㄱㅅ)/i.test(trimmed))
+      return "TRIVIAL";
+  }
+
+  // COMPLEX: 다중 모듈, 배포, 아키텍처, 병렬 작업
+  const complexIndicators = [
+    /전체.*빌드|all.*build|모든.*서비스/i,
+    /배포.*실행|deploy.*and.*run/i,
+    /아키텍처|architecture|설계.*검토/i,
+    /병렬|parallel|팀.*에이전트|team.*agent/i,
+    /KiiPS-[A-Z]+.*KiiPS-[A-Z]+/, // 2개 이상 모듈 동시 언급
+    /(전체|모든|all|multi|multiple|여러).*(모듈|서비스|module|service)/i,
+    /리팩토링.*전체|refactor.*all/i,
+  ];
+  if (complexIndicators.some((p) => p.test(prompt))) return "COMPLEX";
+
+  // 나머지는 STANDARD
+  return "STANDARD";
+}
+
+// ─── Scope Capture ───────────────────────────────────────────
+
+/**
+ * 현재 프롬프트에서 파일 경로와 모듈명을 추출해 scope-state.json에 저장
+ * 이미 scope가 설정된 경우(mid-task) 덮어쓰지 않음
+ */
+function captureScope(prompt) {
+  try {
+    const scopePath = path.join(__dirname, "../state/.scope-state.json");
+
+    // 기존 scope 확인 — 만료되지 않은 scope가 있으면 덮어쓰지 않음
+    if (fs.existsSync(scopePath)) {
+      try {
+        const existing = JSON.parse(fs.readFileSync(scopePath, "utf8"));
+        const ageMs = Date.now() - (existing.capturedAt || 0);
+        if (!existing.expanded && ageMs < 30 * 60 * 1000) {
+          return; // 유효한 scope 존재 → 스킵
+        }
+      } catch (_) {
+        // 파싱 실패 시 재설정 진행
+      }
+    }
+
+    // 파일 경로 추출 (공통 확장자)
+    const filePattern =
+      /(?:[\w\-./\\]+\.(?:java|xml|jsp|js|scss|css|properties))/gi;
+    const files = [...new Set(prompt.match(filePattern) || [])];
+
+    // KiiPS 모듈명 추출
+    const modulePattern = /KiiPS-[A-Z]{2,10}/gi;
+    const modules = [
+      ...new Set(
+        (prompt.match(modulePattern) || []).map((m) => m.toUpperCase()),
+      ),
+    ];
+
+    // 파일도 모듈도 없으면 저장 불필요
+    if (files.length === 0 && modules.length === 0) return;
+
+    const scopeDir = path.dirname(scopePath);
+    if (!fs.existsSync(scopeDir)) {
+      fs.mkdirSync(scopeDir, { recursive: true });
+    }
+
+    fs.writeFileSync(
+      scopePath,
+      JSON.stringify(
+        { files, modules, capturedAt: Date.now(), expanded: false },
+        null,
+        2,
+      ),
+      "utf8",
+    );
+  } catch (_) {
+    // scope 캡처 실패는 조용히 무시 (메인 흐름 방해 금지)
+  }
+}
+
+// ─── Hook Entry Point ────────────────────────────────────────
+
+async function onUserPromptSubmit(prompt, context) {
+  try {
+    const complexity = classifyPromptComplexity(prompt);
+
+    // TRIVIAL: 주입 없이 원본 반환
+    if (complexity === "TRIVIAL") {
+      return prompt;
+    }
+
+    const projectRoot = context.workspaceRoot || process.cwd();
+    const messages = [];
+
+    // Scope 캡처 (STANDARD/COMPLEX만, 기존 scope 미덮어씀)
+    captureScope(prompt);
+
+    // --- STANDARD 이상: Skill 활성화 + 모듈 감지 ---
+
+    // Skill 활성화
+    const skillActivation = activateSkills(prompt, projectRoot);
+    if (skillActivation) messages.push(skillActivation);
+
+    // Block Rules 검사
+    const rules = getSkillRules(projectRoot);
+    if (rules) {
+      const violations = checkBlockRules(prompt, rules);
+      if (violations.length > 0) {
+        const blockMsg = violations
+          .map(
+            (v) =>
+              `[BLOCKED] ${v.skill}:${v.ruleId}\n  ${v.severity === "critical" ? "🔴" : "⚠️"} ${v.message}`,
+          )
+          .join("\n");
+        messages.push(blockMsg);
+      }
+    }
+
+    // KiiPS 모듈 감지
+    const moduleContext = detectKiipsModules(prompt);
+    if (moduleContext) messages.push(moduleContext);
+
+    // Specialist Agent 라우팅 (STANDARD 이상)
+    const specialistRoute = routeToSpecialist(prompt);
+    if (specialistRoute) messages.push(specialistRoute);
+
+    // --- COMPLEX만: Manager + Effort ---
+    if (complexity === "COMPLEX") {
+      const agentCapabilities = checkAgentCapabilities(prompt);
+      if (agentCapabilities) messages.push(agentCapabilities);
+
+      const taskDecomposition = suggestTaskDecomposition(prompt);
+      if (taskDecomposition) messages.push(taskDecomposition);
+
+      const effortScaling = assessEffortScaling(prompt);
+      if (effortScaling) messages.push(effortScaling);
+    }
+
+    if (messages.length > 0) {
+      // 토큰 버짓: 주입 메시지 총량 제한 (컨텍스트 윈도우 보호)
+      const TOKEN_BUDGET = complexity === "COMPLEX" ? 6000 : 2000; // chars (~tokens*4)
+      const joined = applyTokenBudget(messages, TOKEN_BUDGET);
+      return joined + "\n\n" + prompt;
+    }
+    return prompt;
+  } catch (error) {
+    console.error("[UserPromptSubmit] Error:", error.message);
+    return prompt;
+  }
+}
+
+// ─── Specialist Agent 라우팅 ─────────────────────────────────
+
+const SPECIALIST_ROUTES = [
+  {
+    agent: "security-reviewer",
+    keywords: [
+      "보안",
+      "xss",
+      "csrf",
+      "injection",
+      "취약점",
+      "security",
+      "vulnerability",
+      "인증",
+      "인가",
+      "auth",
+    ],
+    priority: 1,
+  },
+  {
+    agent: "kiips-realgrid-generator",
+    keywords: [
+      "realgrid",
+      "그리드 생성",
+      "gridview",
+      "dataprovider",
+      "그리드 코드",
+    ],
+    priority: 2,
+  },
+  {
+    agent: "kiips-architect",
+    keywords: [
+      "아키텍처",
+      "architecture",
+      "설계 검토",
+      "모듈 구조",
+      "시스템 설계",
+    ],
+    priority: 2,
+  },
+  {
+    agent: "verify-agent",
+    keywords: ["검증", "verify", "빌드 확인", "테스트 확인", "증거 기반"],
+    priority: 1,
+  },
+  {
+    agent: "code-simplifier",
+    keywords: [
+      "단순화",
+      "simplify",
+      "리팩토링",
+      "refactor",
+      "복잡도",
+      "complexity",
+    ],
+    priority: 3,
+  },
+  {
+    agent: "checklist-generator",
+    keywords: ["체크리스트", "checklist", "리뷰 목록", "검증 목록"],
+    priority: 3,
+  },
+  {
+    agent: "kiips-developer",
+    keywords: [
+      "구현",
+      "코딩",
+      "디버깅",
+      "버그 수정",
+      "bug fix",
+      "implement",
+      "coding",
+    ],
+    priority: 4,
+  },
+  {
+    agent: "kiips-ui-designer",
+    keywords: [
+      "ui 설계",
+      "화면 설계",
+      "jsp 디자인",
+      "레이아웃 설계",
+      "디자인 시안",
+    ],
+    priority: 4,
+  },
+];
+
+/**
+ * 프롬프트에서 전문 에이전트 라우팅 감지
+ * STANDARD 이상에서 호출되어 적합한 specialist 추천
+ */
+function routeToSpecialist(prompt) {
+  try {
+    const lowerPrompt = prompt.toLowerCase();
+    const matched = SPECIALIST_ROUTES.filter((r) =>
+      r.keywords.some((kw) => lowerPrompt.includes(kw)),
+    ).sort((a, b) => a.priority - b.priority);
+
+    if (matched.length === 0) return null;
+
+    // 최우선 1개만 라우팅 (다중 매칭 시 priority 기준)
+    const primary = matched[0];
+    const others = matched.slice(1, 3).map((m) => m.agent);
+
+    let msg = `[Specialist] ${primary.agent}`;
+    if (others.length > 0) {
+      msg += ` (also: ${others.join(", ")})`;
+    }
+    return msg;
+  } catch (_) {
+    return null;
+  }
+}
+
+// ─── Agent 능력 확인 ─────────────────────────────────────────
+
+function checkAgentCapabilities(prompt) {
+  try {
+    const lowerPrompt = prompt.toLowerCase();
+    const taskMap = {
+      build: ["빌드", "build", "maven"],
+      deploy: ["배포", "deploy", "start"],
+      api_test: ["테스트", "test", "api"],
+      architecture_review: ["아키텍처", "설계", "architecture"],
+      log_analysis: ["로그", "log", "디버그"],
+    };
+    const detected = Object.entries(taskMap)
+      .filter(([, kws]) => kws.some((kw) => lowerPrompt.includes(kw)))
+      .map(([type]) => type);
+    if (detected.length === 0) return null;
+    return `[L3 Match] ${detected.join(", ")}`;
+  } catch (_) {
+    return null;
+  }
+}
+
+// ─── 작업 분해 제안 (Layer 4) ───────────────────────────────
+
+function suggestTaskDecomposition(prompt) {
+  const complexPatterns = [
+    {
+      pattern: /전체.*빌드|all.*build|모든.*서비스/i,
+      type: "multi_service_build",
+    },
+    { pattern: /배포.*실행|deploy.*and.*run/i, type: "build_and_deploy" },
+    {
+      pattern: /새.*기능|new.*feature|feature.*개발/i,
+      type: "feature_development",
+    },
+    { pattern: /리팩토링|refactor|코드.*개선/i, type: "code_refactoring" },
+  ];
+  const match = complexPatterns.find(({ pattern }) => pattern.test(prompt));
+  if (!match) return null;
+  return `[L4 Task] Complex: ${match.type}`;
+}
+
+// ─── KiiPS 모듈 감지 ────────────────────────────────────────
+
+function detectKiipsModules(prompt) {
+  const modulePattern = /KiiPS-([A-Z]{2,10})/gi;
+  const matches = prompt.match(modulePattern) || [];
+  const uniqueModules = [...new Set(matches.map((m) => m.toUpperCase()))];
+  if (uniqueModules.length === 0) return null;
+
+  const protectedModules = [
+    "KIIPS-HUB",
+    "KIIPS-COMMON",
+    "KIIPS-UTILS",
+    "KIIPS-APIGATEWAY",
+    "KIIPS-LOGIN",
+  ];
+  const targetProtected = uniqueModules.filter((m) =>
+    protectedModules.includes(m),
+  );
+
+  let msg = `[Modules] ${uniqueModules.join(", ")}`;
+  if (targetProtected.length > 0) {
+    msg += ` | Protected: ${targetProtected.join(", ")}`;
+  }
+  return msg;
+}
+
+// ─── Skill 활성화 (캐시 사용) ────────────────────────────────
+
+// 모델이 Skill 도구로 호출할 수 없는 스킬(frontmatter: disable-model-invocation: true)
+// 판별. P1-2026-06-09: 호출 불가 스킬에 "!"(호출 지시) 접두를 붙이던 모순 해소.
+const _modelInvocationDisabledCache = {};
+function isModelInvocationDisabled(skillName, projectRoot) {
+  if (skillName in _modelInvocationDisabledCache) {
+    return _modelInvocationDisabledCache[skillName];
+  }
+  let disabled = false;
+  try {
+    const skillPath = path.join(
+      projectRoot,
+      ".claude",
+      "skills",
+      skillName,
+      "SKILL.md",
+    );
+    // frontmatter 만 확인 (선두 1.5KB)
+    const head = fs.readFileSync(skillPath, "utf8").slice(0, 1500);
+    disabled = /disable-model-invocation:\s*true/i.test(head);
+  } catch (_) {
+    disabled = false; // 파일 없으면 기존 동작 유지 (보수적)
+  }
+  _modelInvocationDisabledCache[skillName] = disabled;
+  return disabled;
+}
+
+function activateSkills(prompt, projectRoot) {
+  const rules = getSkillRules(projectRoot);
+  if (!rules) return null;
+
+  const activatedSkills = [];
+  for (const [skillName, rule] of Object.entries(rules)) {
+    if (shouldActivateSkill(prompt, rule)) {
+      activatedSkills.push({
+        name: skillName,
+        priority: rule.priority,
+      });
+    }
+  }
+
+  const priorityOrder = { critical: 0, high: 1, normal: 2, low: 3 };
+  activatedSkills.sort(
+    (a, b) =>
+      (priorityOrder[a.priority] || 3) - (priorityOrder[b.priority] || 3),
+  );
+
+  if (activatedSkills.length === 0) return null;
+
+  // disable-model-invocation 스킬은 "!" 호출 지시 대상에서 제외하고
+  // 일반 제안(plain)으로 강등 — 호출 불가 스킬에 호출 지시 주입 방지.
+  const critical = activatedSkills
+    .filter(
+      (s) =>
+        s.priority === "critical" &&
+        !isModelInvocationDisabled(s.name, projectRoot),
+    )
+    .map((s) => "!" + s.name);
+  const others = activatedSkills
+    .filter(
+      (s) =>
+        s.priority !== "critical" ||
+        isModelInvocationDisabled(s.name, projectRoot),
+    )
+    .map((s) => s.name);
+  return `[Skills] ${[...critical, ...others].join(", ")}`;
+}
+
+// ─── Block Rules 검사 (enforcement: "block" 스킬의 blockRules) ──
+
+function checkBlockRules(prompt, rules) {
+  const violations = [];
+  for (const [skillName, rule] of Object.entries(rules)) {
+    if (rule.enforcement !== "block" || !rule.blockRules) continue;
+    for (const blockRule of rule.blockRules) {
+      try {
+        if (new RegExp(blockRule.pattern, "i").test(prompt)) {
+          violations.push({
+            skill: skillName,
+            ruleId: blockRule.id,
+            message: blockRule.message,
+            severity: blockRule.severity,
+          });
+        }
+      } catch (_) {
+        continue;
+      }
+    }
+  }
+  return violations;
+}
+
+function shouldActivateSkill(prompt, rule) {
+  const lowerPrompt = prompt.toLowerCase();
+  if (rule.promptTriggers?.keywords) {
+    if (
+      rule.promptTriggers.keywords.some((kw) =>
+        lowerPrompt.includes(kw.toLowerCase()),
+      )
+    )
+      return true;
+  }
+  if (rule.promptTriggers?.intentPatterns) {
+    if (
+      rule.promptTriggers.intentPatterns.some((pattern) => {
+        try {
+          return new RegExp(pattern, "i").test(prompt);
+        } catch (_) {
+          return false;
+        }
+      })
+    )
+      return true;
+  }
+  return false;
+}
+
+// ─── Token Budget (컨텍스트 윈도우 보호) ────────────────────
+
+/**
+ * 주입 메시지 총량을 버짓 내로 제한
+ * 우선순위: BLOCKED > Skills > Specialist > 나머지
+ * @param {string[]} messages
+ * @param {number} budgetChars - 최대 문자 수
+ * @returns {string}
+ */
+function applyTokenBudget(messages, budgetChars) {
+  let total = 0;
+  const kept = [];
+  for (const msg of messages) {
+    if (total + msg.length <= budgetChars) {
+      kept.push(msg);
+      total += msg.length;
+    } else {
+      const remaining = budgetChars - total;
+      if (remaining > 80) {
+        kept.push(msg.substring(0, remaining - 30) + "\n[...truncated]");
+      }
+      break;
+    }
+  }
+  if (kept.length < messages.length) {
+    kept.push(
+      `[TokenBudget] ${messages.length - kept.length} message(s) trimmed`,
+    );
+  }
+  return kept.join("\n\n");
+}
+
+// ─── Effort Scaling (COMPLEX 전용) ──────────────────────────
+
+function assessEffortScaling(prompt) {
+  try {
+    const lowerPrompt = prompt.toLowerCase();
+    let score = 0;
+
+    if (
+      [
+        /여러|multiple|전체|모든|all|다수/i,
+        /Controller.*Service|Service.*Mapper/i,
+        /KiiPS-[A-Z]+.*KiiPS-[A-Z]+/,
+        /파일.*파일|file.*file/i,
+      ].some((p) => p.test(prompt))
+    )
+      score += 2;
+    else if (
+      ![/이\s*파일|this\s*file|단일|single/i].some((p) => p.test(prompt))
+    )
+      score += 1;
+
+    const layers = [
+      "controller",
+      "service",
+      "mapper",
+      "dao",
+      "jsp",
+      "scss",
+      "javascript",
+      "jquery",
+      "sql",
+      "query",
+      "repository",
+    ].filter((l) => lowerPrompt.includes(l));
+    score += layers.length >= 3 ? 2 : layers.length >= 1 ? 1 : 0;
+
+    if (
+      [
+        /테스트|검증|확인|test|verify|validation|qa|quality/i,
+        /junit|mock|postman|api\s*test/i,
+      ].some((p) => p.test(prompt))
+    )
+      score += 2;
+    if (
+      [
+        /조사|분석|탐색|찾아|파악|explore|investigate|analyze|research/i,
+        /왜|why|원인|cause|root\s*cause/i,
+      ].some((p) => p.test(prompt))
+    )
+      score += 2;
+
+    if (score <= 2) return null;
+    const level = score <= 4 ? "SIMPLE" : score <= 6 ? "MODERATE" : "COMPLEX";
+    const agents =
+      score <= 4 ? "1 agent" : score <= 6 ? "2-3 agents" : "5+ agents";
+    return `[Effort] ${level} (${score}/8) -> ${agents}`;
+  } catch (_) {
+    return null;
+  }
+}
+
+// ─── CLI Entry Point ─────────────────────────────────────────
+if (require.main === module) {
+  // stdin을 동기적으로 수집하여 setTimeout 경합 방지
+  const chunks = [];
+  process.stdin.setEncoding("utf8");
+  process.stdin.on("data", (chunk) => chunks.push(chunk));
+  process.stdin.on("end", async () => {
+    try {
+      const input = chunks.join("");
+      if (!input.trim()) {
+        process.exit(0); // 빈 입력 → 무시
+      }
+      const event = JSON.parse(input);
+      const prompt = event.prompt || event.user_prompt || "";
+      const context = {
+        workspaceRoot: event.cwd || event.workspace_root || process.cwd(),
+      };
+      const result = await onUserPromptSubmit(prompt, context);
+      if (result && result !== prompt) {
+        process.stdout.write(result);
+      }
+      process.exit(0);
+    } catch (e) {
+      // 파싱/처리 에러 시 stderr 로깅 후 정상 종료 (prompt 통과)
+      process.stderr.write(`[UserPromptSubmit] Error: ${e.message}\n`);
+      process.exit(0);
+    }
+  });
+  // stdin이 아예 열리지 않는 극단적 상황 대비 (10초)
+  // end 이벤트 수신 시 clearTimeout으로 해제
+  const safetyTimer = setTimeout(() => {
+    process.stderr.write("[UserPromptSubmit] stdin timeout (10s)\n");
+    process.exit(0);
+  }, 10_000);
+  process.stdin.on("end", () => clearTimeout(safetyTimer));
+  // stdin이 이미 끝난 상태에서 실행될 경우 대비
+  process.stdin.resume();
+}
+
+module.exports = { onUserPromptSubmit, classifyPromptComplexity };
