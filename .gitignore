@@ -121,6 +121,10 @@ antigravity-config.json
 
 .vscode/mcp.json
 
+# Local LSP workspace state
+.jdt/
+.jdtls/
+
 # 세션 로그 (개인 작업 내역, Git으로 관리하지 않음)
 # docs/session-log.json은 각 개발자마다 다르므로 제외
 # 필요시 공유용 템플릿만 커밋
