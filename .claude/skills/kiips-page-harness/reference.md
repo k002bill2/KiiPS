@@ -130,7 +130,6 @@ QA_REPORT.md 읽기
 | 최대 반복 | 3회 | 2회 (R3까지, Ralph Loop 연동) |
 | 안티패턴 | AI Slop (보라색 그라데이션) | KiiPS Anti-Slop (인라인 style, raw ajax) |
 | 자체 점검 | SELF_CHECK.md | SELF_CHECK.md (동일) |
-| 외부 평가 | 없음 | Gemini Auto-Reviewer 병행 |
 
 ---
 

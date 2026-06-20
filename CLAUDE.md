@@ -41,6 +41,22 @@ cd KiiPS-HUB && mvn clean package -pl :KiiPS-SERVICE -am
 - **SCSS**: `KiiPS-UI/src/main/resources/static/css/sass/`
 - **JSP**: `KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/{도메인}/`
 
+## 하네스 (Harness)
+
+> 도메인 작업을 전문 에이전트 + 스킬로 분담해 일관·검증 가능하게 수행하는 체계.
+> 에이전트/스킬/훅 자산 목록은 [.claude/README.md](.claude/README.md) 카탈로그가 단일 진실원 (여기서 재나열 금지).
+
+**트리거:**
+- 신규 JSP 페이지 자동 생성(기획→생성→평가 파이프라인) → `kiips-page-harness` (자동 트리거)
+- 병렬 에이전트 조정 · ACE 가드레일 · 스킬 체이닝 → `kiips-orchestration` (수동 참조 — `disable-model-invocation`)
+- 하네스 점검 · 확장 · 동기화 → `harness:harness` 플러그인 (user 스코프, [revfactory/harness](https://github.com/revfactory/harness))
+- 단순 질문은 직접 응답 가능.
+
+**변경 이력:**
+| 날짜 | 변경 내용 | 대상 | 사유 |
+|------|----------|------|------|
+| 2026-06-20 | 하네스 포인터 최초 등록 | CLAUDE.md | 외부 harness 플러그인 규약(Phase 5-4) 적용 |
+
 ## 더 보기
 
 - 포트/환경 → [.claude/PORTS.md](.claude/PORTS.md)
