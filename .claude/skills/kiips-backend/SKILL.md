@@ -13,9 +13,13 @@ disable-model-invocation: true
 ## 계층 구조
 
 ```
-Controller → Service → DAO → MyBatis Mapper
-   검증        로직      데이터   SQL
+Controller → Service → DAO (inline SQL)
+   검증        로직      StringBuffer + JdbcTemplate
 ```
+
+> ⚠️ 이 프로젝트는 **MyBatis mapper XML을 쓰지 않는다.** DAO는 `extends DBSelecter`로
+> `StringBuffer sb`에 SQL을 인라인 조립하고 `getTemplate(lib).queryForList(sb.toString(), values.toArray())`
+> (JdbcTemplate)로 실행한다. 사용자 값은 위치 `?` + `values.add(...)` 바인딩. 상세 → `kiips-db-inspector`.
 
 ---
 
@@ -24,22 +28,31 @@ Controller → Service → DAO → MyBatis Mapper
 ```java
 @RestController
 @RequestMapping("/api/fd")
-public class FundController {
+public class FD0101APIController {
 
-    @Autowired
-    private FundService fundService;
+    private final FD0101APIService svr;          // 생성자 주입 (필드 @Autowired 아님)
+
+    public FD0101APIController(FD0101APIService svr) {
+        this.svr = svr;
+    }
 
     @PostMapping("/list")
-    public ResponseEntity<Map<String, Object>> getList(
-            @RequestBody Map<String, Object> param) {
+    public ResponseEntity<ApiResultBean<Object>> fundList(
+            HttpServletRequest req, @RequestBody Map<String, String> param) throws Exception {
+        ApiResultBean<Object> rtnBean = new ApiResultBean<>();
         // 입력 검증 (Controller 책임)
-        if (StringUtils.isBlank((String) param.get("FUND_CD"))) {
-            throw new BusinessException("펀드코드는 필수입니다.");
+        if (StringUtils.isBlank(param.get("FUND_CD"))) {
+            throw new AppException("error.required.fund_cd");   // i18n 코드 or 메시지
         }
-        return ResponseEntity.ok(fundService.getList(param));
+        rtnBean.setBody(svr.fundList(param));
+        return new ResponseEntity<>(rtnBean, HttpStatus.OK);
     }
 }
 ```
+
+> 저장(CUD)은 `@RequestBody {도메인}VO vo, BindingResult bindingResult`로 **typed VO + 검증**을
+> 받는다(예: `FD0101VO`). 삭제는 `@RequestBody TB_XXXXM[] models` 배열. 반환은 항상
+> `ResponseEntity<ApiResultBean<Object>>`. (`BusinessException`은 이 코드베이스에 **존재하지 않는다** — `AppException` 사용.)
 
 > **입력 검증 규칙** → `.claude/rules/validation.md` (Boundary Validation): null/길이/타입/범위 검증은 **Controller 책임**, Service/DAO는 검증된 데이터를 신뢰. `${}` 바인딩 금지. (always-on 아님 — Controller 작업 시 이 스킬에서 참조)
 
@@ -49,21 +62,24 @@ public class FundController {
 
 ```java
 @Service
-public class FundService {
+public class FD0101APIService {
 
-    @Autowired
-    private FundDAO fundDAO;
+    private final FD0101APIDao dao;          // 생성자 주입
+
+    public FD0101APIService(FD0101APIDao dao) {
+        this.dao = dao;
+    }
 
     @Transactional(readOnly = true)
-    public Map<String, Object> getList(Map<String, Object> param) {
+    public List<Map<String, Object>> fundList(Map<String, String> param) throws Exception {
         // 비즈니스 로직만 (검증은 Controller에서 완료)
-        return fundDAO.selectFundList(param);
+        return dao.getLIST(lib, param);      // lib = 운용사 스키마(멀티테넌트)
     }
 
     @Transactional
-    public Map<String, Object> save(Map<String, Object> param) {
+    public int save(String lib, Map<String, String> param) throws Exception {
         // CUD 작업은 @Transactional
-        return fundDAO.insertFund(param);
+        return dao.save(lib, param);
     }
 }
 ```
@@ -73,8 +89,9 @@ public class FundService {
 ## 공통 코드 (KiiPS-COMMON / KiiPS-UTILS)
 
 ### 예외 처리
-- `GlobalExceptionHandler`: 전역 예외 → HTTP 응답 매핑
-- `BusinessException`: 비즈니스 규칙 위반 (400)
+- `GlobalExceptionHandler` (KiiPS-COMMON) / `ExceptionControllerAdvice` (KiiPS-UTILS): 전역 예외 → HTTP 응답 매핑
+- `AppException(String chkCode[, ...])`: 비즈니스 규칙 위반 — `extends RuntimeException`. chkCode는 i18n 메시지 코드 또는 메시지. 변형: `(chkCode, List<String> keys)`, `(chkCode, lib)`, `(chkCode, Exception)`
+- 기타: `ValidationException`, `UIException`, `AuthException`/`AuthTokenException`/`AuthSessionException` (인증 계열). **`BusinessException`은 없음**
 - `ErrorNotificationService`: 에러 알림 발송
 
 ### 공통 유틸
@@ -96,8 +113,8 @@ public class FundService {
 |------|------|
 | URL 패턴 | `/api/{도메인}/{기능}` |
 | HTTP 메서드 | 조회: POST, 저장: POST, 삭제: POST |
-| 응답 형식 | `ResponseEntity<Map<String, Object>>` |
-| 에러 응답 | `BusinessException` → GlobalExceptionHandler |
+| 응답 형식 | `ResponseEntity<ApiResultBean<Object>>` (`rtnBean.setBody(...)`) |
+| 에러 응답 | `AppException` → GlobalExceptionHandler/ExceptionControllerAdvice |
 | 인증 | JWT 토큰 (Gateway에서 검증) |
 
 ---

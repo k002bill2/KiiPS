@@ -1,373 +1,76 @@
 ---
 name: kiips-mybatis-guide
-description: "MyBatis 문법 참조 가이드 - mapper.xml 패턴, 동적 SQL, TypeHandler 문법. ⚠️ 이 프로젝트는 mapper XML 미사용(inline SQL DAO). 문법 참조 전용. Use when: MyBatis 문법, mapper.xml 작성법, 동적 SQL 문법, TypeHandler"
+description: "SQL 바인딩·SQL Injection 방지 참조 가이드 (KiiPS inline SQL DAO 기준). ⚠️ 이 프로젝트는 MyBatis mapper XML 미사용. Use when: SQL 바인딩, 파라미터 바인딩, SQL Injection 방지, ${} 위험, 쿼리 안전"
 ---
 
-# KiiPS MyBatis Guide
+# KiiPS SQL 바인딩 & Injection 방지 가이드
 
-> ⚠️ **중요**: 이 프로젝트는 MyBatis mapper XML을 사용하지 않습니다 (mapper XML 0개). SQL은 Java DAO 내 StringBuffer **inline SQL**로 작성합니다. 이 문서는 MyBatis *문법 참조용*이며, 실제 SQL 작성 시 기존 DAO 패턴(inline)을 따르세요.
-
----
-
-## Quick Reference
-
-```
-#{} → PreparedStatement 파라미터 바인딩 (안전, 기본값)
-${} → 문자열 직접 치환 (위험, 테이블명/컬럼명에만 제한적 사용)
-```
-
-| 상황 | 사용 | 예시 |
-|------|------|------|
-| WHERE 조건값 | `#{}` | `WHERE id = #{userId}` |
-| LIKE 검색 | `#{}` + `CONCAT` | `WHERE name LIKE CONCAT('%', #{keyword}, '%')` |
-| IN 절 | `<foreach>` | `<foreach item="id" collection="list">` |
-| ORDER BY | `${}` (화이트리스트) | `ORDER BY ${orderColumn}` |
-| 테이블명 | `${}` (화이트리스트) | `FROM ${tableName}` |
+> ⚠️ **이 프로젝트는 MyBatis mapper XML을 사용하지 않습니다 (mapper XML 0개).** SQL은 Java DAO 내
+> `StringBuffer`로 **인라인 조립** + **위치 `?` 바인딩**(JdbcTemplate)으로 작성합니다. 이 문서는 그
+> 환경에서의 **안전한 바인딩 규칙**과 **SQL Injection 방지**를 다룹니다.
+> 실제 DAO 골격·분석법 → `kiips-db-inspector` · 계층 패턴 → `kiips-backend`.
 
 ---
 
-## Part 1: 바인딩 기본 규칙
+## Quick Reference — 바인딩 원칙
 
-### #{} — 파라미터 바인딩 (기본)
+| 들어가는 값 | 방법 | 예시 |
+|------------|------|------|
+| **사용자 입력값** (WHERE 조건/검색어/저장값) | 위치 `?` + `values.add(...)` | `sb.append("AND A.GDS_CD = ? "); values.add(param.get("GDS_CD"));` |
+| **IN절 다중값** | `InParameter` 헬퍼 | `InParameter p = TextUtil.getInstance().convMultipleConditionList(x); ... values.addAll(p.getList());` |
+| **스키마명 `lib`** (서버 제어, 멀티테넌트) | 문자열 연결 허용 | `sb.append("FROM "+lib+".TB_IL1014M ");` |
+| **정렬 컬럼/방향** (동적) | **화이트리스트 검증 후** 연결 | 서버측 허용 컬럼 목록 대조 필수 |
 
-```xml
-<!-- ✅ 안전: PreparedStatement로 변환 -->
-<select id="selectUser" resultType="UserVO">
-    SELECT USER_ID, USER_NM, DEPT_CD
-    FROM TB_SY1001M
-    WHERE USER_ID = #{userId}
-      AND USE_YN = #{useYn}
-</select>
-```
-
-내부 동작:
-```sql
--- PreparedStatement
-SELECT USER_ID, USER_NM, DEPT_CD FROM TB_SY1001M WHERE USER_ID = ? AND USE_YN = ?
-```
-
-### ${} — 문자열 치환 (제한적 사용)
-
-```xml
-<!-- ⚠️ 주의: 직접 치환, SQL Injection 위험 -->
-<!-- 반드시 서버측 화이트리스트 검증 후 사용 -->
-<select id="selectDynamic" resultType="map">
-    SELECT ${columns}
-    FROM ${tableName}
-    ORDER BY ${orderColumn} ${orderDirection}
-</select>
-```
-
-**${} 허용 케이스 (서버측 화이트리스트 필수)**:
-1. 테이블명 동적 지정
-2. 컬럼명 동적 지정 (ORDER BY, SELECT 절)
-3. ASC/DESC 정렬 방향
-
-**${} 금지 케이스**:
-1. WHERE 조건값
-2. INSERT VALUES
-3. 사용자 입력값 직접 사용
+> MyBatis의 `#{}`(PreparedStatement 바인딩) ↔ 이 프로젝트의 위치 `?` + `values`가 같은 역할이다.
+> MyBatis의 `${}`(문자열 치환, 위험) ↔ 이 프로젝트의 `"+변수+"` 문자열 연결에 해당 — **사용자 값에는 절대 쓰지 말 것**.
 
 ---
 
-## Part 2: KiiPS DAO 패턴
-
-### 표준 DAO 구조
+## Part 1: 안전한 바인딩 (✅) vs 위험 (❌)
 
 ```java
-@Repository
-public class TB_SY1001M_DAO {
+// ✅ 안전: 사용자 값은 위치 ? 바인딩
+sb.append("\n WHERE A.USER_ID = ? ");        values.add(param.get("USER_ID"));
+sb.append("\n   AND A.USE_YN  = ? ");        values.add("Y");
+// LIKE 검색도 ? 바인딩
+sb.append("\n   AND A.USER_NM LIKE '%'||?||'%' "); values.add(param.get("USER_NM").replaceAll("'",""));
+return getTemplate(lib).queryForList(sb.toString(), values.toArray());
 
-    @Autowired
-    private SqlSessionTemplate sqlSession;
+// ❌ 금지: 사용자 값을 문자열로 연결 (SQL Injection)
+sb.append("\n WHERE A.USER_ID = '" + param.get("USER_ID") + "' ");   // 절대 금지
 
-    private static final String NAMESPACE = "kiips.sy.TB_SY1001M";
-
-    // 목록 조회
-    public List<Map<String, Object>> selectList(Map<String, Object> param) {
-        return sqlSession.selectList(NAMESPACE + ".selectList", param);
-    }
-
-    // 단건 조회
-    public Map<String, Object> selectOne(Map<String, Object> param) {
-        return sqlSession.selectOne(NAMESPACE + ".selectOne", param);
-    }
-
-    // 등록
-    public int insert(Map<String, Object> param) {
-        return sqlSession.insert(NAMESPACE + ".insert", param);
-    }
-
-    // 수정
-    public int update(Map<String, Object> param) {
-        return sqlSession.update(NAMESPACE + ".update", param);
-    }
-
-    // 삭제
-    public int delete(Map<String, Object> param) {
-        return sqlSession.delete(NAMESPACE + ".delete", param);
-    }
-}
+// ⭕ 허용: 스키마명 lib (서버 제어값, 사용자 입력 아님)
+sb.append("\n   FROM "+lib+".TB_SY1001M A ");
 ```
 
-### VO 기반 DAO (모델 클래스 사용)
-
-```java
-@Repository
-public class TB_FD1001M_DAO {
-
-    @Autowired
-    private SqlSessionTemplate sqlSession;
-
-    private static final String NAMESPACE = "kiips.fd.TB_FD1001M";
-
-    public List<TB_FD1001M> selectList(TB_FD1001M model) {
-        return sqlSession.selectList(NAMESPACE + ".selectList", model);
-    }
-
-    // ❌ 절대 금지: 문자열 연결 쿼리
-    // public List<Map> findByName(String name) {
-    //     return sqlSession.selectList("SELECT * FROM TB WHERE NAME = '" + name + "'");
-    // }
-}
-```
+**문자열 연결이 허용되는 유일한 경우**: `lib`(운용사 스키마명) 등 **서버가 제어하는 신뢰값**, 또는
+**화이트리스트로 검증된** 식별자(정렬 컬럼명 등). 사용자에게서 온 값은 예외 없이 `?`.
 
 ---
 
-## Part 3: Mapper XML 패턴
+## Part 2: SQL Injection 방지 체크리스트
 
-### 파일 위치
+### 코드 리뷰 검증 항목
+1. **사용자 값 = `?` 바인딩**: WHERE 조건·검색어·INSERT/UPDATE 값이 전부 `?` + `values.add`인가
+2. **문자열 연결 점검**: `"... + param.get(...) + ..."`처럼 사용자 값을 SQL에 직접 연결한 곳이 없는가
+3. **`lib` 외 연결 금지**: `"+변수+"` 연결이 `lib`/화이트리스트 식별자에만 쓰이는가
+4. **LIKE**: `'%'||?||'%'` (바인딩) 사용. `'%'+키워드+'%'` (연결) 금지
+5. **IN절**: `InParameter`(`convMultipleConditionList`) 사용. 사용자 값을 콤마로 직접 잇지 말 것
 
-```
-KiiPS-{MODULE}/src/main/resources/mapper/{domain}/
-  ├── TB_{MODULE}NNNNM_SQL.xml    # 마스터 테이블
-  ├── TB_{MODULE}NNNND_SQL.xml    # 디테일 테이블
-  └── TB_{MODULE}NNNNH_SQL.xml    # 이력 테이블
-```
-
-### 표준 mapper 구조
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
-<mapper namespace="kiips.fd.TB_FD1001M">
-
-    <!-- 목록 조회 -->
-    <select id="selectList" parameterType="map" resultType="map">
-        SELECT A.FUND_CD
-             , A.FUND_NM
-             , A.FUND_TYPE
-             , TO_CHAR(A.REG_DT, 'YYYY-MM-DD') AS REG_DT
-          FROM TB_FD1001M A
-         WHERE 1=1
-        <if test="fundCd != null and fundCd != ''">
-           AND A.FUND_CD = #{fundCd}
-        </if>
-        <if test="fundNm != null and fundNm != ''">
-           AND A.FUND_NM LIKE CONCAT('%', #{fundNm}, '%')
-        </if>
-         ORDER BY A.FUND_CD
-    </select>
-
-    <!-- 단건 조회 -->
-    <select id="selectOne" parameterType="map" resultType="map">
-        SELECT A.*
-          FROM TB_FD1001M A
-         WHERE A.FUND_CD = #{fundCd}
-    </select>
-
-    <!-- 등록 -->
-    <insert id="insert" parameterType="map">
-        INSERT INTO TB_FD1001M (
-            FUND_CD, FUND_NM, FUND_TYPE,
-            REG_ID, REG_DT
-        ) VALUES (
-            #{fundCd}, #{fundNm}, #{fundType},
-            #{regId}, NOW()
-        )
-    </insert>
-
-    <!-- 수정 -->
-    <update id="update" parameterType="map">
-        UPDATE TB_FD1001M
-           SET FUND_NM   = #{fundNm}
-             , FUND_TYPE  = #{fundType}
-             , MOD_ID     = #{modId}
-             , MOD_DT     = NOW()
-         WHERE FUND_CD    = #{fundCd}
-    </update>
-
-    <!-- 삭제 -->
-    <delete id="delete" parameterType="map">
-        DELETE FROM TB_FD1001M
-         WHERE FUND_CD = #{fundCd}
-    </delete>
-
-</mapper>
-```
-
----
-
-## Part 4: 동적 SQL
-
-### if 태그
-
-```xml
-<where>
-    <if test="userId != null and userId != ''">
-        AND USER_ID = #{userId}
-    </if>
-    <if test="userNm != null and userNm != ''">
-        AND USER_NM LIKE CONCAT('%', #{userNm}, '%')
-    </if>
-    <if test="deptCd != null and deptCd != ''">
-        AND DEPT_CD = #{deptCd}
-    </if>
-</where>
-```
-
-### choose / when / otherwise
-
-```xml
-<choose>
-    <when test="searchType == 'NAME'">
-        AND USER_NM LIKE CONCAT('%', #{keyword}, '%')
-    </when>
-    <when test="searchType == 'ID'">
-        AND USER_ID = #{keyword}
-    </when>
-    <otherwise>
-        AND (USER_NM LIKE CONCAT('%', #{keyword}, '%')
-             OR USER_ID LIKE CONCAT('%', #{keyword}, '%'))
-    </otherwise>
-</choose>
-```
-
-### foreach (IN 절)
-
-```xml
-<!-- List 파라미터 -->
-<select id="selectByIds" parameterType="map" resultType="map">
-    SELECT * FROM TB_SY1001M
-     WHERE USER_ID IN
-    <foreach item="id" collection="userIds" open="(" separator="," close=")">
-        #{id}
-    </foreach>
-</select>
-```
-
-### set 태그 (부분 업데이트)
-
-```xml
-<update id="updateSelective" parameterType="map">
-    UPDATE TB_FD1001M
-    <set>
-        <if test="fundNm != null">FUND_NM = #{fundNm},</if>
-        <if test="fundType != null">FUND_TYPE = #{fundType},</if>
-        MOD_DT = NOW()
-    </set>
-    WHERE FUND_CD = #{fundCd}
-</update>
-```
-
----
-
-## Part 5: MERGE / UPSERT 패턴 (PostgreSQL)
-
-```xml
-<!-- PostgreSQL ON CONFLICT (UPSERT) -->
-<insert id="merge" parameterType="map">
-    INSERT INTO TB_FD1001M (
-        FUND_CD, FUND_NM, FUND_TYPE, REG_ID, REG_DT
-    ) VALUES (
-        #{fundCd}, #{fundNm}, #{fundType}, #{regId}, NOW()
-    )
-    ON CONFLICT (FUND_CD)
-    DO UPDATE SET
-        FUND_NM   = EXCLUDED.FUND_NM,
-        FUND_TYPE  = EXCLUDED.FUND_TYPE,
-        MOD_ID     = #{regId},
-        MOD_DT     = NOW()
-</insert>
-```
-
-**주의**: MERGE/UPSERT의 ON 절에도 반드시 `#{}` 사용
-
----
-
-## Part 6: SQL Injection 방지 체크리스트
-
-### 코드 리뷰 시 검증 항목
-
-1. **${} 사용 전수 검사**: mapper.xml에서 `${}` 검색
-2. **화이트리스트 검증**: `${}` 사용 시 서버 측 허용값 목록 존재 확인
-3. **문자열 연결 금지**: DAO에서 `"..." + variable + "..."` 패턴 탐지
-4. **LIKE 패턴**: `LIKE '%${keyword}%'` 대신 `LIKE CONCAT('%', #{keyword}, '%')` 사용
-5. **IN 절**: 직접 `${}` 대신 `<foreach>` 사용
-
-### 자동 검증 Grep 패턴
+### 자동 검증 Grep (mapper XML이 아니라 *.java DAO 대상)
 
 ```bash
-# 위험한 ${} 사용 탐지 (테이블명/컬럼명 외)
-grep -rn '\${' --include='*.xml' KiiPS-*/src/main/resources/mapper/ | \
-  grep -v 'tableName\|orderColumn\|orderDirection\|columns'
+# 사용자 값으로 의심되는 문자열 연결 탐지 (param.get을 SQL에 직접 연결)
+find . -name "*Dao.java" -o -name "*DAO.java" | xargs grep -nE '"\s*\+\s*param\.get' 2>/dev/null
 
-# DAO 문자열 연결 탐지
-grep -rn '\".*SELECT\|INSERT\|UPDATE\|DELETE.*\"\s*+' --include='*.java' KiiPS-*/src/
+# append 안에서 따옴표로 감싼 변수 연결 탐지 (잠재 위험)
+find . -name "*Dao.java" | xargs grep -nE "append\(.*'\"\s*\+\s*[a-zA-Z]" 2>/dev/null
 ```
+
+> 참고: MyBatis 도입 시의 `#{}`/`${}`·`<if>`/`<foreach>`·`<resultMap>` 문법은 이 프로젝트에
+> 해당 사항이 없어 본 가이드에서 제외했다. 동적 조건은 Java `if`로 `sb.append(...)`를 분기해 구성한다.
 
 ---
 
-## Part 7: 성능 최적화
-
-### 페이징 처리
-
-```xml
-<!-- PostgreSQL LIMIT/OFFSET -->
-<select id="selectListPaging" parameterType="map" resultType="map">
-    SELECT A.*
-      FROM TB_FD1001M A
-     WHERE 1=1
-    <include refid="searchCondition"/>
-     ORDER BY A.FUND_CD
-     LIMIT #{pageSize} OFFSET #{offset}
-</select>
-```
-
-### 배치 처리
-
-```xml
-<!-- 배치 INSERT -->
-<insert id="insertBatch" parameterType="list">
-    INSERT INTO TB_FD1002D (FUND_CD, SEQ, ITEM_NM, REG_ID, REG_DT)
-    VALUES
-    <foreach item="item" collection="list" separator=",">
-        (#{item.fundCd}, #{item.seq}, #{item.itemNm}, #{item.regId}, NOW())
-    </foreach>
-</insert>
-```
-
-### sql / include 재사용
-
-```xml
-<sql id="searchCondition">
-    <if test="fundCd != null and fundCd != ''">
-        AND A.FUND_CD = #{fundCd}
-    </if>
-    <if test="fundNm != null and fundNm != ''">
-        AND A.FUND_NM LIKE CONCAT('%', #{fundNm}, '%')
-    </if>
-</sql>
-
-<select id="selectList" parameterType="map" resultType="map">
-    SELECT * FROM TB_FD1001M A WHERE 1=1
-    <include refid="searchCondition"/>
-</select>
-
-<select id="selectCount" parameterType="map" resultType="int">
-    SELECT COUNT(*) FROM TB_FD1001M A WHERE 1=1
-    <include refid="searchCondition"/>
-</select>
-```
+**Version**: 3.0.0
+**Last Updated**: 2026-06-21 (mapper XML 문법 섹션 제거, inline SQL 바인딩·Injection 방지로 SHRINK)

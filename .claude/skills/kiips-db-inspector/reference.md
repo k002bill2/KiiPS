@@ -1,195 +1,105 @@
 # KiiPS DB Inspector — Reference
 
-> MyBatis mapper 분석 상세 가이드
+> **inline SQL DAO** 분석 상세 가이드. (이 프로젝트는 MyBatis mapper XML을 쓰지 않는다 —
+> 쿼리는 `*APIDao.java`의 `StringBuffer`에 인라인 조립된다.)
 
 ---
 
-## Mapper XML 구조 분석
+## 정본 예시 DAO (실제 코드 — 직접 읽어 패턴 확인)
 
-### 기본 구조
+새 분석 시 아래 실파일을 먼저 열어 현재 패턴을 확인하라(이 문서의 발췌보다 실파일이 우선):
 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="FD0101">
-
-    <!-- 공통 SQL 조각 -->
-    <sql id="columns">
-        A.FUND_CD, A.FUND_NM, A.FUND_TYPE_CD,
-        A.SETUP_DT, A.CLOSE_DT, A.USE_YN
-    </sql>
-
-    <!-- resultMap: 테이블-컬럼 매핑 -->
-    <resultMap id="fundMap" type="map">
-        <result column="FUND_CD" property="fundCd"/>
-        <result column="FUND_NM" property="fundNm"/>
-        <result column="FUND_TYPE_CD" property="fundTypeCd"/>
-    </resultMap>
-
-    <!-- 조회 -->
-    <select id="getList" resultType="map">
-        SELECT <include refid="columns"/>
-        FROM TB_FD_FUND_MST A
-        WHERE A.USE_YN = 'Y'
-        <if test="fundNm != null and fundNm != ''">
-            AND A.FUND_NM LIKE '%' || #{fundNm} || '%'
-        </if>
-        ORDER BY A.FUND_CD
-    </select>
-
-    <!-- 상세 조회 -->
-    <select id="getDetail" resultType="map">
-        SELECT A.*, B.COMP_NM
-        FROM TB_FD_FUND_MST A
-        LEFT JOIN TB_CM_COMPANY B ON A.COMP_CD = B.COMP_CD
-        WHERE A.FUND_CD = #{fundCd}
-    </select>
-
-    <!-- 등록 -->
-    <insert id="insertData">
-        INSERT INTO TB_FD_FUND_MST (
-            FUND_CD, FUND_NM, FUND_TYPE_CD,
-            REG_USER_ID, REG_DT
-        ) VALUES (
-            #{fundCd}, #{fundNm}, #{fundTypeCd},
-            #{regUserId}, SYSDATE
-        )
-    </insert>
-
-    <!-- 수정 -->
-    <update id="updateData">
-        UPDATE TB_FD_FUND_MST
-        SET FUND_NM = #{fundNm},
-            FUND_TYPE_CD = #{fundTypeCd},
-            MOD_USER_ID = #{modUserId},
-            MOD_DT = SYSDATE
-        WHERE FUND_CD = #{fundCd}
-    </update>
-
-</mapper>
-```
+| 파일 | 보여주는 패턴 |
+|------|--------------|
+| `KiiPS-IL/src/main/java/com/kiips/il/dao/IL0139APIDao.java` | `extends DBSelecter`, WITH/RANK 복합 SELECT, `getTemplate(lib).queryForList` |
+| `KiiPS-PG/src/main/java/com/kiips/pg/dao/PG0916APIDao.java` | 조건부 `sb.append(...);values.add(...)`, IN절(`InParameter`), `queryForMap` |
+| `KiiPS-UTILS/src/main/java/com/kiips/util/SQLBuilder.java` | 공유 쿼리 빌더 정적 메서드(예: `FD1003M(lib, param)`) |
+| `KIIPS-BATCH/src/main/java/com/kiips/batch/dao/DBSelecter.java` | 베이스 클래스, `getTemplate(LIB)` |
 
 ---
 
-## 분석 명령어 레퍼런스
+## DAO 골격
 
-### 테이블 검색
+```java
+@Repository
+public class XXXXAPIDao extends DBSelecter {
+    public XXXXAPIDao(@Qualifier("jdbcKiiPS") JdbcTemplate jt) { super(jt); }
 
-```bash
-# 모듈 내 모든 테이블명 추출
-grep -rohP 'TB_\w+' KiiPS-FD/src/main/resources/mapper/ | sort -u
-
-# 특정 테이블 사용처 검색
-grep -rln 'TB_FD_FUND_MST' KiiPS-FD/src/main/resources/mapper/
-
-# 테이블별 사용 빈도
-grep -rohP 'TB_\w+' KiiPS-FD/src/main/resources/mapper/ | \
-    sort | uniq -c | sort -rn | head -20
+    public List<Map<String,Object>> getLIST(String lib, Map<String,String> param) throws Exception {
+        StringBuffer sb = new StringBuffer();
+        List<Object> values = new ArrayList<>();
+        sb.append("\n SELECT A.GDS_CD --상품코드 , A.GDS_NM --상품명 ");
+        sb.append("\n   FROM "+lib+".TB_IL1014M A ");      // lib = 운용사 스키마(서버 제어값)
+        sb.append("\n  WHERE A.DEL_YN = 'N' ");
+        if (StringUtils.isNotBlank(param.get("GDS_CD"))) {
+            sb.append("\n  AND A.GDS_CD = ? "); values.add(param.get("GDS_CD"));   // 사용자 값=? 바인딩
+        }
+        return getTemplate(lib).queryForList(sb.toString(), values.toArray());
+    }
+}
 ```
 
-### 컬럼 검색
+**핵심 규칙**
+- **스키마**: `"+lib+".TB_xxx`. `lib`=운용사 스키마(멀티테넌트). 전 운용사 공유 마스터=`Constant.MAIN_LIB`("KIIPS").
+- **바인딩**: 사용자 값은 위치 `?` + `values.add(...)`. **문자열 연결로 사용자 값을 넣지 말 것**
+  (SQL Injection). `lib`만 신뢰값으로 연결.
+- **IN절 다중값**: `InParameter p = TextUtil.getInstance().convMultipleConditionList(param.get("X"));`
+  → `sb.append(... p.getInSql() ...)` + `values.addAll(p.getList())`.
+- **실행**: `getTemplate(lib).queryForList(...)` / `queryForMap(...)` / `update(...)`.
+- **공유 쿼리**: 여러 화면이 쓰는 쿼리는 `SQLBuilder.{화면ID}(lib, param)` 정적 메서드로 빌드.
+
+---
+
+## 분석 명령 (mapper XML이 아니라 *.java 대상)
+
+> 이 환경 `grep --include`는 ugrep라 오작동 → **`find ... | xargs grep`** 으로 우회한다.
 
 ```bash
-# resultMap에서 컬럼 추출
-grep -A 50 '<resultMap' KiiPS-FD/src/main/resources/mapper/fd/FD0101.xml | \
-    grep '<result' | grep -oP 'column="[^"]*"'
+# 테이블이 어느 DAO에서 쓰이는지
+find . -name "*Dao.java" -o -name "*DAO.java" | xargs grep -ln "TB_FD1003M"
 
-# 특정 컬럼 사용처 검색
-grep -rn 'FUND_CD' KiiPS-FD/src/main/resources/mapper/ --include="*.xml"
+# 컬럼 + 한글주석 추출 (SELECT 절 'A.COL --주석' 패턴)
+find . -name "*Dao.java" | xargs grep -hoE "[A-Z]\.[A-Z_]+ +--.*" | sort -u
 
-# INSERT 쿼리의 필수 컬럼 추출
-grep -A 20 '<insert' KiiPS-FD/src/main/resources/mapper/fd/FD0101.xml
-```
+# JOIN 관계
+find . -name "*Dao.java" | xargs grep -hE "JOIN .*TB_[A-Z]{2}[0-9]{4}"
 
-### JOIN 관계 분석
+# 쿼리 유형 통계 (실행 메서드 기준 — mapper 태그 아님)
+find . -name "*Dao.java" | xargs grep -hoE "queryForList|queryForMap|update\(" | sort | uniq -c
 
-```bash
-# JOIN 패턴 추출 (테이블 관계)
-grep -rn 'JOIN' KiiPS-FD/src/main/resources/mapper/ --include="*.xml" | \
-    grep -oP '(LEFT |RIGHT |INNER )?JOIN\s+TB_\w+'
-
-# ON 조건으로 연결 키 파악
-grep -B1 -A1 'JOIN' KiiPS-FD/src/main/resources/mapper/fd/FD0101.xml | \
-    grep -oP 'ON\s+\w+\.\w+\s*=\s*\w+\.\w+'
-```
-
-### 쿼리 통계
-
-```bash
-# 모듈별 CRUD 통계
-echo "=== FD Module ==="
-echo -n "SELECT: "; grep -rc '<select' KiiPS-FD/src/main/resources/mapper/ | \
-    awk -F: '{s+=$2} END{print s}'
-echo -n "INSERT: "; grep -rc '<insert' KiiPS-FD/src/main/resources/mapper/ | \
-    awk -F: '{s+=$2} END{print s}'
-echo -n "UPDATE: "; grep -rc '<update' KiiPS-FD/src/main/resources/mapper/ | \
-    awk -F: '{s+=$2} END{print s}'
-```
-
-### DAO-Mapper 매핑
-
-```bash
-# DAO 클래스에서 mapper ID 추출
-grep -rn 'selectList\|selectOne\|insert\|update' \
-    KiiPS-FD/src/main/java/ --include="*Dao.java" | \
-    grep -oP '"[A-Z][A-Za-z0-9]*\.\w+"'
-
-# namespace와 DAO 클래스 매핑 확인
-grep -rn 'namespace=' KiiPS-FD/src/main/resources/mapper/ --include="*.xml" | \
-    sed 's/.*namespace="\([^"]*\)".*/\1/'
+# 공유 쿼리 빌더 목록
+grep -oE "public static String [A-Z0-9_]+\(" KiiPS-UTILS/src/main/java/com/kiips/util/SQLBuilder.java
 ```
 
 ---
 
-## KiiPS 공통 테이블 구조
+## 네이밍 & 공통 구조
 
-### 공통 감사(Audit) 컬럼
+**테이블**: `TB_{2글자 도메인}{4자리}{M|D}[NN]` — M=마스터, D=상세(D01/D02…).
+예: `TB_IL1014M`, `TB_FD1003M`/`TB_FD1003D01`, `TB_AC1004D`, `TB_PG3011D01`.
 
-대부분의 KiiPS 테이블에 포함되는 공통 컬럼:
+**공통 감사 컬럼** (실측 빈도순 — 대부분의 테이블에 존재):
 
-| 컬럼 | 타입 | 설명 |
-|------|------|------|
-| `REG_USER_ID` | VARCHAR | 등록자 ID |
-| `REG_DT` | TIMESTAMP | 등록일시 |
-| `MOD_USER_ID` | VARCHAR | 수정자 ID |
-| `MOD_DT` | TIMESTAMP | 수정일시 |
-| `USE_YN` | CHAR(1) | 사용여부 ('Y'/'N') |
+| 컬럼 | 설명 |
+|------|------|
+| `DEL_YN` | 삭제여부 `'Y'/'N'` (조회 시 보통 `DEL_YN='N'`). **USE_YN 아님** |
+| `REG_DTM` / `REG_EMP` | 등록일시 / 등록자 사번 |
+| `MODY_DTM` / `MODY_EMP` | 수정일시 / 수정자 사번 |
 
-### 공통 코드 테이블
-
-```
-TB_CM_CODE_GROUP  — 코드 그룹 (GRP_CD, GRP_NM)
-TB_CM_CODE_DTL    — 코드 상세 (GRP_CD, DTL_CD, DTL_NM)
-TB_CM_MENU        — 메뉴 (MENU_CD, MENU_NM, PARENT_CD)
-TB_SY_USER        — 사용자 (USER_ID, USER_NM, DEPT_CD)
-```
+**공통코드**: `TB_CM_*`가 아니라 테이블함수 `MAIN_LIB.TBL_SY1007M('"+lib+"')`
+(CDTP=그룹, CDDT=코드, DSCP=설명). 투자유형 마스터=`MAIN_LIB.TB_IL1014M`
+(GDS_CD/GDS_NM/STK_GDS_TPCD: '1'=주식 '3'=채권).
 
 ---
 
-## 동적 SQL 분석 주의사항
+## 분석 주의사항
 
-### `<if>` 태그
-
-조건부 컬럼이므로 항상 포함되지는 않음:
-
-```xml
-<if test="fundNm != null and fundNm != ''">
-    AND A.FUND_NM LIKE '%' || #{fundNm} || '%'
-</if>
-```
-
--> `FUND_NM` 컬럼은 "조건부 사용"으로 표시
-
-### `<choose>` / `<when>` 태그
-
-분기별 다른 컬럼 사용 -> 분기별로 별도 분석 필요
-
-### `<foreach>` 태그
-
-배열/리스트 파라미터 -> IN 절 사용으로 표시
+- 인라인 SQL은 `if (...) { sb.append(...) }` 조건 분기로 컬럼/조건이 동적 추가됨 → 정적 grep은
+  "조건부 컬럼"을 놓칠 수 있다. 해당 DAO 메서드 전체를 읽어 분기를 확인하라.
+- 컬럼 **타입**은 소스에 없다(주석은 한글 설명일 뿐). 실제 타입은 DDL 확인 필요.
+- 뷰/프로시저/테이블함수는 별도(예: `TBL_SY1007M`는 함수).
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: 2026-03-13
+**Version**: 2.0.0
+**Last Updated**: 2026-06-21 (mapper XML 픽션 → inline SQL DAO 현실로 전면 재작성, 실 DAO 검증 기반)
