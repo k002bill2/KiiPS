@@ -22,7 +22,7 @@ globs:
 ## 워크플로우: Design-to-JSP
 
 ### 1단계: 디자인 입력 수집
-사용자가 제공한 Pencil `.pen` 파일을 `mcp__pencil__open_document`로 열거나, 첨부 이미지/HTML을 분석합니다.
+사용자가 제공한 Pencil `.pen` 파일은 `mcp__pencil__get_editor_state`(`include_schema: true`)로 스키마를 먼저 확인한 뒤 `mcp__pencil__get_screenshot`/`mcp__pencil__batch_get`으로 내용을 읽거나, 첨부 이미지/HTML을 분석합니다.
 
 ### 2단계: 디자인 분석
 디자인의 구조를 파악하여 KiiPS 컴포넌트로 매핑합니다.
