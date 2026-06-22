@@ -182,16 +182,11 @@ Result result = commonApiService.get(url, Result.class, headers);
 ```
 
 ### API Gateway Routing
-Update KIIPS-APIGateway/src/main/resources/application.yml:
-```yaml
-spring:
-  cloud:
-    gateway:
-      routes:
-        - id: your-service-route
-          uri: http://localhost:8xxx
-          predicates:
-            - Path=/api/your-endpoint/**
+KIIPS-APIGateway는 `src/main/resources/application.properties`를 사용합니다(`.yml` 아님).
+라우트 추가 시 기존 라우팅 설정 형식을 그대로 따르세요(route 구조 — 개념 예시):
+```
+# id / uri / predicates(Path) 구조로 your-service-route → http://localhost:8xxx,
+# Path=/api/your-endpoint/** 매핑 추가
 ```
 
 ### Error Handling
@@ -200,7 +195,7 @@ spring:
 - **Custom**: Throw business exceptions in Service layer
 
 ### UI Integration (KiiPS-UI)
-- **Views**: JSP in `src/main/resources/templates/`
+- **Views**: JSP in `KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/{도메인}/`
 - **JavaScript**: jQuery + AJAX
 - **Grids**: RealGrid 2.8.8 (주력, 라이선스 필요), DataTables (보조)
 - **Charts**: ApexCharts (주력), AnyChart (보조)
@@ -315,8 +310,7 @@ Add to plan document header:
 - [plan-template-kiips.md](plan-template-kiips.md) - Feature plan template
 
 ## Related Skills
-- **kiips-build** - Build planned features and verify dependencies
-- **kiips-build** - Deploy implemented features to environments
-- **kiips-build** - Test feature APIs and validate functionality
+- **kiips-build** - Build & deploy planned features, verify dependencies (빌드/배포 통합 스킬)
+- **kiips-test-runner** - Test feature APIs and validate functionality
 - **kiips-logs** - Monitor feature performance and track issues
 - **checklist-generator** - Generate feature development checklists and quality gates
