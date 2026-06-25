@@ -27,6 +27,24 @@
         "source": "github",
         "repo": "warpdotdev/claude-code-warp"
       }
+    },
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      }
+    },
+    "anthropic-agent-skills": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/skills"
+      }
+    },
+    "awesome-claude-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "awesomejun/awesome-claude-plugins"
+      }
     }
   },
   "language": "한국어",
