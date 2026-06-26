@@ -38,7 +38,7 @@ KiiPS-{SERVICE}/logs/log.YYYY-MM-DD-{N}.log
 |--------|----------|
 | FD | KiiPS-FD/logs/ |
 | IL | KiiPS-IL/logs/ |
-| Common | KiiPS-COMMON-SERVICE/logs/ |
+| Common | KiiPS-COMMON/logs/ |
 | UI | KiiPS-UI/logs/ |
 | Gateway | KiiPS-APIGateway/logs/ |
 
