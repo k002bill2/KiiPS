@@ -1,6 +1,6 @@
 ---
 name: kiips-mybatis-guide
-description: "SQL 바인딩·SQL Injection 방지 참조 가이드 (KiiPS inline SQL DAO 기준). ⚠️ 이 프로젝트는 MyBatis mapper XML 미사용. Use when: SQL 바인딩, 파라미터 바인딩, SQL Injection 방지, ${} 위험, 쿼리 안전"
+description: "KiiPS SQL 바인딩·SQL Injection 방지 참조 가이드 (inline SQL DAO 기준 — MyBatis mapper XML 미사용). Use when: SQL 바인딩, 파라미터 바인딩, SQL Injection 방지, ${} 위험, mybatis, 쿼리 안전, ? 바인딩, InParameter. NOT for: DAO 구조/컬럼 조회(use kiips-db-inspector), 계층/서비스 패턴(use kiips-backend), 인증·암호화 등 일반 보안(use kiips-security-guide)"
 ---
 
 # KiiPS SQL 바인딩 & Injection 방지 가이드

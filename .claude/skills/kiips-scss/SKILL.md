@@ -1,6 +1,6 @@
 ---
 name: kiips-scss
-description: "SCSS 테마 시스템, 시스템 변수(디자인 토큰) 기반 색상 작성, 다크테마 적용, theme.css 변경 시 header 캐시 버전 갱신, 운용사 헤더 로고 클래스 정의(_logos.scss). Use when: SCSS, 스타일, 테마, 다크테마, dark theme, 다크모드, CSS 변수, 시스템 변수, 디자인 토큰, color token, var(--*), 새 페이지, 화면 수정, theme.css, 캐시 버전, ?ver=, 버전 갱신, 로고, logo, _logos.scss, 운용사 로고"
+description: "SCSS 테마 시스템, 시스템 변수(디자인 토큰) 기반 색상 작성, 다크테마 적용, theme.css 변경 시 header 캐시 버전 갱신, 운용사 헤더 로고 클래스 정의(_logos.scss). Use when: SCSS, 스타일, 테마, 다크테마, dark theme, 다크모드, CSS 변수, 시스템 변수, 디자인 토큰, color token, var(--*), 새 페이지, 화면 수정, theme.css, 캐시 버전, ?ver=, 버전 갱신, 로고, logo, _logos.scss, 운용사 로고. NOT for: 운용사 추가 전체 파이프라인(use kiips-operator-onboarding), JSP 폼/AJAX 등 비-SCSS 프론트엔드 표준(use kiips-frontend-guidelines)."
 disable-model-invocation: true
 ---
 

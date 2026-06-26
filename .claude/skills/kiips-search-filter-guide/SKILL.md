@@ -1,6 +1,6 @@
 ---
 name: kiips-search-filter-guide
-description: "KiiPS 검색필터 종합 가이드 - MainComponent, Constant, inc_filter_main.jsp 연동. Use when: 검색조건, 검색필터, SEARCH_CONDITION, MainComponent, 필터, inc_filter_main"
+description: "KiiPS 검색필터 종합 가이드 - MainComponent 빌더, Constant 날짜타입/헬퍼, inc_filter_main.jsp 연동. Use when: 검색조건, 검색필터, 필터, SEARCH_CONDITION, MainComponent, inc_filter_main, createObjectForSearchAjax, 날짜 필터, 셀렉트 필터. NOT for: 그리드(use kiips-realgrid-guide), 버튼/툴바(use kiips-button-guide), 등록모달(use kiips-regist-modal-guide)"
 ---
 
 # KiiPS Search Filter Guide
@@ -238,7 +238,7 @@ Constant.getMainSearchCustomComp("CUSTOM", "커스텀", "CUSTOM_TYPE", "data")
 검색조건_통화구분코드   // MAIN_SEARCH_CRC_TPCD
 
 // 조직
-검색조건_부서코드       // MAIN_SEARCH_DEPT_CD
+검색조건_인사정보관리_부서   // MAIN_SEARCH_DEPT_CD
 ```
 
 ---
@@ -251,7 +251,7 @@ Constant.getMainSearchCustomComp("CUSTOM", "커스텀", "CUSTOM_TYPE", "data")
 | Constant.java | `KiiPS-UTILS/src/main/java/com/kiips/util/Constant.java` | 헬퍼 함수 + 상수 |
 | inc_filter_main.jsp | `KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/include/inc_filter_main.jsp` | 필터 바 UI |
 | search_condition_main.jsp | `KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/include/Filter/search_condition_main.jsp` | 파싱 + 동적 렌더링 |
-| common.js | `KiiPS-UI/src/main/resources/static/js/common.js` | fnInitSelectBox, fnCommCode 등 |
+| common.js | `KiiPS-UI/src/main/resources/static/js/common.js` | createObjectForSearchAjax 등 (검색 AJAX 객체 생성) |
 
 ---
 

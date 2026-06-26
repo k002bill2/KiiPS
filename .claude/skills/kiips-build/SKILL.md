@@ -1,6 +1,6 @@
 ---
 name: kiips-build
-description: "KiiPS 빌드/배포/기동 통합 스킬. Maven 빌드, 서비스 배포, Pre-flight 체크, 헬스체크. Use when: 빌드, 배포, build, deploy, maven, mvn, start, stop, restart, startup"
+description: "KiiPS 빌드·배포·서비스 기동 통합 스킬 (KiiPS-HUB Maven 멀티모듈, Pre-flight·헬스체크 포함). Use when: 빌드, 배포, build, deploy, maven, mvn, start, stop, restart, startup. NOT for: 로그 조회(use view-logs), 서비스 상태/헬스만 확인(use service-status·check-health)"
 disable-model-invocation: true
 ---
 

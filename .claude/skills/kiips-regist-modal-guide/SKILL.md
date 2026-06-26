@@ -1,6 +1,6 @@
 ---
 name: kiips-regist-modal-guide
-description: "KiiPS 등록/수정 모달 종합 가이드 - 모달 HTML, 폼필드, 편집그리드, columnGroup 머지, 저장 패턴. Use when: 등록 모달, 수정 모달, 모달창, 팝업, registModal, modal 생성"
+description: "KiiPS 등록/수정 모달 종합 가이드 - 모달 HTML, 폼필드, 편집그리드, columnGroup 머지, 저장 패턴. Use when: 등록 모달, 수정 모달, 모달창, 팝업, registModal, modal 생성. NOT for: 목록/조회 그리드 자체(use kiips-realgrid-guide), 체크리스트 목록 팝업(use kiips-checklist-list-popup), 공통 폼/AJAX 규칙(use kiips-frontend-guidelines)"
 ---
 
 # KiiPS Registration Modal Guide

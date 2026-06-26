@@ -24,9 +24,9 @@ KiiPS JSP 페이지의 표준 구조 패턴입니다. 검색필터, 버튼, 그�
 ### Related Skills
 | Skill | 연동 포인트 |
 |-------|------------|
-| `kiips-search-filter-guide` | Part 3: SEARCH_CONDITION 빌더 |
-| `kiips-button-guide` | Part 4: inc_main_button 버튼 등록 |
-| `kiips-realgrid-guide` | Part 5: 그리드 생성/설정 |
+| `kiips-search-filter-guide` | SEARCH_CONDITION 빌더 (본 가이드 Part 2.3) |
+| `kiips-button-guide` | inc_main_button 버튼 등록 |
+| `kiips-realgrid-guide` | 그리드 생성/설정 |
 
 ## When to Use
 

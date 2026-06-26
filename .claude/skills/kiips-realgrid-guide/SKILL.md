@@ -1,6 +1,6 @@
 ---
 name: kiips-realgrid-guide
-description: "RealGrid 2.6.3 종합 가이드 - 그리드 생성, 설정, 에디터, Excel, 성능 최적화. Use when: RealGrid, 리얼그리드, 그리드, 테이블, 그리드 생성, 그리드 만들어"
+description: "RealGrid 2.6.3 그리드 생성·설정·에디터·Excel·성능 최적화·체크박스 토글 패턴. Use when: RealGrid, 리얼그리드, 그리드, 테이블, 그리드 생성, 그리드 만들어, columnLayout, 멀티레벨 헤더, 셀/헤더 체크박스. NOT for: 신규 페이지 전체(use kiips-page-pattern-guide), 컴포넌트 단건 추가(use kiips-ui-component-builder), 등록/수정 모달(use kiips-regist-modal-guide), 체크리스트 목록 팝업(use kiips-checklist-list-popup)"
 ---
 
 # KiiPS RealGrid Guide
@@ -12,7 +12,7 @@ RealGrid 2.6.3 종합 가이드입니다. 그리드 생성부터 고급 설정, 
 ### What This Skill Does
 - **그리드 생성**: KiiPS 표준 패턴 (createMainGrid, logosAjax)
 - **멀티 레벨 헤더**: columnLayout, header.heights
-- **커스텀 렌더러**: common_grid.js 24개 렌더러
+- **커스텀 렌더러**: common_grid.js 23개 렌더러
 - **셀 에디터**: text, number, date, dropdown, multiline
 - **Excel 기능**: Import, Export, 템플릿
 - **필터 & 정렬**: 다중 컬럼 필터, 커스텀 정렬
@@ -161,7 +161,7 @@ fn_grid_renderer(gridView, 'renderer_imgbtn');
 | `renderer_enterprise` | 기업 검색 |
 | `renderer_searchbtn` | 검색 버튼 |
 
-> 전체 24개 렌더러 목록은 [reference.md](reference.md) 참조
+> 전체 23개 렌더러 목록은 [reference.md](reference.md) 참조
 
 ### 기본 이벤트 바인딩
 

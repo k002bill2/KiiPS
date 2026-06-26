@@ -1,6 +1,6 @@
 ---
 name: kiips-operator-onboarding
-description: KiiPS 신규 운용사 로그인 페이지 자동 설정 파이프라인 - LibConfiguration 매핑(PRD/STG), signup SCSS 분기, 로고/배경 이미지, 로그인 JSP 버전 캐시버스팅(?v=) 일괄 처리. Use when 신규 운용사 추가, 운용사 코드 등록, 로그인 페이지 분기, 신규 LIB 추가, operator onboarding
+description: "Use when 신규 운용사 추가, 운용사 코드 등록, 로그인 페이지 분기, 신규 LIB 추가, LibConfiguration에 운용사 추가, operator onboarding, new tenant login — KiiPS 운용사별 로그인 페이지(LibConfiguration PRD/STG put 매핑, signup SCSS, 로고/배경 이미지, ?ver= 캐시버스팅) 구성. NOT for: 일반 SCSS/다크테마 편집(use kiips-scss), 신규 업무 화면 생성(use kiips-page-harness), 인증/로그인 보안 로직(use kiips-security-guide)"
 ---
 
 # KiiPS 신규 운용사 로그인 페이지 온보딩 스킬

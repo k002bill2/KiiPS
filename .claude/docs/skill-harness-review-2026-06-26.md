@@ -1,8 +1,9 @@
 # KiiPS 스킬 하네스 강화 검토 리포트 (2026-06-26)
 
 > 멀티 에이전트 워크플로우(`kiips-skill-harness-review`, run `wf_02dc7403-4de`)로 `.claude/skills/` 전체 27개 스킬을
-> `superpowers:writing-skills` 표준 루브릭에 대조 검토. **이 리포트는 검토 결과(데이터)이며, 어떤 스킬 파일도 수정하지 않았습니다.**
-> 실제 편집은 사용자 승인 후 별도 후속 작업으로 진행합니다 (3+파일 → `multiFileGate` 게이트 + 반합리화 규칙).
+> `superpowers:writing-skills` 표준 루브릭에 대조 검토.
+> **§1~§11 = 검토 결과(데이터). §12~§14 = 사용자 승인 후 적용 기록(B1 P0정정 / B2 registry / B4 잔여drift / B3 트리거링).**
+> 적용은 배치 단위 승인 + 정적 테스트 검증 + `find+xargs` 재검증(grep -r false-negative 회피)으로 진행.
 
 ---
 
@@ -285,6 +286,54 @@ scss를 6자리로 정정하면서 발견: 훅 `themeCssVerGuard.sh:30`의 정�
 
 ### ⚠️ 잔존 grep-suspect (B4 전 find+xargs 재검증 필요)
 §3-P0-7(realgrid IL0920), §6-P1-C(search-filter 상수·common.js헬퍼, page-pattern Part참조, test-runner XML, page-harness, learning) 및 backend/db-inspector/frontend-guidelines 각 1건은 **grep -r 기반일 수 있어 미정** — B4 착수 전 신뢰 방법으로 재확인할 것.
+
+---
+
+## 13. B2 + B4 적용 기록 (2026-06-26)
+
+### B2 — registry 수치 (1파일) 🟢
+README.md L33·L97 "31 스킬" → "27 스킬" (실측 27 일치).
+
+### B4 — 잔여 drift, find+xargs 재검증 후 적용 (3파일) 🟢
+| 파일 | 정정 | 비고 |
+|------|------|------|
+| kiips-search-filter-guide | `검색조건_부서코드`→`검색조건_인사정보관리_부서`(실 상수, 값 MAIN_SEARCH_DEPT_CD 보유), `fnInitSelectBox/fnCommCode`→`createObjectForSearchAjax`(common.js 실재) | grep -r은 MAIN_SEARCH_DEPT_CD도 false-neg였음 |
+| kiips-realgrid-guide | `24개 렌더러`→`23개`(common_grid.js 실측 23, 2곳) | |
+| kiips-page-pattern-guide | Related Skills 표 Part 번호 제거(SKILL.md/examples.md/reference.md 간 불일치)→토픽 링크 | SEARCH_CONDITION은 실제 Part 2.3 |
+
+### ✅ B4에서 추가 false-flag 정정 (스킬이 이미 정확 → 수정 안 함)
+| 보고서가 drift로 본 것 | 실제 |
+|------|------|
+| kiips-backend `BusinessException` | 스킬이 이미 "존재하지 않음 — AppException 사용" 명시 (L55·L94). `class BusinessException`=0 확인 → **스킬 정확** |
+| kiips-frontend-guidelines `logosAjax.getToken()` | 스킬이 이미 "사용 금지 — 존재하지 않는 메서드"(L182). `logosAjax`(1061건) 실재, `.getToken`만 0 → **스킬 정확** |
+| kiips-db-inspector / kiips-quality / kiips-page-harness | 리뷰어가 "스킬 전제 맞음" 확인한 것 → drift 아님 |
+
+### ⏸ B4 보류 (나중 판단)
+kiips-realgrid-guide IL0920 셀 렌더러 `type:html` vs 실제 `type:icon`(IL0920.jsp:1293): 메모리 [[project_kiips_realgrid_createmaingrid_render]]상 createMainGrid 그리드엔 `type:html`이 올바른 가이드일 수 있어 — 기술 가이드 변경 리스크로 **미수정**(IL0920 귀속만 부정확). 별도 판단 필요.
+
+---
+
+## 14. B3 적용 기록 — 트리거링 강화 (2026-06-26)
+
+### 적용 (20 SKILL.md description + skill-rules.json + registry 재생성, 23파일) 🟢
+- **description 재작성 20건**: 전 스킬에 `NOT for:(use X)` 크로스레퍼런스 추가(집-스타일 정렬) + WF-요약 안티패턴 제거 5건(checklist-list-popup, feature-planner, logs, operator-onboarding, realgrid-guide).
+- **키워드 보존**: 적용 전 결정적 토큰 diff로 검증 — 누락 후보 33건은 전부 양성(서술어 통합/종합/패턴, WF-요약 조각, ⚠️ 기호). 실제 트리거 키워드 손실 0.
+- **skill-rules.json 미러링 (advisor #1 — 트리거링 1차 산출물)**: 새 양성 키워드를 11개 스킬의 promptTriggers.keywords에 추가:
+  | 스킬 | 추가 키워드 |
+  |------|------------|
+  | kiips-mybatis-guide | SQL 바인딩·파라미터 바인딩·SQL Injection·${}·InParameter·쿼리 안전 (기존 rules가 MyBatis/mapper.xml 위주라 description과 불일치였음) |
+  | kiips-scss | 로고·_logos.scss·theme.css·캐시 버전·?ver=·디자인 토큰·운용사 로고 (rules가 빈약했음) |
+  | legacy-compliance-checker | JSP·SCSS·pom.xml·업그레이드·마이그레이션 |
+  | kiips-search-filter-guide | createObjectForSearchAjax·날짜 필터·셀렉트 필터 |
+  | kiips-backend | AppException·ApiResultBean / kiips-button-guide | 권한·아이콘 / kiips-db-inspector | 테이블 관계·JOIN 분석 |
+  | kiips-linked-approval-template | getApprvContent·LinkedApprovalCode / kiips-security-guide | 세션·파일업로드 / kiips-operator-onboarding | LibConfiguration·new tenant / kiips-quality | alt 텍스트·브레이크포인트 |
+- **registry 재생성**: `build-registries.js` → skills-registry.json(27)·commands-registry.json 동기화.
+
+### 검증 🟢
+skills-integrity 29/29 · skill-rules-integrity 3/3 · registry-integrity 38/38 · 전 description frontmatter <1024 · skill-rules.json 유효 JSON.
+
+### 적용 방식
+20건 frontmatter + skill-rules는 DRY-run으로 현재 description 일치(20/20)·1024자 미만 확인 후 스크립트 일괄 적용, 정적 테스트로 검증. (Edit 도구 대신 스크립트 — 균일 변환 + 테스트 안전망.)
 
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: checklist-generator
-description: "컨텍스트 기반 체크리스트 생성 — 코드 리뷰, 배포, 테스트, 품질 검증. Use when: checklist, 체크리스트, TODO, todo, task list, verification"
+description: "KiiPS 작업 완료 후 품질 검증용 구조화 체크리스트 생성 (코드 리뷰/배포/테스트). Use when: checklist, 체크리스트, TODO, todo, task list, verification. NOT for: 빌드 실행(use kiips-build), 테스트 실행(use kiips-test-runner), 품질 종합 점검(use kiips-quality), 레거시 준수 검증(use legacy-compliance-checker)"
 disable-model-invocation: true
 ---
 
