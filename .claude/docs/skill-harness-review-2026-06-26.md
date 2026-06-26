@@ -288,6 +288,30 @@ scss를 6자리로 정정하면서 발견: 훅 `themeCssVerGuard.sh:30`의 정�
 
 ---
 
+## 13. B2 + B4 적용 기록 (2026-06-26)
+
+### B2 — registry 수치 (1파일) 🟢
+README.md L33·L97 "31 스킬" → "27 스킬" (실측 27 일치).
+
+### B4 — 잔여 drift, find+xargs 재검증 후 적용 (3파일) 🟢
+| 파일 | 정정 | 비고 |
+|------|------|------|
+| kiips-search-filter-guide | `검색조건_부서코드`→`검색조건_인사정보관리_부서`(실 상수, 값 MAIN_SEARCH_DEPT_CD 보유), `fnInitSelectBox/fnCommCode`→`createObjectForSearchAjax`(common.js 실재) | grep -r은 MAIN_SEARCH_DEPT_CD도 false-neg였음 |
+| kiips-realgrid-guide | `24개 렌더러`→`23개`(common_grid.js 실측 23, 2곳) | |
+| kiips-page-pattern-guide | Related Skills 표 Part 번호 제거(SKILL.md/examples.md/reference.md 간 불일치)→토픽 링크 | SEARCH_CONDITION은 실제 Part 2.3 |
+
+### ✅ B4에서 추가 false-flag 정정 (스킬이 이미 정확 → 수정 안 함)
+| 보고서가 drift로 본 것 | 실제 |
+|------|------|
+| kiips-backend `BusinessException` | 스킬이 이미 "존재하지 않음 — AppException 사용" 명시 (L55·L94). `class BusinessException`=0 확인 → **스킬 정확** |
+| kiips-frontend-guidelines `logosAjax.getToken()` | 스킬이 이미 "사용 금지 — 존재하지 않는 메서드"(L182). `logosAjax`(1061건) 실재, `.getToken`만 0 → **스킬 정확** |
+| kiips-db-inspector / kiips-quality / kiips-page-harness | 리뷰어가 "스킬 전제 맞음" 확인한 것 → drift 아님 |
+
+### ⏸ B4 보류 (나중 판단)
+kiips-realgrid-guide IL0920 셀 렌더러 `type:html` vs 실제 `type:icon`(IL0920.jsp:1293): 메모리 [[project_kiips_realgrid_createmaingrid_render]]상 createMainGrid 그리드엔 `type:html`이 올바른 가이드일 수 있어 — 기술 가이드 변경 리스크로 **미수정**(IL0920 귀속만 부정확). 별도 판단 필요.
+
+---
+
 ## 부록: 산출물 위치
 - 전체 구조화 데이터(26 스킬 × 점수·약점·drift·재작성안 전문): `.claude/docs/skill-harness-review-2026-06-26-data.json` (영구 보관)
 - 워크플로우 스크립트: `.../workflows/scripts/kiips-skill-harness-review-wf_02dc7403-4de.js`

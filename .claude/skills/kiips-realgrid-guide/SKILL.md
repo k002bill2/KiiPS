@@ -12,7 +12,7 @@ RealGrid 2.6.3 종합 가이드입니다. 그리드 생성부터 고급 설정, 
 ### What This Skill Does
 - **그리드 생성**: KiiPS 표준 패턴 (createMainGrid, logosAjax)
 - **멀티 레벨 헤더**: columnLayout, header.heights
-- **커스텀 렌더러**: common_grid.js 24개 렌더러
+- **커스텀 렌더러**: common_grid.js 23개 렌더러
 - **셀 에디터**: text, number, date, dropdown, multiline
 - **Excel 기능**: Import, Export, 템플릿
 - **필터 & 정렬**: 다중 컬럼 필터, 커스텀 정렬
@@ -161,7 +161,7 @@ fn_grid_renderer(gridView, 'renderer_imgbtn');
 | `renderer_enterprise` | 기업 검색 |
 | `renderer_searchbtn` | 검색 버튼 |
 
-> 전체 24개 렌더러 목록은 [reference.md](reference.md) 참조
+> 전체 23개 렌더러 목록은 [reference.md](reference.md) 참조
 
 ### 기본 이벤트 바인딩
 

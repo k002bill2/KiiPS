@@ -30,7 +30,7 @@
 │   ├── shared/              # delegation/effort/quality/kiips-evaluation
 │   └── {specialist}.md      # kiips-architect/-developer/-ui-designer/...
 ├── commands/                # 23 커맨드 (/command-name)
-├── skills/                  # 31 스킬 (SKILL.md entry point)
+├── skills/                  # 27 스킬 (SKILL.md entry point)
 ├── hooks/                   # 20 훅 (14 settings 바인딩 + 6 허브 위임)
 ├── checklists/              # 품질 체크리스트
 ├── docs/
@@ -94,7 +94,7 @@
 ```bash
 # 카탈로그 (단일 진실원)
 cat .claude/agents-registry.json   # 13 에이전트 (수동 유지)
-cat .claude/skills-registry.json   # 31 스킬 (자동 생성)
+cat .claude/skills-registry.json   # 27 스킬 (자동 생성)
 cat .claude/commands-registry.json # 24 커맨드 (자동 생성)
 
 # 레지스트리 재생성 (스킬/커맨드 추가/삭제 시)
