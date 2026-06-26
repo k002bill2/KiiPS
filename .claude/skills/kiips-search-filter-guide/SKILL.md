@@ -1,6 +1,6 @@
 ---
 name: kiips-search-filter-guide
-description: "KiiPS 검색필터 종합 가이드 - MainComponent, Constant, inc_filter_main.jsp 연동. Use when: 검색조건, 검색필터, SEARCH_CONDITION, MainComponent, 필터, inc_filter_main"
+description: "KiiPS 검색필터 종합 가이드 - MainComponent 빌더, Constant 날짜타입/헬퍼, inc_filter_main.jsp 연동. Use when: 검색조건, 검색필터, 필터, SEARCH_CONDITION, MainComponent, inc_filter_main, createObjectForSearchAjax, 날짜 필터, 셀렉트 필터. NOT for: 그리드(use kiips-realgrid-guide), 버튼/툴바(use kiips-button-guide), 등록모달(use kiips-regist-modal-guide)"
 ---
 
 # KiiPS Search Filter Guide

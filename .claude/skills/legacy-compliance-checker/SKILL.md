@@ -1,6 +1,6 @@
 ---
 name: legacy-compliance-checker
-description: "KiiPS 레거시 준수 검증 - Java 8 호환성, Spring Boot 2.4.x 패턴, jQuery/JSP 표준 검사. Use when: Java, 코드 작성, 구현, implement, 클래스, 메서드"
+description: "KiiPS 레거시 스택 가드레일 - Java 8 호환성(var/record/sealed 차단), Spring Boot 2.4.x, jQuery/JSP, ${} SQL 안전, [data-theme=dark] SCSS 검증. Use when: Java/JSP/SCSS/pom.xml 코드 작성·구현·implement·클래스·메서드·controller·service·업그레이드·마이그레이션. NOT for: 빌드 실행(use kiips-build), 테스트 실행(use kiips-test-runner), SQL 바인딩 상세 가이드(use kiips-mybatis-guide)"
 user-invocable: false
 ---
 

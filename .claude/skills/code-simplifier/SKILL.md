@@ -1,6 +1,6 @@
 ---
 name: code-simplifier
-description: "구현 후 코드 복잡도 분석 및 단순화 (Boris Cherny principle). Use when: simplify, 단순화, refactor, 리팩토링, 개선, improve"
+description: "Use when: simplify, 단순화, refactor, 리팩토링, 개선, improve — 구현 완료 후 Java 코드 복잡도(순환복잡도/중첩/메서드길이/중복) 분석 및 단순화 제안 (Boris Cherny principle). NOT for: 버그 수정(use /diagnose), 코드 리뷰 전반(use /review), 신규 구현(use legacy-compliance-checker)."
 disable-model-invocation: true
 ---
 

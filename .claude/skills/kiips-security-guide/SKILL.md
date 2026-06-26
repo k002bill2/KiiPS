@@ -1,6 +1,6 @@
 ---
 name: kiips-security-guide
-description: "KiiPS 보안 가이드 - Spring Security, XSS 방어, CSRF, 인증/인가, 민감정보 보호. Use when: 인증, 로그인, JWT, 토큰, 비밀번호, 암호화"
+description: "KiiPS 보안 가이드 - Spring Security, XSS 방어, CSRF, 인증/인가, 민감정보 보호. Use when: 인증, 로그인, JWT, 토큰, 비밀번호, 암호화, 세션, 파일업로드 보안, 보안 코드 리뷰. NOT for: SQL 바인딩/Injection 방지(use kiips-mybatis-guide), JSP 폼/AJAX/XSS 표준 패턴(use kiips-frontend-guidelines), Spring Boot 일반 보안 패턴(use ecc:springboot-security)"
 ---
 
 # KiiPS Security Guide

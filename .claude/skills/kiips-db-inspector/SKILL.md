@@ -1,6 +1,6 @@
 ---
 name: kiips-db-inspector
-description: "KiiPS inline SQL DAO 기반 테이블/컬럼 구조 조회 전용 스킬. Use when: 테이블 구조, 컬럼, DB 구조, 스키마 확인, DAO SQL 분석, TB_"
+description: "KiiPS inline SQL DAO(*Dao.java) 기반 테이블/컬럼/관계 구조를 grep으로 분석하는 조회 전용 스킬. Use when: 테이블 구조, 컬럼, DB 구조, 스키마 확인, DAO SQL 분석, 테이블 관계, JOIN 분석, TB_. NOT for: SQL 바인딩·Injection 방지 규칙(use kiips-mybatis-guide), Controller/Service/DAO 계층 구현(use kiips-backend)"
 user-invocable: false
 ---
 

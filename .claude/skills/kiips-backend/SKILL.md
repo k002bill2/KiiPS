@@ -1,6 +1,6 @@
 ---
 name: kiips-backend
-description: "KiiPS 백엔드 개발 통합 가이드. Controller/Service/DAO 패턴, 공통 코드(COMMON/UTILS), API 설계, 예외 처리. Use when: controller, service, dao, API, endpoint, REST, COMMON, UTILS, 공통, GlobalExceptionHandler"
+description: "KiiPS 백엔드(Controller/Service/DAO 인라인 SQL) 개발·예외처리·API 설계 가이드. Use when: controller, service, dao, API, endpoint, REST, COMMON, UTILS, 공통, GlobalExceptionHandler, AppException, ApiResultBean 작성/수정. NOT for: 테이블·컬럼 구조 조회(use kiips-db-inspector), SQL 바인딩 안전(use kiips-mybatis-guide), 인증/JWT(use kiips-security-guide), Java8 레거시 준수(use legacy-compliance-checker)"
 disable-model-invocation: true
 ---
 

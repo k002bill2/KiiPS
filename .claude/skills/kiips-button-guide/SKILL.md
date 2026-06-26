@@ -1,6 +1,6 @@
 ---
 name: kiips-button-guide
-description: "KiiPS 버튼 영역 종합 가이드 - inc_main_button.jsp, 도메인별 버튼, 권한 처리, 아이콘 클래스. 단일 액션은 btn-outline-primary / 드롭다운만 btn-primary. Use when: 버튼, 툴바, inc_main_button, btn_reload, btn_regist, 관리자 버튼"
+description: "KiiPS 버튼 영역/툴바 가이드 - inc_main_button.jsp 라우팅, 도메인별 버튼, 권한 처리(A/C/E), 아이콘 클래스. 단일 액션은 btn-outline-primary / 드롭다운만 btn-primary. Use when: 버튼, 툴바, inc_main_button, btn_reload, btn_regist, 관리자 버튼, 권한, AUTH, 아이콘. NOT for: 검색필터(use kiips-search-filter-guide), 그리드(use kiips-realgrid-guide), 등록모달(use kiips-regist-modal-guide)"
 ---
 
 # KiiPS Button Area Guide

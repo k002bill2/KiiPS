@@ -1,6 +1,6 @@
 ---
 name: kiips-logs
-description: "KiiPS 로그 조회/분석 통합 스킬. 로그 검색, 에러 탐지, 실시간 모니터링. Use when: 로그, log, error, 에러, exception, 분석, 로그 보기, 로그 검색"
+description: "Use when 로그(log)를 조회·검색·분석하거나 에러(error)/exception을 탐지·실시간 모니터링할 때. 키워드: 로그, log, error, 에러, exception, 분석, 로그 보기, 로그 검색. 서비스별 logs/ 디렉토리 위치와 주요 에러 패턴 참조. NOT for: 서비스 기동/헬스 상태 확인(use /service-status, /check-health)."
 disable-model-invocation: true
 ---
 

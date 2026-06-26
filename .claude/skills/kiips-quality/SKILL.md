@@ -1,6 +1,6 @@
 ---
 name: kiips-quality
-description: "웹 접근성(WCAG 2.1 AA) + 반응형 디자인 검증 통합. Use when: 접근성, WCAG, ARIA, 반응형, responsive, 모바일, 브레이크포인트, 터치 타겟, a11y"
+description: "웹 접근성(WCAG 2.1 AA)·반응형 디자인 검증 참조. Use when: 접근성, WCAG, ARIA, alt 텍스트, 반응형, responsive, 모바일, 브레이크포인트, 터치 타겟, a11y. NOT for: SCSS/다크테마(use kiips-scss), 일반 프론트엔드 폼 규칙(use kiips-frontend-guidelines)"
 disable-model-invocation: true
 ---
 

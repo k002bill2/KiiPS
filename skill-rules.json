@@ -4,25 +4,49 @@
     "enforcement": "suggest",
     "priority": "high",
     "promptTriggers": {
-      "keywords": ["JSP", "JavaScript", "프론트엔드", "jQuery"],
+      "keywords": [
+        "JSP",
+        "JavaScript",
+        "프론트엔드",
+        "jQuery"
+      ],
       "intentPatterns": [
         "(create|update|modify).*?(page|screen|UI|화면)",
         "(fix|style).*?(JSP|JavaScript)"
       ]
     },
     "fileTriggers": {
-      "pathPatterns": ["**/jsp/**/*.jsp", "**/static/**/*.js", "**/static/**/*.css"],
-      "contentPatterns": ["<%@", "$(document)", "function "]
+      "pathPatterns": [
+        "**/jsp/**/*.jsp",
+        "**/static/**/*.js",
+        "**/static/**/*.css"
+      ],
+      "contentPatterns": [
+        "<%@",
+        "$(document)",
+        "function "
+      ]
     }
   },
-
   "kiips-security-guide": {
     "type": "guardrail",
     "enforcement": "require",
     "priority": "critical",
     "description": "KiiPS 보안 가이드 - Spring Security, XSS 방어, CSRF, 인증/인가, 민감정보 보호",
     "promptTriggers": {
-      "keywords": ["인증", "로그인", "JWT", "토큰", "비밀번호", "암호화", "보안", "XSS", "CSRF"],
+      "keywords": [
+        "인증",
+        "로그인",
+        "JWT",
+        "토큰",
+        "비밀번호",
+        "암호화",
+        "보안",
+        "XSS",
+        "CSRF",
+        "세션",
+        "파일업로드"
+      ],
       "intentPatterns": [
         ".*?(auth|login|token).*?",
         ".*?(password|secret|encrypt).*?",
@@ -30,13 +54,20 @@
       ]
     }
   },
-
   "kiips-feature-planner": {
     "type": "domain",
     "enforcement": "require",
     "priority": "high",
     "promptTriggers": {
-      "keywords": ["기능", "feature", "개발", "계획", "plan", "구현", "implement"],
+      "keywords": [
+        "기능",
+        "feature",
+        "개발",
+        "계획",
+        "plan",
+        "구현",
+        "implement"
+      ],
       "intentPatterns": [
         "(새로운|new).*?(기능|feature)",
         "(개발|develop).*?(계획|plan)",
@@ -45,11 +76,15 @@
       ]
     },
     "fileTriggers": {
-      "pathPatterns": ["dev/active/**/*-plan.md"],
-      "contentPatterns": ["## Implementation Plan", "## Phase"]
+      "pathPatterns": [
+        "dev/active/**/*-plan.md"
+      ],
+      "contentPatterns": [
+        "## Implementation Plan",
+        "## Phase"
+      ]
     }
   },
-
   "kiips-ui-component-builder": {
     "type": "domain",
     "enforcement": "require",
@@ -88,12 +123,27 @@
       ]
     },
     "fileTriggers": {
-      "pathPatterns": ["**/*.jsp", "**/webapp/**/*.html", "**/POPUP*.jsp", "**/popup*.jsp", "**/*_print*.jsp"],
-      "contentPatterns": ["RealGridJS", "ApexCharts", "Bootstrap", "header_popup.jsp", "print.css", "no-print"]
+      "pathPatterns": [
+        "**/*.jsp",
+        "**/webapp/**/*.html",
+        "**/POPUP*.jsp",
+        "**/popup*.jsp",
+        "**/*_print*.jsp"
+      ],
+      "contentPatterns": [
+        "RealGridJS",
+        "ApexCharts",
+        "Bootstrap",
+        "header_popup.jsp",
+        "print.css",
+        "no-print"
+      ]
     },
-    "referenceFiles": ["docs/POPUP_GUIDE.md", "docs/SCSS_GUIDE.md"]
+    "referenceFiles": [
+      "docs/POPUP_GUIDE.md",
+      "docs/SCSS_GUIDE.md"
+    ]
   },
-
   "kiips-realgrid-guide": {
     "type": "domain",
     "enforcement": "require",
@@ -134,12 +184,27 @@
       ]
     },
     "fileTriggers": {
-      "pathPatterns": ["**/*grid*.js", "**/*Grid*.js", "**/*.jsp"],
-      "contentPatterns": ["RealGridJS", "GridView", "DataProvider", "createMainGrid", "logosAjax.requestTokenGrid", "setColumnLayout", "setFields", "setColumns"]
+      "pathPatterns": [
+        "**/*grid*.js",
+        "**/*Grid*.js",
+        "**/*.jsp"
+      ],
+      "contentPatterns": [
+        "RealGridJS",
+        "GridView",
+        "DataProvider",
+        "createMainGrid",
+        "logosAjax.requestTokenGrid",
+        "setColumnLayout",
+        "setFields",
+        "setColumns"
+      ]
     },
-    "referenceFiles": ["docs/REALGRID_GUIDE.md", "docs/SCSS_GUIDE.md"]
+    "referenceFiles": [
+      "docs/REALGRID_GUIDE.md",
+      "docs/SCSS_GUIDE.md"
+    ]
   },
-
   "checklist-generator": {
     "type": "tool",
     "enforcement": "suggest",
@@ -171,7 +236,6 @@
       ]
     }
   },
-
   "kiips-test-runner": {
     "type": "validation",
     "enforcement": "require",
@@ -221,7 +285,6 @@
       "preventDuplicates": true
     }
   },
-
   "code-simplifier": {
     "type": "agent",
     "enforcement": "suggest",
@@ -272,14 +335,22 @@
       "duplicationMinLines": 5
     }
   },
-
   "kiips-page-pattern-guide": {
     "type": "domain",
     "enforcement": "require",
     "priority": "critical",
     "description": "KiiPS JSP 페이지 표준 패턴 - 레이아웃, Include 체계, 검색필터+버튼+그리드 연동",
     "promptTriggers": {
-      "keywords": ["페이지 생성", "화면 만들", "JSP 만들", "새 화면", "페이지 패턴", "표준 패턴", "페이지 템플릿", "목록 화면"],
+      "keywords": [
+        "페이지 생성",
+        "화면 만들",
+        "JSP 만들",
+        "새 화면",
+        "페이지 패턴",
+        "표준 패턴",
+        "페이지 템플릿",
+        "목록 화면"
+      ],
       "intentPatterns": [
         "(페이지|화면|JSP).*(생성|만들|추가|제작)",
         "(create|add|make).*(page|screen|jsp)",
@@ -287,18 +358,34 @@
       ]
     },
     "fileTriggers": {
-      "pathPatterns": ["**/WEB-INF/jsp/kiips/**/*.jsp"],
-      "contentPatterns": ["inc_filter_main", "inc_main_button", "MAIN_SEARCH_FILTER", "content-body-modern"]
+      "pathPatterns": [
+        "**/WEB-INF/jsp/kiips/**/*.jsp"
+      ],
+      "contentPatterns": [
+        "inc_filter_main",
+        "inc_main_button",
+        "MAIN_SEARCH_FILTER",
+        "content-body-modern"
+      ]
     }
   },
-
   "kiips-search-filter-guide": {
     "type": "domain",
     "enforcement": "require",
     "priority": "high",
     "description": "KiiPS 검색필터 패턴 - MainComponent, Constant, inc_filter_main.jsp 연동",
     "promptTriggers": {
-      "keywords": ["검색조건", "검색필터", "SEARCH_CONDITION", "MainComponent", "필터", "inc_filter_main"],
+      "keywords": [
+        "검색조건",
+        "검색필터",
+        "SEARCH_CONDITION",
+        "MainComponent",
+        "필터",
+        "inc_filter_main",
+        "createObjectForSearchAjax",
+        "날짜 필터",
+        "셀렉트 필터"
+      ],
       "intentPatterns": [
         "(검색|필터|조건).*(추가|생성|만들|수정)",
         "(create|add|make).*(filter|search|condition)",
@@ -306,18 +393,34 @@
       ]
     },
     "fileTriggers": {
-      "pathPatterns": ["**/WEB-INF/jsp/**/*.jsp"],
-      "contentPatterns": ["SEARCH_CONDITION", "MainComponent", "inc_filter_main", "MAIN_SEARCH_FILTER"]
+      "pathPatterns": [
+        "**/WEB-INF/jsp/**/*.jsp"
+      ],
+      "contentPatterns": [
+        "SEARCH_CONDITION",
+        "MainComponent",
+        "inc_filter_main",
+        "MAIN_SEARCH_FILTER"
+      ]
     }
   },
-
   "kiips-button-guide": {
     "type": "domain",
     "enforcement": "require",
     "priority": "high",
     "description": "KiiPS 버튼 영역 패턴 - inc_main_button, 권한, 아이콘",
     "promptTriggers": {
-      "keywords": ["버튼", "툴바", "inc_main_button", "btn_reload", "btn_regist", "관리자 버튼", "엑셀 버튼"],
+      "keywords": [
+        "버튼",
+        "툴바",
+        "inc_main_button",
+        "btn_reload",
+        "btn_regist",
+        "관리자 버튼",
+        "엑셀 버튼",
+        "권한",
+        "아이콘"
+      ],
       "intentPatterns": [
         "(버튼|toolbar|툴바).*(추가|생성|만들|수정)",
         "(create|add|make).*(button|toolbar)",
@@ -325,18 +428,33 @@
       ]
     },
     "fileTriggers": {
-      "pathPatterns": ["**/include/button/inc_*_button.jsp", "**/include/inc_main_button.jsp"],
-      "contentPatterns": ["inc_main_button", "maingrid_button", "btn_reload", "btn_regist"]
+      "pathPatterns": [
+        "**/include/button/inc_*_button.jsp",
+        "**/include/inc_main_button.jsp"
+      ],
+      "contentPatterns": [
+        "inc_main_button",
+        "maingrid_button",
+        "btn_reload",
+        "btn_regist"
+      ]
     }
   },
-
   "kiips-regist-modal-guide": {
     "type": "domain",
     "enforcement": "require",
     "priority": "critical",
     "description": "KiiPS 등록/수정 모달 패턴 - 모달 HTML, 폼필드, 편집그리드, columnGroup 머지, 저장",
     "promptTriggers": {
-      "keywords": ["등록 모달", "수정 모달", "모달창", "팝업", "registModal", "modal 생성", "모달 그리드"],
+      "keywords": [
+        "등록 모달",
+        "수정 모달",
+        "모달창",
+        "팝업",
+        "registModal",
+        "modal 생성",
+        "모달 그리드"
+      ],
       "intentPatterns": [
         "(등록|수정|모달|팝업).*(생성|만들|추가)",
         "modal.*(add|create)",
@@ -344,11 +462,17 @@
       ]
     },
     "fileTriggers": {
-      "pathPatterns": ["**/WEB-INF/jsp/**/*.jsp"],
-      "contentPatterns": ["modal fade", "modal-dialog", "bottom-btn", "modal-confirm"]
+      "pathPatterns": [
+        "**/WEB-INF/jsp/**/*.jsp"
+      ],
+      "contentPatterns": [
+        "modal fade",
+        "modal-dialog",
+        "bottom-btn",
+        "modal-confirm"
+      ]
     }
   },
-
   "kiips-checklist-list-popup": {
     "type": "domain",
     "enforcement": "require",
@@ -400,14 +524,25 @@
       ]
     }
   },
-
   "kiips-mybatis-guide": {
     "type": "domain",
     "enforcement": "require",
     "priority": "normal",
     "description": "MyBatis 종합 가이드 - #{} vs ${}, mapper.xml 패턴, 동적 SQL",
     "promptTriggers": {
-      "keywords": ["MyBatis", "마이바티스", "mapper.xml", "동적SQL", "TypeHandler"],
+      "keywords": [
+        "MyBatis",
+        "마이바티스",
+        "mapper.xml",
+        "동적SQL",
+        "TypeHandler",
+        "SQL 바인딩",
+        "파라미터 바인딩",
+        "SQL Injection",
+        "${}",
+        "InParameter",
+        "쿼리 안전"
+      ],
       "intentPatterns": [
         "(mybatis|마이바티스).*(작성|생성|수정)",
         "(mapper|매퍼).*(xml|작성|추가)",
@@ -415,8 +550,17 @@
       ]
     },
     "fileTriggers": {
-      "pathPatterns": ["**/mapper/**/*.xml"],
-      "contentPatterns": ["#{", "${", "<select", "<insert", "<update", "<delete"]
+      "pathPatterns": [
+        "**/mapper/**/*.xml"
+      ],
+      "contentPatterns": [
+        "#{",
+        "${",
+        "<select",
+        "<insert",
+        "<update",
+        "<delete"
+      ]
     },
     "blockRules": [
       {
@@ -433,14 +577,27 @@
       }
     ]
   },
-
   "legacy-compliance-checker": {
     "type": "guardrail",
     "enforcement": "block",
     "priority": "critical",
     "description": "KiiPS 레거시 호환성 검증 - Java 8, Spring Boot 2.4.x, jQuery/JSP 표준",
     "promptTriggers": {
-      "keywords": ["Java", "코드 작성", "구현", "implement", "클래스", "메서드", "controller", "service"],
+      "keywords": [
+        "Java",
+        "코드 작성",
+        "구현",
+        "implement",
+        "클래스",
+        "메서드",
+        "controller",
+        "service",
+        "JSP",
+        "SCSS",
+        "pom.xml",
+        "업그레이드",
+        "마이그레이션"
+      ],
       "intentPatterns": [
         "(create|add|write|작성|생성).*?(class|method|controller|service|dao|mapper)",
         "(implement|구현).*?(feature|기능|API|endpoint)",
@@ -448,8 +605,18 @@
       ]
     },
     "fileTriggers": {
-      "pathPatterns": ["**/*.java", "**/*.jsp", "**/*.xml", "**/*.scss"],
-      "contentPatterns": ["public class", "public interface", "<%@", "@import"]
+      "pathPatterns": [
+        "**/*.java",
+        "**/*.jsp",
+        "**/*.xml",
+        "**/*.scss"
+      ],
+      "contentPatterns": [
+        "public class",
+        "public interface",
+        "<%@",
+        "@import"
+      ]
     },
     "blockRules": [
       {
@@ -472,14 +639,23 @@
       }
     ]
   },
-
   "kiips-db-inspector": {
     "type": "domain",
     "enforcement": "suggest",
     "priority": "normal",
     "description": "DB 구조 조회 전용 - MyBatis mapper 분석, 테이블/컬럼 탐색",
     "promptTriggers": {
-      "keywords": ["테이블 구조", "컬럼", "DB 구조", "스키마 확인", "mapper 분석", "TB_", "DAO 매핑"],
+      "keywords": [
+        "테이블 구조",
+        "컬럼",
+        "DB 구조",
+        "스키마 확인",
+        "mapper 분석",
+        "TB_",
+        "DAO 매핑",
+        "테이블 관계",
+        "JOIN 분석"
+      ],
       "intentPatterns": [
         "(테이블|table|TB_).*?(구조|structure|확인|조회)",
         "(컬럼|column).*?(목록|list|확인|what)",
@@ -488,19 +664,34 @@
       ]
     },
     "fileTriggers": {
-      "pathPatterns": ["**/mapper/**/*.xml", "**/dao/**/*.java"],
-      "contentPatterns": ["resultMap", "namespace", "@Mapper"]
+      "pathPatterns": [
+        "**/mapper/**/*.xml",
+        "**/dao/**/*.java"
+      ],
+      "contentPatterns": [
+        "resultMap",
+        "namespace",
+        "@Mapper"
+      ]
     },
     "readOnlyConstraint": true
   },
-
   "kiips-linked-approval-template": {
     "type": "domain",
     "enforcement": "require",
     "priority": "high",
     "description": "결재 연계 문서(LinkedApproval) HTML 템플릿 + 데이터 바인딩 생성",
     "promptTriggers": {
-      "keywords": ["결재", "상신", "LinkedApproval", "결재 연계", "결재 템플릿", "상신 문서"],
+      "keywords": [
+        "결재",
+        "상신",
+        "LinkedApproval",
+        "결재 연계",
+        "결재 템플릿",
+        "상신 문서",
+        "getApprvContent",
+        "LinkedApprovalCode"
+      ],
       "intentPatterns": [
         "(결재|approval).*?(연계|linked|템플릿|template)",
         "(상신|submit).*?(문서|document|생성|create)",
@@ -508,18 +699,36 @@
       ]
     },
     "fileTriggers": {
-      "pathPatterns": ["**/static/js/LinkedApproval*.js"],
-      "contentPatterns": ["LinkedApprovalCode", "getApprvContent", "doc_id"]
+      "pathPatterns": [
+        "**/static/js/LinkedApproval*.js"
+      ],
+      "contentPatterns": [
+        "LinkedApprovalCode",
+        "getApprvContent",
+        "doc_id"
+      ]
     }
   },
-
   "kiips-build": {
     "type": "domain",
     "enforcement": "require",
     "priority": "critical",
     "description": "KiiPS 빌드/배포 통합 - Maven 빌드, 서비스 배포, 시작/중지, Pre-flight 체크",
     "promptTriggers": {
-      "keywords": ["빌드", "배포", "build", "deploy", "maven", "mvn", "start", "stop", "restart", "startup", "compile", "package"],
+      "keywords": [
+        "빌드",
+        "배포",
+        "build",
+        "deploy",
+        "maven",
+        "mvn",
+        "start",
+        "stop",
+        "restart",
+        "startup",
+        "compile",
+        "package"
+      ],
       "intentPatterns": [
         "(build|compile|package).*?(service|module|project)",
         "(start|stop|restart|deploy).*?service",
@@ -532,18 +741,33 @@
       ]
     },
     "fileTriggers": {
-      "pathPatterns": ["**/pom.xml", "**/start.sh", "**/stop.sh"],
-      "contentPatterns": ["<artifactId>KiiPS-", "<packaging>"]
+      "pathPatterns": [
+        "**/pom.xml",
+        "**/start.sh",
+        "**/stop.sh"
+      ],
+      "contentPatterns": [
+        "<artifactId>KiiPS-",
+        "<packaging>"
+      ]
     }
   },
-
   "kiips-logs": {
     "type": "domain",
     "enforcement": "suggest",
     "priority": "high",
     "description": "KiiPS 로그 분석 및 조회 - 에러 탐지, 스택 트레이스 분석, 구조화된 로그 검색",
     "promptTriggers": {
-      "keywords": ["로그", "log", "error", "에러", "exception", "분석", "로그 보기", "로그 검색"],
+      "keywords": [
+        "로그",
+        "log",
+        "error",
+        "에러",
+        "exception",
+        "분석",
+        "로그 보기",
+        "로그 검색"
+      ],
       "intentPatterns": [
         "(check|analyze|find).*?(log|error)",
         ".*?(로그|에러).*?(확인|분석|검색)",
@@ -554,18 +778,31 @@
       ]
     },
     "fileTriggers": {
-      "pathPatterns": ["**/logs/*.log"]
+      "pathPatterns": [
+        "**/logs/*.log"
+      ]
     },
     "readOnlyConstraint": true
   },
-
   "kiips-backend": {
     "type": "guideline",
     "enforcement": "suggest",
     "priority": "high",
     "description": "KiiPS 백엔드 개발 가이드 - Controller/Service/DAO 표준 패턴, API 설계, 공통 모듈",
     "promptTriggers": {
-      "keywords": ["controller", "service", "dao", "API", "endpoint", "REST", "COMMON", "UTILS", "공통"],
+      "keywords": [
+        "controller",
+        "service",
+        "dao",
+        "API",
+        "endpoint",
+        "REST",
+        "COMMON",
+        "UTILS",
+        "공통",
+        "AppException",
+        "ApiResultBean"
+      ],
       "intentPatterns": [
         "(create|add|make).*?(controller|service|endpoint)",
         "(fix|debug).*?(API|service)",
@@ -574,36 +811,58 @@
       ]
     },
     "fileTriggers": {
-      "pathPatterns": ["**/controll/**/*.java", "**/service/**/*.java", "**/dao/**/*.java", "**/KiiPS-COMMON/**/*.java", "**/KiiPS-UTILS/**/*.java"],
-      "contentPatterns": ["@RestController", "@Service", "extends DAO"]
+      "pathPatterns": [
+        "**/controll/**/*.java",
+        "**/service/**/*.java",
+        "**/dao/**/*.java",
+        "**/KiiPS-COMMON/**/*.java",
+        "**/KiiPS-UTILS/**/*.java"
+      ],
+      "contentPatterns": [
+        "@RestController",
+        "@Service",
+        "extends DAO"
+      ]
     }
   },
-
   "kiips-learning": {
     "type": "domain",
     "enforcement": "suggest",
     "priority": "normal",
-    "description": "KiiPS 연속 학습 시스템 - Instinct 생성, 패턴 감지, 스킬/커맨드 진화 및 자동 생성",
+    "description": "KiiPS 학습 시스템 - Instinct 생성, 패턴 감지, 스킬 팩토리",
     "promptTriggers": {
-      "keywords": ["학습", "패턴", "instinct", "skill factory", "스킬 생성"],
+      "keywords": [
+        "학습",
+        "패턴",
+        "instinct",
+        "skill factory",
+        "스킬 생성",
+        "자동화 제안"
+      ],
       "intentPatterns": [
-        "(학습|learn).*?(패턴|pattern|instinct)",
-        "(관찰|observe).*?(세션|session)",
-        "(진화|evolve).*?(스킬|skill|커맨드|command)",
-        "(create|generate|make).*?skill",
-        "(자동|auto).*?(스킬|skill|커맨드|command)",
-        "패턴.*?스킬.*?생성"
+        "(학습|learning|instinct).*?(패턴|pattern)",
+        "(스킬|skill).*?(생성|create|factory)",
+        "(관찰|observe).*?(분석|analyze)"
       ]
     }
   },
-
   "kiips-orchestration": {
     "type": "framework",
     "enforcement": "require",
     "priority": "critical",
     "description": "ACE Framework 기반 오케스트레이션 - 병렬 에이전트 조정, 스킬 체이닝 파이프라인, ACE 핵심 가드레일",
     "promptTriggers": {
-      "keywords": ["병렬", "parallel", "에이전트", "agent", "조정", "coordination", "파이프라인", "pipeline", "ACE"],
+      "keywords": [
+        "병렬",
+        "parallel",
+        "에이전트",
+        "agent",
+        "조정",
+        "coordination",
+        "파이프라인",
+        "pipeline",
+        "ACE"
+      ],
       "intentPatterns": [
         "(병렬|parallel).*?(작업|task|agent)",
         "(multi|여러).*?(agent|에이전트)",
@@ -618,29 +877,57 @@
     "pipelines": {
       "build-deploy-verify": {
         "trigger": "(빌드|build).*(배포|deploy)",
-        "stages": ["kiips-build", "kiips-test-runner", "kiips-logs"],
+        "stages": [
+          "kiips-build",
+          "kiips-test-runner",
+          "kiips-logs"
+        ],
         "managers": "build-manager, deployment-manager"
       },
       "feature-lifecycle": {
         "trigger": "(기능|feature).*(개발|develop|구현|implement)",
-        "stages": ["kiips-architect", "legacy-compliance-checker", "kiips-developer", "kiips-ui-designer", "kiips-test-runner", "code-simplifier"],
+        "stages": [
+          "kiips-architect",
+          "legacy-compliance-checker",
+          "kiips-developer",
+          "kiips-ui-designer",
+          "kiips-test-runner",
+          "code-simplifier"
+        ],
         "managers": "feature-manager"
       },
       "incident-response": {
         "trigger": "(에러|error|장애|incident).*(분석|analyze|조사|investigate)",
-        "stages": ["kiips-logs", "kiips-db-inspector"],
+        "stages": [
+          "kiips-logs",
+          "kiips-db-inspector"
+        ],
         "managers": "deployment-manager"
       }
     }
   },
-
   "kiips-scss": {
     "type": "domain",
     "enforcement": "suggest",
     "priority": "normal",
     "description": "KiiPS SCSS 테마 시스템 - 디자인 토큰, 믹스인, 다크테마 [data-theme=dark] 적용",
     "promptTriggers": {
-      "keywords": ["SCSS", "스타일", "테마", "다크테마", "dark theme", "CSS 변수", "믹스인"],
+      "keywords": [
+        "SCSS",
+        "스타일",
+        "테마",
+        "다크테마",
+        "dark theme",
+        "CSS 변수",
+        "믹스인",
+        "로고",
+        "_logos.scss",
+        "theme.css",
+        "캐시 버전",
+        "?ver=",
+        "디자인 토큰",
+        "운용사 로고"
+      ],
       "intentPatterns": [
         "SCSS.*?(setup|설정|create|생성)",
         "(theme|테마).*?(manage|관리|change|변경)",
@@ -652,19 +939,44 @@
       ]
     },
     "fileTriggers": {
-      "pathPatterns": ["**/*.scss", "**/_*.scss", "**/css/sass/**/*.scss", "**/themes/**/_dark.scss"],
-      "contentPatterns": ["@import", "@mixin", "$primary", "$theme", "[data-theme=dark]", "$dark-bg", "$dark-color"]
+      "pathPatterns": [
+        "**/*.scss",
+        "**/_*.scss",
+        "**/css/sass/**/*.scss",
+        "**/themes/**/_dark.scss"
+      ],
+      "contentPatterns": [
+        "@import",
+        "@mixin",
+        "$primary",
+        "$theme",
+        "[data-theme=dark]",
+        "$dark-bg",
+        "$dark-color"
+      ]
     },
-    "referenceFiles": ["docs/SCSS_GUIDE.md"]
+    "referenceFiles": [
+      "docs/SCSS_GUIDE.md"
+    ]
   },
-
   "kiips-quality": {
     "type": "validation",
     "enforcement": "require",
     "priority": "high",
     "description": "KiiPS UI 품질 검증 - WCAG 2.1 AA 접근성, 반응형 디자인, 터치 타겟",
     "promptTriggers": {
-      "keywords": ["접근성", "WCAG", "ARIA", "반응형", "responsive", "모바일", "터치 타겟", "a11y"],
+      "keywords": [
+        "접근성",
+        "WCAG",
+        "ARIA",
+        "반응형",
+        "responsive",
+        "모바일",
+        "터치 타겟",
+        "a11y",
+        "alt 텍스트",
+        "브레이크포인트"
+      ],
       "intentPatterns": [
         "(accessibility|접근성|a11y).*?(check|검증|validate|test)",
         "WCAG.*?(verify|check|validate)",
@@ -678,34 +990,43 @@
       ]
     },
     "fileTriggers": {
-      "pathPatterns": ["**/*.jsp", "**/*.html", "**/*.scss", "**/*.css"],
-      "contentPatterns": ["aria-", "role=", "alt=", "label", "@media", "col-md-", "col-lg-", "img-fluid"]
-    },
-    "referenceFiles": ["docs/SCSS_GUIDE.md"]
-  },
-
-  "kiips-learning": {
-    "type": "domain",
-    "enforcement": "suggest",
-    "priority": "normal",
-    "description": "KiiPS 학습 시스템 - Instinct 생성, 패턴 감지, 스킬 팩토리",
-    "promptTriggers": {
-      "keywords": ["학습", "패턴", "instinct", "skill factory", "스킬 생성", "자동화 제안"],
-      "intentPatterns": [
-        "(학습|learning|instinct).*?(패턴|pattern)",
-        "(스킬|skill).*?(생성|create|factory)",
-        "(관찰|observe).*?(분석|analyze)"
+      "pathPatterns": [
+        "**/*.jsp",
+        "**/*.html",
+        "**/*.scss",
+        "**/*.css"
+      ],
+      "contentPatterns": [
+        "aria-",
+        "role=",
+        "alt=",
+        "label",
+        "@media",
+        "col-md-",
+        "col-lg-",
+        "img-fluid"
       ]
-    }
+    },
+    "referenceFiles": [
+      "docs/SCSS_GUIDE.md"
+    ]
   },
-
   "kiips-operator-onboarding": {
     "type": "domain",
     "enforcement": "suggest",
     "priority": "normal",
     "description": "신규 운용사 로그인 페이지 자동 설정 파이프라인 (LibConfiguration 매핑, signup SCSS 분기, 로고/배경, 캐시버스팅)",
     "promptTriggers": {
-      "keywords": ["신규 운용사", "운용사 코드", "운용사 추가", "로그인 페이지 분기", "신규 LIB", "operator onboarding"],
+      "keywords": [
+        "신규 운용사",
+        "운용사 코드",
+        "운용사 추가",
+        "로그인 페이지 분기",
+        "신규 LIB",
+        "operator onboarding",
+        "LibConfiguration",
+        "new tenant"
+      ],
       "intentPatterns": [
         "(신규|new).*?(운용사|operator|LIB)",
         "(운용사|operator).*?(추가|등록|add|onboard)",
@@ -713,14 +1034,20 @@
       ]
     }
   },
-
   "kiips-page-harness": {
     "type": "domain",
     "enforcement": "suggest",
     "priority": "normal",
     "description": "신규 JSP 페이지 자동 생성 (Plan→Generate→Evaluate 3-agent 파이프라인). 자동 QA 포함. 기존 페이지 수정/컴포넌트 단건 추가는 대상 아님",
     "promptTriggers": {
-      "keywords": ["페이지 자동 생성", "harness", "하네스 실행", "자동 생성 파이프라인", "페이지 하네스", "자동 QA 페이지"],
+      "keywords": [
+        "페이지 자동 생성",
+        "harness",
+        "하네스 실행",
+        "자동 생성 파이프라인",
+        "페이지 하네스",
+        "자동 QA 페이지"
+      ],
       "intentPatterns": [
         "(페이지|화면|page).*?(자동|auto).*?(생성|create)",
         "(harness|하네스).*?(실행|run|생성)",
@@ -728,14 +1055,20 @@
       ]
     }
   },
-
   "kiips-stitch-bridge": {
     "type": "domain",
     "enforcement": "suggest",
     "priority": "normal",
     "description": "Stitch/Pencil 디자인(.pen, .stitch)을 KiiPS JSP/Bootstrap/RealGrid로 변환",
     "promptTriggers": {
-      "keywords": ["stitch", "pencil", ".pen", ".stitch", "디자인 변환", "디자인을 JSP"],
+      "keywords": [
+        "stitch",
+        "pencil",
+        ".pen",
+        ".stitch",
+        "디자인 변환",
+        "디자인을 JSP"
+      ],
       "intentPatterns": [
         "(stitch|pencil).*?(디자인|design|변환|convert)",
         "(\\.pen|\\.stitch).*?",

@@ -1,6 +1,6 @@
 ---
 name: kiips-feature-planner
-description: "KiiPS 마이크로서비스 기능 기획/구조화. Phase별 구현 계획 + 품질 게이트. 명시 호출 전용(disable-model-invocation). Use when: 기능 기획, 신규 기능 계획, 구현 전략, feature plan, KiiPS roadmap, 마이크로서비스 기획"
+description: "KiiPS 마이크로서비스 기능을 Phase 단위 구현 계획과 품질 게이트로 구조화하는 기획 스킬. 명시 호출 전용(disable-model-invocation). Use when: 기능 기획, 신규 기능 계획, 구현 전략, feature plan, KiiPS roadmap, 마이크로서비스 기획. NOT for: 신규 JSP 페이지 자동생성(use kiips-page-harness), 일반 작업계획(use /plan), 병렬 에이전트 조정(use kiips-orchestration)"
 disable-model-invocation: true
 ---
 

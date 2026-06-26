@@ -1,6 +1,6 @@
 ---
 name: kiips-learning
-description: "KiiPS 학습 시스템 통합 스킬. Instinct 생성, 패턴 감지, 스킬/커맨드 자동 생성, 진화. Use when: 학습, 패턴, instinct, skill factory, 스킬 생성, 자동화 제안"
+description: "KiiPS 학습 시스템(Instinct 생성·패턴 감지·스킬/커맨드 자동 생성·진화)의 통합 인덱스. Use when: 학습, 패턴, instinct, skill factory, 스킬 생성, 자동화 제안. NOT for: 교훈 기록(use /learn), 패턴 조회(use /instinct-status), 진화 실행(use /evolve) 같은 실제 실행은 커맨드로."
 disable-model-invocation: true
 ---
 
