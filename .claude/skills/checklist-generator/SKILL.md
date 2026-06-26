@@ -18,9 +18,9 @@ disable-model-invocation: true
 ### 1. Code Review
 - KiiPS 컨벤션 준수 (Controller/Service/DAO)
 - 보안 취약점 (SQL Injection, XSS)
-- MyBatis #{} 사용 (${} 금지)
-- GlobalExceptionHandler 활용
-- JWT 인증 (@PreAuthorize)
+- SQL 바인딩 안전 (inline SQL DAO — `${}` 문자열연결 금지, 상세 kiips-mybatis-guide)
+- GlobalExceptionHandler 활용 (KiiPS-COMMON com.kiips.common.exception)
+- 인증/인가 (Gateway JWT + com.kiips.exception.Auth* 예외 기반)
 
 ### 2. Deployment
 - KiiPS-HUB에서 `mvn clean package -am` 빌드 성공
@@ -31,7 +31,7 @@ disable-model-invocation: true
 
 ### 3. Testing
 - Service 레이어 단위 테스트
-- DAO 통합 테스트 (MyBatis mapper)
+- DAO 통합 테스트 (inline SQL DAO)
 - Controller 엔드포인트 테스트
 - 에러 핸들링 및 엣지 케이스
 - 수동 스모크 테스트
@@ -46,4 +46,4 @@ disable-model-invocation: true
 - 항목당 하나의 검증 가능한 행동 (5-15개)
 - 의존성 순서대로 나열
 - KiiPS 특화 항목 포함 (Maven 빌드, 포트, COMMON/UTILS)
-- 파일/라인 참조 포함 (예: `FundController.java:45`)
+- 파일/라인 참조 포함 (예: `FundAPIController.java:45`)

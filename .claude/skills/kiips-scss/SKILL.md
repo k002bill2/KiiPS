@@ -286,7 +286,7 @@ el.style.color = isDark ? "#e6e6e6" : "#262626";
 6. [ ] JS 커스텀 렌더러에서 하드코딩 색상이 테마 분기로 처리됐는지
 7. [ ] `text-dark`, `bg-light` 등 Bootstrap 유틸이 다크 지원되는지
 8. [ ] SCSS 컴파일 후 `theme.css`에 반영 확인 (`mvn clean package -DskipTests`)
-9. [ ] **`header.jsp:85`의 `?ver=YYMMDD_N` 캐시 버스터 갱신** (theme.css 영향 변경 시 필수) 🆕
+9. [ ] **`header.jsp:85`의 `?ver=YYMMDD` 캐시 버스터 갱신** (theme.css 영향 변경 시 필수) 🆕
 
 ---
 
@@ -299,25 +299,21 @@ el.style.color = isDark ? "#e6e6e6" : "#262626";
 
 | 파일 | 라인 | 패턴 |
 |------|------|------|
-| `KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/include/header.jsp` | 85 | `<link rel="stylesheet" href="${KiiPS_GATE}/css/sass/theme.css?ver=YYMMDD_N" />` |
+| `KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/include/header.jsp` | 85 | `<link rel="stylesheet" href="${KiiPS_GATE}/css/sass/theme.css?ver=YYMMDD" />` |
 
 > `header_popup.jsp:67`은 `?ver=` 쿼리 자체가 없으므로 갱신 대상 아님. 변경 금지.
 
-### 버전 포맷 규칙 — `YYMMDD_N`
+### 버전 포맷 규칙 — `YYMMDD` (6자리)
 
-- `YYMMDD` — 오늘 날짜 6자리 (예: 2026-05-18 → `260518`)
-- `_N` — 같은 날 N번째 수정 시퀀스, 0부터 시작
-  - 동일 날짜에 이미 `_0` 존재 → `_1`로 증가
-  - 새 날짜로 바뀌면 다시 `_0`부터
+- `YYMMDD` — 오늘 날짜 6자리 (예: 2026-06-22 → `260622`)
+- 라이브 `header.jsp`의 실제 컨벤션은 **6자리 날짜만** 사용 (`_N` 시퀀스 미사용 — 코드베이스에 `_N` 사용 이력 0)
+- 같은 날 추가 배포로 캐시 갱신이 꼭 필요하면 날짜를 다음 날짜로 올려 처리
 
 ### 갱신 결정 트리
 
 ```
-1. 오늘 날짜 YYMMDD 계산
-2. header.jsp:85 현재 ver 값 읽기
-   현재 ver의 YYMMDD == 오늘 ?
-     YES → 끝의 _N 을 N+1 로 증가
-     NO  → ver 를 오늘날짜_0 으로 교체
+1. 오늘 날짜 YYMMDD 계산 (예: 260622)
+2. header.jsp:85 의 ?ver= 값을 오늘 날짜로 교체
 3. Edit 으로 header.jsp:85 한 줄만 수정
 4. svn diff 로 변경 1줄만인지 확인
 ```
@@ -326,10 +322,8 @@ el.style.color = isDark ? "#e6e6e6" : "#262626";
 
 | 현재 ver | 오늘 날짜 | 갱신 후 |
 |----------|----------|---------|
-| `250427_0` | 2026-05-18 | `260518_0` |
-| `260518_0` | 2026-05-18 | `260518_1` |
-| `260518_3` | 2026-05-18 | `260518_4` |
-| `260518_5` | 2026-05-19 | `260519_0` |
+| `250427` | 2026-06-22 | `260622` |
+| `260408` | 2026-06-22 | `260622` |
 
 ### 갱신이 필요한 변경 범위
 
@@ -360,14 +354,13 @@ el.style.color = isDark ? "#e6e6e6" : "#262626";
 
 ```jsp
 <!-- ❌ 잘못된 갱신 — 날짜 포맷 다름 -->
-<link href="${KiiPS_GATE}/css/sass/theme.css?ver=20260518" />     <!-- 8자리 -->
-<link href="${KiiPS_GATE}/css/sass/theme.css?ver=260518" />        <!-- _N 누락 -->
-<link href="${KiiPS_GATE}/css/sass/theme.css?v=260518_0" />        <!-- ver → v -->
+<link href="${KiiPS_GATE}/css/sass/theme.css?ver=20260622" />     <!-- 8자리 (YYMMDD 6자리여야) -->
+<link href="${KiiPS_GATE}/css/sass/theme.css?v=260622" />          <!-- ver → v -->
 
 <!-- ❌ 잘못된 위치 — header_popup.jsp 는 ?ver= 없음, 추가 금지 -->
 
 <!-- ✅ 올바른 갱신 -->
-<link href="${KiiPS_GATE}/css/sass/theme.css?ver=260518_0" />
+<link href="${KiiPS_GATE}/css/sass/theme.css?ver=260622" />
 ```
 
 ---
@@ -452,7 +445,7 @@ CI/SVN pre-commit 또는 정기 헬스체크에 포함 권장.
 
 1. `_logos.scss` 에 `.logo_{CODE}` 블록 추가 (위 표준 패턴)
 2. SCSS 컴파일 검증 — `mvn clean package -DskipTests` 또는 `sass theme.scss theme.css`
-3. **`header.jsp:85` 의 `theme.css?ver=YYMMDD_N` 갱신** (위 "theme.css 변경 시 header 캐시 버전 갱신" 섹션 참조) — 자동 감지 hook(`themeCssVerGuard.sh`)이 알림
+3. **`header.jsp:85` 의 `theme.css?ver=YYMMDD` 갱신** (위 "theme.css 변경 시 header 캐시 버전 갱신" 섹션 참조) — 자동 감지 hook(`themeCssVerGuard.sh`)이 알림
 4. (자산 미도착 시) 디자이너에게 SVG 요청 + 도착 후 주석 해제 + 다시 ver 갱신
 
 ---

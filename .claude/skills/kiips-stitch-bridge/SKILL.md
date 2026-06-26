@@ -56,16 +56,14 @@ globs:
 <!-- 버튼 영역 (Stitch: Button toolbar) -->
 <%@ include file="inc_main_button.jsp" %>
 
-<!-- 그리드 영역 (Stitch: Data table) -->
-<div class="grid_wrap" id="mainGrid" style="height:calc(100% - 80px)"></div>
+<!-- 그리드 영역 (Stitch: Data table) — RealGrid는 빈 <div id="xxxGrid">에 바인딩 (id는 화면별로 명명, 예: fairValueGrid) -->
+<div id="mainGrid" style="height:calc(100% - 80px)"></div>
 
-<!-- 등록/수정 모달 (Stitch: Modal dialog) -->
-<%@ include file="inc_regist_modal.jsp" %>
+<!-- 등록/수정 모달 (Stitch: Modal dialog) — registModal 인라인 HTML, 상세는 kiips-regist-modal-guide -->
 
 <script>
 $(document).ready(function() {
-    // KiiPS 표준 초기화
-    MainComponent.init();
+    // KiiPS 표준 초기화 (그리드 생성, 이벤트 바인딩 — MainComponent는 서버사이드 태그빌더이므로 클라 호출 없음)
 });
 </script>
 ```
@@ -76,14 +74,8 @@ $(document).ready(function() {
 
 | Stitch Token | KiiPS SCSS Variable |
 |-------------|-------------------|
-| Primary color | `$brand-primary` |
-| Background | `$body-bg` |
-| Card surface | `$card-bg` |
-| Border color | `$border-color` |
-| Text primary | `$text-color` |
-| Text secondary | `$text-muted` |
-| Success | `$brand-success` |
-| Danger | `$brand-danger` |
+| Primary color | `$theme-color` / `$primarybgColor` / `$primary-color-hue` (`config/_variables.scss`) |
+| 배경·카드·보더·텍스트·성공·위험 등 그 외 토큰 | 실제 변수명은 **kiips-scss 스킬 + `config/_variables.scss` 참조** (변수명을 추측하지 말 것), 다크테마는 `themes/default/_dark.scss` |
 
 ## 사용 시나리오
 
@@ -111,20 +103,16 @@ $(document).ready(function() {
 ## 디렉토리 구조
 
 ```
-.stitch/                     # (선택) Pencil 작업물 저장소
-├── SITE.md                  # 페이지 목록 및 로드맵
-├── metadata.json            # Pencil 프로젝트 메타데이터
-└── designs/                 # 디자인 산출물
-    ├── PG0500.html          # 생성된 HTML
-    ├── PG0500.png           # 스크린샷
-    └── PG0500.pen           # Pencil 원본
+.stitch/                     # (선택) Pencil 작업물 저장소 — 현재 실제 구성:
+├── DESIGN.md                # 디자인 가이드
+└── SITE.md                  # 페이지 목록 및 로드맵
+    # designs/·*.pen 등은 작업 시 생성 (현재 미존재) — Pencil 원본은 사용자가 별도 제공
 
 KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/
 └── {domain}/                # 도메인별 JSP (FD, IL, AC 등)
-    ├── PG0500.jsp           # 변환된 메인 페이지
-    ├── inc_filter_main.jsp
-    ├── inc_main_button.jsp
-    └── inc_regist_modal.jsp
+    └── PG0500.jsp           # 변환된 메인 페이지
+        # inc_filter_main.jsp·inc_main_button.jsp는 kiips/include/ 의 공유 파일 (도메인 폴더에 생성 X)
+        # 등록/수정 모달은 별도 include 파일 없이 registModal 인라인 (kiips-regist-modal-guide)
 ```
 
 ## 주의사항

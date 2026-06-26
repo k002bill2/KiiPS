@@ -13,11 +13,11 @@ description: "KiiPS 보안 가이드 - Spring Security, XSS 방어, CSRF, 인증
 
 | 위협 | 방어 | KiiPS 적용 |
 |------|------|------------|
-| SQL Injection | MyBatis `#{}` 바인딩 | mapper.xml 필수 |
+| SQL Injection | inline SQL DAO `?` 바인딩 (`${}` 문자열연결 금지) | 상세 kiips-mybatis-guide (⚠️ MyBatis mapper.xml 미사용) |
 | XSS | `<c:out>`, `fn:escapeXml()` | JSP 출력 필수 |
 | CSRF | Spring Security CSRF 토큰 | 폼 전송 시 필수 |
 | 인증 우회 | WebSecurityConfiguration | 비활성화 금지 |
-| 민감정보 노출 | jasypt 암호화 | properties 필수 |
+| 민감정보 노출 | `@Value`/환경변수 주입 (jasypt는 미도입·권고) | properties 하드코딩 금지 |
 
 ---
 
@@ -196,19 +196,12 @@ public class FundController {
 
 ### 핵심 규칙
 
-1. **properties 파일**: jasypt `ENC()` 사용하여 암호화 필수
+1. **하드코딩 금지**: 자격증명은 `@Value`/환경변수 또는 `app-*.properties`로 주입 (KiiPS 현행 방식)
 2. **로깅**: 개인정보/자격증명 로깅 절대 금지, userId만 허용
-3. **하드코딩 금지**: `@Value` 또는 환경변수로 주입
-4. **Git/SVN**: `.gitignore`에 `*.properties` (로컬용) 등록
+3. **설정 파일 보호**: `app-*.properties`는 권한 게이트로 직접 편집/커밋 차단 (PORTS.md 참고)
+4. **Git/SVN**: `app-local.properties` 등 로컬 설정 커밋 금지
 
-### jasypt 암호화 패턴
-
-```properties
-# jasypt로 암호화된 값 사용
-spring.datasource.url=jdbc:postgresql://localhost:5432/kiips
-# ENC() 감싸기로 암호화 값 사용
-spring.datasource.username=ENC(encrypted_username)
-```
+> ⚠️ **jasypt `ENC()` 암호화는 현재 KiiPS에 미도입** (pom/properties에 jasypt 의존성 없음). 도입 시 권고 패턴이며, 현행은 아래 `@Value` 주입 방식.
 
 ### @Value 주입 패턴
 

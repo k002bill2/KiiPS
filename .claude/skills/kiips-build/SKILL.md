@@ -43,7 +43,7 @@ curl -s http://localhost:{port}/actuator/health
 ```
 KiiPS-HUB (Parent POM - 항상 여기서 빌드)
     ├── COMMON → UTILS → Business Services
-    └── FD(8601), IL(8401), PG(8301), Login(8801), Common(8701), UI(8100), Gateway(8088)
+    └── FD(8601), IL(8401), PG(8501), SY(8301), Login(8801), Common(8701), UI(8100), Gateway(8088)
 ```
 
 ---
@@ -64,7 +64,7 @@ KiiPS-HUB (Parent POM - 항상 여기서 빌드)
 
 서비스 시작 전 5가지 검증 (하나라도 실패하면 중단):
 
-1. **DB 접속**: PostgreSQL 연결 테스트
+1. **DB 접속**: Oracle/Tibero 연결 테스트 (운영 `app-tibero.properties` 등 — OCI 사설망은 PCAssist 필요)
 2. **Java 버전**: `java -version` → 1.8.x
 3. **포트 충돌**: `lsof -i :8088 :8100 :8601 :8401 :8701 :8801`
 4. **설정 파일**: `app-local.properties` 존재 확인
