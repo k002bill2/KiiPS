@@ -83,6 +83,15 @@ inc_main_button.jsp (마스터 라우터)
 <div id="TB_XX0000" data-id="TB_XX0000" data-gbn="table" data-provider-id="dataProvider"></div>
 ```
 
+### 화면ID 일치 원칙 🚨 Critical Rule
+
+> **페이지가 include에 넘기는 화면ID(`MENU_SCREEN_ID`/`MAIN_SCREEN_ID`)는 반드시 페이지 자신의 화면ID여야 한다.**
+
+- 기존 페이지를 복사해 신규 화면을 만들 때 이전 화면ID가 남아있으면 **다른 화면의 버튼 분기/필터 저장 키/사이드메뉴 하이라이트**를 타게 됨 (예: MI0333.jsp가 MI0332를 넘겨 MI0332용 버튼이 렌더링되는 사고)
+- 점검 대상 4곳: ①`sidemenu.jsp` MENU_SCREEN_ID ②`ScreenAuth.get("...")` ③`inc_filter_main.jsp` MAIN_SCREEN_ID ④`inc_main_button.jsp` MENU_SCREEN_ID
+- ⚠️ **선행 조건**: 신규 화면ID로 바꾸기 전에 **메뉴 DB 등록 필수** — `inc_main_button.jsp`가 `ScreenAuth.get(MENU_SCREEN_ID)`를 널체크 없이 호출하므로 미등록 화면ID를 넘기면 NPE(500)
+- 자기 검증: `grep -n "MENU_SCREEN_ID\|MAIN_SCREEN_ID\|ScreenAuth.get" KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/{DOMAIN}/{SCREEN_ID}.jsp` (프로젝트 루트 기준 전체 경로 — 결과 0건 = 검사 실패) 결과의 화면ID가 파일명과 모두 일치해야 함
+
 ## 1.3 스크린 ID 그룹화 원칙 (OR 조건 재사용) 🚨 Critical Rule
 
 > **계열 버튼 파일(`inc_XX_button.jsp`)에서 신규 스크린을 추가할 때, 기존 분기와 동일한 버튼 배열을 복제하지 말 것.**
@@ -407,6 +416,7 @@ grep -n 'id="btn_reload"\|id="btn_help"' inc_xx_button.jsp
 
 버튼 영역 추가 시 확인사항:
 
+- [ ] **[🚨 Critical]** 페이지가 넘기는 화면ID가 **페이지 자신의 화면ID와 일치**하는지 확인 — sidemenu/ScreenAuth/inc_filter_main/inc_main_button 4곳 (1.2 화면ID 일치 원칙). 신규 화면ID는 메뉴 DB 등록 선행(미등록 시 inc_main_button NPE)
 - [ ] **[🚨 Critical]** 기존 분기와 버튼 배열이 100% 동일한지 비교 — 동일하면 **`||` OR 체인으로 기존 조건에 추가** (1.3 원칙)
 - [ ] **[🚨 Critical]** 새 버튼이 dropdown인지 단일 액션인지 확인 → 단일 액션은 반드시 `btn-outline-primary`, dropdown만 `btn-primary` + 아이콘 반전 (3.0 원칙). 인쇄 dropdown 등 옆 버튼 스타일을 무지성 복사 금지
 - [ ] 버튼 구성이 일부라도 다르면 새로운 `else if` 분기 생성 (동일 HTML 복제 금지)

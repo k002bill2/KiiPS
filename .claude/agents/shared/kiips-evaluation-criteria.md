@@ -121,6 +121,7 @@ KiiPS 보안 기준을 충족하는가?
 | 날짜 입력 직접 구현 | `flatpickr-basic` 클래스 사용 | 패턴 감점 |
 | `System.out.println` | SLF4J 로거 사용 | 보안 감점 |
 | MyBatis `${}` | `#{}` 바인딩 전용 | **즉시 불합격** |
+| 화면ID 불일치 (참조 페이지 복사 잔재) | JSP 파일명 = sidemenu·ScreenAuth.get·inc_filter_main·inc_main_button 4곳 화면ID (`grep -n "MENU_SCREEN_ID\|MAIN_SCREEN_ID\|ScreenAuth.get" KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/{DOMAIN}/{SCREEN_ID}.jsp`로 검증 — 프로젝트 루트 기준 전체 경로, 결과 0건 = 검사 실패) | **즉시 불합격** |
 
 ---
 

@@ -152,6 +152,20 @@ KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/
 <jsp:include page="../include/inc_files.jsp"></jsp:include>
 ```
 
+### 화면ID 일치 원칙 🚨 Critical Rule
+
+> **`{SCREEN_ID}`는 반드시 JSP 파일명과 동일해야 한다.** 기존 페이지를 복사해 만들 때 이전 화면ID가 남는 사고가 가장 흔하다 (예: MI0333.jsp가 MI0332를 넘겨 다른 화면의 버튼/필터/메뉴 하이라이트를 타는 사고).
+
+- 일치시킬 4곳: ①`sidemenu.jsp` MENU_SCREEN_ID ②`ScreenAuth.get("{SCREEN_ID}")` ③`inc_filter_main.jsp` MAIN_SCREEN_ID ④`inc_main_button.jsp` MENU_SCREEN_ID
+- ⚠️ **선행 조건**: 화면ID는 **메뉴 DB 등록이 선행**되어야 함 — `inc_main_button.jsp`가 `ScreenAuth.get(MENU_SCREEN_ID)`를 널체크 없이 호출하므로 미등록 ID를 넘기면 NPE(500). "파일 정상 ≠ 화면 동작"
+- 자기 검증:
+  ```bash
+  # 프로젝트 루트 기준 전체 경로 사용 (상대 파일명만 쓰면 cwd에 따라 못 찾음)
+  grep -n "MENU_SCREEN_ID\|MAIN_SCREEN_ID\|ScreenAuth.get" KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/{DOMAIN}/{SCREEN_ID}.jsp
+  # → 출력된 화면ID가 파일명과 전부 일치해야 함 (결과 0건 = 검사 실패, 통과 아님)
+  ```
+- 버튼 분기 측 상세 → `kiips-button-guide` 1.2 "화면ID 일치 원칙"
+
 ## 2.2 서비스 URL 선언
 
 ```jsp
@@ -255,6 +269,7 @@ KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/
 ## 새 페이지 생성 시 체크리스트
 
 - [ ] JSP 파일 생성: `jsp/kiips/{DOMAIN}/{SCREEN_ID}.jsp`
+- [ ] **[🚨 Critical] 화면ID 4곳이 파일명과 일치** — sidemenu/ScreenAuth/inc_filter_main/inc_main_button (Part 2 화면ID 일치 원칙, 복사 잔재 금지 + 메뉴 DB 등록 선행)
 - [ ] SEARCH_CONDITION 정의 (MainComponent 빌더)
 - [ ] ScreenAuth.get("{SCREEN_ID}") 등록 확인
 - [ ] inc_filter_main.jsp 연동 (MAIN_SCREEN_ID, MAIN_SEARCH_CONDITION)

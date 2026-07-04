@@ -89,6 +89,8 @@ KiiPSrules2.md
 opencode.json
 # 훅 공용 런타임 상태 (빌드카운터·scope·evidence·pending-files — gemini-bridge에서 이전)
 .claude/state/
+# Codex 훅 런타임 상태 (postToolOrchestrator/stopEvent가 매 검증 사이클마다 재작성)
+.codex/state/
 .claude/learning/observations.jsonl
 .claude/learning/observer-health.json
 .claude/learning/archive/
