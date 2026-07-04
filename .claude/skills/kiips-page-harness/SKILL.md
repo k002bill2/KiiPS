@@ -99,6 +99,7 @@ description: "KiiPS 신규 JSP 페이지 자동 생성 (Plan→Generate→Evalua
    - kiips-page-pattern-guide (표준 페이지 구조)
    - kiips-search-filter-guide (검색 필터 패턴)
    - kiips-button-guide (버튼 영역 패턴)
+   - kiips-a11y-guide (웹 접근성 규칙 — alt/aria/라벨/키보드/명도대비)
 
 2. 기존 유사 페이지를 탐색하라:
    - KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/ 하위 검색
@@ -151,6 +152,7 @@ description: "KiiPS 신규 JSP 페이지 자동 생성 (Plan→Generate→Evalua
    - PAGE_SPEC.md (설계서)
    - .claude/agents/shared/kiips-evaluation-criteria.md (평가 기준)
    - kiips-page-pattern-guide 스킬 (표준 패턴)
+   - kiips-a11y-guide 스킬 (웹 접근성 — 개발 체크리스트 준수)
 
 2. PAGE_SPEC.md의 전체 기능을 구현하라.
 
