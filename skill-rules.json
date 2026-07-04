@@ -28,6 +28,43 @@
       ]
     }
   },
+  "kiips-a11y-guide": {
+    "type": "guideline",
+    "enforcement": "suggest",
+    "priority": "high",
+    "description": "KiiPS 웹 접근성(A11y) 가이드 - KWCAG/WCAG 4대 원칙, alt/aria/명도대비/키보드/모달 포커스",
+    "promptTriggers": {
+      "keywords": [
+        "접근성",
+        "웹접근성",
+        "a11y",
+        "aria",
+        "ARIA",
+        "alt",
+        "스크린리더",
+        "키보드 접근",
+        "명도 대비",
+        "포커스",
+        "웹표준",
+        "KWCAG",
+        "WCAG"
+      ],
+      "intentPatterns": [
+        "(create|update|modify|생성|수정|만들).*?(page|screen|UI|화면|페이지)",
+        "(접근성|a11y|accessibility).*?(검사|점검|적용|개선)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": [
+        "**/jsp/**/*.jsp"
+      ],
+      "contentPatterns": [
+        "aria-",
+        "alt=",
+        "role="
+      ]
+    }
+  },
   "kiips-security-guide": {
     "type": "guardrail",
     "enforcement": "require",
