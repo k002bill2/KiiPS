@@ -214,6 +214,10 @@ description: "KiiPS 신규 JSP 페이지 자동 생성 (Plan→Generate→Evalua
    a. SPEC 기능별 구현 여부 확인 (PASS/FAIL)
    b. kiips-evaluation-criteria.md 4개 항목 채점 (10점 만점)
    c. 안티패턴 금지 목록 위반 검사
+      - 화면ID 일치 검사 필수 (프로젝트 루트 기준 전체 경로 사용 — 상대 파일명만 쓰면 cwd에 따라 파일을 못 찾아 게이트가 무력화됨):
+        grep -n "MENU_SCREEN_ID\|MAIN_SCREEN_ID\|ScreenAuth.get" KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/{DOMAIN}/{SCREEN_ID}.jsp
+        (경로는 PAGE_SPEC.md의 파일 구조 섹션에서 확인. grep 결과 0건 = 검사 실패로 간주, 통과 아님)
+        → 화면ID가 파일명과 전부 일치해야 함 (참조 페이지 복사 잔재 = 즉시 불합격)
    d. 최종 판정 (합격/조건부/불합격)
    e. 불합격/조건부 시 구체적 개선 지시 (WHERE/WHY/HOW 3요소 필수)
 
