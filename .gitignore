@@ -101,6 +101,8 @@ opencode.json
 .claude/hooks/*.min.js
 .claude/.last-*
 .claude/.last-update-check
+# themeCssVerGuard.sh 당일 경고 중복 방지 마커 (날짜별 자동 재생성)
+.claude/.theme-ver-warned-*
 .claude/learning/agent-state.json
 .claude/learning/regression-stats.jsonl
 .claude/learning/.state.lock
