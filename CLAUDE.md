@@ -62,3 +62,4 @@ cd KiiPS-HUB && mvn clean package -pl :KiiPS-SERVICE -am
 - 포트/환경 → [.claude/PORTS.md](.claude/PORTS.md)
 - 에이전트/스킬/훅 카탈로그 → [.claude/README.md](.claude/README.md)
 - 시스템 아키텍처 → [architecture.md](./architecture.md) · [api.md](./api.md) · [deployment.md](./deployment.md) · [troubleshooting.md](./troubleshooting.md)
+- Figma 디자인 연동(디자인 시스템 규칙) → [docs/figma-design-system-rules.md](docs/figma-design-system-rules.md)
