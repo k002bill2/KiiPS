@@ -1,9 +1,9 @@
-# KiiPS Active Skills (27개)
+# KiiPS Active Skills (29개)
 
 > CLAUDE.md에서 분리된 스킬 카탈로그. 스킬은 자동 발견되므로 이 파일은 참조용입니다.
-> 마지막 실측 동기화: 2026-06-09. `tests/skills-integrity.test.js` 로 drift 자동 검증.
+> 마지막 실측 동기화: 2026-07-31. `tests/skills-integrity.test.js` 로 drift 자동 검증.
 >
-> 구성: KiiPS 도메인 22 + 공통 3 + 디자인 2 = **27개**
+> 구성: KiiPS 도메인 24 + 공통 3 + 디자인 2 = **29개**
 
 ## KiiPS 도메인 스킬
 
@@ -31,6 +31,8 @@
 | `kiips-orchestration` | 병렬 에이전트, ACE 가드레일, 스킬 체이닝 통합 |
 | `kiips-learning` | 학습 시스템 통합 (Instinct 생성, 패턴 감지, 스킬 팩토리) |
 | `kiips-operator-onboarding` | 신규 운용사 로그인 페이지 자동 설정 (LibConfiguration, signup SCSS, 캐시버스팅) |
+| `kiips-a11y-guide` | 웹 접근성(KWCAG/WCAG) 실행 규칙 — JSP 마크업, aria, 명도 대비, 키보드 조작 |
+| `kiips-securl-external-page` | KIIPS-SECURL 외부접속(세션 없는) 페이지 패턴 — /SEC/UI/ 라우팅, 메일 짝, 렌더 사전검증 |
 
 ## 공통 스킬
 

@@ -1112,5 +1112,39 @@
         "(디자인|design).*?(변환|convert|JSP|페이지)"
       ]
     }
+  },
+  "kiips-securl-external-page": {
+    "type": "domain",
+    "enforcement": "suggest",
+    "priority": "high",
+    "description": "KIIPS-SECURL 외부접속(세션 없는) 페이지 생성 패턴 - /SEC/UI/ 라우팅, JSP 관례, 메일 짝, 렌더 사전검증",
+    "promptTriggers": {
+      "keywords": [
+        "외부접속",
+        "SECURL",
+        "securl",
+        "SEC/UI",
+        "security.kiips"
+      ],
+      "intentPatterns": [
+        "(외부|세션 ?없|비로그인).*(페이지|화면).*(생성|만들|추가|신규|구현)",
+        "(메일|토큰).*(링크|버튼).*(화면|페이지)",
+        "(SECURL|securl).*(페이지|화면|매핑)",
+        "(세션 ?없|비로그인|인증 ?없).*(페이지|화면).*(패턴|라우팅|접근)",
+        "메일로 ?(여는|열리는|접속|들어오).*(페이지|화면)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": [
+        "KIIPS-SECURL/**/*.jsp",
+        "**/control/OutWebController.java",
+        "**/util/EmailTemplate.java"
+      ],
+      "contentPatterns": [
+        "/SEC/UI/",
+        "whole-wrap",
+        "OutWebController"
+      ]
+    }
   }
 }

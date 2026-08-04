@@ -28,7 +28,7 @@ cd KiiPS-HUB && mvn clean package -pl :KiiPS-SERVICE -am
 | Editing | 범위 제한, 정확한 복원, 최소 편집 | [→](.Codex/rules/editing.md) |
 
 > 도메인 한정 규칙은 always-on 대신 **조건부**(작업 시 해당 스킬/커맨드가 참조)로 전환:
-> Dark Theme→`kiips-scss`, Validation→`legacy-compliance-checker`, Error Handling→`/diagnose`, Power Stack→보류(`.gstack/.gsd/.superpowers` 미존재).
+> Dark Theme→`kiips-scss`, Validation→`legacy-compliance-checker`, Error Handling→`/diagnose`, Power Stack→아카이브(구버전 obsolete, `.claude/archive/power-stack.md`).
 > 전체 규칙 위반 스캔은 `/check-rules`(`.Codex/rules/` 직접 읽음 — 파일은 보존).
 
 ## Tech Stack & Structure

@@ -10,7 +10,7 @@
 |------|----------|------------|
 | Agents | 13 (Specialist 7 + Manager 4 + System 2) | [`agents-registry.json`](./agents-registry.json) (수동 유지) |
 | Shared 프로토콜 | 4 | `agents/shared/` |
-| Skills | 27 (KiiPS 도메인 22 + 공통 3 + 디자인 2) | [`skills-registry.json`](./skills-registry.json) (자동 생성) + [`SKILLS.md`](./SKILLS.md) |
+| Skills | 29 (KiiPS 도메인 24 + 공통 3 + 디자인 2) | [`skills-registry.json`](./skills-registry.json) (자동 생성) + [`SKILLS.md`](./SKILLS.md) |
 | Commands | 23 | [`commands-registry.json`](./commands-registry.json) (자동 생성) + [`COMMANDS.md`](./COMMANDS.md) |
 | Hooks (유니크) | 23 | `hooks/` (.min.js 제외, .js/.sh 순수 훅 스크립트) |
 | Hooks (settings 바인딩) | 14 across 9 events | [`settings.json`](./settings.json) |
@@ -30,7 +30,7 @@
 │   ├── shared/              # delegation/effort/quality/kiips-evaluation
 │   └── {specialist}.md      # kiips-architect/-developer/-ui-designer/...
 ├── commands/                # 23 커맨드 (/command-name)
-├── skills/                  # 27 스킬 (SKILL.md entry point)
+├── skills/                  # 29 스킬 (SKILL.md entry point)
 ├── hooks/                   # 20 훅 (14 settings 바인딩 + 6 허브 위임)
 ├── checklists/              # 품질 체크리스트
 ├── docs/
@@ -94,7 +94,7 @@
 ```bash
 # 카탈로그 (단일 진실원)
 cat .claude/agents-registry.json   # 13 에이전트 (수동 유지)
-cat .claude/skills-registry.json   # 27 스킬 (자동 생성)
+cat .claude/skills-registry.json   # 29 스킬 (자동 생성)
 cat .claude/commands-registry.json # 24 커맨드 (자동 생성)
 
 # 레지스트리 재생성 (스킬/커맨드 추가/삭제 시)
