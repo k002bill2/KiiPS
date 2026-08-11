@@ -1,9 +1,9 @@
-# KiiPS Active Skills (29개)
+# KiiPS Active Skills (31개)
 
 > CLAUDE.md에서 분리된 스킬 카탈로그. 스킬은 자동 발견되므로 이 파일은 참조용입니다.
-> 마지막 실측 동기화: 2026-07-31. `tests/skills-integrity.test.js` 로 drift 자동 검증.
+> 마지막 실측 동기화: 2026-08-06. `tests/skills-integrity.test.js` 로 drift 자동 검증.
 >
-> 구성: KiiPS 도메인 24 + 공통 3 + 디자인 2 = **29개**
+> 구성: KiiPS 도메인 26 + 공통 3 + 디자인 2 = **31개**
 
 ## KiiPS 도메인 스킬
 
@@ -33,6 +33,8 @@
 | `kiips-operator-onboarding` | 신규 운용사 로그인 페이지 자동 설정 (LibConfiguration, signup SCSS, 캐시버스팅) |
 | `kiips-a11y-guide` | 웹 접근성(KWCAG/WCAG) 실행 규칙 — JSP 마크업, aria, 명도 대비, 키보드 조작 |
 | `kiips-securl-external-page` | KIIPS-SECURL 외부접속(세션 없는) 페이지 패턴 — /SEC/UI/ 라우팅, 메일 짝, 렌더 사전검증 |
+| `kiips-jsp-minimizer` | 기존 JSP 화면 축소·경량화 안전 절차 — 삭제 전후 delta 게이트(#1~#10), hard-break/silent-loss 등급 분류 |
+| `kiips-credit-report-page` | 여신전문금융업무보고서(MI10 계열, AC285~AC412 금감원 서식) 화면 신규 생성 — 고정 서식 표, 단위 전환, 검증열 대사, 드릴다운 모달, 샘플 데이터 경계 |
 
 ## 공통 스킬
 
