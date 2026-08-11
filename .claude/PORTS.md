@@ -24,6 +24,9 @@
 | EL | 8201 | KiiPS-EL | 자동 감지 ✅ |
 | BATCH | (app-*.properties 참조) | KIIPS-BATCH | 자동 감지 실패 |
 | HELP | (app-*.properties 참조) | KIIPS-HELP | 자동 감지 실패 |
+| AI (챗봇) | 9191 | KIIPS-AI | application.properties `server.port` 확인 ✅ (2026-07-23) |
+
+> AI 챗봇 실제 화면: `http://localhost:9191/CHAT` (UI_Controller → stream.jsp). 루트 `/`는 정적 데모(index.html).
 
 ## 포트 충돌 주의
 
