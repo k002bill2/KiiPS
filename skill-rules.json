@@ -326,7 +326,7 @@
     "type": "agent",
     "enforcement": "suggest",
     "priority": "normal",
-    "description": "Post-implementation code refactoring and simplification (Boris Cherny principle)",
+    "description": "Post-implementation code refactoring and simplification (Boris Cherny principle). NOT for: JSP 화면 축소·스크립트 제거 (use kiips-jsp-minimizer)",
     "agentFile": ".claude/agents/code-simplifier.md",
     "model": "haiku",
     "promptTriggers": {
@@ -1146,5 +1146,94 @@
         "OutWebController"
       ]
     }
+  },
+  "kiips-jsp-minimizer": {
+    "type": "domain",
+    "enforcement": "require",
+    "priority": "critical",
+    "description": "KiiPS 기존 JSP 화면 축소·경량화 안전 절차 - 삭제 전후 delta 게이트로 끊긴 참조·소실 계약 검출, hard-break/silent-loss 등급 분류. NOT for: 일반 코드 단순화·리팩토링(use code-simplifier)",
+    "promptTriggers": {
+      "keywords": [
+        "JSP 축소",
+        "화면 축소",
+        "JSP 최소화",
+        "슬림화",
+        "경량화",
+        "미사용 함수 제거",
+        "안 쓰는 스크립트 제거",
+        "data-id 제거",
+        "hidden 제거",
+        "minimize jsp",
+        "jsp minimize"
+      ],
+      "intentPatterns": [
+        "(제거|삭제|없애|줄이|축소).*?(스크립트|함수|속성|코드|JSP|화면)",
+        "(JSP|화면|페이지).*?(축소|최소화|슬림화|경량화)",
+        "(remove|delete|strip).*?(unused|dead).*?(script|function|attribute)"
+      ]
+    },
+    "relatedSkills": [
+      "kiips-page-pattern-guide",
+      "kiips-button-guide",
+      "kiips-search-filter-guide"
+    ]
+  },
+  "kiips-credit-report-page": {
+    "type": "domain",
+    "enforcement": "require",
+    "priority": "critical",
+    "description": "여신전문금융업무보고서(MI10 계열, AC285/286/287/361/362/410/411/412 금감원 서식) 화면 신규 생성 - 고정 서식 표, 단위 전환, 검증열 대사, 드릴다운 모달, 샘플 데이터 경계. 신용조회(credit bureau) 보고서가 아님. NOT for: 일반 JSP 페이지 표준 구조(use kiips-page-pattern-guide)",
+    "promptTriggers": {
+      "keywords": [
+        "여신전문금융",
+        "여신전문",
+        "여전업",
+        "여전법",
+        "업무보고서",
+        "금감원 보고서",
+        "보고서 서식",
+        "AC285",
+        "AC286",
+        "AC287",
+        "AC361",
+        "AC362",
+        "AC410",
+        "AC411",
+        "AC412",
+        "MI1010",
+        "고정 서식 표",
+        "검증열",
+        "단위 전환",
+        "백만원 환산",
+        "드릴다운 명세"
+      ],
+      "intentPatterns": [
+        "(여신전문금융|업무보고서|금감원).*?(화면|보고서|서식|페이지)",
+        "AC(285|286|287|361|362|410|411|412)",
+        "MI10\\d{2}.*?(화면|서식|보고서|표|생성|만들|추가|구현|수정|이식)",
+        "(검증열|대사\\s*(?:열|컬럼|결과|로직)|E'\\s*=|A\\s*\\+\\s*B\\s*-\\s*C\\s*\\+\\s*F)",
+        "(백만원|억원|천원)\\s*(단위|환산|전환)",
+        "(백만원|억원|천원)(으?로)\\s*(환산|전환|표시)",
+        "단위\\s*(전환|토글)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": [
+        "**/WEB-INF/jsp/kiips/MI/MI10*.jsp",
+        "**/include/button/inc_mi_button.jsp"
+      ],
+      "contentPatterns": [
+        "fnRenderTable",
+        "G_ROWS",
+        "UNIT_SEL",
+        "SYAPI/MI10"
+      ]
+    },
+    "relatedSkills": [
+      "kiips-page-pattern-guide",
+      "kiips-realgrid-guide",
+      "kiips-button-guide",
+      "kiips-search-filter-guide"
+    ]
   }
 }
