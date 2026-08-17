@@ -146,3 +146,4 @@ logs
 # tasks.json
 # tasks/ 
 tests/evaluation_form.html
+mockup/

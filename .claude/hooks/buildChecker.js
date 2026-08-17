@@ -133,7 +133,7 @@ function emitAutoCorrectFeedback(moduleName, errors) {
       `\n⛔ [BuildChecker] RALPH LOOP DETECTED — error signature shifted ${shifts} times in ${moduleName}.\n` +
         `Pattern: ${recent.map((r) => r.sig.split("::")[1] || "?").join(" → ")}\n` +
         `Each fix introduces a NEW error. STOP and re-design the approach.\n` +
-        `Reference: .claude/rules/ralph-loop-detection.md (자동 롤백 프로토콜)\n` +
+        `Reference: .claude/docs/ralph-loop-detection.md (자동 롤백 프로토콜)\n` +
         `Reset: delete .claude/state/.pending-build.json\n\n`,
     );
     pending.autoFixAttempts = MAX_AUTO_FIX_ATTEMPTS; // 추가 자동 수정 차단

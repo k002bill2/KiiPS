@@ -56,5 +56,22 @@
     "enabled": true,
     "autoAllowBashIfSandboxed": true
   },
-  "prefersReducedMotion": true
+  "prefersReducedMotion": true,
+  "skillOverrides": {
+    "checklist-generator": "off",
+    "kiips-backend": "off",
+    "kiips-build": "off",
+    "kiips-feature-planner": "off",
+    "kiips-learning": "off",
+    "kiips-logs": "off",
+    "kiips-mybatis-guide": "off",
+    "kiips-operator-onboarding": "off",
+    "kiips-orchestration": "off",
+    "kiips-quality": "off",
+    "kiips-scss": "off",
+    "kiips-security-guide": "off",
+    "kiips-securl-external-page": "off",
+    "kiips-stitch-bridge": "off",
+    "kiips-test-runner": "off"
+  }
 }
