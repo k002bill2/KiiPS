@@ -1,7 +1,7 @@
 # 반합리화 규칙 (Anti-Rationalization)
 
 > Claude Forge Golden Principle #7(Ralph Loop) + #5(수술적 변경) + #11(반합리화) — KiiPS 적응
-> Ralph Loop 감지 상세 로직 → [ralph-loop-detection.md](./ralph-loop-detection.md)
+> Ralph Loop 감지 상세 로직 → [../docs/ralph-loop-detection.md](../docs/ralph-loop-detection.md) (참조 문서 — 필요할 때 열람)
 
 ## 금지 표현 → 올바른 행동
 
@@ -49,7 +49,7 @@
 ## Ralph Loop 감지 (요약)
 
 3가지 트리거 — 동일 파일 3회 편집(행위 가이드, 자동 훅 아님) / 연속 빌드 3회 실패(자동) / 에러 시그니처 3회 변경(자동) 시 HALT.
-**상세 5단계 롤백 프로토콜 → [ralph-loop-detection.md](./ralph-loop-detection.md)**
+**상세 5단계 롤백 프로토콜 → [../docs/ralph-loop-detection.md](../docs/ralph-loop-detection.md)**
 
 ## 핵심
 

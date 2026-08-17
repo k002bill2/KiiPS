@@ -1,6 +1,14 @@
+---
+paths:
+  - "**/*Controller.java"
+  - "**/*Service.java"
+  - "**/*Dao.java"
+---
+
 # Boundary Validation Rules (Golden Principle #6)
 
 > Controller 계층에서의 입력 검증 원칙
+> 조건부 로딩: Controller/Service/Dao 자바 파일 작업 시에만 컨텍스트에 실린다.
 
 ## 핵심 규칙
 

@@ -1,6 +1,13 @@
+---
+paths:
+  - "**/*.scss"
+  - "**/*.css"
+---
+
 # Dark Theme Rules
 
 > CLAUDE.md에서 분리된 다크테마 상세 규칙
+> 조건부 로딩: SCSS/CSS 파일 작업 시에만 컨텍스트에 실린다.
 
 ## 규칙 테이블
 

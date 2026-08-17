@@ -31,16 +31,6 @@ cd KiiPS-HUB && mvn clean package -pl :KiiPS-SERVICE -am
 > Dark Theme→`kiips-scss`, Validation→`legacy-compliance-checker`, Error Handling→`/diagnose`, Power Stack→아카이브(구버전 obsolete, `.claude/archive/power-stack.md`).
 > 전체 규칙 위반 스캔은 `/check-rules`(`.claude/rules/` 직접 읽음 — 파일은 보존).
 
-## Tech Stack & Structure
-
-- **Backend**: Spring Boot 2.4.2 / Java 8 / Maven Multi-Module / SVN
-- **Frontend**: JSP / jQuery / Bootstrap / RealGrid 2.6.3 / ApexCharts
-- **Parent POM**: `KiiPS-HUB/` (빌드 시작점)
-- **Core 모듈**: KiiPS-COMMON · KiiPS-UTILS · KiiPS-UI · KIIPS-APIGateway
-- **도메인 모듈**: KiiPS-FD · KiiPS-IL · KiiPS-AC · KiiPS-SY · KiiPS-LP · KiiPS-EL · KIIPS-BATCH · KIIPS-HELP
-- **SCSS**: `KiiPS-UI/src/main/resources/static/css/sass/`
-- **JSP**: `KiiPS-UI/src/main/webapp/WEB-INF/jsp/kiips/{도메인}/`
-
 ## 하네스 (Harness)
 
 > 도메인 작업을 전문 에이전트 + 스킬로 분담해 일관·검증 가능하게 수행하는 체계.

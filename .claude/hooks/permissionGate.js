@@ -114,10 +114,15 @@ const SECRET_BASH_PATTERNS = [
     reason: "Bash 를 통한 Tibero DB 설정 파일 접근",
   },
   {
-    regex: /(?:^|[\s=:/'"])\.env(?:\.[\w.-]+)?\b/i,
+    // 앞 구분자는 반드시 제로폭(lookbehind)이어야 한다. 매치에 포함시키면
+    // m.index 가 따옴표(= 리터럴 경계 = 코드)를 가리켜, 아래 AST 필터가
+    // 리터럴 내부 매치를 걸러낼 기회를 영영 얻지 못한다.
+    // 예: jq -c '.env // {}' 가 파일 접근으로 오탐됐던 원인.
+    regex: /(?<=^|[\s=:/'"])\.env(?:\.[\w.-]+)?\b/i,
     reason: "Bash 를 통한 .env 시크릿 접근",
   },
   {
+    // `\b` 는 이미 제로폭이라 위와 같은 오프셋 문제가 없다.
     regex: /\bcredentials(?:\.[\w.-]+)?\b/i,
     reason: "Bash 를 통한 자격증명 파일 접근",
   },
