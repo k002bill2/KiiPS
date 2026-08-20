@@ -423,7 +423,9 @@ grep -n 'id="btn_reload"\|id="btn_help"' inc_xx_button.jsp
 - [ ] `inc_XX_button.jsp`에 MENU_SCREEN_ID별 조건 분기 추가 (OR 재사용 원칙 적용 후)
 - [ ] `gridpage_info` div (Total_Cnt + ADJ_GRID_COLUMN) 포함
 - [ ] 권한별 버튼 분기 (`A`/`C`/`E`)
-- [ ] 표준 배치 순서: [관리자] → [조회] → [등록] → [삭제] → [인쇄] → [엑셀] → [도움말]
+- [ ] 표준 배치 순서(정본 43행 → [button-order.md](button-order.md), 순번 오름차순·없는 순번은 건너뜀):
+      [어드민] → [조회] → [등록] → [결재상신] → [전송] → [저장] → [삭제] → [인쇄] → [엑셀] → [도움말]
+      ⚠ 엑셀(42)은 **항상 도움말(43) 바로 앞**
 - [ ] 엑셀 버튼은 `inc_excel_button.jsp` include 사용
 - [ ] 도움말 버튼의 `ScreenHelp(window.location.pathname)` 호출
 - [ ] 탭 내 그리드 편집 버튼은 `buttons-row` 클래스 사용
