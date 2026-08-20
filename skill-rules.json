@@ -1235,5 +1235,156 @@
       "kiips-button-guide",
       "kiips-search-filter-guide"
     ]
+  },
+  "agent-browser": {
+    "type": "tool",
+    "enforcement": "suggest",
+    "priority": "high",
+    "scope": "global",
+    "description": "Vercel agent-browser CLI - 접근성 트리 기반 브라우저 자동화. 로그인 세션이 필요하면 claude-in-chrome, 독립 세션이면 agent-browser.",
+    "promptTriggers": {
+      "keywords": [
+        "agent-browser",
+        "브라우저 자동화",
+        "browser automation",
+        "헤드리스",
+        "headless",
+        "스크린샷 찍",
+        "화면 실측",
+        "브라우저로 확인",
+        "브라우저로 열",
+        "e2e",
+        "브라우저 테스트"
+      ],
+      "intentPatterns": [
+        "(브라우저|browser).*?(자동화|띄워|열어서|실행해서).*?(확인|검증|테스트|캡처)",
+        "(스크린샷|screenshot).*?(찍어|캡처|저장)",
+        "(웹|사이트|페이지|화면).*?(브라우저|browser).*?(테스트|검증|실측|확인)"
+      ]
+    }
+  },
+  "find-skills": {
+    "type": "tool",
+    "enforcement": "suggest",
+    "priority": "normal",
+    "scope": "global",
+    "description": "설치 가능한 에이전트 스킬 탐색·설치. 원하는 기능의 스킬이 이미 존재하는지 먼저 확인할 때.",
+    "promptTriggers": {
+      "keywords": [
+        "find-skills",
+        "스킬 찾",
+        "스킬 검색",
+        "스킬 추천",
+        "스킬 설치",
+        "어떤 스킬",
+        "스킬 있",
+        "스킬이 있"
+      ],
+      "intentPatterns": [
+        "(스킬|skill).*?(찾아|검색|추천|설치|있나|있어|없나)",
+        "(is there|find|search).*?(a )?skill"
+      ]
+    }
+  },
+  "gsd-progress": {
+    "type": "workflow",
+    "enforcement": "suggest",
+    "priority": "normal",
+    "scope": "global",
+    "description": "GSD 통합 상황 명령 - 진행 확인·워크플로우 진행·자유형 의도 디스패치. GSD 워크플로우의 단일 진입점.",
+    "promptTriggers": {
+      "keywords": [
+        "gsd",
+        "로드맵",
+        "마일스톤",
+        "roadmap",
+        "milestone"
+      ],
+      "intentPatterns": [
+        "\\bgsd\\b",
+        "(phase|페이즈).*?(계획|실행|진행|검증)",
+        "(작업|프로젝트).*?(어디까지|진행 상황|현황 확인)"
+      ]
+    },
+    "relatedSkills": [
+      "gsd-quick",
+      "gsd-fast",
+      "gsd-explore",
+      "gsd-discuss-phase",
+      "gsd-plan-phase",
+      "gsd-execute-phase",
+      "gsd-verify-work",
+      "gsd-ship",
+      "gsd-undo",
+      "gsd-surface"
+    ]
+  },
+  "mcp-builder": {
+    "type": "guideline",
+    "enforcement": "suggest",
+    "priority": "high",
+    "scope": "global",
+    "description": "MCP 서버 구축 가이드 (Python FastMCP / Node TypeScript SDK). 도구 설계 품질 기준 포함.",
+    "promptTriggers": {
+      "keywords": [
+        "mcp-builder",
+        "fastmcp",
+        "model context protocol",
+        "mcp 서버 만들",
+        "mcp 서버 구축",
+        "mcp server 만들",
+        "mcp 서버 개발"
+      ],
+      "intentPatterns": [
+        "mcp.*?(서버|server).*?(만들|구축|생성|개발|작성|build|create|write)",
+        "(만들|구축|생성|개발).*?mcp.*?(서버|server)",
+        "mcp.*?(tool|도구).*?(설계|정의|추가)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": [
+        "**/mcp_server*.py",
+        "**/mcp-server*/**"
+      ],
+      "contentPatterns": [
+        "FastMCP",
+        "@mcp.tool",
+        "@modelcontextprotocol/sdk"
+      ]
+    }
+  },
+  "ecc:frontend-design-direction": {
+    "type": "guideline",
+    "enforcement": "suggest",
+    "priority": "normal",
+    "scope": "plugin",
+    "description": "프론트엔드 디자인 방향성 - 기능 동작이 아니라 '느낌·완성도'를 다룰 때. KiiPS 마크업 규칙(kiips-scss/kiips-ui-component-builder) 위에 얹는 상위 판단 레이어.",
+    "promptTriggers": {
+      "keywords": [
+        "디자인 방향",
+        "디자인 개선",
+        "디자인 시스템",
+        "디자인 기준",
+        "design direction",
+        "ui 개선",
+        "ui 다듬",
+        "톤앤매너",
+        "세련되게",
+        "보기 좋게",
+        "예쁘게",
+        "깔끔하게",
+        "모던하게"
+      ],
+      "intentPatterns": [
+        "(ui|화면|레이아웃|디자인).*?(개선|다듬|정돈|세련|완성도|퀄리티|고급스)",
+        "(디자인|design).*?(방향|direction|시스템|기준|가이드|일관성)",
+        "(보기 좋게|예쁘게|깔끔하게|모던하게|세련되게).*?(만들|바꿔|해줘|정리)"
+      ]
+    },
+    "relatedSkills": [
+      "kiips-scss",
+      "kiips-ui-component-builder",
+      "kiips-a11y-guide"
+    ]
   }
 }
