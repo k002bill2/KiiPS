@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>펀드정보 첫걸음</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* ==========================================================================
+   문서 크롬 토큰 (도움말 자체의 디자인)
+   ========================================================================== */
+:root{
+  --ink:#131A26;            /* 제목 */
+  --body:#3D4759;           /* 본문 */
+  --muted:#6B7686;          /* 보조 텍스트 */
+  --paper:#F7F9FC;          /* 페이지 바탕(청색기 종이) */
+  --card:#FFFFFF;           /* 카드 */
+  --line:#E4E9F1;           /* 헤어라인 보더 */
+  --line-strong:#CBD5E3;    /* 강조 보더 */
+  --accent:#0F62C4;         /* 문서 액센트(딥 블루) */
+  --accent-soft:#EAF2FD;
+  --shadow-sm:0 1px 2px rgba(19,26,38,.05),0 4px 14px rgba(19,26,38,.06);
+  --shadow-md:0 12px 36px rgba(19,26,38,.11);
+  --marker:#F0731A;         /* 핫스팟 마커(주황) */
+  --marker-soft:#FDEBDD;
+  --warn:#B45309;           /* 주의 */
+  --warn-soft:#FEF3E2;
+  --ok:#15803D;
+  --font-doc:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --font-head:"IBM Plex Sans KR","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+
+  /* ===== KiiPS 실측 토큰 (화면 모사 전용, 원본 SCSS에서 추출) ===== */
+  --kx-font:"NexonLv2Gothic","Open Sans","Apple SD Gothic Neo","Malgun Gothic",Tahoma,Verdana,Arial,sans-serif;
+  --kx-primary:#007BFF;
+  --kx-primary-dark:#0062CC;
+  --kx-color:#3B3B3B;
+  --kx-border:#E5E7E9;
+  --kx-card-border:rgba(0,0,0,0.125);
+  --kx-card-header:rgba(0,0,0,0.03);
+  --kx-grid-header:#F0F0F0;
+  --kx-grid-border:#A49A91;
+  --kx-grid-line:#DEDEDE;
+  --kx-summary:#EEEEEE;
+  --kx-placeholder:#BDBDBD;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font-doc);
+  font-size:15px;line-height:1.75;color:var(--body);
+  background:var(--paper);
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+h1,h2,h3,h4{font-family:var(--font-head);color:var(--ink);line-height:1.35;text-wrap:balance;letter-spacing:-0.015em}
+p{max-width:72ch}
+a{color:var(--accent)}
+code{font-family:ui-monospace,Menlo,monospace;font-size:0.88em;background:#EDF1F6;border-radius:4px;padding:1px 6px;color:#22405E}
+strong{color:var(--ink)}
+
+/* ---------- 레이아웃: 좌측 목차 + 본문 ---------- */
+.layout{display:flex;min-height:100vh}
+.toc{
+  width:236px;flex:0 0 236px;position:sticky;top:0;align-self:flex-start;
+  height:100vh;overflow-y:auto;padding:28px 14px 40px 20px;
+  border-right:1px solid var(--line);background:var(--card);
+}
+.toc .brand{font-family:var(--font-head);font-weight:700;font-size:15px;letter-spacing:-0.01em;color:var(--ink);margin-bottom:2px}
+.toc .brand small{display:block;font-weight:600;font-size:11px;color:var(--muted);letter-spacing:.09em;margin-top:3px}
+.toc nav{margin-top:24px;padding-top:18px;border-top:1px solid var(--line)}
+.toc a{
+  display:block;padding:7px 11px;border-radius:8px;font-size:13.5px;
+  color:var(--muted);text-decoration:none;transition:background .15s,color .15s;
+}
+.toc a.sub{padding-left:24px;font-size:12.8px}
+.toc a:hover{color:var(--accent);background:var(--accent-soft)}
+.toc a.active{color:var(--accent);background:var(--accent-soft);font-weight:700}
+.content{flex:1;min-width:0;padding:0 clamp(20px,4vw,56px) 96px}
+.inner{max-width:980px;margin:0 auto}
+
+/* ---------- 히어로 ---------- */
+.hero{padding:68px 0 8px}
+.hero .eyebrow{
+  display:inline-flex;align-items:center;gap:12px;font-size:12px;font-weight:700;
+  letter-spacing:.15em;color:var(--accent);margin-bottom:22px;
+}
+.hero .eyebrow::before{content:"";width:28px;height:2px;background:var(--accent);border-radius:2px}
+.hero h1{font-size:clamp(30px,3.8vw,44px);font-weight:700;letter-spacing:-0.025em}
+.hero .lead{font-size:16.5px;color:var(--muted);margin-top:16px;max-width:62ch}
+.hero .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.hero .meta span{
+  font-size:12.5px;color:var(--muted);background:var(--card);
+  border:1px solid var(--line);border-radius:99px;padding:5px 14px;box-shadow:var(--shadow-sm);
+}
+.hero .meta b{color:var(--ink);font-weight:600}
+.notice{
+  display:flex;gap:10px;align-items:flex-start;margin-top:26px;
+  background:var(--warn-soft);border:1px solid #F5D9AE;border-radius:10px;
+  padding:12px 16px;font-size:13.5px;color:var(--warn);max-width:760px;
+}
+
+/* ---------- 섹션 공통 ---------- */
+section.block{padding-top:72px}
+.sec-label{
+  display:flex;align-items:center;gap:16px;
+  font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--accent);margin-bottom:12px;
+}
+.sec-label::after{content:"";flex:1;height:1px;background:var(--line)}
+section.block>h2{font-size:27px;font-weight:700;letter-spacing:-0.02em;margin-bottom:24px}
+section.block h3{font-size:18.5px;margin:40px 0 12px}
+section.block h4{font-size:15.5px;margin:24px 0 8px}
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .6s cubic-bezier(.22,.61,.36,1),transform .6s cubic-bezier(.22,.61,.36,1)}
+.reveal.on{opacity:1;transform:none}
+
+/* 카드/표/콜아웃 */
+.card-doc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 24px;margin:16px 0}
+table.doc{
+  width:100%;border-collapse:separate;border-spacing:0;font-size:13.5px;margin:16px 0;
+  background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;
+  box-shadow:var(--shadow-sm);
+}
+table.doc th{
+  background:none;color:var(--muted);font-weight:700;font-size:12px;letter-spacing:.05em;
+  text-align:left;padding:11px 14px;border-bottom:2px solid var(--line-strong);
+}
+table.doc td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+table.doc tbody tr:last-child td{border-bottom:none}
+table.doc tbody tr{transition:background .12s}
+table.doc tbody tr:hover{background:#FAFCFE}
+table.doc td:first-child{white-space:nowrap;color:var(--ink);font-weight:500}
+.table-wrap{overflow-x:auto}
+.callout{display:flex;gap:11px;border-radius:12px;padding:14px 18px;margin:16px 0;font-size:13.8px;align-items:flex-start}
+.callout .ic{flex:0 0 auto;font-weight:700}
+.callout.info{background:var(--accent-soft);border:1px solid #C8DEF7;color:#144E8C}
+.callout.warn{background:var(--warn-soft);border:1px solid #F5D9AE;color:var(--warn)}
+.step-list{counter-reset:step;list-style:none;margin:14px 0}
+.step-list>li{position:relative;padding:0 0 20px 46px}
+.step-list>li::before{
+  counter-increment:step;content:counter(step);
+  position:absolute;left:0;top:1px;width:28px;height:28px;border-radius:50%;
+  background:var(--card);color:var(--accent);border:1.5px solid var(--accent);
+  font-weight:700;font-size:13px;
+  display:flex;align-items:center;justify-content:center;font-family:var(--font-head);
+}
+.step-list>li:not(:last-child)::after{
+  content:"";position:absolute;left:13.5px;top:32px;bottom:2px;width:1px;background:var(--line);
+}
+.step-list b{color:var(--ink)}
+.kbd{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:#fff;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 7px;color:var(--ink)}
+details.acc{border:1px solid var(--line);border-radius:12px;background:var(--card);margin:10px 0;overflow:hidden;box-shadow:var(--shadow-sm)}
+details.acc summary{
+  cursor:pointer;list-style:none;padding:14px 18px;font-weight:600;color:var(--ink);
+  display:flex;align-items:center;gap:10px;font-size:14.5px;transition:background .15s;
+}
+details.acc summary:hover{background:#FAFCFE}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary::before{content:"▸";color:var(--accent);transition:transform .2s}
+details.acc[open] summary::before{transform:rotate(90deg)}
+details.acc .acc-body{padding:2px 18px 16px 40px;font-size:13.8px}
+details.acc .acc-body p{margin:6px 0}
+
+/* ==========================================================================
+   KiiPS 화면 모사 (kx-*)
+   ========================================================================== */
+.kx-stage{position:relative;margin:22px 0}
+.kx-scroll{overflow-x:auto;border-radius:12px;padding-bottom:4px}
+.kx-scroll::-webkit-scrollbar{height:8px}
+.kx-scroll::-webkit-scrollbar-track{background:transparent}
+.kx-scroll::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:99px}
+.kx-scroll::-webkit-scrollbar-thumb:hover{background:#AFBCCE}
+.kx-screen{
+  min-width:900px;
+  font-family:var(--kx-font);font-size:13px;font-weight:500;color:var(--kx-color);
+  background:#fff;border:1px solid var(--kx-card-border);border-radius:10px;
+  box-shadow:var(--shadow-md);
+  padding:14px 16px 16px;line-height:1.5;
+}
+.kx-screen *{font-family:inherit}
+/* 필터 바 */
+.kx-filterbar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:flex-end;padding:4px 2px 12px;border-bottom:1px solid var(--kx-border)}
+.kx-filter{display:flex;flex-direction:column;gap:3px}
+.kx-filter .flabel{font-size:11.5px;color:#7A828C}
+.kx-select{
+  display:inline-flex;align-items:center;justify-content:space-between;gap:10px;
+  min-width:118px;height:30px;padding:0 10px;
+  background:#fff;border:1px solid var(--kx-border);border-radius:6px;
+  color:var(--kx-placeholder);font-size:12.5px;cursor:default;
+  transition:border-color .15s,box-shadow .15s;
+}
+.kx-select:hover{border-color:#C9D2DB}
+.kx-select.set{color:var(--kx-color)}
+.kx-select .caret{font-size:9px;color:#9AA0A8}
+.kx-daterange{display:inline-flex;align-items:center;gap:6px}
+.kx-date{
+  width:104px;height:30px;padding:0 9px;display:inline-flex;align-items:center;
+  background:#fff;border:1px solid var(--kx-border);border-radius:6px;color:var(--kx-color);font-size:12.5px;
+}
+/* 버튼 툴바 */
+.kx-toolbar{display:flex;align-items:center;gap:8px;padding:11px 2px}
+.kx-count{font-size:12.5px;color:#7A828C;margin-right:auto}
+.kx-count b{color:var(--kx-primary);font-weight:600}
+.kx-btn{
+  display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 13px;
+  font-size:12.5px;font-weight:500;border-radius:6px;cursor:pointer;
+  border:1px solid transparent;background:#fff;color:var(--kx-color);
+  transition:background .15s,color .15s,border-color .15s;
+}
+.kx-btn.outline{border-color:#66B0FF;color:#1A85FF}
+.kx-btn.outline:hover{background:#E5F1FF;border-color:#3D9BFF}
+.kx-btn.plain{border-color:var(--kx-border)}
+.kx-btn.plain:hover{background:#F4F6F8;border-color:#D3D9DF}
+.kx-btn:active{transform:translateY(1px)}
+.kx-btn:focus-visible,.kx-select:focus-visible{outline:2px solid var(--kx-primary);outline-offset:1px}
+.kx-unit{height:30px;border:1px solid var(--kx-border);border-radius:6px;background:#fff;color:var(--kx-color);font-size:12.5px;padding:0 6px;cursor:pointer;font-family:inherit}
+/* 그리드 */
+.kx-grid{width:100%;border-collapse:collapse;font-size:12.5px}
+.kx-grid th{
+  background:var(--kx-grid-header);color:var(--kx-color);font-weight:500;
+  border:1px solid var(--kx-grid-border);border-left-color:#C9C2BC;
+  padding:7px 8px;text-align:center;white-space:nowrap;
+}
+.kx-grid td{
+  border:1px solid var(--kx-grid-line);padding:6px 8px;text-align:center;
+  white-space:nowrap;font-variant-numeric:tabular-nums;
+}
+.kx-grid td.l{text-align:left}
+.kx-grid td.r{text-align:right}
+.kx-grid tr.sum td{background:var(--kx-summary);font-weight:600;border-color:#D6D0CA}
+.kx-grid tbody.data tr{cursor:pointer;transition:background .12s}
+.kx-grid tbody.data tr:hover{background:#F2F8FF}
+.kx-grid tbody.data tr.sel{background:#E5F1FF}
+.kx-grid tbody.data tr:focus-visible{outline:2px solid var(--kx-primary);outline-offset:-2px}
+.kx-empty td{color:var(--kx-placeholder);padding:34px 8px !important;cursor:default !important;font-size:12.5px}
+.kx-empty td::before{content:"⌕";display:block;font-size:22px;margin-bottom:6px;color:#D5DAE0}
+.kx-status{display:inline-block;padding:1px 9px;border-radius:99px;font-size:11.5px}
+.kx-status::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:currentColor;margin-right:5px;vertical-align:1.5px}
+.kx-status.run{background:#E4F4E9;color:#1D7A3E}
+.kx-status.prep{background:#FFF3DC;color:#9A6B00}
+.kx-status.clr{background:#EEEEF1;color:#6B7280}
+.kx-paging{display:flex;justify-content:center;gap:4px;padding-top:12px;font-size:12px;color:#7A828C}
+.kx-paging span{
+  min-width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid var(--kx-border);border-radius:4px;background:#fff;transition:background .12s;
+}
+.kx-paging span:hover{background:#F4F6F8}
+.kx-paging span.cur{background:var(--kx-primary);border-color:var(--kx-primary);color:#fff}
+.kx-paging span.cur:hover{background:var(--kx-primary)}
+.kx-spin{display:none;text-align:center;padding:20px 0;color:#7A828C;font-size:12.5px}
+.kx-spin.on{display:block}
+.kx-spin i{
+  display:inline-block;width:16px;height:16px;border:2px solid #C9DEF6;border-top-color:var(--kx-primary);
+  border-radius:50%;vertical-align:-3px;margin-right:8px;animation:kxspin .7s linear infinite;
+}
+@keyframes kxspin{to{transform:rotate(360deg)}}
+
+/* ---------- 핫스팟 ---------- */
+.hs{
+  position:absolute;z-index:5;width:24px;height:24px;border-radius:50%;
+  background:var(--marker);color:#fff;border:2px solid #fff;
+  font:700 12px/1 var(--font-head);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;box-shadow:0 2px 8px rgba(240,115,26,.45);
+}
+.hs::after{
+  content:"";position:absolute;inset:-7px;border-radius:50%;
+  border:2px solid rgba(240,115,26,.55);animation:pulse 2.2s ease-out infinite;
+}
+.hs:hover,.hs[aria-expanded="true"]{background:#D95F0E}
+.hs:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+@keyframes pulse{0%{transform:scale(.6);opacity:.9}70%{transform:scale(1.25);opacity:0}100%{opacity:0}}
+.popover{
+  position:absolute;z-index:50;width:min(320px,84vw);
+  background:#fff;border:1px solid var(--line);border-radius:12px;
+  box-shadow:0 4px 12px rgba(19,26,38,.08),0 16px 44px rgba(19,26,38,.16);padding:15px 17px;
+  font-size:13.3px;line-height:1.6;display:none;
+}
+.popover.on{display:block}
+.popover h5{font-family:var(--font-head);font-size:13.5px;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.popover h5 .n{
+  flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:var(--marker);color:#fff;
+  font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;
+}
+.popover p{margin:4px 0;color:var(--body)}
+.popover .tip{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);color:var(--muted);font-size:12.5px}
+.hs-legend{display:flex;align-items:center;gap:8px;font-size:12.8px;color:var(--muted);margin:10px 2px 0}
+.hs-legend .dot{width:16px;height:16px;border-radius:50%;background:var(--marker);border:2px solid #fff;box-shadow:0 1px 4px rgba(240,115,26,.5)}
+
+/* ---------- 모사 모달 ---------- */
+.kx-overlay{
+  position:fixed;inset:0;z-index:100;background:rgba(23,32,44,.45);
+  display:none;align-items:flex-start;justify-content:center;padding:4vh 16px;
+}
+.kx-overlay.on{display:flex}
+.kx-modal{
+  position:relative;width:min(880px,100%);max-height:88vh;display:flex;flex-direction:column;
+  background:#fff;border-radius:8px;border:1px solid rgba(0,0,0,.2);
+  box-shadow:rgba(50,50,93,.25) 0 50px 100px -20px,rgba(0,0,0,.3) 0 30px 60px -30px;
+  font-family:var(--kx-font);font-size:13px;color:var(--kx-color);
+  animation:kxmodal .22s ease;
+}
+@keyframes kxmodal{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.kx-modal-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 18px;background:var(--kx-card-header);border-bottom:1px solid var(--kx-card-border);
+  border-radius:8px 8px 0 0;
+}
+.kx-modal-head h4{font-size:16px;font-weight:600;color:#33353F;margin:0;font-family:inherit}
+.kx-x{
+  width:30px;height:30px;border-radius:4px;border:0;background:transparent;color:#B4B4B4;
+  font-size:17px;cursor:pointer;line-height:1;
+}
+.kx-x:hover{background:#EDEDED;color:#666}
+.kx-x:focus-visible{outline:2px solid var(--kx-primary)}
+.kx-tabs{display:flex;gap:2px;padding:8px 16px 0;border-bottom:3px solid #EEE;position:relative}
+.kx-tab{
+  border:0;background:none;cursor:pointer;position:relative;
+  padding:10px 16px;font-size:13.5px;font-weight:500;color:var(--kx-color);font-family:inherit;
+}
+.kx-tab .chk{color:#BFBFBF;margin-right:5px;font-size:11px}
+.kx-tab.on{color:var(--kx-primary-dark)}
+.kx-tab.on .chk{color:var(--kx-primary)}
+.kx-tab.on::after{
+  content:"";position:absolute;left:8px;right:8px;bottom:-3px;height:3px;
+  background:var(--kx-primary);box-shadow:0 4px 10px 3px rgba(0,123,255,.15);
+}
+.kx-tab:focus-visible{outline:2px solid var(--kx-primary);outline-offset:-2px}
+.kx-modal-body{padding:16px 20px;overflow-y:auto}
+.kx-pane{display:none}
+.kx-pane.on{display:block}
+.kx-fieldset{border:1px solid var(--kx-border);border-radius:8px;padding:12px 14px 6px;margin-bottom:12px;transition:border-color .15s}
+.kx-fieldset:hover{border-color:#CBD5DE}
+.kx-fieldset legend{font-size:12px;font-weight:600;color:var(--kx-primary-dark);padding:0 6px;letter-spacing:.02em}
+.kx-frow{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:8px}
+.kx-f{display:flex;align-items:center;gap:8px;font-size:12.5px}
+.kx-f .flabel{color:#7A828C;white-space:nowrap}
+.kx-f .flabel .req{color:#E03131;margin-left:1px}
+.kx-f .v{
+  min-width:90px;padding:4px 9px;background:#fff;border:1px solid var(--kx-border);
+  border-radius:5px;color:var(--kx-color);
+}
+.kx-f .v.ro{background:#F4F5F7;color:#8A9099}
+.kx-minigrid{width:100%;border-collapse:collapse;font-size:12px;margin:4px 0 10px}
+.kx-minigrid th{background:var(--kx-grid-header);border:1px solid var(--kx-grid-border);border-left-color:#C9C2BC;padding:5px 7px;font-weight:500;text-align:center}
+.kx-minigrid td{border:1px solid var(--kx-grid-line);padding:5px 7px;text-align:center}
+.kx-modal-foot{
+  display:flex;justify-content:center;gap:8px;padding:12px;
+  border-top:1px solid #DEE2E6;background:#FAFBFC;border-radius:0 0 8px 8px;
+}
+.kx-toast{
+  position:fixed;left:50%;bottom:34px;transform:translate(-50%,16px);z-index:300;
+  background:#243041;color:#fff;font-size:13.5px;border-radius:8px;padding:11px 22px;
+  opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;
+  box-shadow:0 10px 30px rgba(0,0,0,.3);
+}
+.kx-toast.on{opacity:1;transform:translate(-50%,0)}
+.kx-confirm{
+  position:fixed;inset:0;z-index:200;background:rgba(23,32,44,.45);
+  display:none;align-items:center;justify-content:center;padding:16px;
+}
+.kx-confirm.on{display:flex}
+.kx-confirm .box{
+  width:min(360px,92vw);background:#fff;border-radius:8px;padding:26px 22px 18px;text-align:center;
+  font-family:var(--kx-font);color:var(--kx-color);box-shadow:0 20px 60px rgba(0,0,0,.3);
+  animation:kxmodal .2s ease;
+}
+.kx-confirm .box p{font-size:14px;margin-bottom:18px;max-width:none}
+.kx-confirm .row{display:flex;justify-content:center;gap:8px}
+
+/* 미니 구조 다이어그램 */
+.schema{display:flex;flex-direction:column;gap:8px;max-width:640px;margin:20px 0}
+.schema .box{
+  border:1px solid var(--line);border-radius:12px;background:var(--card);
+  padding:13px 20px;display:flex;align-items:baseline;gap:12px;
+  box-shadow:var(--shadow-sm);transition:transform .18s ease,box-shadow .18s ease;
+}
+.schema .box:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.schema .box b{font-family:var(--font-head);color:var(--ink);font-size:14.5px;white-space:nowrap}
+.schema .box span{font-size:13px;color:var(--muted)}
+.schema .box.hl{border-color:var(--accent);background:var(--accent-soft)}
+.schema .arrow{text-align:center;color:var(--muted);font-size:13px;line-height:1}
+
+footer.foot{margin-top:80px;padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+
+@media (max-width:900px){
+  .toc{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .hs::after{animation:none;display:none}
+  .reveal{opacity:1;transform:none;transition:none}
+  .kx-modal,.kx-confirm .box{animation:none}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ===================== 좌측 목차 ===================== -->
+<aside class="toc" aria-label="목차">
+  <div class="brand">펀드정보 첫걸음<small>KiiPS · FD0101 도움말</small></div>
+  <nav>
+    <a href="#intro">1. 이 화면은 무엇인가요</a>
+    <a href="#explorer">2. 화면 직접 만져보기</a>
+    <a href="#howto">3. 업무 따라하기</a>
+    <a href="#howto-search" class="sub">3-1. 펀드 조회하기</a>
+    <a href="#howto-read" class="sub">3-2. 목록 읽는 법</a>
+    <a href="#howto-detail" class="sub">3-3. 상세 보기 · 수정</a>
+    <a href="#howto-save" class="sub">3-4. 저장과 임시저장</a>
+    <a href="#howto-aux" class="sub">3-5. 보조 화면 3가지</a>
+    <a href="#faq">4. 주의사항 · FAQ</a>
+  </nav>
+</aside>
+
+<!-- ===================== 본문 ===================== -->
+<main class="content">
+<div class="inner">
+
+<header class="hero">
+  <span class="eyebrow">KiiPS 화면 가이드 · FD0101</span>
+  <h1>펀드정보 화면, 처음부터 차근차근</h1>
+  <p class="lead">
+    운용 중인 펀드를 조회하고, 펀드 하나하나의 기본정보·규약·회계감사인 이력을 관리하는
+    <strong>펀드정보(FD0101)</strong> 화면의 사용법을 처음 사용자 눈높이로 안내합니다.
+    아래 <a href="#explorer">화면 직접 만져보기</a>에서 실제 화면과 똑같이 생긴 연습 화면을 눌러보며 배울 수 있습니다.
+  </p>
+  <div class="meta">
+    <span>대상 독자 <b>KiiPS를 처음 쓰는 실무자</b></span>
+    <span>화면 코드 <b>FD0101</b></span>
+    <span>진입 경로 <b>좌측 메뉴 › 펀드정보</b></span>
+  </div>
+  <div class="notice">
+    <span aria-hidden="true">ⓘ</span>
+    <span>이 페이지의 펀드명·금액·날짜는 모두 <strong>설명을 위한 가상 예시</strong>입니다. 실제 운용 데이터가 아닙니다.</span>
+  </div>
+</header>
+
+<!-- ======================= 1. 소개 ======================= -->
+<section class="block reveal" id="intro">
+  <div class="sec-label">SECTION 1</div>
+  <h2>이 화면은 무엇인가요</h2>
+  <p>
+    펀드정보 화면은 우리 회사가 운용하는 <strong>펀드(조합)의 대장(臺帳)</strong>입니다.
+    펀드가 언제 결성되어 언제 해산 예정인지, 약정총액이 얼마인지, 누가 대표펀드매니저인지 —
+    펀드에 관한 기준 정보가 모두 이곳에서 시작됩니다. 다른 화면(투자, 회계, 보고서)이 참조하는
+    원천 데이터이므로, 여기 입력된 값이 정확해야 이후 업무가 매끄럽게 흘러갑니다.
+  </p>
+  <p>화면은 위에서 아래로 세 구역으로 이루어져 있습니다.</p>
+  <div class="schema" role="img" aria-label="화면 구조: 검색필터, 버튼 툴바, 펀드 목록 그리드 순서로 배치. 목록의 행을 더블클릭하면 상세 모달이 열림">
+    <div class="box"><b>① 검색필터</b><span>어떤 펀드를 찾을지 조건을 고르는 곳 (펀드유형·펀드명·상태·결성기간 등 7가지)</span></div>
+    <div class="box"><b>② 버튼 툴바</b><span>조회 실행, 금액 단위 전환, 엑셀 다운로드 등 동작 버튼</span></div>
+    <div class="box hl"><b>③ 펀드 목록</b><span>조건에 맞는 펀드가 표(그리드)로 나열 — 행을 <strong>더블클릭</strong>하면 상세 화면이 열립니다</span></div>
+    <div class="arrow">▼ 더블클릭</div>
+    <div class="box"><b>상세 모달</b><span>개요 · 규약/정관 · 회계감사인 3개 탭으로 펀드 정보를 확인·수정</span></div>
+  </div>
+  <div class="callout info">
+    <span class="ic">✓</span>
+    <span><strong>권한 안내</strong> — 목록에는 <strong>내게 접근권한이 있는 펀드만</strong> 나타납니다.
+    있어야 할 펀드가 안 보이면 화면 오류가 아니라 권한 문제일 가능성이 높으니 시스템 관리자에게 문의하세요.</span>
+  </div>
+</section>
+
+<!-- ======================= 2. 화면 탐색기 ======================= -->
+<section class="block reveal" id="explorer">
+  <div class="sec-label">SECTION 2</div>
+  <h2>화면 직접 만져보기</h2>
+  <p>
+    아래는 실제 펀드정보 화면을 본떠 만든 <strong>연습 화면</strong>입니다. 마음껏 눌러도 아무 데이터도 바뀌지 않습니다.
+    주황색 번호 <span class="hs-legend" style="display:inline-flex;margin:0"><span class="dot"></span></span> 를 누르면 각 부분의 설명이 나타나고,
+    <strong>조회 버튼 → 목록 행 더블클릭 → 상세 모달의 탭</strong> 순서로 실제 흐름을 그대로 체험할 수 있습니다.
+  </p>
+  <div class="callout info">
+    <span class="ic">▶</span>
+    <span>추천 순서: <strong>⑥ 조회</strong>를 눌러 목록을 채우고 → <strong>단위선택</strong>을 바꿔 금액 표시를 살펴본 뒤 →
+    아무 행이나 <strong>더블클릭</strong>(키보드는 행 선택 후 <span class="kbd">Enter</span>)해서 상세 모달을 열어보세요.</span>
+  </div>
+
+  <div class="kx-stage">
+    <div class="kx-scroll">
+      <div class="kx-screen" id="kxScreen">
+        <!-- 필터바 -->
+        <div class="kx-filterbar" id="kxFilterbar">
+          <div class="kx-filter"><span class="flabel">펀드유형</span><span class="kx-select" tabindex="0">전체 선택 <span class="caret">▼</span></span></div>
+          <div class="kx-filter"><span class="flabel">펀드명</span><span class="kx-select" tabindex="0">전체 선택 <span class="caret">▼</span></span></div>
+          <div class="kx-filter"><span class="flabel">펀드상태</span><span class="kx-select set" tabindex="0">운용중 외 2 <span class="caret">▼</span></span></div>
+          <div class="kx-filter"><span class="flabel">FoF포함여부</span><span class="kx-select set" tabindex="0">포함 <span class="caret">▼</span></span></div>
+          <div class="kx-filter"><span class="flabel">결성기간</span>
+            <span class="kx-daterange"><span class="kx-date">2015-01-01</span> ~ <span class="kx-date">2026-12-31</span></span>
+          </div>
+          <div class="kx-filter"><span class="flabel">대표펀드매니저</span><span class="kx-select" tabindex="0">전체 선택 <span class="caret">▼</span></span></div>
+          <div class="kx-filter"><span class="flabel">대표펀드매니저 부서</span><span class="kx-select" tabindex="0">전체 선택 <span class="caret">▼</span></span></div>
+        </div>
+        <!-- 툴바 -->
+        <div class="kx-toolbar">
+          <span class="kx-count">Total : <b id="kxCount">0</b> 건</span>
+          <button type="button" class="kx-btn plain">전체</button>
+          <select class="kx-unit" id="kxUnit" aria-label="금액 단위 선택">
+            <option value="1">원</option>
+            <option value="1000">천원</option>
+            <option value="1000000">백만원</option>
+            <option value="100000000">억원</option>
+          </select>
+          <button type="button" class="kx-btn outline" id="kxSearch">⟳ 조회</button>
+          <button type="button" class="kx-btn plain" id="kxExcel">엑셀</button>
+          <button type="button" class="kx-btn plain">? 도움말</button>
+        </div>
+        <!-- 그리드 -->
+        <div class="kx-spin" id="kxSpin"><i></i>조회 중입니다…</div>
+        <table class="kx-grid" id="kxGrid">
+          <thead>
+            <tr>
+              <th>펀드명</th><th>펀드유형</th><th>대표펀드매니저</th><th>펀드상태</th>
+              <th>펀드고유번호</th><th>결성(예정)일</th><th>해산(예정)일</th><th>청산(예정)일</th>
+              <th>통화</th><th id="kxThAmt">약정총액(원화)</th><th>약정총액(외화)</th>
+            </tr>
+            <tr class="sum" id="kxSumRow" hidden>
+              <td class="l">합계</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              <td class="r" id="kxSumKrw"></td><td class="r"></td>
+            </tr>
+          </thead>
+          <tbody class="data" id="kxRows">
+            <tr class="kx-empty"><td colspan="11">조회 버튼을 누르면 펀드 목록이 나타납니다.</td></tr>
+          </tbody>
+        </table>
+        <div class="kx-paging" id="kxPaging" hidden><span>«</span><span class="cur">1</span><span>»</span></div>
+      </div>
+    </div>
+
+    <!-- 핫스팟 (연습 화면 위 — 위치는 JS가 data-anchor 요소 기준으로 계산) -->
+    <button type="button" class="hs" data-anchor="#kxFilterbar .kx-filter:nth-child(1) .kx-select" data-pop="pop-filter"  aria-expanded="false" aria-label="설명 보기: 검색필터">1</button>
+    <button type="button" class="hs" data-anchor="#kxFilterbar .kx-filter:nth-child(2) .kx-select" data-pop="pop-fname"   aria-expanded="false" aria-label="설명 보기: 펀드명 필터">2</button>
+    <button type="button" class="hs" data-anchor="#kxFilterbar .kx-filter:nth-child(4) .kx-select" data-pop="pop-fof"     aria-expanded="false" aria-label="설명 보기: FoF 포함여부">3</button>
+    <button type="button" class="hs" data-anchor="#kxFilterbar .kx-daterange"                      data-pop="pop-period"  aria-expanded="false" aria-label="설명 보기: 결성기간">4</button>
+    <button type="button" class="hs" data-anchor=".kx-count"                                       data-pop="pop-count"   aria-expanded="false" aria-label="설명 보기: 전체 건수">5</button>
+    <button type="button" class="hs" data-anchor="#kxSearch"                                       data-pop="pop-search"  aria-expanded="false" aria-label="설명 보기: 조회 버튼">6</button>
+    <button type="button" class="hs" data-anchor="#kxExcel"                                        data-pop="pop-excel"   aria-expanded="false" aria-label="설명 보기: 엑셀 버튼">7</button>
+    <button type="button" class="hs" data-anchor="#kxGrid"                                         data-pop="pop-rows"    aria-expanded="false" aria-label="설명 보기: 펀드 목록">8</button>
+    <button type="button" class="hs" data-anchor="#kxThAmt"                                        data-pop="pop-amt"     aria-expanded="false" aria-label="설명 보기: 약정총액">9</button>
+    <button type="button" class="hs" data-anchor="#kxUnit"                                         data-pop="pop-unit"    aria-expanded="false" aria-label="설명 보기: 단위선택">10</button>
+  </div>
+  <p class="hs-legend"><span class="dot"></span> 번호를 누르면 설명이 열립니다. <span class="kbd">Esc</span> 또는 바깥을 누르면 닫힙니다.</p>
+
+  <!-- 팝오버 정의 (JS가 마커 옆으로 이동시켜 표시) -->
+  <div hidden>
+    <div class="popover" id="pop-filter">
+      <h5><span class="n">1</span>검색필터</h5>
+      <p>찾고 싶은 펀드의 조건을 고르는 영역입니다. 조건 7가지(펀드유형·펀드명·펀드상태·FoF포함여부·결성기간·대표펀드매니저·부서)를 조합할 수 있고, 아무것도 고르지 않으면 전체가 조회됩니다.</p>
+      <p class="tip">조건을 <b>새로 고른</b> 뒤에는 <b>조회</b> 버튼(또는 F2)을 눌러야 반영됩니다. 반대로 적용된 필터 태그를 <b>✕로 제거하면 그 즉시 자동으로 재조회</b>됩니다.</p>
+    </div>
+    <div class="popover" id="pop-fname">
+      <h5><span class="n">2</span>펀드명 필터</h5>
+      <p>여러 펀드를 동시에 선택할 수 있는 다중선택 목록입니다. 이 목록에는 <b>내게 접근권한이 있는 펀드만</b> 나타납니다.</p>
+      <p class="tip">찾는 펀드가 목록에 없다면 권한 설정 문제일 수 있습니다 — 관리자에게 문의하세요.</p>
+    </div>
+    <div class="popover" id="pop-fof">
+      <h5><span class="n">3</span>FoF 포함여부</h5>
+      <p>FoF(재간접펀드, Fund of Funds)를 결과에 포함할지 고릅니다. <b>포함 / 미포함 / Only FoF</b>(재간접만 보기) 세 가지 중 하나만 선택합니다.</p>
+    </div>
+    <div class="popover" id="pop-period">
+      <h5><span class="n">4</span>결성기간</h5>
+      <p>펀드의 <b>결성(예정)일</b>이 이 날짜 범위 안에 있는 펀드만 조회합니다. 시작일과 종료일을 달력에서 고르세요.</p>
+    </div>
+    <div class="popover" id="pop-count">
+      <h5><span class="n">5</span>Total 건수</h5>
+      <p>현재 조회 결과의 전체 펀드 수입니다. 조회할 때마다 갱신됩니다. 옆의 <b>전체</b> 버튼은 한 페이지에 다 보기 / 나눠 보기를 전환합니다.</p>
+    </div>
+    <div class="popover" id="pop-search">
+      <h5><span class="n">6</span>조회 버튼</h5>
+      <p>설정한 필터 조건으로 펀드 목록을 불러옵니다. 이 연습 화면에서도 직접 눌러보세요!</p>
+      <p class="tip">키보드 <b>F2</b> 키로도 조회할 수 있습니다(실제 화면 기준).</p>
+    </div>
+    <div class="popover" id="pop-excel">
+      <h5><span class="n">7</span>엑셀 버튼</h5>
+      <p>현재 목록을 엑셀 파일로 내려받습니다.</p>
+      <p class="tip">다운로드 권한이 있는 사용자에게만 이 버튼이 보입니다. 버튼이 없다면 권한이 없는 것입니다.</p>
+    </div>
+    <div class="popover" id="pop-rows">
+      <h5><span class="n">8</span>펀드 목록 (그리드)</h5>
+      <p>조건에 맞는 펀드가 한 줄에 하나씩 나열됩니다. 행을 <b>더블클릭</b>하면 그 펀드의 상세 모달(개요·규약/정관·회계감사인)이 열립니다.</p>
+      <p class="tip">이 연습 화면에서는 행을 한 번 클릭해 선택한 뒤 <b>Enter</b> 키로도 열 수 있습니다.</p>
+    </div>
+    <div class="popover" id="pop-amt">
+      <h5><span class="n">9</span>약정총액</h5>
+      <p>펀드에 출자하기로 약정된 총 금액입니다. 원화 약정액과 외화 약정액(외화 펀드인 경우)이 각각 표시되고, 맨 위 <b>합계 행</b>에 전체 합이 나타납니다.</p>
+    </div>
+    <div class="popover" id="pop-unit">
+      <h5><span class="n">10</span>단위선택</h5>
+      <p>금액 컬럼의 표시 단위를 <b>원 / 천원 / 백만원 / 억원</b>으로 바꿉니다. 자릿수가 긴 금액을 읽기 쉽게 해 주는 기능으로, 데이터 자체가 바뀌는 것은 아닙니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= 3. 업무 따라하기 ======================= -->
+<section class="block reveal" id="howto">
+  <div class="sec-label">SECTION 3</div>
+  <h2>업무 따라하기</h2>
+  <p>실제 업무에서 자주 하게 될 다섯 가지 작업을 순서대로 안내합니다.</p>
+
+  <h3 id="howto-search">3-1. 펀드 조회하기</h3>
+  <ol class="step-list">
+    <li><b>필터 조건을 고릅니다.</b> 모든 조건은 선택 사항입니다 — 아무것도 고르지 않고 조회하면 권한 있는 전체 펀드가 나옵니다.</li>
+    <li><b>조회 버튼을 누릅니다.</b> 키보드 <span class="kbd">F2</span>로도 실행됩니다. 툴바의 Total 건수가 결과 수로 갱신됩니다. 참고로 적용해 둔 필터 태그를 ✕로 <b>제거할 때는</b> 버튼을 누르지 않아도 <b>즉시 자동 재조회</b>됩니다.</li>
+    <li><b>결과를 확인합니다.</b> 결과가 많으면 하단 페이지 번호로 이동하거나, <b>전체</b> 버튼으로 한 번에 볼 수 있습니다.</li>
+  </ol>
+  <div class="table-wrap">
+  <table class="doc">
+    <thead><tr><th style="width:170px">필터</th><th style="width:90px">선택 방식</th><th>설명</th></tr></thead>
+    <tbody>
+      <tr><td>펀드유형</td><td>다중</td><td>벤처투자조합, 신기술사업투자조합, 사모투자합자회사(PEF) 등 법적 유형으로 거릅니다.</td></tr>
+      <tr><td>펀드명</td><td>다중</td><td>특정 펀드를 지정합니다. <strong>접근권한이 있는 펀드만</strong> 목록에 나타납니다.</td></tr>
+      <tr><td>펀드상태</td><td>다중</td><td>결성준비 · 운용중 · 청산 등 진행 단계로 거릅니다.</td></tr>
+      <tr><td>FoF포함여부</td><td>단일</td><td>포함 / 미포함 / Only FoF(재간접펀드만 보기) 중 하나.</td></tr>
+      <tr><td>결성기간</td><td>날짜 범위</td><td>결성(예정)일이 범위 안에 드는 펀드만 조회합니다.</td></tr>
+      <tr><td>대표펀드매니저</td><td>다중</td><td>담당 대표펀드매니저로 거릅니다.</td></tr>
+      <tr><td>대표펀드매니저 부서</td><td>다중</td><td>매니저가 소속된 부서 단위로 거릅니다.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3 id="howto-read">3-2. 목록 읽는 법</h3>
+  <p>목록의 각 컬럼이 뜻하는 바를 알아두면 상세 화면을 열지 않고도 많은 것을 파악할 수 있습니다.</p>
+  <div class="table-wrap">
+  <table class="doc">
+    <thead><tr><th style="width:170px">컬럼</th><th>의미</th></tr></thead>
+    <tbody>
+      <tr><td>펀드명</td><td>펀드의 정식 명칭. 왼쪽 정렬로 표시됩니다.</td></tr>
+      <tr><td>펀드유형</td><td>벤처투자조합 등 법적 유형.</td></tr>
+      <tr><td>대표펀드매니저</td><td>이 펀드를 책임 운용하는 매니저.</td></tr>
+      <tr><td>펀드상태</td><td>결성준비 → 운용중 → 청산으로 이어지는 진행 단계.</td></tr>
+      <tr><td>펀드고유번호</td><td>고유번호(사업자등록번호 형식). <code>000-00-00000</code> 모양으로 자동 표시됩니다.</td></tr>
+      <tr><td>결성(예정)일 / 해산(예정)일</td><td>펀드의 시작과 (예정된) 끝. 만기연장·청산(예정)·청산연장일 컬럼도 함께 제공됩니다.</td></tr>
+      <tr><td>통화</td><td>펀드의 기준 통화(KRW, USD 등).</td></tr>
+      <tr><td>약정총액(원화/외화)</td><td>출자 약정 총액. 우측 정렬·천 단위 콤마로 표시되고 합계 행이 제공됩니다.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="callout info">
+    <span class="ic">✓</span>
+    <span><strong>단위선택 활용</strong> — 금액 자릿수가 길어 읽기 어렵다면 툴바의 단위선택(원/천원/백만원/억원)을 바꿔보세요.
+    표시 단위만 바뀔 뿐 데이터는 그대로입니다. 보고서에 옮겨 적을 때는 현재 단위가 무엇인지 꼭 확인하세요.</span>
+  </div>
+
+  <h3 id="howto-detail">3-3. 상세 보기 · 수정 — 3개의 탭</h3>
+  <p>
+    목록에서 펀드 행을 <strong>더블클릭</strong>하면 상세 모달이 열립니다. 정보량이 많아 세 개의 탭으로 나뉘어 있습니다.
+    각 탭을 펼쳐 어떤 항목이 있는지 확인하세요. <span style="color:#E03131">*</span> 표시는 필수 입력 항목입니다.
+  </p>
+
+  <details class="acc" open>
+    <summary>탭 1 — 개요 : 펀드의 기본 정보</summary>
+    <div class="acc-body">
+      <p>펀드의 신상명세에 해당하는 탭입니다. 9개 묶음으로 구성됩니다.</p>
+      <div class="table-wrap">
+      <table class="doc">
+        <thead><tr><th style="width:120px">묶음</th><th>주요 항목</th></tr></thead>
+        <tbody>
+          <tr><td>기본정보</td><td>펀드명<span style="color:#E03131">*</span>, 영문명·약칭, 주요투자분야, 요약</td></tr>
+          <tr><td>분류</td><td>펀드유형<span style="color:#E03131">*</span>, 설립근거, 펀드분류(운용사기준), 펀드목적분류<span style="color:#E03131">*</span></td></tr>
+          <tr><td>운용</td><td>펀드운용방식<span style="color:#E03131">*</span>, FoF여부, 펀드상태<span style="color:#E03131">*</span>, 투자종료여부</td></tr>
+          <tr><td>인력</td><td>대표펀드매니저(복수 지정 가능), 의무투자비율, 준법감시인, 고유·법인등록번호</td></tr>
+          <tr><td>규모/존속</td><td>결성총회일<span style="color:#E03131">*</span>, 결성(예정)일<span style="color:#E03131">*</span>, 투자기간 종료일(자동계산), 해산(예정)일(자동계산), 만기연장·청산 관련 일자</td></tr>
+          <tr><td>통화/단가</td><td>통화<span style="color:#E03131">*</span>, 환율, 1좌당금액<span style="color:#E03131">*</span>, 약정총액<span style="color:#E03131">*</span> (외화 펀드는 외화 항목 추가)</td></tr>
+          <tr><td>납입</td><td>납입방식<span style="color:#E03131">*</span>(일시납/분납), 납입횟수, 최소콜금액, 콜요청 사전통지</td></tr>
+          <tr><td>회계</td><td>회계처리기준<span style="color:#E03131">*</span>, 결산월<span style="color:#E03131">*</span>, 전표생성여부, 연결재무제표 대상 여부 등</td></tr>
+          <tr><td>수탁</td><td>사무수탁·자금수탁 여부, 주/부수탁기관과 수수료율(금액 자동계산)</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>탭 하단에는 <strong>투자심사 설정</strong> 표(심사단계별 출석/찬성 정족수)와, 회사 설정에 따라 <strong>수탁기관 담당자</strong> 표가 나타납니다.</p>
+    </div>
+  </details>
+
+  <details class="acc">
+    <summary>탭 2 — 규약/정관 : 투자 규칙과 한도</summary>
+    <div class="acc-body">
+      <p>펀드 규약(정관)에 정해진 <strong>투자 규칙</strong>을 시스템에 등록하는 탭입니다. 여기 입력된 한도는 이후 투자 화면에서 검증 기준으로 쓰입니다.</p>
+      <p><strong>기본조항</strong> — 총회 사전통지 기간, 투자의무비율, 기준수익률, 관리보수율·성과보수율, 우선손실충당 등.</p>
+      <p><strong>투자 가능 여부와 한도</strong> — 신주/구주, 프로젝트/대여, 해외투자, 중견기업/상장기업/동일기업, 후행투자/재투자 각각에 대해
+      "가능 여부 체크 → 한도비율 입력 → 한도금액 자동계산" 패턴이 반복됩니다.</p>
+      <p><strong>표 2가지 + 이력</strong> — 주목적/특수목적 투자의무 표(기한·의무비율·산정기준·투자대상), 그리고 <strong>규약/정관 변경이력</strong> 표(개정일·내용·첨부파일)가 있습니다. 변경이력의 클립 아이콘을 누르면 첨부파일 창이 열립니다.</p>
+    </div>
+  </details>
+
+  <details class="acc">
+    <summary>탭 3 — 회계감사인 : 감사인 선임 이력</summary>
+    <div class="acc-body">
+      <p>가장 단순한 탭입니다. <strong>선임주기</strong>(년 단위 숫자)를 입력하고, 아래 표에 <strong>회계연도 · 선임/변경일 · 회계감사인 · 대표전담인력 · 변경사유</strong>를 연도별로 쌓아 관리합니다. 행 추가/삭제 버튼으로 이력을 편집합니다.</p>
+    </div>
+  </details>
+
+  <h3 id="howto-save">3-4. 저장과 임시저장의 차이</h3>
+  <p>상세 모달 하단에는 <strong>저장</strong>과 <strong>임시저장</strong> 두 버튼이 있습니다. 용도가 다르니 구분해서 사용하세요.</p>
+  <div class="table-wrap">
+  <table class="doc">
+    <thead><tr><th style="width:110px">버튼</th><th>언제 쓰나요</th><th>동작</th></tr></thead>
+    <tbody>
+      <tr><td><b>저장</b></td><td>입력을 <strong>완료</strong>했을 때</td><td>모든 필수 항목과 표 입력값을 검증한 뒤 저장합니다. 누락이 있으면 오류 안내가 뜨고 저장되지 않습니다.</td></tr>
+      <tr><td><b>임시저장</b></td><td>입력을 <strong>하다가 중단</strong>할 때</td><td>작성 중인 내용을 우선 보관합니다. 단, 핵심 항목 일부는 임시저장이라도 반드시 채워야 합니다(아래 참고).</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="callout warn">
+    <span class="ic">!</span>
+    <span><strong>임시저장에도 필수인 항목이 있습니다</strong> — 화면 안내문 원문:
+    "필수 입력 항목 중 아래 항목은 LP시스템 연동과 직접적인 관련이 있기 때문에 반드시 입력을 해야 '임시저장'이 됩니다."
+    임시저장이 안 될 때는 이 안내에 표시된 항목부터 확인하세요.</span>
+  </div>
+
+  <h3 id="howto-aux">3-5. 보조 화면 3가지</h3>
+  <p>상세 모달 안에서 필요할 때 열리는 작은 창들입니다.</p>
+  <div class="table-wrap">
+  <table class="doc">
+    <thead><tr><th style="width:160px">창 이름</th><th style="width:220px">여는 방법</th><th>용도</th></tr></thead>
+    <tbody>
+      <tr><td>펀드분류</td><td>개요 탭 › 펀드분류 항목 옆 아이콘</td><td>운용사 자체 기준의 펀드분류 코드를 추가·정렬합니다. 이미 쓰이는 분류의 삭제는 코드관리 화면에서만 가능합니다.</td></tr>
+      <tr><td>펀드계좌담당자</td><td>개요 탭 › 수탁기관 담당자 표의 행</td><td>거래기관별 담당자(이름·부서·연락처·이메일)를 등록하면 담당자 표에 반영됩니다.</td></tr>
+      <tr><td>첨부파일</td><td>규약/정관 탭 › 변경이력의 클립 아이콘</td><td>개정일별로 규약/정관 파일을 끌어다 놓아(드래그&amp;드롭) 첨부합니다.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ======================= 4. 주의사항 · FAQ ======================= -->
+<section class="block reveal" id="faq">
+  <div class="sec-label">SECTION 4</div>
+  <h2>주의사항 · 자주 묻는 질문</h2>
+
+  <h3>이런 메시지를 만나면</h3>
+  <div class="table-wrap">
+  <table class="doc">
+    <thead><tr><th style="width:300px">메시지</th><th>의미와 대처</th></tr></thead>
+    <tbody>
+      <tr><td>"삭제할 데이터를 체크해주세요."</td><td>행을 선택하지 않고 삭제를 눌렀습니다. 표 왼쪽 체크박스로 대상 행을 먼저 선택하세요.</td></tr>
+      <tr><td>"고유계정입니다."</td><td>회사 고유계정은 삭제할 수 없는 보호 대상입니다.</td></tr>
+      <tr><td>"선택 항목이 없습니다."</td><td>표에서 행을 선택한 뒤 다시 시도하세요.</td></tr>
+      <tr><td>"코드관리에서 삭제 진행 가능합니다."</td><td>펀드분류 창에서는 분류를 삭제할 수 없습니다. 코드관리 화면을 이용하세요.</td></tr>
+      <tr><td>입력값 오류 안내 (그리드 검증 오류)</td><td>표 안에 형식이 틀린 값(예: 비율 자릿수 초과, 날짜 형식 오류)이 있습니다. 붉게 표시된 셀을 수정하세요.</td></tr>
+      <tr><td>"펀드회계감사인이력 입력을 완료해주세요."</td><td>탭 3의 이력 표에 미완성 행이 있습니다. 필수 셀(선임/변경일·회계감사인·대표전담인력)을 채우거나 행을 삭제하세요.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>자주 묻는 질문</h3>
+  <details class="acc">
+    <summary>있어야 할 펀드가 목록에 안 보여요.</summary>
+    <div class="acc-body"><p>이 화면은 <strong>접근권한이 있는 펀드만</strong> 보여줍니다. 필터(특히 펀드상태·결성기간)를 모두 비우고 조회해도 없다면 권한 문제이니 시스템 관리자에게 펀드 접근권한을 요청하세요.</p></div>
+  </details>
+  <details class="acc">
+    <summary>외화 금액 칸이 회색으로 잠겨 있어요.</summary>
+    <div class="acc-body"><p>통화를 <strong>KRW(원화)</strong>로 선택하면 환율·1좌당금액(외화)·약정총액(외화) 등 외화 관련 칸은 자동으로 비활성화되고 값이 지워집니다. 외화 펀드라면 통화를 먼저 해당 외화로 바꾸세요.</p></div>
+  </details>
+  <details class="acc">
+    <summary>날짜나 금액이 저절로 바뀌었어요.</summary>
+    <div class="acc-body"><p>고장이 아니라 <strong>자동계산</strong>입니다. 결성(예정)일과 존속기간을 넣으면 해산(예정)일이, 약정총액과 비율을 넣으면 한도금액·수수료금액이 자동으로 계산됩니다. 자동계산된 값이 이상하면 원본 입력값(일자·비율)을 확인하세요.</p></div>
+  </details>
+  <details class="acc">
+    <summary>납입횟수를 입력할 수 없어요.</summary>
+    <div class="acc-body"><p>납입방식이 <strong>분납</strong>일 때만 납입횟수 칸이 열립니다. 일시납 펀드는 입력할 필요가 없어 잠겨 있습니다.</p></div>
+  </details>
+  <details class="acc">
+    <summary>엑셀 버튼이 저한테는 안 보여요.</summary>
+    <div class="acc-body"><p>엑셀 다운로드는 별도 권한이 있는 사용자에게만 노출됩니다. 필요하면 관리자에게 다운로드 권한을 요청하세요. 조회·상세보기 권한과는 별개입니다.</p></div>
+  </details>
+  <details class="acc">
+    <summary>수정했는데 반영이 안 된 것 같아요.</summary>
+    <div class="acc-body"><p>모달에서 값을 바꾼 뒤 <strong>저장</strong>을 눌렀는지, 저장 확인 창에서 확인을 눌렀는지 확인하세요. 닫기 버튼으로 모달을 닫으면 변경 내용은 저장되지 않습니다. 저장 후에는 목록을 다시 조회해 확인하는 습관을 권합니다.</p></div>
+  </details>
+
+  <footer class="foot">
+    이 문서는 KiiPS 펀드정보(FD0101) 화면 학습용 도움말입니다 · 화면 구성은 실제 화면 소스를 기준으로 작성되었으며, 모든 예시 데이터는 가상입니다.
+  </footer>
+</section>
+
+</div><!-- /.inner -->
+</main>
+</div><!-- /.layout -->
+
+<!-- ===================== 모사 상세 모달 ===================== -->
+<div class="kx-overlay" id="kxOverlay" role="dialog" aria-modal="true" aria-labelledby="kxModalTitle">
+  <div class="kx-modal">
+    <div class="kx-modal-head">
+      <h4 id="kxModalTitle">펀드 상세</h4>
+      <button type="button" class="kx-x" id="kxClose" aria-label="닫기">✕</button>
+    </div>
+    <div class="kx-tabs" role="tablist" aria-label="펀드 상세 탭">
+      <button type="button" class="kx-tab on" id="kxTabBtn0" role="tab" aria-selected="true"  aria-controls="kxPane0"><span class="chk">✔</span>개요</button>
+      <button type="button" class="kx-tab"    id="kxTabBtn1" role="tab" aria-selected="false" aria-controls="kxPane1"><span class="chk">✔</span>규약/정관</button>
+      <button type="button" class="kx-tab"    id="kxTabBtn2" role="tab" aria-selected="false" aria-controls="kxPane2"><span class="chk">✔</span>회계감사인</button>
+    </div>
+    <div class="kx-modal-body">
+      <!-- 탭1 개요 -->
+      <div class="kx-pane on" id="kxPane0" role="tabpanel" aria-labelledby="kxTabBtn0">
+        <fieldset class="kx-fieldset"><legend>기본정보</legend>
+          <div class="kx-frow">
+            <div class="kx-f"><span class="flabel">펀드명<span class="req">*</span></span><span class="v" id="kxFName" style="min-width:240px"></span></div>
+            <div class="kx-f"><span class="flabel">요약</span><span class="v">성장단계 투자</span></div>
+          </div>
+        </fieldset>
+        <fieldset class="kx-fieldset"><legend>분류 · 운용</legend>
+          <div class="kx-frow">
+            <div class="kx-f"><span class="flabel">펀드유형<span class="req">*</span></span><span class="v" id="kxFType"></span></div>
+            <div class="kx-f"><span class="flabel">펀드상태<span class="req">*</span></span><span class="v" id="kxFStat"></span></div>
+            <div class="kx-f"><span class="flabel">FoF여부</span><span class="v">아니오</span></div>
+          </div>
+        </fieldset>
+        <fieldset class="kx-fieldset"><legend>인력</legend>
+          <div class="kx-frow">
+            <div class="kx-f"><span class="flabel">대표펀드매니저</span><span class="v" id="kxFMgr"></span></div>
+            <div class="kx-f"><span class="flabel">준법감시인</span><span class="v">한지원</span></div>
+          </div>
+        </fieldset>
+        <fieldset class="kx-fieldset"><legend>규모 / 존속</legend>
+          <div class="kx-frow">
+            <div class="kx-f"><span class="flabel">결성(예정)일<span class="req">*</span></span><span class="v" id="kxFDcl"></span></div>
+            <div class="kx-f"><span class="flabel">해산(예정)일</span><span class="v ro" id="kxFExp"></span></div>
+          </div>
+          <div class="kx-frow">
+            <div class="kx-f"><span class="flabel">통화<span class="req">*</span></span><span class="v" id="kxFCrc"></span></div>
+            <div class="kx-f"><span class="flabel">약정총액<span class="req">*</span></span><span class="v" id="kxFAmt" style="min-width:150px;text-align:right"></span></div>
+          </div>
+        </fieldset>
+        <fieldset class="kx-fieldset"><legend>투자심사 설정</legend>
+          <table class="kx-minigrid">
+            <thead><tr><th>투자심사단계</th><th>출석 정족수</th><th>찬성 정족수</th></tr></thead>
+            <tbody>
+              <tr><td>예비심사</td><td>2 / 3</td><td>2 / 3</td></tr>
+              <tr><td>본심사</td><td>3 / 4</td><td>3 / 4</td></tr>
+            </tbody>
+          </table>
+        </fieldset>
+        <p style="font-size:12px;color:#8A9099;margin:2px 4px">※ 연습 화면에서는 대표 항목만 표시합니다. 실제 화면에는 통화/단가·납입·회계·수탁 등 항목이 더 있습니다.</p>
+      </div>
+      <!-- 탭2 규약/정관 -->
+      <div class="kx-pane" id="kxPane1" role="tabpanel" aria-labelledby="kxTabBtn1">
+        <fieldset class="kx-fieldset"><legend>기본조항</legend>
+          <div class="kx-frow">
+            <div class="kx-f"><span class="flabel">투자의무비율</span><span class="v">60 %</span></div>
+            <div class="kx-f"><span class="flabel">기준수익율</span><span class="v">7 %</span></div>
+            <div class="kx-f"><span class="flabel">관리보수율</span><span class="v">2.0 %</span></div>
+            <div class="kx-f"><span class="flabel">성과보수율</span><span class="v">20 %</span></div>
+          </div>
+        </fieldset>
+        <fieldset class="kx-fieldset"><legend>투자 가능 여부와 한도 (패턴 예시)</legend>
+          <div class="kx-frow">
+            <div class="kx-f"><span class="flabel">해외투자 가능</span><span class="v">예</span></div>
+            <div class="kx-f"><span class="flabel">한도비율</span><span class="v">20 %</span></div>
+            <div class="kx-f"><span class="flabel">한도금액</span><span class="v ro">6,000,000,000 (자동계산)</span></div>
+          </div>
+        </fieldset>
+        <fieldset class="kx-fieldset"><legend>주목적 투자의무</legend>
+          <table class="kx-minigrid">
+            <thead><tr><th>항목</th><th>기한(년)</th><th>의무비율</th><th>의무금액</th><th>산정기준</th></tr></thead>
+            <tbody><tr><td>주목적 투자</td><td>4</td><td>60%</td><td>18,000,000,000</td><td>약정총액</td></tr></tbody>
+          </table>
+        </fieldset>
+        <fieldset class="kx-fieldset"><legend>규약/정관 변경이력</legend>
+          <table class="kx-minigrid">
+            <thead><tr><th>개정일</th><th>내용</th><th>첨부</th></tr></thead>
+            <tbody><tr><td>2024-05-20</td><td style="text-align:left">관리보수 산정 기준 개정</td><td>📎</td></tr></tbody>
+          </table>
+        </fieldset>
+      </div>
+      <!-- 탭3 회계감사인 -->
+      <div class="kx-pane" id="kxPane2" role="tabpanel" aria-labelledby="kxTabBtn2">
+        <fieldset class="kx-fieldset"><legend>선임주기</legend>
+          <div class="kx-frow"><div class="kx-f"><span class="flabel">선임주기(년)</span><span class="v">3</span></div></div>
+        </fieldset>
+        <fieldset class="kx-fieldset"><legend>회계감사인 이력</legend>
+          <table class="kx-minigrid">
+            <thead><tr><th>회계연도</th><th>선임/변경일</th><th>회계감사인</th><th>대표전담인력</th><th>변경사유</th></tr></thead>
+            <tbody>
+              <tr><td>2024</td><td>2024-02-15</td><td>한빛회계법인</td><td>오세훈</td><td>-</td></tr>
+              <tr><td>2021</td><td>2021-02-10</td><td>다온회계법인</td><td>임가영</td><td>주기 도래</td></tr>
+            </tbody>
+          </table>
+        </fieldset>
+      </div>
+    </div>
+    <div class="kx-modal-foot">
+      <button type="button" class="kx-btn outline" id="kxSave">저장</button>
+      <button type="button" class="kx-btn plain" id="kxTemp">임시저장</button>
+      <button type="button" class="kx-btn plain" id="kxCloseBtn">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 확인 다이얼로그 / 토스트 -->
+<div class="kx-confirm" id="kxConfirm" role="alertdialog" aria-modal="true" aria-labelledby="kxConfirmMsg">
+  <div class="box">
+    <p id="kxConfirmMsg">저장하시겠습니까?</p>
+    <div class="row">
+      <button type="button" class="kx-btn outline" id="kxConfirmOk">확인</button>
+      <button type="button" class="kx-btn plain" id="kxConfirmNo">취소</button>
+    </div>
+  </div>
+</div>
+<div class="kx-toast" id="kxToast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+"use strict";
+/* ---------- 가상 데이터 (전부 허구) ---------- */
+var FUNDS=[
+ {nm:"한국성장 1호 투자조합",     tp:"벤처투자조합",       mgr:"김민준", st:"운용중",  stc:"run",  reg:"110-81-12345", dcl:"2021-03-15", exp:"2029-03-14", clr:"",           crc:"KRW", krw:30000000000, fx:""},
+ {nm:"미래혁신 벤처펀드 2호",     tp:"벤처투자조합",       mgr:"이서연", st:"운용중",  stc:"run",  reg:"214-87-23456", dcl:"2022-06-30", exp:"2030-06-29", clr:"",           crc:"KRW", krw:45000000000, fx:""},
+ {nm:"글로벌테크 신기술투자조합", tp:"신기술사업투자조합", mgr:"박지훈", st:"운용중",  stc:"run",  reg:"305-86-34567", dcl:"2020-11-20", exp:"2028-11-19", clr:"",           crc:"USD", krw:26000000000, fx:"USD 20,000,000"},
+ {nm:"바이오헬스 3호 투자조합",   tp:"사모투자합자회사",   mgr:"최수아", st:"결성준비", stc:"prep", reg:"",             dcl:"2026-10-01", exp:"2034-09-30", clr:"",           crc:"KRW", krw:20000000000, fx:""},
+ {nm:"스마트제조 혁신펀드",       tp:"벤처투자조합",       mgr:"정도윤", st:"청산",    stc:"clr",  reg:"120-81-45678", dcl:"2015-04-10", exp:"2023-04-09", clr:"2024-04-09", crc:"KRW", krw:15000000000, fx:""},
+ {nm:"콘텐츠IP 전문투자조합 1호", tp:"벤처투자조합",       mgr:"김민준", st:"운용중",  stc:"run",  reg:"110-81-56789", dcl:"2023-01-25", exp:"2031-01-24", clr:"",           crc:"KRW", krw:25000000000, fx:""}
+];
+var loaded=false, unit=1;
+var $=function(id){return document.getElementById(id);};
+
+function fmt(n){
+  if(n===""||n==null) return "";
+  var v=Math.round(n/unit);
+  return v.toLocaleString("ko-KR");
+}
+
+/* ---------- 조회 시뮬레이션 ---------- */
+function renderRows(){
+  var tb=$("kxRows"); tb.innerHTML="";
+  var sum=0;
+  FUNDS.forEach(function(f,i){
+    sum+=f.krw;
+    var tr=document.createElement("tr");
+    tr.tabIndex=0; tr.dataset.idx=i;
+    tr.setAttribute("aria-label",f.nm+" 상세 열기: 더블클릭 또는 Enter");
+    tr.innerHTML=
+      '<td class="l">'+f.nm+'</td><td>'+f.tp+'</td><td>'+f.mgr+'</td>'+
+      '<td><span class="kx-status '+f.stc+'">'+f.st+'</span></td>'+
+      '<td>'+(f.reg||"-")+'</td><td>'+f.dcl+'</td><td>'+f.exp+'</td><td>'+(f.clr||"-")+'</td>'+
+      '<td>'+f.crc+'</td><td class="r">'+fmt(f.krw)+'</td><td class="r">'+(f.fx||"-")+'</td>';
+    tb.appendChild(tr);
+  });
+  $("kxSumKrw").textContent=fmt(sum);
+  $("kxSumRow").hidden=false;
+  $("kxPaging").hidden=false;
+  $("kxCount").textContent=FUNDS.length;
+  placeMarkers(); /* 데이터 로드로 컬럼 폭이 바뀌므로 마커 재배치 */
+}
+$("kxSearch").addEventListener("click",function(){
+  var spin=$("kxSpin"), tb=$("kxRows");
+  tb.innerHTML=""; $("kxSumRow").hidden=true; spin.classList.add("on");
+  setTimeout(function(){
+    spin.classList.remove("on");
+    loaded=true; renderRows();
+    toast("조회가 완료되었습니다. 행을 더블클릭해 상세를 열어보세요.");
+  },600);
+});
+$("kxUnit").addEventListener("change",function(){
+  unit=Number(this.value);
+  if(loaded) renderRows();
+});
+
+/* ---------- 상세 모달 ---------- */
+var overlay=$("kxOverlay"), lastFocus=null;
+function openModal(f){
+  $("kxModalTitle").textContent="펀드정보 — "+f.nm;
+  $("kxFName").textContent=f.nm;
+  $("kxFType").textContent=f.tp;
+  $("kxFStat").textContent=f.st;
+  $("kxFMgr").textContent=f.mgr;
+  $("kxFDcl").textContent=f.dcl;
+  $("kxFExp").textContent=f.exp+" (자동계산)";
+  $("kxFCrc").textContent=f.crc;
+  $("kxFAmt").textContent=f.krw.toLocaleString("ko-KR");
+  selectTab(0);
+  lastFocus=document.activeElement;
+  overlay.classList.add("on");
+  $("kxClose").focus();
+}
+function closeModal(){
+  overlay.classList.remove("on");
+  if(lastFocus) lastFocus.focus();
+}
+$("kxClose").addEventListener("click",closeModal);
+$("kxCloseBtn").addEventListener("click",closeModal);
+overlay.addEventListener("click",function(e){ if(e.target===overlay) closeModal(); });
+
+$("kxRows").addEventListener("dblclick",function(e){
+  var tr=e.target.closest("tr");
+  if(!tr||tr.dataset.idx==null) return;
+  openModal(FUNDS[Number(tr.dataset.idx)]);
+});
+$("kxRows").addEventListener("click",function(e){
+  var tr=e.target.closest("tr");
+  if(!tr||tr.dataset.idx==null) return;
+  Array.prototype.forEach.call(this.children,function(r){r.classList.remove("sel");});
+  tr.classList.add("sel");
+});
+$("kxRows").addEventListener("keydown",function(e){
+  var tr=e.target.closest("tr");
+  if(e.key==="Enter"&&tr&&tr.dataset.idx!=null) openModal(FUNDS[Number(tr.dataset.idx)]);
+});
+
+/* 탭 */
+var tabs=[$("kxTabBtn0"),$("kxTabBtn1"),$("kxTabBtn2")];
+var panes=[$("kxPane0"),$("kxPane1"),$("kxPane2")];
+function selectTab(i){
+  tabs.forEach(function(t,j){
+    t.classList.toggle("on",j===i);
+    t.setAttribute("aria-selected",j===i?"true":"false");
+    panes[j].classList.toggle("on",j===i);
+  });
+}
+tabs.forEach(function(t,i){ t.addEventListener("click",function(){selectTab(i);}); });
+
+/* 저장/임시저장 확인 */
+var confirmBox=$("kxConfirm"), confirmMode="save", confirmInvoker=null;
+function openConfirm(mode){
+  confirmMode=mode;
+  confirmInvoker=document.activeElement;
+  $("kxConfirmMsg").textContent=(mode==="save")?"저장하시겠습니까?":"작성 중인 내용을 임시저장하시겠습니까?";
+  confirmBox.classList.add("on");
+  $("kxConfirmOk").focus();
+}
+function closeConfirm(){
+  confirmBox.classList.remove("on");
+  /* 포커스를 호출 버튼(저장/임시저장)으로 복원 — body로 떨어지지 않게 */
+  if(confirmInvoker&&confirmInvoker.focus) confirmInvoker.focus();
+  confirmInvoker=null;
+}
+$("kxSave").addEventListener("click",function(){openConfirm("save");});
+$("kxTemp").addEventListener("click",function(){openConfirm("temp");});
+$("kxConfirmNo").addEventListener("click",closeConfirm);
+$("kxConfirmOk").addEventListener("click",function(){
+  closeConfirm();
+  toast(confirmMode==="save"?"저장되었습니다. (연습 화면 — 실제로는 아무것도 저장되지 않습니다)":"임시저장되었습니다. (연습 화면)");
+});
+
+/* 열린 다이얼로그 안에서 Tab 순환 (포커스 트랩) */
+document.addEventListener("keydown",function(e){
+  if(e.key!=="Tab") return;
+  var scope=confirmBox.classList.contains("on")?confirmBox
+           :overlay.classList.contains("on")?overlay:null;
+  if(!scope) return;
+  var f=Array.prototype.filter.call(
+    scope.querySelectorAll("button,select,[tabindex='0']"),
+    function(el){return el.offsetParent!==null;});
+  if(!f.length) return;
+  var first=f[0], last=f[f.length-1], cur=document.activeElement;
+  if(!scope.contains(cur)){e.preventDefault();first.focus();}
+  else if(e.shiftKey&&cur===first){e.preventDefault();last.focus();}
+  else if(!e.shiftKey&&cur===last){e.preventDefault();first.focus();}
+});
+
+/* 토스트 */
+var toastTimer=null;
+function toast(msg){
+  var t=$("kxToast");
+  t.textContent=msg; t.classList.add("on");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){t.classList.remove("on");},2600);
+}
+
+/* ---------- 핫스팟: 앵커 요소 기준 자동 배치 ---------- */
+var stage=document.querySelector(".kx-stage");
+var kxScroll=document.querySelector(".kx-scroll");
+var openPop=null, openBtn=null;
+function closePop(){
+  if(openPop){openPop.classList.remove("on");}
+  if(openBtn){openBtn.setAttribute("aria-expanded","false");}
+  openPop=null; openBtn=null;
+}
+function placeMarkers(){
+  var sr=stage.getBoundingClientRect();
+  var vr=kxScroll.getBoundingClientRect();
+  document.querySelectorAll(".hs").forEach(function(btn){
+    var t=document.querySelector(btn.dataset.anchor);
+    if(!t){btn.style.display="none";return;}
+    var r=t.getBoundingClientRect();
+    /* 가로 스크롤로 앵커가 보이지 않으면 마커도 숨김 */
+    if(r.left<vr.left-6||r.left>vr.right-6){btn.style.display="none";return;}
+    btn.style.display="flex";
+    btn.style.left=(r.left-sr.left-10)+"px";
+    btn.style.top=(r.top-sr.top-10)+"px";
+  });
+}
+window.addEventListener("resize",function(){closePop();placeMarkers();});
+kxScroll.addEventListener("scroll",function(){closePop();placeMarkers();},{passive:true});
+window.addEventListener("load",placeMarkers);
+setTimeout(placeMarkers,400); /* 웹폰트 적용 후 재배치 */
+placeMarkers();
+
+document.querySelectorAll(".hs").forEach(function(btn){
+  btn.addEventListener("click",function(e){
+    e.stopPropagation();
+    var pop=$(btn.dataset.pop);
+    if(openPop===pop){closePop();return;}
+    closePop();
+    stage.appendChild(pop);           /* 스테이지 좌표계로 이동 */
+    pop.classList.add("on");
+    var bt=btn.offsetTop, bl=btn.offsetLeft;
+    var stW=stage.clientWidth;
+    var left=Math.min(Math.max(bl-20,8), stW-pop.offsetWidth-8);
+    pop.style.left=left+"px";
+    pop.style.top=(bt+32)+"px";
+    btn.setAttribute("aria-expanded","true");
+    openPop=pop; openBtn=btn;
+  });
+});
+document.addEventListener("click",function(e){
+  if(openPop&&!openPop.contains(e.target)) closePop();
+});
+
+/* ---------- ESC 공통 ---------- */
+document.addEventListener("keydown",function(e){
+  if(e.key!=="Escape") return;
+  if(confirmBox.classList.contains("on")){closeConfirm();return;}
+  if(overlay.classList.contains("on")){closeModal();return;}
+  closePop();
+});
+
+/* ---------- 목차 스크롤 스파이 + 섹션 리빌 ---------- */
+var tocLinks=Array.prototype.slice.call(document.querySelectorAll(".toc nav a"));
+var targets=tocLinks.map(function(a){return document.querySelector(a.getAttribute("href"));});
+function spy(){
+  var pos=window.scrollY+130, cur=0;
+  targets.forEach(function(t,i){ if(t&&t.offsetTop<=pos) cur=i; });
+  tocLinks.forEach(function(a,i){ a.classList.toggle("active",i===cur); });
+}
+window.addEventListener("scroll",spy,{passive:true}); spy();
+
+if("IntersectionObserver" in window){
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){ if(en.isIntersecting){en.target.classList.add("on"); io.unobserve(en.target);} });
+  },{threshold:0.08});
+  document.querySelectorAll(".reveal").forEach(function(el){io.observe(el);});
+}else{
+  document.querySelectorAll(".reveal").forEach(function(el){el.classList.add("on");});
+}
+})();
+</script>
+</body>
+</html>
