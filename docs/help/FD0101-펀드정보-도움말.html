@@ -6,30 +6,37 @@
 <title>펀드정보 첫걸음</title>
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<script>/* 저장된 테마를 렌더 전에 적용 (깜빡임 방지) */
+try{var _t=localStorage.getItem('fd0101HelpTheme');if(_t==='dark'||_t==='light')document.documentElement.setAttribute('data-theme',_t);}catch(e){}</script>
 <style>
 /* ==========================================================================
    문서 크롬 토큰 (도움말 자체의 디자인)
    ========================================================================== */
 :root{
-  --ink:#131A26;            /* 제목 */
-  --body:#3D4759;           /* 본문 */
-  --muted:#6B7686;          /* 보조 텍스트 */
-  --paper:#F7F9FC;          /* 페이지 바탕(청색기 종이) */
+  /* 딥 블루 문서 크롬 + 인주(印朱) 빨강 마커 */
+  --ink:#0B111C;            /* 제목 */
+  --body:#242D3D;           /* 본문 */
+  --muted:#4E5A6E;          /* 보조 텍스트 */
+  --paper:#FFFFFF;          /* 페이지 바탕(화이트) */
   --card:#FFFFFF;           /* 카드 */
   --line:#E4E9F1;           /* 헤어라인 보더 */
   --line-strong:#CBD5E3;    /* 강조 보더 */
   --accent:#0F62C4;         /* 문서 액센트(딥 블루) */
   --accent-soft:#EAF2FD;
-  --shadow-sm:0 1px 2px rgba(19,26,38,.05),0 4px 14px rgba(19,26,38,.06);
+  --shadow-sm:none;
   --shadow-md:0 12px 36px rgba(19,26,38,.11);
-  --marker:#F0731A;         /* 핫스팟 마커(주황) */
-  --marker-soft:#FDEBDD;
+  --marker:#C5372C;         /* 핫스팟 마커(인주 빨강) */
+  --marker-soft:#FAE8E4;
   --warn:#B45309;           /* 주의 */
   --warn-soft:#FEF3E2;
-  --ok:#15803D;
-  --font-doc:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
-  --font-head:"IBM Plex Sans KR","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --code-bg:#EDF1F6;
+  --code-ink:#22405E;
+  --info-ink:#144E8C;       /* callout.info 텍스트 */
+  --hover-soft:#FAFCFE;
+  --chip:rgba(112,115,124,.06);
+  --font-doc:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --font-head:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
 
   /* ===== KiiPS 실측 토큰 (화면 모사 전용, 원본 SCSS에서 추출) ===== */
   --kx-font:"NexonLv2Gothic","Open Sans","Apple SD Gothic Neo","Malgun Gothic",Tahoma,Verdana,Arial,sans-serif;
@@ -45,17 +52,45 @@
   --kx-summary:#EEEEEE;
   --kx-placeholder:#BDBDBD;
 }
+/* ===== 다크 모드 (문서 크롬만 — kx 모사 화면은 실제 라이트 화면 재현이므로 불변) ===== */
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ink:#E8EDF5;--body:#C3CCD9;--muted:#8C97A7;
+    --paper:#0E131B;--card:#161D28;
+    --line:#26303E;--line-strong:#3A4756;
+    --accent:#6AA5EC;--accent-soft:#182A42;
+    --shadow-md:0 12px 36px rgba(0,0,0,.5);
+    --marker:#E1584B;--marker-soft:#3B211D;
+    --warn:#E5A15C;--warn-soft:#33260F;
+    --code-bg:#1D2735;--code-ink:#9FBEE2;
+    --info-ink:#9CC3F0;--hover-soft:#1B2431;
+    --chip:rgba(148,163,184,.12);
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#E8EDF5;--body:#C3CCD9;--muted:#8C97A7;
+  --paper:#0E131B;--card:#161D28;
+  --line:#26303E;--line-strong:#3A4756;
+  --accent:#6AA5EC;--accent-soft:#182A42;
+  --shadow-md:0 12px 36px rgba(0,0,0,.5);
+  --marker:#E1584B;--marker-soft:#3B211D;
+  --warn:#E5A15C;--warn-soft:#33260F;
+  --code-bg:#1D2735;--code-ink:#9FBEE2;
+  --info-ink:#9CC3F0;--hover-soft:#1B2431;
+  --chip:rgba(148,163,184,.12);
+}
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{
   font-family:var(--font-doc);
   font-size:15px;line-height:1.75;color:var(--body);
   background:var(--paper);
+  word-break:keep-all;overflow-wrap:break-word;
   -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
 }
-h1,h2,h3,h4{font-family:var(--font-head);color:var(--ink);line-height:1.35;text-wrap:balance;letter-spacing:-0.015em}
+h1,h2,h3,h4{font-family:var(--font-head);color:var(--ink);line-height:1.32;text-wrap:balance;letter-spacing:-0.02em;font-weight:700}
 a{color:var(--accent)}
-code{font-family:ui-monospace,Menlo,monospace;font-size:0.88em;background:#EDF1F6;border-radius:4px;padding:1px 6px;color:#22405E}
+code{font-family:ui-monospace,Menlo,monospace;font-size:0.88em;background:var(--code-bg);border-radius:4px;padding:1px 6px;color:var(--code-ink)}
 strong{color:var(--ink)}
 
 /* ---------- 레이아웃: 좌측 목차 + 본문 ---------- */
@@ -69,7 +104,7 @@ strong{color:var(--ink)}
 .toc .brand small{display:block;font-weight:600;font-size:11px;color:var(--muted);letter-spacing:.09em;margin-top:3px}
 .toc nav{margin-top:24px;padding-top:18px;border-top:1px solid var(--line)}
 .toc a{
-  display:block;padding:7px 11px;border-radius:8px;font-size:13.5px;
+  position:relative;display:flex;align-items:center;gap:9px;padding:7px 11px;border-radius:8px;font-size:13.5px;
   color:var(--muted);text-decoration:none;transition:background .15s,color .15s;
 }
 .toc a.sub{padding-left:24px;font-size:12.8px}
@@ -79,35 +114,38 @@ strong{color:var(--ink)}
 .inner{max-width:980px;margin:0 auto}
 
 /* ---------- 히어로 ---------- */
-.hero{padding:68px 0 8px}
+.hero{padding:68px 0 8px;position:relative}
 .hero .eyebrow{
   display:inline-flex;align-items:center;gap:12px;font-size:12px;font-weight:700;
-  letter-spacing:.15em;color:var(--accent);margin-bottom:22px;
+  letter-spacing:.15em;color:var(--muted);margin-bottom:22px;
 }
-.hero .eyebrow::before{content:"";width:28px;height:2px;background:var(--accent);border-radius:2px}
-.hero h1{font-size:clamp(30px,3.8vw,44px);font-weight:700;letter-spacing:-0.025em}
-.hero .lead{font-size:16.5px;color:var(--muted);margin-top:16px}
+.hero h1{font-size:clamp(34px,4.4vw,54px);font-weight:800;letter-spacing:-0.035em}
+.hero .lead{font-size:17.5px;line-height:1.8;color:var(--muted);margin-top:18px}
 .hero .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
 .hero .meta span{
-  font-size:12.5px;color:var(--muted);background:var(--card);
-  border:1px solid var(--line);border-radius:99px;padding:5px 14px;box-shadow:var(--shadow-sm);
+  font-size:12.5px;color:var(--muted);background:var(--chip);
+  border-radius:99px;padding:5px 14px;
 }
 .hero .meta b{color:var(--ink);font-weight:600}
 .notice{
   display:flex;gap:10px;align-items:flex-start;margin-top:26px;
-  background:var(--warn-soft);border:1px solid #F5D9AE;border-radius:10px;
+  background:var(--warn-soft);border-radius:10px;
   padding:12px 16px;font-size:13.5px;color:var(--warn);
 }
+/* 안내 영상 미리보기 */
+.video-preview{margin-top:26px}
+.video-preview video{display:block;width:min(645px,100%);border-radius:12px;border:1px solid var(--line);box-shadow:var(--shadow-md);background:#0B1220}
+.video-preview .vp-cap{font-size:12.8px;color:var(--muted);margin-top:8px}
 
 /* ---------- 섹션 공통 ---------- */
-section.block{padding-top:72px}
+section.block{padding-top:56px;margin-top:56px}
 .sec-label{
-  display:flex;align-items:center;gap:16px;
-  font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--accent);margin-bottom:12px;
+  display:flex;align-items:center;gap:8px;
+  font-size:12.5px;font-weight:700;letter-spacing:.05em;color:var(--accent);margin-bottom:12px;
 }
-.sec-label::after{content:"";flex:1;height:1px;background:var(--line)}
-section.block>h2{font-size:27px;font-weight:700;letter-spacing:-0.02em;margin-bottom:24px}
-section.block h3{font-size:18.5px;margin:40px 0 12px}
+section.block{border-top:1px solid var(--line)}
+section.block>h2{font-size:31px;font-weight:800;letter-spacing:-0.028em;margin-bottom:26px}
+section.block h3{font-size:19.5px;font-weight:700;margin:44px 0 12px}
 section.block h4{font-size:15.5px;margin:24px 0 8px}
 .reveal{opacity:0;transform:translateY(16px);transition:opacity .6s cubic-bezier(.22,.61,.36,1),transform .6s cubic-bezier(.22,.61,.36,1)}
 .reveal.on{opacity:1;transform:none}
@@ -117,7 +155,6 @@ section.block h4{font-size:15.5px;margin:24px 0 8px}
 table.doc{
   width:100%;border-collapse:separate;border-spacing:0;font-size:13.5px;margin:16px 0;
   background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;
-  box-shadow:var(--shadow-sm);
 }
 table.doc th{
   background:none;color:var(--muted);font-weight:700;font-size:12px;letter-spacing:.05em;
@@ -125,20 +162,18 @@ table.doc th{
 }
 table.doc td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
 table.doc tbody tr:last-child td{border-bottom:none}
-table.doc tbody tr{transition:background .12s}
-table.doc tbody tr:hover{background:#FAFCFE}
 table.doc td:first-child{white-space:nowrap;color:var(--ink);font-weight:500}
 .table-wrap{overflow-x:auto}
 .callout{display:flex;gap:11px;border-radius:12px;padding:14px 18px;margin:16px 0;font-size:13.8px;align-items:flex-start}
 .callout .ic{flex:0 0 auto;font-weight:700}
-.callout.info{background:var(--accent-soft);border:1px solid #C8DEF7;color:#144E8C}
-.callout.warn{background:var(--warn-soft);border:1px solid #F5D9AE;color:var(--warn)}
+.callout.info{background:var(--accent-soft);color:var(--info-ink)}
+.callout.warn{background:var(--warn-soft);color:var(--warn)}
 .step-list{counter-reset:step;list-style:none;margin:14px 0}
 .step-list>li{position:relative;padding:0 0 20px 46px}
 .step-list>li::before{
   counter-increment:step;content:counter(step);
   position:absolute;left:0;top:1px;width:28px;height:28px;border-radius:50%;
-  background:var(--card);color:var(--accent);border:1.5px solid var(--accent);
+  background:var(--accent-soft);color:var(--accent);
   font-weight:700;font-size:13px;
   display:flex;align-items:center;justify-content:center;font-family:var(--font-head);
 }
@@ -146,15 +181,15 @@ table.doc td:first-child{white-space:nowrap;color:var(--ink);font-weight:500}
   content:"";position:absolute;left:13.5px;top:32px;bottom:2px;width:1px;background:var(--line);
 }
 .step-list b{color:var(--ink)}
-.kbd{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:#fff;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 7px;color:var(--ink)}
-details.acc{border:1px solid var(--line);border-radius:12px;background:var(--card);margin:10px 0;overflow:hidden;box-shadow:var(--shadow-sm)}
+.kbd{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:var(--card);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 7px;color:var(--ink)}
+details.acc{border:1px solid var(--line);border-radius:12px;background:var(--card);margin:10px 0;overflow:hidden}
 details.acc summary{
   cursor:pointer;list-style:none;padding:14px 18px;font-weight:600;color:var(--ink);
   display:flex;align-items:center;gap:10px;font-size:14.5px;transition:background .15s;
 }
-details.acc summary:hover{background:#FAFCFE}
+details.acc summary:hover{background:var(--hover-soft)}
 details.acc summary::-webkit-details-marker{display:none}
-details.acc summary::before{content:"▸";color:var(--accent);transition:transform .2s}
+details.acc summary::before{content:"";flex:0 0 auto;width:16px;height:16px;background:var(--accent);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27black%27 stroke-width=%272.5%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27m9 18 6-6-6-6%27/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27black%27 stroke-width=%272.5%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27m9 18 6-6-6-6%27/%3E%3C/svg%3E") center/contain no-repeat;transition:transform .2s}
 details.acc[open] summary::before{transform:rotate(90deg)}
 details.acc .acc-body{padding:2px 18px 16px 40px;font-size:13.8px}
 details.acc .acc-body p{margin:6px 0}
@@ -258,18 +293,18 @@ details.acc .acc-body p{margin:6px 0}
   position:absolute;z-index:5;width:24px;height:24px;border-radius:50%;
   background:var(--marker);color:#fff;border:2px solid #fff;
   font:700 12px/1 var(--font-head);display:flex;align-items:center;justify-content:center;
-  cursor:pointer;box-shadow:0 2px 8px rgba(240,115,26,.45);
+  cursor:pointer;box-shadow:0 2px 8px rgba(197,55,44,.45);
 }
 .hs::after{
   content:"";position:absolute;inset:-7px;border-radius:50%;
-  border:2px solid rgba(240,115,26,.55);animation:pulse 2.2s ease-out infinite;
+  border:2px solid rgba(197,55,44,.55);animation:pulse 2.2s ease-out infinite;
 }
-.hs:hover,.hs[aria-expanded="true"]{background:#D95F0E}
+.hs:hover,.hs[aria-expanded="true"]{background:#A62A20}
 .hs:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 @keyframes pulse{0%{transform:scale(.6);opacity:.9}70%{transform:scale(1.25);opacity:0}100%{opacity:0}}
 .popover{
   position:absolute;z-index:50;width:min(320px,84vw);
-  background:#fff;border:1px solid var(--line);border-radius:12px;
+  background:var(--card);border:1px solid var(--line);border-radius:12px;
   box-shadow:0 4px 12px rgba(19,26,38,.08),0 16px 44px rgba(19,26,38,.16);padding:15px 17px;
   font-size:13.3px;line-height:1.6;display:none;
 }
@@ -282,7 +317,7 @@ details.acc .acc-body p{margin:6px 0}
 .popover p{margin:4px 0;color:var(--body)}
 .popover .tip{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);color:var(--muted);font-size:12.5px}
 .hs-legend{display:flex;align-items:center;gap:8px;font-size:12.8px;color:var(--muted);margin:10px 2px 0}
-.hs-legend .dot{width:16px;height:16px;border-radius:50%;background:var(--marker);border:2px solid #fff;box-shadow:0 1px 4px rgba(240,115,26,.5)}
+.hs-legend .dot{width:16px;height:16px;border-radius:50%;background:var(--marker);border:2px solid #fff;box-shadow:0 1px 4px rgba(197,55,44,.5)}
 
 /* ---------- 모사 모달 ---------- */
 .kx-overlay{
@@ -326,8 +361,7 @@ details.acc .acc-body p{margin:6px 0}
 .kx-modal-body{padding:16px 20px;overflow-y:auto}
 .kx-pane{display:none}
 .kx-pane.on{display:block}
-.kx-fieldset{border:1px solid var(--kx-border);border-radius:8px;padding:12px 14px 6px;margin-bottom:12px;transition:border-color .15s}
-.kx-fieldset:hover{border-color:#CBD5DE}
+.kx-fieldset{border:1px solid var(--kx-border);border-radius:8px;padding:12px 14px 6px;margin-bottom:12px}
 .kx-fieldset legend{font-size:12px;font-weight:600;color:var(--kx-primary-dark);padding:0 6px;letter-spacing:.02em}
 .kx-frow{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:8px}
 .kx-f{display:flex;align-items:center;gap:8px;font-size:12.5px}
@@ -370,9 +404,7 @@ details.acc .acc-body p{margin:6px 0}
 .schema .box{
   border:1px solid var(--line);border-radius:12px;background:var(--card);
   padding:13px 20px;display:flex;align-items:baseline;gap:12px;
-  box-shadow:var(--shadow-sm);transition:transform .18s ease,box-shadow .18s ease;
 }
-.schema .box:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
 .schema .box b{font-family:var(--font-head);color:var(--ink);font-size:14.5px;white-space:nowrap}
 .schema .box span{font-size:13px;color:var(--muted)}
 .schema .box.hl{border-color:var(--accent);background:var(--accent-soft)}
@@ -382,6 +414,19 @@ footer.foot{margin-top:80px;padding-top:20px;border-top:1px solid var(--line);fo
 
 @media (max-width:900px){
   .toc{display:none}
+  .hero{padding:46px 0 8px}
+  #toTop{right:16px;bottom:16px;width:40px;height:40px}
+  #themeToggle{top:10px;right:16px;width:34px;height:34px}
+}
+@media (max-width:560px){
+  body{font-size:14.5px}
+  section.block{padding-top:40px;margin-top:40px}
+  section.block>h2{font-size:25px}
+  section.block h3{font-size:17.5px;margin:32px 0 10px}
+  .hero .lead{font-size:16px}
+  .card-doc{padding:16px 16px}
+  .callout{padding:12px 14px}
+  .step-list>li{padding-left:40px}
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
@@ -389,6 +434,58 @@ footer.foot{margin-top:80px;padding-top:20px;border-top:1px solid var(--line);fo
   .reveal{opacity:1;transform:none;transition:none}
   .kx-modal,.kx-confirm .box{animation:none}
 }
+
+/* ===== redesign layer ===== */
+.hero .eyebrow{font-size:12.5px;letter-spacing:.08em}
+section.block{position:relative}
+section.block::before{content:none}
+section.block>*{position:relative;z-index:1}
+.toc .brand svg{vertical-align:-4px;margin-right:7px;color:var(--accent)}
+.toc a svg{flex:0 0 auto;opacity:.75}
+.sec-label svg{flex:0 0 auto}
+.callout .ic{display:flex;margin-top:2.5px}
+.callout .ic svg{width:17px;height:17px}
+.notice>span:first-child{display:flex;margin-top:2.5px}
+.notice svg{width:16px;height:16px}
+.kx-btn svg{width:14px;height:14px}
+#pgBar{position:fixed;top:0;left:0;height:3px;width:0;z-index:400;background:linear-gradient(90deg,var(--accent),#3B8AEA);border-radius:0 3px 3px 0}
+#toTop{position:fixed;right:26px;bottom:26px;z-index:300;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--accent);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow-md);opacity:0;pointer-events:none;transform:translateY(10px);transition:opacity .25s,transform .25s,background .15s}
+#toTop.on{opacity:1;pointer-events:auto;transform:none}
+#toTop:hover{background:var(--accent-soft)}
+#toTop:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#themeToggle{position:fixed;top:14px;right:26px;z-index:300;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow-md);transition:background .15s,color .15s}
+#themeToggle:hover{background:var(--accent-soft);color:var(--accent)}
+#themeToggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width:760px){section.block::before{display:none}}
+@media (prefers-reduced-motion:reduce){#toTop{transition:none}}
+.scr-link{display:inline-flex;align-items:center;gap:5px;color:var(--accent);text-decoration:none;font-weight:500;border-radius:4px}
+.scr-link:hover{text-decoration:underline}
+.scr-link:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.scr-link svg{width:13px;height:13px;opacity:.7;flex:0 0 auto}
+/* ---------- 순차 안내 투어 (Driver.js 스타일) ---------- */
+.tour-cta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:16px 0 2px}
+.tour-start{display:inline-flex;align-items:center;gap:7px;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:background .15s}
+.tour-start:hover{background:#0B4FA0}
+.tour-start svg{width:15px;height:15px}
+.tour-cta .hint{font-size:12.8px;color:var(--muted)}
+.kx-stage.touring{z-index:60}
+.kx-stage.touring .hs{opacity:0;pointer-events:none;transition:opacity .25s}
+#tourSpot{position:absolute;z-index:60;border-radius:8px;pointer-events:none;display:none;
+  box-shadow:0 0 0 3px rgba(255,255,255,.95),0 0 0 9999px rgba(19,26,38,.55);
+  transition:left .38s cubic-bezier(.2,0,.2,1),top .38s cubic-bezier(.2,0,.2,1),width .38s cubic-bezier(.2,0,.2,1),height .38s cubic-bezier(.2,0,.2,1)}
+#tourPop{z-index:61;box-shadow:0 16px 48px rgba(0,0,0,.2);padding-top:16px;
+  transition:left .38s cubic-bezier(.2,0,.2,1),top .38s cubic-bezier(.2,0,.2,1)}
+#tourPop .tour-x{position:absolute;top:8px;right:8px;width:24px;height:24px;border:none;background:none;color:var(--muted);cursor:pointer;border-radius:6px;display:flex;align-items:center;justify-content:center;padding:0}
+#tourPop .tour-x:hover{background:rgba(112,115,124,.08)}
+.tour-foot{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.tour-foot .cnt{font-size:12px;color:var(--muted);font-weight:600;margin-right:auto;font-variant-numeric:tabular-nums}
+.tour-btn{border:1px solid var(--line-strong);background:var(--card);color:var(--body);border-radius:8px;padding:6px 13px;font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;transition:background .15s}
+.tour-btn:hover{background:rgba(112,115,124,.08)}
+.tour-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.tour-btn.primary:hover{background:#0B4FA0}
+.tour-btn:disabled{opacity:.4;cursor:default}
+.tour-btn:disabled:hover{background:var(--card)}
+@media (prefers-reduced-motion:reduce){#tourSpot,#tourPop{transition:none}}
 </style>
 </head>
 <body>
@@ -396,7 +493,7 @@ footer.foot{margin-top:80px;padding-top:20px;border-top:1px solid var(--line);fo
 
 <!-- ===================== 좌측 목차 ===================== -->
 <aside class="toc" aria-label="목차">
-  <div class="brand">펀드정보 첫걸음<small>KiiPS · FD0101 도움말</small></div>
+  <div class="brand"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M8 8v8"/><path d="M8 12l6-4"/><path d="M10.5 10.3 15 16"/></svg>펀드정보 첫걸음<small>KiiPS · FD0101 도움말</small></div>
   <nav>
     <a href="#intro">1. 이 화면은 무엇인가요</a>
     <a href="#explorer">2. 화면 직접 만져보기</a>
@@ -428,15 +525,15 @@ footer.foot{margin-top:80px;padding-top:20px;border-top:1px solid var(--line);fo
     <span>화면 코드 <b>FD0101</b></span>
     <span>진입 경로 <b>좌측 메뉴 › 펀드정보</b></span>
   </div>
-  <div class="notice">
-    <span aria-hidden="true">ⓘ</span>
-    <span>이 페이지의 펀드명·금액·날짜는 모두 <strong>설명을 위한 가상 예시</strong>입니다. 실제 운용 데이터가 아닙니다.</span>
+  <div class="video-preview">
+    <video src="FD0101-guide.mp4" controls preload="metadata" playsinline aria-label="펀드정보 화면 안내 영상"></video>
+    <p class="vp-cap">▶ 안내 영상 (2분 39초) — 화면 구성부터 저장까지 음성으로 안내합니다.</p>
   </div>
 </header>
 
 <!-- ======================= 1. 소개 ======================= -->
-<section class="block reveal" id="intro">
-  <div class="sec-label">SECTION 1</div>
+<section class="block reveal" id="intro" data-num="01">
+  <div class="sec-label">제1장</div>
   <h2>이 화면은 무엇인가요</h2>
   <p>
     펀드정보 화면은 우리 회사가 운용하는 <strong>펀드(조합)의 대장(臺帳)</strong>입니다.
@@ -460,18 +557,22 @@ footer.foot{margin-top:80px;padding-top:20px;border-top:1px solid var(--line);fo
 </section>
 
 <!-- ======================= 2. 화면 탐색기 ======================= -->
-<section class="block reveal" id="explorer">
-  <div class="sec-label">SECTION 2</div>
+<section class="block reveal" id="explorer" data-num="02">
+  <div class="sec-label">제2장</div>
   <h2>화면 직접 만져보기</h2>
   <p>
     아래는 실제 펀드정보 화면을 본떠 만든 <strong>연습 화면</strong>입니다. 마음껏 눌러도 아무 데이터도 바뀌지 않습니다.
-    주황색 번호 <span class="hs-legend" style="display:inline-flex;margin:0"><span class="dot"></span></span> 를 누르면 각 부분의 설명이 나타나고,
+    붉은색 번호 <span class="hs-legend" style="display:inline-flex;margin:0"><span class="dot"></span></span> 를 누르면 각 부분의 설명이 나타나고,
     <strong>조회 버튼 → 목록 행 더블클릭 → 상세 모달의 탭</strong> 순서로 실제 흐름을 그대로 체험할 수 있습니다.
   </p>
   <div class="callout info">
     <span class="ic">▶</span>
     <span>추천 순서: <strong>⑥ 조회</strong>를 눌러 목록을 채우고 → <strong>단위선택</strong>을 바꿔 금액 표시를 살펴본 뒤 →
     아무 행이나 <strong>더블클릭</strong>(키보드는 행 선택 후 <span class="kbd">Enter</span>)해서 상세 모달을 열어보세요.</span>
+  </div>
+  <div class="tour-cta">
+    <button type="button" id="tourStart" class="tour-start">순서대로 둘러보기</button>
+    <span class="hint">①→⑩ 순서로 각 부분을 하이라이트하며 안내합니다. 방향키 ← →로도 이동할 수 있어요.</span>
   </div>
 
   <div class="kx-stage">
@@ -499,9 +600,9 @@ footer.foot{margin-top:80px;padding-top:20px;border-top:1px solid var(--line);fo
             <option value="1000000">백만원</option>
             <option value="100000000">억원</option>
           </select>
-          <button type="button" class="kx-btn outline" id="kxSearch">⟳ 조회</button>
-          <button type="button" class="kx-btn plain" id="kxExcel">엑셀</button>
-          <button type="button" class="kx-btn plain">? 도움말</button>
+          <button type="button" class="kx-btn outline" id="kxSearch"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> 조회</button>
+          <button type="button" class="kx-btn plain" id="kxExcel"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg> 엑셀</button>
+          <button type="button" class="kx-btn plain"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg> 도움말</button>
         </div>
         <!-- 그리드 -->
         <div class="kx-spin" id="kxSpin"><i></i>조회 중입니다…</div>
@@ -590,8 +691,8 @@ footer.foot{margin-top:80px;padding-top:20px;border-top:1px solid var(--line);fo
 </section>
 
 <!-- ======================= 3. 업무 따라하기 ======================= -->
-<section class="block reveal" id="howto">
-  <div class="sec-label">SECTION 3</div>
+<section class="block reveal" id="howto" data-num="03">
+  <div class="sec-label">제3장</div>
   <h2>업무 따라하기</h2>
   <p>실제 업무에서 자주 하게 될 다섯 가지 작업을 순서대로 안내합니다.</p>
 
@@ -720,8 +821,8 @@ footer.foot{margin-top:80px;padding-top:20px;border-top:1px solid var(--line);fo
 </section>
 
 <!-- ======================= 4. 관련 화면 · 데이터 흐름 ======================= -->
-<section class="block reveal" id="related">
-  <div class="sec-label">SECTION 4</div>
+<section class="block reveal" id="related" data-num="04">
+  <div class="sec-label">제4장</div>
   <h2>관련 화면 · 데이터 흐름</h2>
   <div class="callout warn">
     <span class="ic">★</span>
@@ -754,7 +855,7 @@ footer.foot{margin-top:80px;padding-top:20px;border-top:1px solid var(--line);fo
     로고스시스템에 세팅을 요청하면 펀드가 생성되어 이 화면에 나타납니다.
     투자목적회사(SPC)·사내근로복지기금·회계관리목적회사는 무상 지원 대상이니 필요 시 함께 요청하세요.
     타 운용사가 운용하는 펀드에 우리 고유계정·펀드가 출자하는 경우는 여기가 아니라
-    사후관리 › 기업기본정보 › 투자기업 개요에 투자기업(법인유형 '펀드')으로 등록합니다.</span>
+    <a href="#" class="scr-link">사후관리 › 기업기본정보 › 투자기업 개요</a>에 투자기업(법인유형 '펀드')으로 등록합니다.</span>
   </div>
 
   <h3>회기 생성 전 반드시 확인</h3>
@@ -766,8 +867,8 @@ footer.foot{margin-top:80px;padding-top:20px;border-top:1px solid var(--line);fo
 </section>
 
 <!-- ======================= 5. 주의사항 · FAQ ======================= -->
-<section class="block reveal" id="faq">
-  <div class="sec-label">SECTION 5</div>
+<section class="block reveal" id="faq" data-num="05">
+  <div class="sec-label">제5장</div>
   <h2>주의사항 · 자주 묻는 질문</h2>
 
   <h3>이런 메시지를 만나면</h3>
@@ -819,7 +920,7 @@ footer.foot{margin-top:80px;padding-top:20px;border-top:1px solid var(--line);fo
   </details>
   <details class="acc">
     <summary>대표펀드매니저를 목록에서 선택할 수 없어요.</summary>
-    <div class="acc-body"><p>대표펀드매니저 선택 목록은 <strong>펀드관리 › 기본정보 › 운용인력정보</strong>에 등록된 인력에서 가져옵니다. 대상 인력을 그 화면에 먼저 등록한 뒤 다시 시도하세요. 운용인력정보에서 이력이 바뀌면 이 화면의 값도 함께 동기화됩니다.</p></div>
+    <div class="acc-body"><p>대표펀드매니저 선택 목록은 <a href="#" class="scr-link"><strong>펀드관리 › 기본정보 › 운용인력정보</strong></a>에 등록된 인력에서 가져옵니다. 대상 인력을 그 화면에 먼저 등록한 뒤 다시 시도하세요. 운용인력정보에서 이력이 바뀌면 이 화면의 값도 함께 동기화됩니다.</p></div>
   </details>
 
   <footer class="foot">
@@ -1166,6 +1267,136 @@ document.addEventListener("keydown",function(e){
   if(confirmBox.classList.contains("on")){closeConfirm();return;}
   if(overlay.classList.contains("on")){closeModal();return;}
   closePop();
+});
+
+/* ---------- redesign: 아이콘 주입 · 진행바 · 탑버튼 ---------- */
+var IC={
+ intro:'<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
+ explorer:'<path d="M14 4.1 12 6"/><path d="m5.1 8-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z"/>',
+ howto:'<path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/>',
+ related:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/>',
+ faq:'<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>'};
+function icsvg(p,s){return '<svg width="'+s+'" height="'+s+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>';}
+document.querySelectorAll('.toc nav a:not(.sub)').forEach(function(a){
+  var k=(a.getAttribute('href')||'').slice(1);
+  if(IC[k]) a.insertAdjacentHTML('afterbegin',icsvg(IC[k],15));
+});
+document.querySelectorAll('section.block').forEach(function(s){
+  var l=s.querySelector('.sec-label');
+  if(l&&IC[s.id]) l.insertAdjacentHTML('afterbegin',icsvg(IC[s.id],15));
+});
+var CMAP={'✓':'<path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/>','▶':'<polygon points="6 3 20 12 6 21 6 3"/>','★':'<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>','!':'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>','ⓘ':'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>'};
+document.querySelectorAll('.callout .ic, .notice>span[aria-hidden]').forEach(function(el){
+  var g=el.textContent.trim();
+  if(CMAP[g]) el.innerHTML=icsvg(CMAP[g],17);
+});
+document.querySelectorAll('#related table.doc td:first-child').forEach(function(td){
+  var parts=td.innerHTML.split(/<br\s*\/?>/i);
+  td.innerHTML=parts.map(function(p){
+    p=p.trim(); if(!p) return '';
+    return '<a href="#" class="scr-link">'+p+icsvg('<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',13)+'</a>';
+  }).join('<br>');
+});
+document.querySelectorAll('.scr-link').forEach(function(a){
+  if(!a.querySelector('svg')) a.insertAdjacentHTML('beforeend',icsvg('<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',13));
+});
+document.addEventListener('click',function(e){
+  var a=e.target.closest('.scr-link'); if(!a) return;
+  e.preventDefault();
+  toast('실제 KiiPS에서는 「'+a.textContent.trim()+'」 화면으로 이동합니다.');
+});
+var pgb=document.createElement('div');pgb.id='pgBar';document.body.appendChild(pgb);
+var tt=document.createElement('button');tt.id='toTop';tt.type='button';tt.setAttribute('aria-label','맨 위로');
+tt.innerHTML=icsvg('<path d="m18 15-6-6-6 6"/>',20);document.body.appendChild(tt);
+tt.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});
+
+/* ---------- 다크 모드 토글 ---------- */
+var SUN='<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>';
+var MOON='<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>';
+var THEME_KEY='fd0101HelpTheme';
+var themeMq=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
+function themeNow(){
+  var a=document.documentElement.getAttribute('data-theme');
+  if(a==='dark'||a==='light') return a;
+  return (themeMq&&themeMq.matches)?'dark':'light';
+}
+var tg=document.createElement('button');tg.id='themeToggle';tg.type='button';
+document.body.appendChild(tg);
+function themePaint(){
+  var d=themeNow()==='dark';
+  tg.innerHTML=icsvg(d?SUN:MOON,17);
+  tg.setAttribute('aria-label',d?'라이트 모드로 전환':'다크 모드로 전환');
+}
+tg.addEventListener('click',function(){
+  var next=themeNow()==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  try{localStorage.setItem(THEME_KEY,next);}catch(e){}
+  themePaint();
+});
+if(themeMq){
+  var mqHandler=function(){themePaint();};
+  if(themeMq.addEventListener) themeMq.addEventListener('change',mqHandler);
+  else if(themeMq.addListener) themeMq.addListener(mqHandler);
+}
+themePaint();
+function pgChrome(){var d=document.documentElement;var max=d.scrollHeight-d.clientHeight;
+  pgb.style.width=(max?(d.scrollTop/max*100):0)+'%';tt.classList.toggle('on',d.scrollTop>600);}
+window.addEventListener('scroll',pgChrome,{passive:true});pgChrome();
+
+/* ---------- Driver.js 스타일 순차 투어 ---------- */
+var tourSpot=document.createElement('div');tourSpot.id='tourSpot';stage.appendChild(tourSpot);
+var tourPop=document.createElement('div');tourPop.id='tourPop';tourPop.className='popover';
+tourPop.innerHTML='<button type="button" class="tour-x" aria-label="안내 종료">'+icsvg('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',14)+'</button>'+
+ '<div class="tour-body"></div>'+
+ '<div class="tour-foot"><span class="cnt"></span><button type="button" class="tour-btn" id="tourPrev">이전</button><button type="button" class="tour-btn primary" id="tourNext">다음</button></div>';
+stage.appendChild(tourPop);
+$('tourStart').insertAdjacentHTML('afterbegin',icsvg('<polygon points="6 3 20 12 6 21 6 3"/>',15));
+var tourSteps=Array.prototype.slice.call(document.querySelectorAll('.kx-stage .hs')).sort(function(a,b){return (+a.textContent)-(+b.textContent);});
+var tourIdx=-1, touring=false;
+function tourPlace(){
+  if(!touring) return;
+  var btn=tourSteps[tourIdx], t=document.querySelector(btn.dataset.anchor);
+  if(!t) return;
+  var r=t.getBoundingClientRect(), vr=kxScroll.getBoundingClientRect();
+  if(r.left<vr.left+8||r.right>vr.right-8){kxScroll.scrollLeft+=r.left-vr.left-24;r=t.getBoundingClientRect();}
+  var sr=stage.getBoundingClientRect(), pad=6;
+  var L=r.left-sr.left-pad, T=r.top-sr.top-pad, W=r.width+pad*2, H=r.height+pad*2;
+  tourSpot.style.left=L+'px';tourSpot.style.top=T+'px';tourSpot.style.width=W+'px';tourSpot.style.height=H+'px';
+  var pl=Math.min(Math.max(L,8),stage.clientWidth-tourPop.offsetWidth-8);
+  tourPop.style.left=Math.max(pl,8)+'px';
+  tourPop.style.top=(T+H+14)+'px';
+}
+function tourShow(i){
+  tourIdx=i;
+  var btn=tourSteps[i];
+  tourPop.querySelector('.tour-body').innerHTML=$(btn.dataset.pop).innerHTML;
+  tourPop.querySelector('.cnt').textContent=(i+1)+' / '+tourSteps.length;
+  $('tourPrev').disabled=(i===0);
+  $('tourNext').textContent=(i===tourSteps.length-1)?'완료':'다음';
+  tourSpot.style.display='block';tourPop.classList.add('on');
+  tourPlace();
+  var r=tourSpot.getBoundingClientRect();
+  if(r.top<120||r.bottom+230>window.innerHeight)
+    window.scrollTo({top:window.scrollY+r.top-150,behavior:'smooth'});
+}
+function tourNextStep(){ if(tourIdx>=tourSteps.length-1){tourEnd();}else{tourShow(tourIdx+1);} }
+function tourEnd(){
+  touring=false;stage.classList.remove('touring');
+  tourSpot.style.display='none';tourPop.classList.remove('on');tourIdx=-1;
+}
+$('tourStart').addEventListener('click',function(){
+  closePop();touring=true;stage.classList.add('touring');tourShow(0);
+});
+$('tourNext').addEventListener('click',tourNextStep);
+$('tourPrev').addEventListener('click',function(){ if(tourIdx>0)tourShow(tourIdx-1); });
+tourPop.querySelector('.tour-x').addEventListener('click',tourEnd);
+window.addEventListener('resize',tourPlace);
+kxScroll.addEventListener('scroll',tourPlace,{passive:true});
+document.addEventListener('keydown',function(e){
+  if(!touring) return;
+  if(e.key==='ArrowRight'){e.preventDefault();tourNextStep();}
+  else if(e.key==='ArrowLeft'){e.preventDefault();if(tourIdx>0)tourShow(tourIdx-1);}
+  else if(e.key==='Escape'){tourEnd();}
 });
 
 /* ---------- 목차 스크롤 스파이 + 섹션 리빌 ---------- */
