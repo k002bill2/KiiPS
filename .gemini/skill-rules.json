@@ -57,7 +57,8 @@
       "kiips-darktheme-applier",
       "kiips-startup",
       "kiips-test-runner",
-      "verification-loop"
+      "verification-loop",
+      "kiips-screen-help-video"
     ]
   }
 }

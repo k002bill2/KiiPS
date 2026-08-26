@@ -1236,6 +1236,47 @@
       "kiips-search-filter-guide"
     ]
   },
+  "kiips-screen-help-video": {
+    "type": "domain",
+    "enforcement": "require",
+    "priority": "high",
+    "description": "KiiPS 화면코드 1개(FD0101 등)를 받아 인터랙티브 도움말 HTML(docs/help/)과 성우 내레이션 안내영상(MP4)을 제작·임베드하는 2단계 파이프라인. NOT for: 일반 페이지 생성(use kiips-page-harness), 일반 영상 편집",
+    "promptTriggers": {
+      "keywords": [
+        "화면 도움말",
+        "도움말 페이지",
+        "도움말 만들어",
+        "화면 소개 영상",
+        "안내 영상",
+        "튜토리얼 영상",
+        "화면 가이드 영상",
+        "내레이션 영상",
+        "help video",
+        "사용법 안내",
+        "가이드 투어"
+      ],
+      "intentPatterns": [
+        "(FD|PG|MI|IL)\\d{4}.*?(도움말|안내|가이드|튜토리얼|영상)",
+        "(도움말|help).*?(페이지|화면|만들|생성)",
+        "(안내|가이드|튜토리얼).*?(영상|비디오|video|mp4)"
+      ]
+    },
+    "fileTriggers": {
+      "pathPatterns": [
+        "docs/help/**/*.html"
+      ],
+      "contentPatterns": [
+        "kx-stage",
+        "placeMarkers",
+        "video-preview"
+      ]
+    },
+    "relatedSkills": [
+      "kiips-search-filter-guide",
+      "kiips-button-guide",
+      "kiips-a11y-guide"
+    ]
+  },
   "agent-browser": {
     "type": "tool",
     "enforcement": "suggest",
