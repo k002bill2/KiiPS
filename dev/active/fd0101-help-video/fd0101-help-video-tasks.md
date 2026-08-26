@@ -20,7 +20,12 @@
 - [x] B 결정 반영 + 유령 디렉토리(`docs/help/.claude/` observe.js 오생성) 정리
 - [x] `git status` 전수 확인 (커밋 후 클린 0건)
 - [x] 커밋 3건: `1745b3e` docs(help) / `6a6a58f` feat(harness) / `801b02c` chore(dev-docs)
-- [ ] PR 생성 여부 확인 (`docs/fd0101-help-page` → main) ← **마지막 남은 결정**
+- [x] PR 생성 — https://github.com/k002bill2/KiiPS/pull/28 (2026-08-26)
+
+## 완료 처리
+
+B·C 전체 체크 완료 = **개발완료 조건 충족**. PR #28 머지 확인 후
+`dev/active/fd0101-help-video/` → `dev/completed/`로 이동할 것.
 
 ## D. 선택 (사용자 지시 시에만)
 
