@@ -95,7 +95,9 @@ opencode.json
 .claude/learning/observer-health.json
 .claude/learning/archive/
 # observe.js 훅 cwd 부작용으로 생성되는 중첩 .claude 디렉토리 차단
+# (훅이 상대경로로 <cwd>/.claude/learning 을 만들어, Bash 로 cd 한 디렉토리마다 생김)
 .claude/**/.claude/
+docs/**/.claude/
 .superpowers/
 .claude/hooks/*.log
 .claude/hooks/*.min.js

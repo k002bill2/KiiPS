@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>출자자정보 첫걸음</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<script>/* 저장된 테마를 렌더 전에 적용 (깜빡임 방지) */
+try{var _t=localStorage.getItem('fd0102HelpTheme');if(_t==='dark'||_t==='light')document.documentElement.setAttribute('data-theme',_t);}catch(e){}</script>
+<style>
+/* ==========================================================================
+   문서 크롬 토큰 (도움말 자체의 디자인)
+   ========================================================================== */
+:root{
+  /* 딥 블루 문서 크롬 + 인주(印朱) 빨강 마커 */
+  --ink:#0B111C;            /* 제목 */
+  --body:#242D3D;           /* 본문 */
+  --muted:#4E5A6E;          /* 보조 텍스트 */
+  --paper:#FFFFFF;          /* 페이지 바탕(화이트) */
+  --card:#FFFFFF;           /* 카드 */
+  --line:#E4E9F1;           /* 헤어라인 보더 */
+  --line-strong:#CBD5E3;    /* 강조 보더 */
+  --accent:#0F62C4;         /* 문서 액센트(딥 블루) */
+  --accent-soft:#EAF2FD;
+  --shadow-sm:none;
+  --shadow-md:0 12px 36px rgba(19,26,38,.11);
+  --marker:#C5372C;         /* 핫스팟 마커(인주 빨강) */
+  --marker-soft:#FAE8E4;
+  --warn:#B45309;           /* 주의 */
+  --warn-soft:#FEF3E2;
+  --code-bg:#EDF1F6;
+  --code-ink:#22405E;
+  --info-ink:#144E8C;       /* callout.info 텍스트 */
+  --hover-soft:#FAFCFE;
+  --chip:rgba(112,115,124,.06);
+  --font-doc:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --font-head:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+
+  /* ===== KiiPS 실측 토큰 (화면 모사 전용, 원본 SCSS에서 추출) ===== */
+  --kx-font:"NexonLv2Gothic","Open Sans","Apple SD Gothic Neo","Malgun Gothic",Tahoma,Verdana,Arial,sans-serif;
+  --kx-primary:#007BFF;
+  --kx-primary-dark:#0062CC;
+  --kx-color:#3B3B3B;
+  --kx-border:#E5E7E9;
+  --kx-card-border:rgba(0,0,0,0.125);
+  --kx-card-header:rgba(0,0,0,0.03);
+  --kx-grid-header:#F0F0F0;
+  --kx-grid-border:#A49A91;
+  --kx-grid-line:#DEDEDE;
+  --kx-summary:#EEEEEE;
+  --kx-placeholder:#BDBDBD;
+}
+/* ===== 다크 모드 (문서 크롬만 — kx 모사 화면은 실제 라이트 화면 재현이므로 불변) ===== */
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ink:#E8EDF5;--body:#C3CCD9;--muted:#8C97A7;
+    --paper:#0E131B;--card:#161D28;
+    --line:#26303E;--line-strong:#3A4756;
+    --accent:#6AA5EC;--accent-soft:#182A42;
+    --shadow-md:0 12px 36px rgba(0,0,0,.5);
+    --marker:#E1584B;--marker-soft:#3B211D;
+    --warn:#E5A15C;--warn-soft:#33260F;
+    --code-bg:#1D2735;--code-ink:#9FBEE2;
+    --info-ink:#9CC3F0;--hover-soft:#1B2431;
+    --chip:rgba(148,163,184,.12);
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#E8EDF5;--body:#C3CCD9;--muted:#8C97A7;
+  --paper:#0E131B;--card:#161D28;
+  --line:#26303E;--line-strong:#3A4756;
+  --accent:#6AA5EC;--accent-soft:#182A42;
+  --shadow-md:0 12px 36px rgba(0,0,0,.5);
+  --marker:#E1584B;--marker-soft:#3B211D;
+  --warn:#E5A15C;--warn-soft:#33260F;
+  --code-bg:#1D2735;--code-ink:#9FBEE2;
+  --info-ink:#9CC3F0;--hover-soft:#1B2431;
+  --chip:rgba(148,163,184,.12);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font-doc);
+  font-size:15px;line-height:1.75;color:var(--body);
+  background:var(--paper);
+  word-break:keep-all;overflow-wrap:break-word;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+h1,h2,h3,h4{font-family:var(--font-head);color:var(--ink);line-height:1.32;text-wrap:balance;letter-spacing:-0.02em;font-weight:700}
+a{color:var(--accent)}
+code{font-family:ui-monospace,Menlo,monospace;font-size:0.88em;background:var(--code-bg);border-radius:4px;padding:1px 6px;color:var(--code-ink)}
+strong{color:var(--ink)}
+
+/* ---------- 레이아웃: 좌측 목차 + 본문 ---------- */
+.layout{display:flex;min-height:100vh}
+.toc{
+  width:236px;flex:0 0 236px;position:sticky;top:0;align-self:flex-start;
+  height:100vh;overflow-y:auto;padding:28px 14px 40px 20px;
+  border-right:1px solid var(--line);background:var(--card);
+}
+.toc .brand{font-family:var(--font-head);font-weight:700;font-size:15px;letter-spacing:-0.01em;color:var(--ink);margin-bottom:2px}
+.toc .brand small{display:block;font-weight:600;font-size:11px;color:var(--muted);letter-spacing:.09em;margin-top:3px}
+.toc nav{margin-top:24px;padding-top:18px;border-top:1px solid var(--line)}
+.toc a{
+  position:relative;display:flex;align-items:center;gap:9px;padding:7px 11px;border-radius:8px;font-size:13.5px;
+  color:var(--muted);text-decoration:none;transition:background .15s,color .15s;
+}
+.toc a.sub{padding-left:24px;font-size:12.8px}
+.toc a:hover{color:var(--accent);background:var(--accent-soft)}
+.toc a.active{color:var(--accent);background:var(--accent-soft);font-weight:700}
+.content{flex:1;min-width:0;padding:0 clamp(20px,4vw,56px) 96px}
+.inner{max-width:980px;margin:0 auto}
+
+/* ---------- 히어로 ---------- */
+.hero{padding:68px 0 8px;position:relative}
+.hero .eyebrow{
+  display:inline-flex;align-items:center;gap:12px;font-size:12px;font-weight:700;
+  letter-spacing:.15em;color:var(--muted);margin-bottom:22px;
+}
+.hero h1{font-size:clamp(34px,4.4vw,54px);font-weight:800;letter-spacing:-0.035em}
+.hero .lead{font-size:17.5px;line-height:1.8;color:var(--muted);margin-top:18px}
+.hero .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.hero .meta span{
+  font-size:12.5px;color:var(--muted);background:var(--chip);
+  border-radius:99px;padding:5px 14px;
+}
+.hero .meta b{color:var(--ink);font-weight:600}
+.notice{
+  display:flex;gap:10px;align-items:flex-start;margin-top:26px;
+  background:var(--warn-soft);border-radius:10px;
+  padding:12px 16px;font-size:13.5px;color:var(--warn);
+}
+/* 안내 영상 미리보기 */
+.video-preview{margin-top:26px}
+.video-preview video{display:block;width:min(645px,100%);border-radius:12px;border:1px solid var(--line);box-shadow:var(--shadow-md);background:#0B1220}
+.video-preview .vp-cap{font-size:12.8px;color:var(--muted);margin-top:8px}
+
+/* ---------- 섹션 공통 ---------- */
+section.block{padding-top:56px;margin-top:56px}
+.sec-label{
+  display:flex;align-items:center;gap:8px;
+  font-size:12.5px;font-weight:700;letter-spacing:.05em;color:var(--accent);margin-bottom:12px;
+}
+section.block{border-top:1px solid var(--line)}
+section.block>h2{font-size:31px;font-weight:800;letter-spacing:-0.028em;margin-bottom:26px}
+section.block h3{font-size:19.5px;font-weight:700;margin:44px 0 12px}
+section.block h4{font-size:15.5px;margin:24px 0 8px}
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .6s cubic-bezier(.22,.61,.36,1),transform .6s cubic-bezier(.22,.61,.36,1)}
+.reveal.on{opacity:1;transform:none}
+
+/* 카드/표/콜아웃 */
+.card-doc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 24px;margin:16px 0}
+table.doc{
+  width:100%;border-collapse:separate;border-spacing:0;font-size:13.5px;margin:16px 0;
+  background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;
+}
+table.doc th{
+  background:none;color:var(--muted);font-weight:700;font-size:12px;letter-spacing:.05em;
+  text-align:left;padding:11px 14px;border-bottom:2px solid var(--line-strong);
+}
+table.doc td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+table.doc tbody tr:last-child td{border-bottom:none}
+table.doc td:first-child{white-space:nowrap;color:var(--ink);font-weight:500}
+.table-wrap{overflow-x:auto}
+.callout{display:flex;gap:11px;border-radius:12px;padding:14px 18px;margin:16px 0;font-size:13.8px;align-items:flex-start}
+.callout .ic{flex:0 0 auto;font-weight:700}
+.callout.info{background:var(--accent-soft);color:var(--info-ink)}
+.callout.warn{background:var(--warn-soft);color:var(--warn)}
+.step-list{counter-reset:step;list-style:none;margin:14px 0}
+.step-list>li{position:relative;padding:0 0 20px 46px}
+.step-list>li::before{
+  counter-increment:step;content:counter(step);
+  position:absolute;left:0;top:1px;width:28px;height:28px;border-radius:50%;
+  background:var(--accent-soft);color:var(--accent);
+  font-weight:700;font-size:13px;
+  display:flex;align-items:center;justify-content:center;font-family:var(--font-head);
+}
+.step-list>li:not(:last-child)::after{
+  content:"";position:absolute;left:13.5px;top:32px;bottom:2px;width:1px;background:var(--line);
+}
+.step-list b{color:var(--ink)}
+.kbd{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:var(--card);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 7px;color:var(--ink)}
+details.acc{border:1px solid var(--line);border-radius:12px;background:var(--card);margin:10px 0;overflow:hidden}
+details.acc summary{
+  cursor:pointer;list-style:none;padding:14px 18px;font-weight:600;color:var(--ink);
+  display:flex;align-items:center;gap:10px;font-size:14.5px;transition:background .15s;
+}
+details.acc summary:hover{background:var(--hover-soft)}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary::before{content:"";flex:0 0 auto;width:16px;height:16px;background:var(--accent);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27black%27 stroke-width=%272.5%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27m9 18 6-6-6-6%27/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27black%27 stroke-width=%272.5%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27m9 18 6-6-6-6%27/%3E%3C/svg%3E") center/contain no-repeat;transition:transform .2s}
+details.acc[open] summary::before{transform:rotate(90deg)}
+details.acc .acc-body{padding:2px 18px 16px 40px;font-size:13.8px}
+details.acc .acc-body p{margin:6px 0}
+
+/* ==========================================================================
+   KiiPS 화면 모사 (kx-*)
+   ========================================================================== */
+.kx-stage{position:relative;margin:22px 0}
+.kx-scroll{overflow-x:auto;border-radius:12px;padding-bottom:4px}
+.kx-scroll::-webkit-scrollbar{height:8px}
+.kx-scroll::-webkit-scrollbar-track{background:transparent}
+.kx-scroll::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:99px}
+.kx-scroll::-webkit-scrollbar-thumb:hover{background:#AFBCCE}
+.kx-screen{
+  min-width:900px;
+  font-family:var(--kx-font);font-size:13px;font-weight:500;color:var(--kx-color);
+  background:#fff;border:1px solid var(--kx-card-border);border-radius:10px;
+  box-shadow:var(--shadow-md);
+  padding:14px 16px 16px;line-height:1.5;
+}
+.kx-screen *{font-family:inherit}
+/* 필터 바 */
+.kx-filterbar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:flex-end;padding:4px 2px 12px;border-bottom:1px solid var(--kx-border)}
+.kx-filter{display:flex;flex-direction:column;gap:3px}
+.kx-filter .flabel{font-size:11.5px;color:#7A828C}
+.kx-select{
+  display:inline-flex;align-items:center;justify-content:space-between;gap:10px;
+  min-width:118px;height:30px;padding:0 10px;
+  background:#fff;border:1px solid var(--kx-border);border-radius:6px;
+  color:var(--kx-placeholder);font-size:12.5px;cursor:default;
+  transition:border-color .15s,box-shadow .15s;
+}
+.kx-select:hover{border-color:#C9D2DB}
+.kx-select.set{color:var(--kx-color)}
+.kx-select .caret{font-size:9px;color:#9AA0A8}
+.kx-daterange{display:inline-flex;align-items:center;gap:6px}
+.kx-date{
+  width:104px;height:30px;padding:0 9px;display:inline-flex;align-items:center;
+  background:#fff;border:1px solid var(--kx-border);border-radius:6px;color:var(--kx-color);font-size:12.5px;
+}
+/* 버튼 툴바 */
+.kx-toolbar{display:flex;align-items:center;gap:8px;padding:11px 2px}
+.kx-count{font-size:12.5px;color:#7A828C;margin-right:auto}
+.kx-count b{color:var(--kx-primary);font-weight:600}
+.kx-btn{
+  display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 13px;
+  font-size:12.5px;font-weight:500;border-radius:6px;cursor:pointer;
+  border:1px solid transparent;background:#fff;color:var(--kx-color);
+  transition:background .15s,color .15s,border-color .15s;
+}
+.kx-btn.outline{border-color:#66B0FF;color:#1A85FF}
+.kx-btn.outline:hover{background:#E5F1FF;border-color:#3D9BFF}
+.kx-btn.plain{border-color:var(--kx-border)}
+.kx-btn.plain:hover{background:#F4F6F8;border-color:#D3D9DF}
+.kx-btn:active{transform:translateY(1px)}
+.kx-btn:focus-visible,.kx-select:focus-visible{outline:2px solid var(--kx-primary);outline-offset:1px}
+.kx-unit{height:30px;border:1px solid var(--kx-border);border-radius:6px;background:#fff;color:var(--kx-color);font-size:12.5px;padding:0 6px;cursor:pointer;font-family:inherit}
+/* 그리드 */
+.kx-grid{width:100%;border-collapse:collapse;font-size:12.5px}
+.kx-grid th{
+  background:var(--kx-grid-header);color:var(--kx-color);font-weight:500;
+  border:1px solid var(--kx-grid-border);border-left-color:#C9C2BC;
+  padding:7px 8px;text-align:center;white-space:nowrap;
+}
+.kx-grid td{
+  border:1px solid var(--kx-grid-line);padding:6px 8px;text-align:center;
+  white-space:nowrap;font-variant-numeric:tabular-nums;
+}
+.kx-grid td.l{text-align:left}
+.kx-grid td.r{text-align:right}
+.kx-grid tr.sum td{background:var(--kx-summary);font-weight:600;border-color:#D6D0CA}
+.kx-grid tbody.data tr{cursor:pointer;transition:background .12s}
+.kx-grid tbody.data tr:hover{background:#F2F8FF}
+.kx-grid tbody.data tr.sel{background:#E5F1FF}
+.kx-grid tbody.data tr:focus-visible{outline:2px solid var(--kx-primary);outline-offset:-2px}
+.kx-empty td{color:var(--kx-placeholder);padding:34px 8px !important;cursor:default !important;font-size:12.5px}
+.kx-empty td::before{content:"⌕";display:block;font-size:22px;margin-bottom:6px;color:#D5DAE0}
+.kx-status{display:inline-block;padding:1px 9px;border-radius:99px;font-size:11.5px}
+.kx-status::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:currentColor;margin-right:5px;vertical-align:1.5px}
+.kx-status.run{background:#E4F4E9;color:#1D7A3E}
+.kx-status.prep{background:#FFF3DC;color:#9A6B00}
+.kx-status.clr{background:#EEEEF1;color:#6B7280}
+.kx-paging{display:flex;justify-content:center;gap:4px;padding-top:12px;font-size:12px;color:#7A828C}
+.kx-paging span{
+  min-width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid var(--kx-border);border-radius:4px;background:#fff;transition:background .12s;
+}
+.kx-paging span:hover{background:#F4F6F8}
+.kx-paging span.cur{background:var(--kx-primary);border-color:var(--kx-primary);color:#fff}
+.kx-paging span.cur:hover{background:var(--kx-primary)}
+.kx-spin{display:none;text-align:center;padding:20px 0;color:#7A828C;font-size:12.5px}
+.kx-spin.on{display:block}
+.kx-spin i{
+  display:inline-block;width:16px;height:16px;border:2px solid #C9DEF6;border-top-color:var(--kx-primary);
+  border-radius:50%;vertical-align:-3px;margin-right:8px;animation:kxspin .7s linear infinite;
+}
+@keyframes kxspin{to{transform:rotate(360deg)}}
+
+/* ---------- FD0102 추가 컴포넌트 (드롭다운 · 체크박스 · 표 도구) ---------- */
+.kx-btn.solid{background:var(--kx-primary);border-color:var(--kx-primary);color:#fff}
+.kx-btn.solid:hover{background:var(--kx-primary-dark);border-color:var(--kx-primary-dark)}
+.kx-btn .caret{font-size:8px;margin-left:1px}
+.kx-dd{position:relative;display:inline-flex}
+.kx-menu{
+  position:absolute;top:calc(100% + 4px);left:0;min-width:136px;z-index:6;
+  background:#fff;border:1px solid rgba(0,0,0,.15);border-radius:4px;
+  box-shadow:0 6px 18px rgba(0,0,0,.13);padding:6px 0;display:none;
+}
+.kx-menu.on{display:block}
+.kx-menu button{
+  display:block;width:100%;text-align:left;background:none;border:0;
+  padding:6px 16px;font-family:inherit;font-size:12.5px;color:var(--kx-color);cursor:pointer;
+}
+.kx-menu button:hover{background:#F4F6F8}
+.kx-menu button:focus-visible{outline:2px solid var(--kx-primary);outline-offset:-2px}
+.kx-grid th.c,.kx-grid td.c{width:32px;padding:5px 4px}
+.kx-chk{
+  display:inline-block;width:13px;height:13px;border:1px solid #B9C0C8;border-radius:3px;
+  background:#fff;vertical-align:-2px;position:relative;
+}
+.kx-chk.on{background:var(--kx-primary);border-color:var(--kx-primary)}
+.kx-chk.on::after{content:"✓";position:absolute;inset:0;color:#fff;font-size:9px;line-height:13px;text-align:center}
+.kx-gridtools{display:flex;justify-content:flex-end;gap:5px;margin:6px 0 4px}
+.kx-note{font-size:11.5px;color:#8A9099;margin:2px 4px 10px}
+.kx-lockbar{
+  display:none;align-items:center;gap:6px;margin:0 0 10px;padding:7px 11px;
+  background:#FFF6E6;border:1px solid #F0DFB8;border-radius:6px;font-size:12px;color:#8A6A18;
+}
+.kx-lockbar.on{display:flex}
+
+/* ---------- 핫스팟 ---------- */
+.hs{
+  position:absolute;z-index:5;width:24px;height:24px;border-radius:50%;
+  background:var(--marker);color:#fff;border:2px solid #fff;
+  font:700 12px/1 var(--font-head);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;box-shadow:0 2px 8px rgba(197,55,44,.45);
+}
+.hs::after{
+  content:"";position:absolute;inset:-7px;border-radius:50%;
+  border:2px solid rgba(197,55,44,.55);animation:pulse 2.2s ease-out infinite;
+}
+.hs:hover,.hs[aria-expanded="true"]{background:#A62A20}
+.hs:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+@keyframes pulse{0%{transform:scale(.6);opacity:.9}70%{transform:scale(1.25);opacity:0}100%{opacity:0}}
+.popover{
+  position:absolute;z-index:50;width:min(320px,84vw);
+  background:var(--card);border:1px solid var(--line);border-radius:12px;
+  box-shadow:0 4px 12px rgba(19,26,38,.08),0 16px 44px rgba(19,26,38,.16);padding:15px 17px;
+  font-size:13.3px;line-height:1.6;display:none;
+}
+.popover.on{display:block}
+.popover h5{font-family:var(--font-head);font-size:13.5px;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.popover h5 .n{
+  flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:var(--marker);color:#fff;
+  font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;
+}
+.popover p{margin:4px 0;color:var(--body)}
+.popover .tip{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);color:var(--muted);font-size:12.5px}
+.hs-legend{display:flex;align-items:center;gap:8px;font-size:12.8px;color:var(--muted);margin:10px 2px 0}
+.hs-legend .dot{width:16px;height:16px;border-radius:50%;background:var(--marker);border:2px solid #fff;box-shadow:0 1px 4px rgba(197,55,44,.5)}
+
+/* ---------- 모사 모달 ---------- */
+.kx-overlay{
+  position:fixed;inset:0;z-index:100;background:rgba(23,32,44,.45);
+  display:none;align-items:flex-start;justify-content:center;padding:4vh 16px;
+}
+.kx-overlay.on{display:flex}
+.kx-modal{
+  position:relative;width:min(880px,100%);max-height:88vh;display:flex;flex-direction:column;
+  background:#fff;border-radius:8px;border:1px solid rgba(0,0,0,.2);
+  box-shadow:rgba(50,50,93,.25) 0 50px 100px -20px,rgba(0,0,0,.3) 0 30px 60px -30px;
+  font-family:var(--kx-font);font-size:13px;color:var(--kx-color);
+  animation:kxmodal .22s ease;
+}
+@keyframes kxmodal{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.kx-modal-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 18px;background:var(--kx-card-header);border-bottom:1px solid var(--kx-card-border);
+  border-radius:8px 8px 0 0;
+}
+.kx-modal-head h4{font-size:16px;font-weight:600;color:#33353F;margin:0;font-family:inherit}
+.kx-x{
+  width:30px;height:30px;border-radius:4px;border:0;background:transparent;color:#B4B4B4;
+  font-size:17px;cursor:pointer;line-height:1;
+}
+.kx-x:hover{background:#EDEDED;color:#666}
+.kx-x:focus-visible{outline:2px solid var(--kx-primary)}
+.kx-modal-body{padding:16px 20px;overflow-y:auto}
+.kx-pane{display:none}
+.kx-pane.on{display:block}
+.kx-fieldset{border:1px solid var(--kx-border);border-radius:8px;padding:12px 14px 6px;margin-bottom:12px}
+.kx-fieldset legend{font-size:12px;font-weight:600;color:var(--kx-primary-dark);padding:0 6px;letter-spacing:.02em}
+.kx-frow{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:8px}
+.kx-f{display:flex;align-items:center;gap:8px;font-size:12.5px}
+.kx-f .flabel{color:#7A828C;white-space:nowrap}
+.kx-f .flabel .req{color:#E03131;margin-left:1px}
+.kx-f .v{
+  min-width:90px;padding:4px 9px;background:#fff;border:1px solid var(--kx-border);
+  border-radius:5px;color:var(--kx-color);
+}
+.kx-f .v.ro{background:#F4F5F7;color:#8A9099}
+.kx-minigrid{width:100%;border-collapse:collapse;font-size:12px;margin:4px 0 10px}
+.kx-minigrid th{background:var(--kx-grid-header);border:1px solid var(--kx-grid-border);border-left-color:#C9C2BC;padding:5px 7px;font-weight:500;text-align:center}
+.kx-minigrid td{border:1px solid var(--kx-grid-line);padding:5px 7px;text-align:center}
+.kx-modal-foot{
+  display:flex;justify-content:center;gap:8px;padding:12px;
+  border-top:1px solid #DEE2E6;background:#FAFBFC;border-radius:0 0 8px 8px;
+}
+.kx-toast{
+  position:fixed;left:50%;bottom:34px;transform:translate(-50%,16px);z-index:300;
+  background:#243041;color:#fff;font-size:13.5px;border-radius:8px;padding:11px 22px;
+  opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;
+  box-shadow:0 10px 30px rgba(0,0,0,.3);
+}
+.kx-toast.on{opacity:1;transform:translate(-50%,0)}
+.kx-confirm{
+  position:fixed;inset:0;z-index:200;background:rgba(23,32,44,.45);
+  display:none;align-items:center;justify-content:center;padding:16px;
+}
+.kx-confirm.on{display:flex}
+.kx-confirm .box{
+  width:min(360px,92vw);background:#fff;border-radius:8px;padding:26px 22px 18px;text-align:center;
+  font-family:var(--kx-font);color:var(--kx-color);box-shadow:0 20px 60px rgba(0,0,0,.3);
+  animation:kxmodal .2s ease;
+}
+.kx-confirm .box p{font-size:14px;margin-bottom:18px;max-width:none}
+.kx-confirm .row{display:flex;justify-content:center;gap:8px}
+
+/* 미니 구조 다이어그램 */
+.schema{display:flex;flex-direction:column;gap:8px;margin:20px 0}
+.schema .box{
+  border:1px solid var(--line);border-radius:12px;background:var(--card);
+  padding:13px 20px;display:flex;align-items:baseline;gap:12px;
+}
+.schema .box b{font-family:var(--font-head);color:var(--ink);font-size:14.5px;white-space:nowrap}
+.schema .box span{font-size:13px;color:var(--muted)}
+.schema .box.hl{border-color:var(--accent);background:var(--accent-soft)}
+.schema .arrow{text-align:center;color:var(--muted);font-size:13px;line-height:1}
+
+footer.foot{margin-top:80px;padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+
+@media (max-width:900px){
+  .toc{display:none}
+  .hero{padding:46px 0 8px}
+  #toTop{right:16px;bottom:16px;width:40px;height:40px}
+  #themeToggle{top:10px;right:16px;width:34px;height:34px}
+}
+@media (max-width:560px){
+  body{font-size:14.5px}
+  section.block{padding-top:40px;margin-top:40px}
+  section.block>h2{font-size:25px}
+  section.block h3{font-size:17.5px;margin:32px 0 10px}
+  .hero .lead{font-size:16px}
+  .card-doc{padding:16px 16px}
+  .callout{padding:12px 14px}
+  .step-list>li{padding-left:40px}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .hs::after{animation:none;display:none}
+  .reveal{opacity:1;transform:none;transition:none}
+  .kx-modal,.kx-confirm .box{animation:none}
+}
+
+/* ===== redesign layer ===== */
+.hero .eyebrow{font-size:12.5px;letter-spacing:.08em}
+section.block{position:relative}
+section.block::before{content:none}
+section.block>*{position:relative;z-index:1}
+.toc .brand svg{vertical-align:-4px;margin-right:7px;color:var(--accent)}
+.toc a svg{flex:0 0 auto;opacity:.75}
+.sec-label svg{flex:0 0 auto}
+.callout .ic{display:flex;margin-top:2.5px}
+.callout .ic svg{width:17px;height:17px}
+.notice>span:first-child{display:flex;margin-top:2.5px}
+.notice svg{width:16px;height:16px}
+.kx-btn svg{width:14px;height:14px}
+#pgBar{position:fixed;top:0;left:0;height:3px;width:0;z-index:400;background:linear-gradient(90deg,var(--accent),#3B8AEA);border-radius:0 3px 3px 0}
+#toTop{position:fixed;right:26px;bottom:26px;z-index:300;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--accent);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow-md);opacity:0;pointer-events:none;transform:translateY(10px);transition:opacity .25s,transform .25s,background .15s}
+#toTop.on{opacity:1;pointer-events:auto;transform:none}
+#toTop:hover{background:var(--accent-soft)}
+#toTop:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#themeToggle{position:fixed;top:14px;right:26px;z-index:300;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow-md);transition:background .15s,color .15s}
+#themeToggle:hover{background:var(--accent-soft);color:var(--accent)}
+#themeToggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width:760px){section.block::before{display:none}}
+@media (prefers-reduced-motion:reduce){#toTop{transition:none}}
+.scr-link{display:inline-flex;align-items:center;gap:5px;color:var(--accent);text-decoration:none;font-weight:500;border-radius:4px}
+.scr-link:hover{text-decoration:underline}
+.scr-link:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.scr-link svg{width:13px;height:13px;opacity:.7;flex:0 0 auto}
+/* ---------- 순차 안내 투어 (Driver.js 스타일) ---------- */
+.tour-cta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:16px 0 2px}
+.tour-start{display:inline-flex;align-items:center;gap:7px;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:background .15s}
+.tour-start:hover{background:#0B4FA0}
+.tour-start svg{width:15px;height:15px}
+.tour-cta .hint{font-size:12.8px;color:var(--muted)}
+.kx-stage.touring{z-index:60}
+.kx-stage.touring .hs{opacity:0;pointer-events:none;transition:opacity .25s}
+#tourSpot{position:absolute;z-index:60;border-radius:8px;pointer-events:none;display:none;
+  box-shadow:0 0 0 3px rgba(255,255,255,.95),0 0 0 9999px rgba(19,26,38,.55);
+  transition:left .38s cubic-bezier(.2,0,.2,1),top .38s cubic-bezier(.2,0,.2,1),width .38s cubic-bezier(.2,0,.2,1),height .38s cubic-bezier(.2,0,.2,1)}
+#tourPop{z-index:61;box-shadow:0 16px 48px rgba(0,0,0,.2);padding-top:16px;
+  transition:left .38s cubic-bezier(.2,0,.2,1),top .38s cubic-bezier(.2,0,.2,1)}
+#tourPop .tour-x{position:absolute;top:8px;right:8px;width:24px;height:24px;border:none;background:none;color:var(--muted);cursor:pointer;border-radius:6px;display:flex;align-items:center;justify-content:center;padding:0}
+#tourPop .tour-x:hover{background:rgba(112,115,124,.08)}
+.tour-foot{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.tour-foot .cnt{font-size:12px;color:var(--muted);font-weight:600;margin-right:auto;font-variant-numeric:tabular-nums}
+.tour-btn{border:1px solid var(--line-strong);background:var(--card);color:var(--body);border-radius:8px;padding:6px 13px;font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;transition:background .15s}
+.tour-btn:hover{background:rgba(112,115,124,.08)}
+.tour-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.tour-btn.primary:hover{background:#0B4FA0}
+.tour-btn:disabled{opacity:.4;cursor:default}
+.tour-btn:disabled:hover{background:var(--card)}
+@media (prefers-reduced-motion:reduce){#tourSpot,#tourPop{transition:none}}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ===================== 좌측 목차 ===================== -->
+<aside class="toc" aria-label="목차">
+  <div class="brand"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M8 8v8"/><path d="M8 12l6-4"/><path d="M10.5 10.3 15 16"/></svg>출자자정보 첫걸음<small>KiiPS · FD0102 도움말</small></div>
+  <nav>
+    <a href="#intro">1. 이 화면은 무엇인가요</a>
+    <a href="#explorer">2. 화면 직접 만져보기</a>
+    <a href="#howto">3. 업무 따라하기</a>
+    <a href="#howto-search" class="sub">3-1. 출자자 조회하기</a>
+    <a href="#howto-read" class="sub">3-2. 목록 읽는 법</a>
+    <a href="#howto-regist" class="sub">3-3. 출자자명부 등록</a>
+    <a href="#howto-change" class="sub">3-4. 약정액 변동 · 양수도</a>
+    <a href="#howto-mod" class="sub">3-5. 수정과 삭제</a>
+    <a href="#related">4. 관련 화면 · 데이터 흐름</a>
+    <a href="#faq">5. 주의사항 · FAQ</a>
+  </nav>
+</aside>
+
+<!-- ===================== 본문 ===================== -->
+<main class="content">
+<div class="inner">
+
+<header class="hero">
+  <span class="eyebrow">KiiPS 화면 가이드 · FD0102</span>
+  <h1>출자자정보 화면, 처음부터 차근차근</h1>
+  <p class="lead">
+    펀드에 돈을 넣기로 약정한 <strong>출자자(LP)의 명부</strong>를 조회·등록하고,
+    약정액의 변동과 지분의 양수도를 관리하는 <strong>출자자정보(FD0102)</strong> 화면의 사용법을
+    처음 사용자 눈높이로 안내합니다.
+    아래 <a href="#explorer">화면 직접 만져보기</a>에서 실제 화면과 똑같이 생긴 연습 화면을 눌러보며 배울 수 있습니다.
+  </p>
+  <div class="meta">
+    <span>대상 독자 <b>KiiPS를 처음 쓰는 실무자</b></span>
+    <span>화면 코드 <b>FD0102</b></span>
+    <span>진입 경로 <b>펀드관리 › 기본정보 › 출자자정보</b></span>
+  </div>
+  <div class="video-preview">
+    <video src="FD0102-guide.mp4" controls preload="metadata" playsinline aria-label="출자자정보 화면 안내 영상"></video>
+    <p class="vp-cap">▶ 안내 영상 (3분 27초) — 화면 구성부터 등록·변동·삭제까지 음성으로 안내합니다.</p>
+  </div>
+</header>
+
+<!-- ======================= 1. 소개 ======================= -->
+<section class="block reveal" id="intro" data-num="01">
+  <div class="sec-label">제1장</div>
+  <h2>이 화면은 무엇인가요</h2>
+  <p>
+    출자자정보 화면은 <strong>어느 펀드에 누가 얼마를 출자하기로 약정했는지</strong>를 기록한 명부(名簿)입니다.
+    펀드정보(FD0101)가 "펀드라는 그릇"의 대장이라면, 이 화면은 "그 그릇을 채우는 사람들"의 대장입니다.
+    출자자 한 명 한 명의 <strong>출자약정금액 · 출자좌수 · 출자약정비율</strong>이 여기서 확정되고,
+    이후 출자 요청(캐피탈 콜)·분배·전자보고가 모두 이 값을 기준으로 계산됩니다.
+  </p>
+  <p>화면은 위에서 아래로 세 구역으로 이루어져 있습니다.</p>
+  <div class="schema" role="img" aria-label="화면 구조: 검색필터, 버튼 툴바, 출자자명부 목록 그리드 순서로 배치. 목록의 행을 더블클릭하면 출자자명부 등록 모달이 수정 모드로 열림">
+    <div class="box"><b>① 검색필터</b><span>어느 펀드의 어떤 출자자를 찾을지 고르는 곳 (펀드유형·펀드명·펀드상태·출자자·출자자유형·전문투자자·내부 출자자구분 7가지)</span></div>
+    <div class="box"><b>② 버튼 툴바</b><span>조회, 등록(등록·약정액변동·양수도), 삭제, 금액 단위 전환, 엑셀 다운로드</span></div>
+    <div class="box hl"><b>③ 출자자명부 목록</b><span>조건에 맞는 출자자가 표(그리드)로 나열 — 행을 <strong>더블클릭</strong>하면 수정 화면이 열립니다</span></div>
+    <div class="arrow">▼ 더블클릭</div>
+    <div class="box"><b>출자자명부 등록 창</b><span>기본정보 · 출자약정 · 주소/연락처 · 약정액 변동이력 · 연락처 정보 · 보고주기를 한 화면에서 관리</span></div>
+  </div>
+  <div class="callout info">
+    <span class="ic">✓</span>
+    <span><strong>한 펀드에 여러 줄</strong> — 출자자가 6명인 펀드는 목록에 6줄로 나타나고, 맨 왼쪽 <b>펀드</b> 칸은
+    같은 펀드끼리 하나로 합쳐져(병합) 표시됩니다. 줄 수 = 출자자 수라고 생각하면 됩니다.</span>
+  </div>
+  <div class="callout warn">
+    <span class="ic">!</span>
+    <span><strong>출자약정금액은 변동 내역이 쌓이면 잠깁니다</strong> — 약정액 변동이력이 <b>"최초출자" 한 줄뿐일 때는</b>
+    명부 창에서 금액을 바로 고칠 수 있지만, 증감 내역이 하나라도 더 붙으면 금액 칸이 잠깁니다.
+    그때부터는 <b>등록 ▾ › 약정액 변동</b>으로 조정합니다. 자세한 내용은
+    <a href="#howto-change">3-4. 약정액 변동 · 양수도</a>를 보세요.</span>
+  </div>
+</section>
+
+<!-- ======================= 2. 화면 탐색기 ======================= -->
+<section class="block reveal" id="explorer" data-num="02">
+  <div class="sec-label">제2장</div>
+  <h2>화면 직접 만져보기</h2>
+  <p>
+    아래는 실제 출자자정보 화면을 본떠 만든 <strong>연습 화면</strong>입니다. 마음껏 눌러도 아무 데이터도 바뀌지 않습니다.
+    붉은색 번호 <span class="hs-legend" style="display:inline-flex;margin:0"><span class="dot"></span></span> 를 누르면 각 부분의 설명이 나타나고,
+    <strong>조회 → 행 더블클릭 → 등록 ▾ 메뉴</strong> 순서로 실제 흐름을 그대로 체험할 수 있습니다.
+  </p>
+  <div class="callout info">
+    <span class="ic">▶</span>
+    <span>추천 순서: <strong>⑥ 조회</strong>를 눌러 명부를 채우고 → 아무 행이나 <strong>더블클릭</strong>(키보드는 행 선택 후 <span class="kbd">Enter</span>)해 수정 창을 열어본 뒤 →
+    <strong>⑦ 등록 ▾</strong>에서 약정액 변동·양수도 창까지 살펴보세요. 체크박스를 켠 뒤 <strong>⑧ 삭제</strong>를 눌러 보면 삭제가 막히는 이유도 확인할 수 있습니다.</span>
+  </div>
+  <div class="tour-cta">
+    <button type="button" id="tourStart" class="tour-start">순서대로 둘러보기</button>
+    <span class="hint">①→⑪ 순서로 각 부분을 하이라이트하며 안내합니다. 방향키 ← →로도 이동할 수 있어요.</span>
+  </div>
+
+  <div class="kx-stage">
+    <div class="kx-scroll">
+      <div class="kx-screen" id="kxScreen">
+        <!-- 필터바 -->
+        <div class="kx-filterbar" id="kxFilterbar" role="group" aria-label="검색필터 — 연습 화면에서는 표시 전용입니다">
+          <div class="kx-filter"><span class="flabel">펀드유형</span><span class="kx-select">전체 선택 <span class="caret">▼</span></span></div>
+          <div class="kx-filter"><span class="flabel">펀드명</span><span class="kx-select set">한국성장 1호 투자조합 <span class="caret">▼</span></span></div>
+          <div class="kx-filter"><span class="flabel">펀드상태</span><span class="kx-select">전체 선택 <span class="caret">▼</span></span></div>
+          <div class="kx-filter"><span class="flabel">출자자</span><span class="kx-select">전체 선택 <span class="caret">▼</span></span></div>
+          <div class="kx-filter"><span class="flabel">출자자유형</span><span class="kx-select">전체 선택 <span class="caret">▼</span></span></div>
+          <div class="kx-filter"><span class="flabel">전문투자자</span><span class="kx-select">전체 선택 <span class="caret">▼</span></span></div>
+          <div class="kx-filter"><span class="flabel">내부 출자자구분</span><span class="kx-select">전체 선택 <span class="caret">▼</span></span></div>
+        </div>
+        <!-- 툴바 -->
+        <div class="kx-toolbar">
+          <span class="kx-count">Total : <b id="kxCount">0</b> 건</span>
+          <button type="button" class="kx-btn plain" title="한 페이지에 보여줄 행 수">10</button>
+          <select class="kx-unit" id="kxUnit" aria-label="금액 단위 선택">
+            <option value="1">원</option>
+            <option value="1000">천원</option>
+            <option value="1000000">백만원</option>
+            <option value="100000000">억원</option>
+          </select>
+          <button type="button" class="kx-btn outline" id="kxSearch"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> 조회</button>
+          <span class="kx-dd">
+            <button type="button" class="kx-btn solid" id="kxRegist" aria-haspopup="true" aria-expanded="false"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg> 등록 <span class="caret">▼</span></button>
+            <span class="kx-menu" id="kxMenu" role="menu" aria-labelledby="kxRegist">
+              <button type="button" role="menuitem" data-mode="new">등록</button>
+              <button type="button" role="menuitem" data-mode="change">약정액 변동</button>
+              <button type="button" role="menuitem" data-mode="transfer">양수도</button>
+            </span>
+          </span>
+          <button type="button" class="kx-btn plain" id="kxDel"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg> 삭제</button>
+          <button type="button" class="kx-btn plain" id="kxExcel"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg> 엑셀</button>
+          <button type="button" class="kx-btn plain"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg> 도움말</button>
+        </div>
+        <!-- 그리드 -->
+        <div class="kx-spin" id="kxSpin"><i></i>조회 중입니다…</div>
+        <table class="kx-grid" id="kxGrid">
+          <thead>
+            <tr>
+              <th class="c"><span class="kx-chk" aria-hidden="true"></span></th>
+              <th>펀드</th><th>출자자</th><th>관리번호</th><th>출자자역할</th>
+              <th>출자자유형<br>(전자보고)</th><th>출자자유형<br>(PEF전용)</th><th>출자자유형<br>(신기사전용)</th><th>출자자유형<br>(운용사기준)</th>
+              <th id="kxThAmt">출자약정금액<br>(원화)</th><th>출자약정금액<br>(외화)</th><th>출자약정좌수</th><th id="kxThRt">출자약정비율</th>
+            </tr>
+            <tr class="sum" id="kxSumRow" hidden>
+              <td></td><td class="l">합계</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              <td class="r" id="kxSumKrw"></td><td class="r">-</td><td class="r" id="kxSumNum"></td><td class="r">100.00</td>
+            </tr>
+          </thead>
+          <tbody class="data" id="kxRows">
+            <tr class="kx-empty"><td colspan="13">조회 버튼을 누르면 출자자명부가 나타납니다.</td></tr>
+          </tbody>
+        </table>
+        <div class="kx-paging" id="kxPaging" hidden><span>«</span><span class="cur">1</span><span>»</span></div>
+      </div>
+    </div>
+
+    <!-- 핫스팟 (연습 화면 위 — 위치는 JS가 data-anchor 요소 기준으로 계산) -->
+    <button type="button" class="hs" data-anchor="#kxFilterbar .kx-filter:nth-child(1) .kx-select" data-pop="pop-filter" aria-expanded="false" aria-label="설명 보기: 검색필터">1</button>
+    <button type="button" class="hs" data-anchor="#kxFilterbar .kx-filter:nth-child(2) .kx-select" data-pop="pop-fund"   aria-expanded="false" aria-label="설명 보기: 펀드명 필터">2</button>
+    <button type="button" class="hs" data-anchor="#kxFilterbar .kx-filter:nth-child(4) .kx-select" data-pop="pop-lp"     aria-expanded="false" aria-label="설명 보기: 출자자 필터">3</button>
+    <button type="button" class="hs" data-anchor=".kx-count"                                       data-pop="pop-count"  aria-expanded="false" aria-label="설명 보기: 전체 건수">4</button>
+    <button type="button" class="hs" data-anchor="#kxUnit"                                         data-pop="pop-unit"   aria-expanded="false" aria-label="설명 보기: 단위선택">5</button>
+    <button type="button" class="hs" data-anchor="#kxSearch"                                       data-pop="pop-search" aria-expanded="false" aria-label="설명 보기: 조회 버튼">6</button>
+    <button type="button" class="hs" data-anchor="#kxRegist"                                       data-pop="pop-regist" aria-expanded="false" aria-label="설명 보기: 등록 메뉴">7</button>
+    <button type="button" class="hs" data-anchor="#kxDel"                                          data-pop="pop-del"    aria-expanded="false" aria-label="설명 보기: 삭제 버튼">8</button>
+    <button type="button" class="hs" data-anchor="#kxGrid"                                         data-pop="pop-rows"   aria-expanded="false" aria-label="설명 보기: 출자자명부 목록">9</button>
+    <button type="button" class="hs" data-anchor="#kxThAmt"                                        data-pop="pop-amt"    aria-expanded="false" aria-label="설명 보기: 출자약정금액">10</button>
+    <button type="button" class="hs" data-anchor="#kxThRt"                                         data-pop="pop-rt"     aria-expanded="false" aria-label="설명 보기: 출자약정비율">11</button>
+  </div>
+  <p class="hs-legend"><span class="dot"></span> 번호를 누르면 설명이 열립니다. <span class="kbd">Esc</span> 또는 바깥을 누르면 닫힙니다. 오른쪽 컬럼의 번호는 표를 옆으로 밀면 나타납니다.</p>
+
+  <!-- 팝오버 정의 (JS가 마커 옆으로 이동시켜 표시) -->
+  <div hidden>
+    <div class="popover" id="pop-filter">
+      <h5><span class="n">1</span>검색필터</h5>
+      <p>찾고 싶은 출자자의 조건을 고르는 영역입니다. 조건 7가지(펀드유형·펀드명·펀드상태·출자자·출자자유형·전문투자자·내부 출자자구분)를 조합할 수 있고, 아무것도 고르지 않으면 권한 있는 전체가 조회됩니다. 7가지 모두 <b>여러 개를 동시에</b> 고를 수 있습니다.</p>
+      <p class="tip">조건을 <b>새로 고른</b> 뒤에는 <b>조회</b> 버튼(또는 F2)을 눌러야 반영됩니다. 반대로 이미 적용된 필터 태그를 <b>✕로 제거하면 그 즉시 자동으로 재조회</b>됩니다. 이 비대칭을 알아두면 "왜 안 바뀌지?" 하는 순간이 줄어듭니다.</p>
+    </div>
+    <div class="popover" id="pop-fund">
+      <h5><span class="n">2</span>펀드명 필터</h5>
+      <p>어느 펀드의 명부를 볼지 고릅니다. 실무에서는 <b>이 조건을 먼저 지정</b>하고 조회하는 경우가 대부분입니다.</p>
+      <p class="tip">이 목록에는 <b>내게 접근권한이 있는 펀드만</b> 나타납니다. 찾는 펀드가 없다면 권한 문제일 수 있으니 관리자에게 문의하세요.</p>
+    </div>
+    <div class="popover" id="pop-lp">
+      <h5><span class="n">3</span>출자자 필터</h5>
+      <p>특정 출자자(LP)를 지정합니다. 한 출자자가 여러 펀드에 출자한 경우, 펀드명을 비우고 출자자만 고르면 <b>그 출자자가 참여한 모든 펀드</b>가 한 번에 나옵니다.</p>
+      <p class="tip">바로 옆 <b>출자자유형 · 전문투자자 · 내부 출자자구분</b>은 출자자를 성격별로 묶어 거르는 조건입니다.</p>
+    </div>
+    <div class="popover" id="pop-count">
+      <h5><span class="n">4</span>Total 건수</h5>
+      <p>현재 조회 결과의 <b>줄 수</b>입니다. 한 펀드에 출자자가 6명이면 6건으로 세어집니다. 옆의 숫자 버튼(10)은 한 페이지에 몇 줄씩 보여줄지 설정합니다.</p>
+    </div>
+    <div class="popover" id="pop-unit">
+      <h5><span class="n">5</span>단위선택</h5>
+      <p>금액 컬럼의 표시 단위를 <b>원 / 천원 / 백만원 / 억원</b>으로 바꿉니다. 자릿수가 긴 금액을 읽기 쉽게 해 주는 기능으로, 저장된 데이터가 바뀌는 것은 아닙니다.</p>
+      <p class="tip">소수점이 있는 <b>출자약정비율</b>은 단위 전환 대상이 아닙니다(항상 % 그대로). 실제 화면에서 표시가 바로 안 바뀌면 <b>조회</b>를 한 번 더 눌러 주세요.</p>
+    </div>
+    <div class="popover" id="pop-search">
+      <h5><span class="n">6</span>조회 버튼</h5>
+      <p>설정한 필터 조건으로 출자자명부를 불러옵니다. 이 연습 화면에서도 직접 눌러보세요!</p>
+      <p class="tip">키보드 <b>F2</b> 키로도 조회할 수 있습니다(실제 화면 기준).</p>
+    </div>
+    <div class="popover" id="pop-regist">
+      <h5><span class="n">7</span>등록 메뉴 (▾)</h5>
+      <p>이 화면의 등록 버튼은 <b>메뉴가 펼쳐지는 버튼</b>입니다. 세 가지 작업이 들어 있습니다 — <b>등록</b>(새 출자자를 명부에 추가), <b>약정액 변동</b>(이미 등록된 출자자의 약정금액 증감), <b>양수도</b>(출자 지분을 다른 사람에게 넘김).</p>
+      <p class="tip">등록/수정 권한이 없는 계정에는 이 버튼과 삭제 버튼이 아예 보이지 않습니다.</p>
+    </div>
+    <div class="popover" id="pop-del">
+      <h5><span class="n">8</span>삭제 버튼</h5>
+      <p>왼쪽 체크박스로 <b>한 건만</b> 고른 뒤 누릅니다. 두 건 이상 체크하면 진행되지 않습니다.</p>
+      <p class="tip">체크 후 눌러도 삭제되지 않는 경우가 많습니다 — 약정 변동내역·출자/분배 내역·LP보고 설정이 있으면 시스템이 막습니다. 연습 화면에서 직접 눌러 어떤 안내가 나오는지 확인해 보세요.</p>
+    </div>
+    <div class="popover" id="pop-rows">
+      <h5><span class="n">9</span>출자자명부 목록 (그리드)</h5>
+      <p>조건에 맞는 출자자가 한 줄에 하나씩 나열됩니다. 왼쪽 <b>펀드</b> 칸은 같은 펀드끼리 하나로 합쳐져 표시됩니다. 행을 <b>더블클릭</b>하면 그 출자자의 명부 창이 <b>수정 모드</b>로 열립니다.</p>
+      <p class="tip">이 연습 화면에서는 행을 한 번 클릭해 선택한 뒤 <b>Enter</b> 키로도 열 수 있습니다.</p>
+    </div>
+    <div class="popover" id="pop-amt">
+      <h5><span class="n">10</span>출자약정금액</h5>
+      <p>그 출자자가 출자하기로 <b>약정</b>한 금액입니다(실제 납입액이 아닙니다). 원화 펀드는 원화 칸에, 외화 펀드는 외화 칸에 값이 들어갑니다. 맨 위 <b>합계 행</b>에 전체 합이 표시됩니다.</p>
+      <p class="tip">약정액 변동이력이 <b>"최초출자" 한 줄뿐일 때만</b> 명부 창에서 금액을 고칠 수 있습니다. 증감 내역이 더 있으면 칸이 잠기고, <b>등록 ▾ › 약정액 변동</b>으로 조정합니다.</p>
+    </div>
+    <div class="popover" id="pop-rt">
+      <h5><span class="n">11</span>출자약정비율</h5>
+      <p>그 출자자가 펀드 전체에서 차지하는 지분율입니다. <b>( 출자약정금액 ÷ 펀드 약정총액(결성금액) ) × 100</b> 으로 자동 계산되며, 소수점 셋째 자리에서 <b>올림</b>해 둘째 자리까지 표시됩니다.</p>
+      <p class="tip">이 값은 <b>저장되지 않습니다</b> — 조회할 때마다 계산해서 보여주는 항목입니다. 합계 행의 비율은 <b>전체 약정금액 ÷ 전체 약정총액</b>으로 따로 계산되므로, 여러 펀드를 함께 조회하면 100%가 되지 않을 수 있습니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= 3. 업무 따라하기 ======================= -->
+<section class="block reveal" id="howto" data-num="03">
+  <div class="sec-label">제3장</div>
+  <h2>업무 따라하기</h2>
+  <p>실제 업무에서 자주 하게 될 다섯 가지 작업을 순서대로 안내합니다.</p>
+
+  <h3 id="howto-search">3-1. 출자자 조회하기</h3>
+  <ol class="step-list">
+    <li><b>펀드명을 먼저 고릅니다.</b> 실무에서는 "어느 펀드의 명부를 볼까"부터 시작하는 것이 자연스럽습니다. 물론 모든 조건은 선택 사항이라, 아무것도 고르지 않고 조회하면 권한 있는 전체 명부가 나옵니다.</li>
+    <li><b>조회 버튼을 누릅니다.</b> 키보드 <span class="kbd">F2</span>로도 실행됩니다. 툴바의 Total 건수가 결과 <b>줄 수</b>로 갱신됩니다. 참고로 이미 적용해 둔 필터 태그를 ✕로 <b>제거할 때는</b> 버튼을 누르지 않아도 <b>즉시 자동 재조회</b>됩니다.</li>
+    <li><b>결과를 확인합니다.</b> 결과가 많으면 하단 페이지 번호로 이동하거나, 툴바의 숫자 버튼으로 한 페이지에 보여줄 줄 수를 늘릴 수 있습니다.</li>
+  </ol>
+  <div class="table-wrap">
+  <table class="doc">
+    <thead><tr><th style="width:170px">필터</th><th style="width:90px">선택 방식</th><th>설명</th></tr></thead>
+    <tbody>
+      <tr><td>펀드유형</td><td>다중</td><td>벤처투자조합, 신기술사업투자조합, 사모투자합자회사(PEF) 등 펀드의 법적 유형으로 거릅니다.</td></tr>
+      <tr><td>펀드명</td><td>다중</td><td>특정 펀드를 지정합니다. <strong>접근권한이 있는 펀드만</strong> 목록에 나타납니다.</td></tr>
+      <tr><td>펀드상태</td><td>다중</td><td>결성준비 · 운용중 · 청산 등 펀드의 진행 단계로 거릅니다.</td></tr>
+      <tr><td>출자자</td><td>다중</td><td>특정 출자자(LP)를 지정합니다. 펀드명을 비우고 출자자만 고르면 그 출자자가 참여한 모든 펀드가 나옵니다.</td></tr>
+      <tr><td>출자자유형</td><td>다중</td><td>전자보고 기준의 출자자 유형(연기금·은행·보험·일반법인·개인 등)으로 거릅니다.</td></tr>
+      <tr><td>전문투자자</td><td>다중</td><td>여 / 부 두 가지 중에서 고릅니다.</td></tr>
+      <tr><td>내부 출자자구분</td><td>다중</td><td>운용사가 자체적으로 정한 출자자 분류입니다.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="callout info">
+    <span class="ic">ⓘ</span>
+    <span><strong>회사 설정에 따라 필터가 더 보일 수 있습니다</strong> — 일부 운용사는 지역 관련 조건이 추가로 나타납니다. 위 표에 없는 조건이 보인다면 회사 전용 항목입니다.</span>
+  </div>
+
+  <h3 id="howto-read">3-2. 목록 읽는 법</h3>
+  <p>목록의 각 컬럼이 뜻하는 바를 알아두면 창을 열지 않고도 명부의 상태를 파악할 수 있습니다.</p>
+  <div class="table-wrap">
+  <table class="doc">
+    <thead><tr><th style="width:190px">컬럼</th><th>의미</th></tr></thead>
+    <tbody>
+      <tr><td>펀드</td><td>출자 대상 펀드의 이름. 같은 펀드의 행끼리 <strong>하나로 합쳐져(병합)</strong> 표시됩니다.</td></tr>
+      <tr><td>출자자</td><td>출자를 약정한 주체(법인 또는 개인)의 이름.</td></tr>
+      <tr><td>관리번호</td><td>출자자의 사업자등록번호 등 관리용 번호. <code>000-00-00000</code> 모양으로 자동 정리되어 표시됩니다.</td></tr>
+      <tr><td>출자자역할</td><td><strong>업무집행조합원(GP)</strong> / <strong>유한책임조합원(LP)</strong> 등, 이 펀드 안에서의 역할입니다.</td></tr>
+      <tr><td>출자자유형 (4종)</td><td>같은 출자자를 보는 <strong>네 가지 기준</strong>이 나란히 놓입니다 — 전자보고 / PEF 전용 / 신기사 전용 / 운용사 기준. 어느 보고서를 만드느냐에 따라 참조하는 기준이 다르기 때문에 따로 관리합니다.</td></tr>
+      <tr><td>출자약정금액 (원화/외화)</td><td>출자하기로 <strong>약정</strong>한 금액(실제 납입액이 아닙니다). 우측 정렬·천 단위 콤마로 표시되고 합계 행이 제공됩니다.</td></tr>
+      <tr><td>출자약정좌수</td><td>약정금액을 <strong>1좌당금액</strong>으로 나눈 좌수. 금액을 넣으면 자동 계산됩니다.</td></tr>
+      <tr><td>출자약정비율</td><td>( 출자약정금액 ÷ 펀드 약정총액 ) × 100. 소수점 둘째 자리까지 표시되며 <strong>저장되지 않는 조회성 항목</strong>입니다.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="callout info">
+    <span class="ic">✓</span>
+    <span><strong>단위선택 활용</strong> — 금액 자릿수가 길어 읽기 어렵다면 툴바의 단위선택(원/천원/백만원/억원)을 바꿔보세요.
+    표시 단위만 바뀔 뿐 데이터는 그대로이며, 소수점이 있는 <strong>출자약정비율은 전환 대상이 아닙니다</strong>.
+    보고서에 옮겨 적을 때는 현재 단위가 무엇인지 꼭 확인하세요.</span>
+  </div>
+
+  <h3 id="howto-regist">3-3. 출자자명부 등록</h3>
+  <p>툴바의 <strong>등록 ▾ › 등록</strong>을 누르면 출자자명부 등록 창이 열립니다. 탭 없이 <strong>위에서 아래로 이어지는 하나의 긴 폼</strong>이며, 아래 순서대로 채웁니다.</p>
+  <ol class="step-list">
+    <li><b>펀드명과 출자자를 고릅니다.</b> 출자자는 이름 칸을 클릭하면 고객 검색 창이 열립니다. 등록된 고객목록에서 찾거나, 없으면 <b>거래처 간편추가</b>로 그 자리에서 만들 수 있습니다.</li>
+    <li><b>역할과 유형을 지정합니다.</b> 출자자 역할(업무집행조합원/유한책임조합원 등)과 출자자 권종, 그리고 유형 4종(전자보고·PEF전용·신기사전용·운용사기준)을 채웁니다.</li>
+    <li><b>출자약정금액을 입력합니다.</b> 통화를 먼저 고르고 금액을 넣으면 <b>출자좌수</b>와 <b>출자약정비율</b>이 자동 계산됩니다.</li>
+    <li><b>주소·연락처·비고·첨부파일</b>을 필요한 만큼 채우고, 아래 <b>연락처 정보</b> 표에 담당자를 행 단위로 추가합니다.</li>
+    <li><b>저장</b>을 누릅니다. 여러 명을 연달아 등록할 때는 <b>저장 후 계속 등록</b>을 쓰면 창이 닫히지 않습니다.</li>
+  </ol>
+  <div class="table-wrap">
+  <table class="doc">
+    <thead><tr><th style="width:150px">자동 계산 항목</th><th>계산식</th><th>메모</th></tr></thead>
+    <tbody>
+      <tr><td>출자좌수</td><td>출자약정금액 ÷ 1좌당금액</td><td>금액을 입력하면 자동으로 채워지며, 필요하면 <strong>직접 고칠 수도 있습니다</strong>(금액과 함께 잠깁니다). 1좌당금액은 펀드정보(FD0101)에 등록된 값을 씁니다.</td></tr>
+      <tr><td>출자약정비율</td><td>( 출자약정금액 ÷ 펀드 약정총액 ) × 100</td><td>소수점 셋째 자리에서 <strong>올림</strong>하여 둘째 자리까지. 목록의 비율은 <strong>저장되지 않고 조회할 때마다 다시 계산</strong>됩니다.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="callout warn">
+    <span class="ic">!</span>
+    <span><strong>공동GP는 반드시 체크하세요</strong> — 등록 대상 출자자가 공동GP라면 <b>공동GP여부</b>에 체크해야 합니다.
+    펀드정보나 운용인력정보에서 공동GP 운용인력을 다루려면 이 체크가 선행되어야 하고, 이어서
+    <a href="#" class="scr-link">펀드관리 › 공동GP관리 › 공동GP인력관리</a>에 해당 인력을 등록해야 합니다.</span>
+  </div>
+  <div class="callout info">
+    <span class="ic">ⓘ</span>
+    <span><strong>저장하면 변동이력이 자동으로 생깁니다</strong> — 신규 등록을 저장하면 <b>약정액 변동이력</b>에
+    변동구분 <b>"최초출자"</b> 내역이 자동으로 한 줄 추가됩니다. 직접 넣지 않아도 됩니다.</span>
+  </div>
+  <div class="callout info">
+    <span class="ic">✓</span>
+    <span><strong>역할이 업무집행조합원(사원)이면 출자증서에 나타납니다</strong> —
+    <a href="#" class="scr-link">펀드관리 › 출자증서/출자확인서/출자자명부</a>에서 그 펀드의 출자증서를 출력할 때
+    하단에 <b>업무집행조합원(사원)명(날인)</b>이 표시됩니다.</span>
+  </div>
+
+  <h3 id="howto-change">3-4. 약정액 변동 · 양수도</h3>
+  <p>이미 등록된 출자자의 <strong>금액을 바꾸거나 지분을 넘길 때</strong> 쓰는 두 가지 창입니다. 둘 다 툴바의 <strong>등록 ▾</strong> 메뉴에 들어 있습니다.</p>
+
+  <details class="acc" open>
+    <summary>약정액 변동 — 금액을 늘리거나 줄일 때</summary>
+    <div class="acc-body">
+      <ol class="step-list">
+        <li><b>펀드를 고릅니다.</b> 선택하면 그 펀드의 약정액 변동이력이 아래 표에 조회됩니다.</li>
+        <li><b>증가/감소 내역을 한 줄 추가합니다.</b> 최초출자 이후에 변동된 약정 내역을 날짜·구분·금액으로 입력하고 저장합니다.</li>
+      </ol>
+      <div class="callout warn">
+        <span class="ic">!</span>
+        <span>등록된 <strong>최초출자 금액은 수정할 수 없습니다</strong>. 금액이 잘못됐다면 최초출자를 고치는 것이 아니라 변동 내역을 추가해서 조정합니다.</span>
+      </div>
+    </div>
+  </details>
+
+  <details class="acc">
+    <summary>양수도 — 출자 지분을 다른 사람에게 넘길 때</summary>
+    <div class="acc-body">
+      <ol class="step-list">
+        <li><b>펀드를 고릅니다.</b> 그 펀드의 양수도 이력이 조회됩니다.</li>
+        <li><b>행추가</b> 버튼으로 줄을 만들고, 변동일 · 양도인 · 양수도 출자약정액 · 양수인까지 입력한 뒤 저장합니다.</li>
+        <li>이력을 지울 때는 줄을 고르고 <b>행삭제</b>를 누릅니다.</li>
+      </ol>
+      <div class="callout warn">
+        <span class="ic">!</span>
+        <span><strong>저장 한 번에 두 곳이 함께 만들어집니다</strong> — 양수도를 저장하면 양도인·양수인의
+        <b>약정액 변동이력</b>(양도/양수)과 <b>출자/분배 내역</b>(양도는 음수, 양수는 양수 금액)이 <b>각각 자동 생성</b>됩니다.
+        따라서 <a href="#" class="scr-link">펀드관리 › 출자/분배</a>에 같은 건을 <b>또 등록하면 이중 계상될 수 있습니다</b> —
+        저장 후 그 화면에서 반영 결과를 먼저 확인하세요.</span>
+      </div>
+      <div class="callout info">
+        <span class="ic">ⓘ</span>
+        <span>양수인이 아직 이 펀드의 출자자가 아니라면 <b>출자자 간편추가</b>로 먼저 등록한 뒤 입력합니다.
+        간편추가로 만든 출자자는 정보가 최소한만 들어 있으니, 등록 후 <b>상세정보를 반드시 보완</b>하세요.</span>
+      </div>
+    </div>
+  </details>
+
+  <h3 id="howto-mod">3-5. 수정과 삭제</h3>
+  <p><strong>수정</strong>은 목록에서 행을 <strong>더블클릭</strong>해 창을 연 뒤 내용을 고치고 저장하면 됩니다. 다만 신규 등록 때와 달리 <strong>잠기는 항목</strong>이 있습니다.</p>
+  <div class="table-wrap">
+  <table class="doc">
+    <thead><tr><th style="width:190px">수정 모드에서 잠기는 항목</th><th>이유와 대안</th></tr></thead>
+    <tbody>
+      <tr><td>펀드명 · 출자자 · 출자자번호<br><small>(항상 잠김)</small></td><td>어느 펀드의 누구인지는 명부의 열쇠(키)입니다. 잘못 등록했다면 삭제 후 다시 등록합니다.</td></tr>
+      <tr><td>출자약정금액 · 출자좌수<br><small>(조건부 잠김)</small></td><td>약정액 변동이력이 <strong>"최초출자" 한 줄뿐이면 그대로 수정할 수 있습니다.</strong> 증감 내역이 하나라도 더 있으면 잠기며, 그때는 <strong>등록 ▾ › 약정액 변동</strong>으로 조정합니다. → <a href="#howto-change">3-4</a> 참고</td></tr>
+      <tr><td>저장 후 계속 등록 버튼</td><td>수정에는 쓸 일이 없으므로 숨겨집니다.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p><strong>삭제</strong>는 목록 왼쪽 체크박스로 <strong>한 건만</strong> 고른 뒤 툴바의 삭제 버튼을 누릅니다. 다만 실제로 지워지는 경우는 많지 않습니다 — 시스템이 아래 순서로 세 번 확인합니다.</p>
+  <ol class="step-list">
+    <li><b>약정액 변동내역 확인</b> — 최초출자 외에 변동 내역이 있으면 막힙니다. 변동이력을 먼저 지워야 합니다.</li>
+    <li><b>출자/분배 내역 확인</b> — 이 출자자로 출자나 분배가 한 건이라도 일어났으면 막힙니다.</li>
+    <li><b>LP보고 설정 확인</b> — 전자보고용 설정이 걸려 있으면 막히며, 이 경우는 담당 시스템 문의가 필요합니다.</li>
+  </ol>
+  <div class="callout info">
+    <span class="ic">✓</span>
+    <span>세 관문을 모두 통과해야, 즉 <strong>돈이 오간 적 없고 보고에도 잡히지 않은 출자자</strong>만 삭제됩니다.
+    이는 실수로 지워서 정산 이력이 사라지는 일을 막기 위한 안전장치입니다.</span>
+  </div>
+</section>
+
+<!-- ======================= 4. 관련 화면 · 데이터 흐름 ======================= -->
+<section class="block reveal" id="related" data-num="04">
+  <div class="sec-label">제4장</div>
+  <h2>관련 화면 · 데이터 흐름</h2>
+  <div class="callout warn">
+    <span class="ic">★</span>
+    <span><strong>명부가 곧 정산의 기준입니다</strong> — 여기서 확정한 출자약정금액과 출자약정비율이
+    이후 출자 요청(캐피탈 콜), 분배, 전자보고의 계산 기준이 됩니다.
+    금액 하나를 잘못 넣으면 그 펀드의 모든 배분 계산이 어긋나므로, 저장 전 금액과 통화를 반드시 확인하세요.</span>
+  </div>
+
+  <h3>함께 보는 화면</h3>
+  <div class="table-wrap">
+  <table class="doc">
+    <thead><tr><th style="width:260px">화면 (메뉴 경로)</th><th style="width:90px">관계</th><th>설명</th></tr></thead>
+    <tbody>
+      <tr><td>펀드관리 › 기본정보 › 펀드정보</td><td>선행 등록</td><td>출자 대상 펀드가 먼저 있어야 명부를 만들 수 있습니다. <strong>1좌당금액</strong>과 <strong>약정총액</strong>이 여기 등록되어 있어야 출자좌수·출자약정비율이 자동 계산됩니다.</td></tr>
+      <tr><td>설정 › 초기설정 › 고객원장</td><td>동기화</td><td>출자자와 연락처 담당자는 고객원장의 고객 정보를 참조합니다. <strong>거래처 간편추가</strong>로 만든 출자자도 여기에 쌓이며, 고객원장에서 수정하면 이 명부에도 동일하게 반영됩니다.</td></tr>
+      <tr><td>펀드관리 › 공동GP관리 › 공동GP인력관리</td><td>후행 작업</td><td>출자자를 <strong>공동GP</strong>로 체크했다면, 그 공동GP의 운용인력을 이 화면에 등록해야 펀드정보·운용인력정보에서 활용할 수 있습니다.</td></tr>
+      <tr><td>펀드관리 › 출자/분배</td><td>자동 생성</td><td>출자와 분배 내역을 관리합니다. <strong>양수도를 저장하면 양도(음수)·양수(양수) 두 건이 이 화면에 자동으로 만들어집니다</strong> — 같은 건을 다시 등록하지 마세요.</td></tr>
+      <tr><td>펀드관리 › 출자증서/출자확인서/출자자명부</td><td>활용처</td><td>이 명부를 근거로 출자증서·출자확인서·출자자명부를 출력합니다. 역할이 업무집행조합원(사원)인 출자자는 증서 하단에 날인란으로 표시됩니다.</td></tr>
+      <tr><td>설정 › 초기설정 › 사용자관리 · 권한관리</td><td>권한</td><td>펀드 접근권한과 이 메뉴의 등록/수정·다운로드 권한을 관리합니다. 조회는 접근권한만, 등록·삭제는 등록/수정 권한까지 필요합니다.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>출자자 한 명이 등록되는 흐름</h3>
+  <div class="schema" role="img" aria-label="데이터 흐름: 펀드정보에서 펀드와 1좌당금액 등록, 고객원장에서 고객 등록, 그다음 출자자정보에서 명부 등록, 저장하면 최초출자 변동이력 자동 생성, 이후 출자·분배와 전자보고에서 활용">
+    <div class="box"><b>① 펀드정보 (FD0101)</b><span>펀드·1좌당금액·약정총액 등록</span></div>
+    <div class="box"><b>② 고객원장</b><span>출자자를 고객으로 등록 (또는 간편추가)</span></div>
+    <div class="box hl"><b>③ 출자자정보 (FD0102)</b><span>명부에 출자약정금액 확정 → 좌수·비율 자동계산</span></div>
+    <div class="arrow">▼ 저장 시 자동</div>
+    <div class="box"><b>약정액 변동이력 "최초출자"</b><span>이후의 증감은 약정액 변동 창에서 추가</span></div>
+    <div class="arrow">▼ 활용</div>
+    <div class="box"><b>출자/분배 · 출자증서 · 전자보고</b><span>명부의 금액·비율을 기준으로 계산 (양수도 저장 시 출자/분배는 자동 생성)</span></div>
+  </div>
+</section>
+
+<!-- ======================= 5. 주의사항 · FAQ ======================= -->
+<section class="block reveal" id="faq" data-num="05">
+  <div class="sec-label">제5장</div>
+  <h2>주의사항 · 자주 묻는 질문</h2>
+
+  <h3>이런 메시지를 만나면</h3>
+  <div class="table-wrap">
+  <table class="doc">
+    <thead><tr><th style="width:70px">유형</th><th style="width:330px">메시지</th><th>의미와 대처</th></tr></thead>
+    <tbody>
+      <tr><td>안내</td><td>"삭제할 데이터를 체크해주세요."</td><td>행을 선택하지 않고 삭제를 눌렀습니다. 목록 왼쪽 체크박스로 대상 행을 먼저 선택하세요.</td></tr>
+      <tr><td>안내</td><td>"한 건의 데이터만 체크해주세요."</td><td>삭제는 한 번에 한 건만 가능합니다. 체크를 하나만 남기세요.</td></tr>
+      <tr><td>차단</td><td>"최초약정액 외 약정변동내역이 있습니다. 약정액 변동이력을 먼저 삭제한 후 삭제 가능합니다."</td><td>삭제 1차 관문입니다. <b>등록 ▾ › 약정액 변동</b>에서 변동 내역을 먼저 정리하세요.</td></tr>
+      <tr><td>차단</td><td>"해당 출자자의 출자/분배 내역이 있습니다. 출자/분배 내역을 먼저 삭제한 후 삭제 가능합니다."</td><td>삭제 2차 관문입니다. 이미 돈이 오간 출자자입니다. <a href="#" class="scr-link">펀드관리 › 출자/분배</a>에서 내역을 먼저 확인하세요.</td></tr>
+      <tr><td>차단</td><td>"LP보고가 설정되어 있는 출자자입니다. 로고스시스템으로 문의해 주세요."</td><td>삭제 3차 관문입니다. 전자보고 설정이 걸려 있어 화면에서 해제할 수 없습니다. 문의가 필요합니다.</td></tr>
+      <tr><td>오류</td><td>"중복된 관리번호가 존재합니다."</td><td>같은 관리번호가 이미 명부에 있습니다. 번호를 다시 확인하세요.</td></tr>
+      <tr><td>오류</td><td>"이미 등록된 담당자입니다. 다시 한 번 확인해 주세요."</td><td>연락처 정보 표에 같은 담당자를 두 번 넣었습니다.</td></tr>
+      <tr><td>안내</td><td>"펀드 및 출자자를 선택해 주세요." / "펀드를 선택해 주세요."</td><td>표에 행을 추가하기 전에 위쪽에서 펀드(그리고 출자자)를 먼저 골라야 합니다.</td></tr>
+      <tr><td>안내</td><td>"선택 항목이 없습니다."</td><td>표에서 지울 행을 고른 뒤 행삭제를 누르세요.</td></tr>
+      <tr><td>확인</td><td>"입력이 끝나지 않은 행이 있습니다. 삭제 처리 하시겠습니까?"</td><td>작성 중인 빈 행이 남아 있다는 안내입니다. 계속 진행할지 선택하세요.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>자주 묻는 질문</h3>
+  <details class="acc">
+    <summary>출자약정금액을 잘못 넣었어요. 수정 창에서 안 고쳐져요.</summary>
+    <div class="acc-body"><p>약정액 변동이력이 이미 <strong>두 줄 이상</strong>이라 잠긴 상태입니다. 변동이력이 <strong>"최초출자" 한 줄뿐이라면 명부 창에서 그대로 고칠 수 있습니다</strong>. 이미 증감 내역이 붙었다면 툴바의 <strong>등록 ▾ › 약정액 변동</strong>에서 증가 또는 감소 내역을 추가해 조정하세요 — 지난 금액을 덮어쓰지 않고 이력을 쌓아 맞추는 방식입니다.</p></div>
+  </details>
+  <details class="acc">
+    <summary>출자약정비율이 저장이 안 되는 것 같아요.</summary>
+    <div class="acc-body"><p>맞습니다. 출자약정비율은 <strong>저장되지 않고 조회할 때마다 계산되어 표시되는 항목</strong>입니다. ( 출자약정금액 ÷ 펀드 약정총액 ) × 100 으로 계산되며 소수점 셋째 자리에서 올림합니다(반올림이 아닙니다). 비율이 이상하다면 비율을 고치는 게 아니라 <strong>약정금액이나 펀드의 약정총액</strong>을 확인하세요.</p></div>
+  </details>
+  <details class="acc">
+    <summary>합계 행의 출자약정비율이 100%가 아니에요.</summary>
+    <div class="acc-body"><p>여러 펀드를 함께 조회했을 때 나타나는 현상입니다. 합계 행의 비율은 각 행 비율의 단순 합이 아니라 <strong>전체 출자약정금액 ÷ 전체 약정총액</strong>으로 따로 계산되기 때문입니다. 한 펀드만 조회하면 100.00으로 떨어집니다.</p></div>
+  </details>
+  <details class="acc">
+    <summary>찾는 출자자가 고객 검색 창에 없어요.</summary>
+    <div class="acc-body"><p>고객원장에 아직 등록되지 않은 상대입니다. 검색 창의 <strong>거래처 간편추가</strong>로 그 자리에서 만들 수 있습니다. 다만 간편추가로 만든 고객은 정보가 최소한만 들어 있으니, 등록 후 <a href="#" class="scr-link">설정 › 초기설정 › 고객원장</a>에서 상세 내용을 반드시 보완하세요. 고객원장에서 고치면 이 명부에도 함께 반영됩니다.</p></div>
+  </details>
+  <details class="acc">
+    <summary>양수도를 등록하면 출자/분배에도 반영되나요?</summary>
+    <div class="acc-body"><p>저장 시 <strong>약정액 변동이력과 출자/분배 내역이 함께 생성</strong>됩니다(양도는 음수, 양수는 양수 금액). 보이지 않는다면 조회 조건(기준일자·출자자)을 확인하세요. <strong>보이지 않는다고 해서 같은 건을 다시 등록하면 이중 계상될 수 있으니</strong> 주의하세요.</p><p><strong>참고</strong> — 사내 구(舊) 도움말에는 "연동되지 않는다"고 적혀 있으나, 현재 화면 코드는 출자/분배 데이터를 함께 만듭니다. 상충하는 안내를 보면 실제 저장 결과를 기준으로 판단하세요.</p></div>
+  </details>
+  <details class="acc">
+    <summary>등록 버튼과 삭제 버튼이 저한테는 안 보여요.</summary>
+    <div class="acc-body"><p>이 두 버튼은 <strong>등록/수정 권한</strong>이 있는 사용자에게만 노출됩니다. 조회 권한만 있으면 목록은 볼 수 있어도 등록·삭제는 할 수 없습니다. 엑셀 버튼도 <strong>다운로드 권한</strong>이 따로 필요합니다. 필요하면 관리자에게 권한을 요청하세요.</p></div>
+  </details>
+  <details class="acc">
+    <summary>임시저장 버튼이 안 보여요.</summary>
+    <div class="acc-body"><p>임시저장은 <strong>화면 관리자 권한</strong>이 있는 계정에만 나타납니다. 일반 사용자는 저장(및 신규 등록 시 저장 후 계속 등록)만 사용합니다.</p></div>
+  </details>
+  <details class="acc">
+    <summary>공동GP 체크를 깜빡했어요. 무슨 문제가 생기나요?</summary>
+    <div class="acc-body"><p>펀드정보나 운용인력정보에서 <strong>공동GP 운용인력 정보를 다룰 수 없게 됩니다</strong>. 수정 창에서 공동GP여부를 체크한 뒤, <a href="#" class="scr-link">펀드관리 › 공동GP관리 › 공동GP인력관리</a>에서 해당 인력을 등록하세요.</p></div>
+  </details>
+  <details class="acc">
+    <summary>신규 등록을 저장했는데 약정액 변동이력이 비어 있어야 하는 것 아닌가요?</summary>
+    <div class="acc-body"><p>아닙니다. 신규 등록을 저장하면 변동구분 <strong>"최초출자"</strong> 내역이 <strong>자동으로 한 줄 추가</strong>됩니다. 직접 넣은 것이 아니니 지우지 마세요 — 이 줄이 있어야 이후 증감 내역이 올바르게 누적됩니다.</p></div>
+  </details>
+
+  <footer class="foot">
+    이 문서는 KiiPS 출자자정보(FD0102) 화면 학습용 도움말입니다 · 화면 구성은 실제 화면 소스를 기준으로 작성되었으며, 모든 예시 데이터는 가상입니다.
+  </footer>
+</section>
+
+</div><!-- /.inner -->
+</main>
+</div><!-- /.layout -->
+
+<!-- ===================== 모사 상세 모달 ===================== -->
+<div class="kx-overlay" id="kxOverlay" role="dialog" aria-modal="true" aria-labelledby="kxModalTitle">
+  <div class="kx-modal">
+    <div class="kx-modal-head">
+      <h4 id="kxModalTitle">출자자명부 등록</h4>
+      <button type="button" class="kx-x" id="kxClose" aria-label="닫기">✕</button>
+    </div>
+    <div class="kx-modal-body">
+      <!-- 화면 1: 출자자명부 등록/수정 -->
+      <div class="kx-pane on" id="kxPane0">
+        <div class="kx-lockbar" id="kxLock"><b>※ 도움말 안내</b> — 수정 모드에서는 펀드 · 출자자가 잠깁니다. 출자약정금액은 변동이력이 두 줄 이상일 때만 잠깁니다. (실제 화면에는 이 안내 띠가 없습니다)</div>
+        <fieldset class="kx-fieldset"><legend>기본정보</legend>
+          <div class="kx-frow">
+            <div class="kx-f"><span class="flabel">펀드명<span class="req">*</span></span><span class="v" id="kxMFund" style="min-width:230px"></span></div>
+            <div class="kx-f"><span class="flabel">공동GP여부</span><span class="v">아니오</span></div>
+          </div>
+          <div class="kx-frow">
+            <div class="kx-f"><span class="flabel">출자자<span class="req">*</span></span><span class="v" id="kxMLp" style="min-width:180px"></span></div>
+            <div class="kx-f"><span class="flabel">관리번호</span><span class="v" id="kxMNo" style="min-width:130px"></span></div>
+          </div>
+        </fieldset>
+        <fieldset class="kx-fieldset"><legend>역할 · 출자자유형</legend>
+          <div class="kx-frow">
+            <div class="kx-f"><span class="flabel">출자자 역할<span class="req">*</span></span><span class="v" id="kxMRole" style="min-width:130px"></span></div>
+            <div class="kx-f"><span class="flabel">출자자 권종</span><span class="v">일반</span></div>
+            <div class="kx-f"><span class="flabel">전문투자자여부</span><span class="v" id="kxMPro"></span></div>
+          </div>
+          <div class="kx-frow">
+            <div class="kx-f"><span class="flabel">전자보고</span><span class="v" id="kxMT1"></span></div>
+            <div class="kx-f"><span class="flabel">PEF 전용</span><span class="v" id="kxMT2"></span></div>
+            <div class="kx-f"><span class="flabel">신기사 전용</span><span class="v" id="kxMT3"></span></div>
+            <div class="kx-f"><span class="flabel">운용사 기준</span><span class="v" id="kxMT4"></span></div>
+          </div>
+        </fieldset>
+        <fieldset class="kx-fieldset"><legend>출자약정</legend>
+          <div class="kx-frow">
+            <div class="kx-f"><span class="flabel">통화<span class="req">*</span></span><span class="v">KRW</span></div>
+            <div class="kx-f"><span class="flabel">출자약정금액<span class="req">*</span></span><span class="v" id="kxMAmt" style="min-width:150px;text-align:right"></span></div>
+            <div class="kx-f"><span class="flabel">출자약정금액(외화)</span><span class="v ro">통화가 KRW라 잠김</span></div>
+          </div>
+          <div class="kx-frow">
+            <div class="kx-f"><span class="flabel">출자좌수</span><span class="v ro" id="kxMNum" style="min-width:110px;text-align:right"></span></div>
+            <div class="kx-f"><span class="flabel">출자약정비율</span><span class="v ro" id="kxMRt" style="min-width:110px;text-align:right"></span></div>
+            <div class="kx-f"><span class="flabel">배분순위</span><span class="v">1</span></div>
+          </div>
+          <p class="kx-note">※ 출자좌수 = 출자약정금액 ÷ 1좌당금액(1,000,000원) · 출자약정비율 = ( 출자약정금액 ÷ 펀드 약정총액 ) × 100, 소수점 셋째 자리 올림 — 금액을 넣으면 자동 입력되며, 목록의 비율은 저장되지 않습니다.</p>
+        </fieldset>
+        <fieldset class="kx-fieldset"><legend>주소 · 연락처</legend>
+          <div class="kx-frow">
+            <div class="kx-f"><span class="flabel">주소</span><span class="v" style="min-width:280px">서울특별시 영등포구 여의대로 000</span></div>
+          </div>
+          <div class="kx-frow">
+            <div class="kx-f"><span class="flabel">회사 전화번호</span><span class="v">02-0000-0000</span></div>
+            <div class="kx-f"><span class="flabel">팩스번호</span><span class="v">02-0000-0001</span></div>
+          </div>
+        </fieldset>
+        <fieldset class="kx-fieldset"><legend>약정액 변동이력</legend>
+          <table class="kx-minigrid">
+            <thead><tr><th>변동일</th><th>구분</th><th>변동금액</th><th>출자약정금액</th></tr></thead>
+            <tbody id="kxHist"></tbody>
+          </table>
+          <p class="kx-note">※ 신규 등록을 저장하면 <b>"최초출자"</b> 한 줄이 자동으로 생깁니다. 이후 증감은 [등록 ▾ › 약정액 변동]에서 추가합니다.</p>
+        </fieldset>
+        <fieldset class="kx-fieldset"><legend>연락처 정보</legend>
+          <div class="kx-gridtools">
+            <button type="button" class="kx-btn plain">＋ 연락처 등록</button>
+            <button type="button" class="kx-btn plain">－ 행삭제</button>
+          </div>
+          <table class="kx-minigrid">
+            <thead><tr><th>담당자명</th><th>부서</th><th>직책</th><th>이메일</th><th>회사전화번호</th></tr></thead>
+            <tbody><tr><td>홍길동</td><td>대체투자실</td><td>팀장</td><td>hong@example.com</td><td>02-0000-0002</td></tr></tbody>
+          </table>
+        </fieldset>
+        <fieldset class="kx-fieldset"><legend>보고주기</legend>
+          <table class="kx-minigrid">
+            <thead><tr><th>보고여부</th><th>월</th><th>분기</th><th>반기</th><th>연</th></tr></thead>
+            <tbody><tr><td>여</td><td>-</td><td>○</td><td>-</td><td>○</td></tr></tbody>
+          </table>
+        </fieldset>
+        <p class="kx-note">※ 연습 화면에서는 대표 항목만 표시합니다. 실제 화면에는 우편물 수령처·환율기준일·관리보수비율·첨부파일 등 항목이 더 있습니다.</p>
+      </div>
+
+      <!-- 화면 2: 약정액 변동 -->
+      <div class="kx-pane" id="kxPane1">
+        <fieldset class="kx-fieldset"><legend>대상 선택</legend>
+          <div class="kx-frow">
+            <div class="kx-f"><span class="flabel">펀드<span class="req">*</span></span><span class="v" style="min-width:230px">한국성장 1호 투자조합</span></div>
+            <div class="kx-f"><span class="flabel">통화</span><span class="v ro">KRW</span></div>
+          </div>
+        </fieldset>
+        <fieldset class="kx-fieldset"><legend>약정액 변동이력</legend>
+          <div class="kx-gridtools">
+            <button type="button" class="kx-btn plain">＋ 행추가</button>
+            <button type="button" class="kx-btn plain">－ 행삭제</button>
+          </div>
+          <table class="kx-minigrid">
+            <thead><tr><th>변동일</th><th>출자자</th><th>변동구분</th><th>변동금액</th><th>변동사유</th></tr></thead>
+            <tbody>
+              <tr><td>2021-03-15</td><td style="text-align:left">한국벤처투자(주)</td><td>최초출자</td><td style="text-align:right">12,000,000,000</td><td>-</td></tr>
+              <tr><td>2023-08-01</td><td style="text-align:left">한국벤처투자(주)</td><td>약정 증가</td><td style="text-align:right">2,000,000,000</td><td>추가출자 약정</td></tr>
+            </tbody>
+          </table>
+          <p class="kx-note">※ 최초출자 줄은 <b>수정할 수 없습니다</b>. 금액을 바로잡을 때도 새 변동 줄을 추가해 조정합니다.</p>
+        </fieldset>
+      </div>
+
+      <!-- 화면 3: 양수도 -->
+      <div class="kx-pane" id="kxPane2">
+        <fieldset class="kx-fieldset"><legend>대상 선택</legend>
+          <div class="kx-frow">
+            <div class="kx-f"><span class="flabel">펀드<span class="req">*</span></span><span class="v" style="min-width:230px">한국성장 1호 투자조합</span></div>
+          </div>
+        </fieldset>
+        <fieldset class="kx-fieldset"><legend>양수도 이력</legend>
+          <div class="kx-gridtools">
+            <button type="button" class="kx-btn plain">＋ 행추가</button>
+            <button type="button" class="kx-btn plain">－ 행삭제</button>
+          </div>
+          <table class="kx-minigrid">
+            <thead><tr><th>변동일</th><th>양도인</th><th>양수도<br>출자약정액(원)</th><th>양수도<br>출자원금(원)</th><th>양수인</th><th>변동사유</th></tr></thead>
+            <tbody>
+              <tr><td>2024-06-30</td><td style="text-align:left">(주)대성인베스트</td><td style="text-align:right">1,000,000,000</td><td style="text-align:right">400,000,000</td><td style="text-align:left">한빛생명보험(주)</td><td>지분 양도</td></tr>
+            </tbody>
+          </table>
+          <p class="kx-note">※ 양수도를 저장하면 양도인·양수인의 <b>약정액 변동이력</b>과 <b>출자/분배 내역</b>이 각각 자동 생성됩니다(양도는 음수, 양수는 양수 금액). 출자/분배 화면에 같은 건을 또 등록하지 마세요.</p>
+          <p class="kx-note">※ 양수인이 아직 이 펀드의 출자자가 아니라면 <b>출자자 간편추가</b>로 먼저 등록한 뒤 입력합니다.</p>
+        </fieldset>
+      </div>
+    </div>
+    <div class="kx-modal-foot">
+      <button type="button" class="kx-btn plain" id="kxTemp">임시저장</button>
+      <button type="button" class="kx-btn outline" id="kxSave">저장</button>
+      <button type="button" class="kx-btn outline" id="kxKeep">저장 후 계속 등록</button>
+      <button type="button" class="kx-btn plain" id="kxCloseBtn">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 확인 다이얼로그 / 토스트 -->
+<div class="kx-confirm" id="kxConfirm" role="alertdialog" aria-modal="true" aria-labelledby="kxConfirmMsg">
+  <div class="box">
+    <p id="kxConfirmMsg">저장하시겠습니까?</p>
+    <div class="row">
+      <button type="button" class="kx-btn outline" id="kxConfirmOk">확인</button>
+      <button type="button" class="kx-btn plain" id="kxConfirmNo">취소</button>
+    </div>
+  </div>
+</div>
+<div class="kx-toast" id="kxToast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+"use strict";
+/* ---------- 가상 데이터 (전부 허구) ---------- */
+var FUND={nm:"한국성장 1호 투자조합", tot:30000000000, par:1000000};
+var LPS=[
+ {nm:"한국벤처투자(주)",   no:"110-81-11111", role:"유한책임조합원", t1:"정책금융기관", t2:"연기금",       t3:"-",   t4:"모태펀드",   pro:"부", amt:12000000000, chg:true,  paid:false, rpt:false},
+ {nm:"(주)로고스파트너스", no:"214-87-22222", role:"업무집행조합원", t1:"운용사",       t2:"업무집행사원", t3:"-",   t4:"자기자본",   pro:"여", amt:3000000000,  chg:false, paid:true,  rpt:false},
+ {nm:"케이비국민은행",     no:"201-81-33333", role:"유한책임조합원", t1:"금융기관",     t2:"은행",         t3:"은행", t4:"기관투자자", pro:"여", amt:6000000000,  chg:false, paid:true,  rpt:false},
+ {nm:"한빛생명보험(주)",   no:"305-86-44444", role:"유한책임조합원", t1:"금융기관",     t2:"보험",         t3:"보험", t4:"기관투자자", pro:"여", amt:4500000000,  chg:false, paid:false, rpt:true},
+ {nm:"(주)대성인베스트",   no:"120-81-55555", role:"유한책임조합원", t1:"일반법인",     t2:"일반법인",     t3:"법인", t4:"일반법인",   pro:"부", amt:3000000000,  chg:false, paid:true,  rpt:false},
+ {nm:"김도현",             no:"-",            role:"유한책임조합원", t1:"개인",         t2:"개인",         t3:"개인", t4:"개인",       pro:"부", amt:1500000000,  chg:false, paid:false, rpt:false}
+];
+var loaded=false, unit=1;
+var $=function(id){return document.getElementById(id);};
+
+function fmt(n){
+  if(n===""||n==null) return "";
+  var v=Math.round(n/unit);
+  return v.toLocaleString("ko-KR");
+}
+function rt(a){ return ((a/FUND.tot)*100).toFixed(2); }
+
+/* ---------- 조회 시뮬레이션 ---------- */
+function renderRows(){
+  var tb=$("kxRows"); tb.innerHTML="";
+  var sum=0, sumNum=0;
+  LPS.forEach(function(p,i){
+    sum+=p.amt; sumNum+=p.amt/FUND.par;
+    var tr=document.createElement("tr");
+    tr.tabIndex=0; tr.dataset.idx=i;
+    tr.setAttribute("aria-label",p.nm+" 상세 열기: 더블클릭 또는 Enter. 삭제 대상 선택은 Space.");
+    /* 첫 행에만 펀드 셀을 두고 나머지 행에 걸쳐 병합 — 실제 화면의 펀드 컬럼 병합 재현 */
+    var fundCell = (i===0) ? '<td class="l" rowspan="'+LPS.length+'">'+FUND.nm+'</td>' : '';
+    tr.innerHTML=
+      '<td class="c"><span class="kx-chk" role="checkbox" tabindex="0" aria-checked="false" aria-label="'+p.nm+' 삭제 대상 선택"></span></td>'+
+      fundCell+
+      '<td class="l">'+p.nm+'</td><td>'+p.no+'</td><td>'+p.role+'</td>'+
+      '<td>'+p.t1+'</td><td>'+p.t2+'</td><td>'+p.t3+'</td><td>'+p.t4+'</td>'+
+      '<td class="r">'+fmt(p.amt)+'</td><td class="r">-</td>'+
+      '<td class="r">'+(p.amt/FUND.par).toLocaleString("ko-KR")+'</td>'+
+      '<td class="r">'+rt(p.amt)+'</td>';
+    tb.appendChild(tr);
+  });
+  $("kxSumKrw").textContent=fmt(sum);
+  $("kxSumNum").textContent=sumNum.toLocaleString("ko-KR");
+  $("kxSumRow").hidden=false;
+  $("kxPaging").hidden=false;
+  $("kxCount").textContent=LPS.length;
+  placeMarkers(); /* 데이터 로드로 컬럼 폭이 바뀌므로 마커 재배치 */
+}
+$("kxSearch").addEventListener("click",function(){
+  var spin=$("kxSpin"), tb=$("kxRows");
+  tb.innerHTML=""; $("kxSumRow").hidden=true; spin.classList.add("on");
+  setTimeout(function(){
+    spin.classList.remove("on");
+    loaded=true; renderRows();
+    toast("조회가 완료되었습니다. 행을 더블클릭해 명부를 열어보세요.");
+  },600);
+});
+$("kxUnit").addEventListener("change",function(){
+  unit=Number(this.value);
+  if(loaded) renderRows();
+});
+$("kxExcel").addEventListener("click",function(){
+  toast(loaded?"엑셀 파일로 내려받습니다. (연습 화면)":"먼저 조회를 실행하세요.");
+});
+
+/* ---------- 등록 드롭다운 ---------- */
+var menu=$("kxMenu"), registBtn=$("kxRegist");
+function closeMenu(){ menu.classList.remove("on"); registBtn.setAttribute("aria-expanded","false"); }
+registBtn.addEventListener("click",function(e){
+  e.stopPropagation();
+  var on=menu.classList.toggle("on");
+  registBtn.setAttribute("aria-expanded",on?"true":"false");
+});
+menu.addEventListener("click",function(e){
+  var b=e.target.closest("button[data-mode]"); if(!b) return;
+  e.stopPropagation();
+  closeMenu();
+  /* 메뉴를 먼저 닫으므로, openModal 이 lastFocus 로 "숨겨진 메뉴 항목"을 잡지 않도록
+     보이는 등록 버튼으로 포커스를 옮겨 둔다 (모달 닫은 뒤 포커스 복원 지점) */
+  registBtn.focus();
+  openModal(b.dataset.mode,null);
+});
+document.addEventListener("click",closeMenu);
+document.addEventListener("keydown",function(e){
+  if(e.key!=="Escape"||!menu.classList.contains("on")) return;
+  var inside=menu.contains(document.activeElement);
+  closeMenu();
+  if(inside) registBtn.focus(); /* 숨겨진 메뉴 항목에 포커스가 남지 않게 */
+});
+
+/* ---------- 명부 창 (등록 / 수정 / 약정액 변동 / 양수도) ---------- */
+var overlay=$("kxOverlay"), lastFocus=null;
+var panes=[$("kxPane0"),$("kxPane1"),$("kxPane2")];
+function showPane(i){ panes.forEach(function(p,j){ p.classList.toggle("on",j===i); }); }
+
+function setHist(p){
+  var tb=$("kxHist");
+  if(!p){ tb.innerHTML='<tr><td colspan="4" style="color:#BDBDBD">저장하면 "최초출자" 내역이 자동으로 추가됩니다.</td></tr>'; return; }
+  var rows='<tr><td>2021-03-15</td><td>최초출자</td><td style="text-align:right">'+p.amt.toLocaleString("ko-KR")+'</td><td style="text-align:right">'+p.amt.toLocaleString("ko-KR")+'</td></tr>';
+  if(p.chg) rows+='<tr><td>2023-08-01</td><td>약정 증가</td><td style="text-align:right">2,000,000,000</td><td style="text-align:right">'+(p.amt+2000000000).toLocaleString("ko-KR")+'</td></tr>';
+  tb.innerHTML=rows;
+}
+function openModal(mode,p){
+  var title, pane=0;
+  if(mode==="change"){ title="약정액 변동"; pane=1; }
+  else if(mode==="transfer"){ title="양수도"; pane=2; }
+  else if(mode==="edit"){ title="출자자명부 — "+p.nm; }
+  else { title="출자자명부 등록"; }
+  $("kxModalTitle").textContent=title;
+  showPane(pane);
+  /* "저장 후 계속 등록"은 신규 등록에만 있다 — 모드마다 반드시 다시 설정 */
+  $("kxKeep").style.display=(mode==="new")?"":"none";
+  if(pane===0){
+    var edit=(mode==="edit");
+    $("kxLock").classList.toggle("on",edit);
+    $("kxMFund").textContent=FUND.nm;
+    $("kxMLp").textContent   = edit? p.nm  : "출자자를 검색해 선택하세요";
+    $("kxMNo").textContent   = edit? p.no  : "-";
+    $("kxMRole").textContent = edit? p.role: "선택";
+    $("kxMPro").textContent  = edit? p.pro : "부";
+    $("kxMT1").textContent   = edit? p.t1  : "선택";
+    $("kxMT2").textContent   = edit? p.t2  : "선택";
+    $("kxMT3").textContent   = edit? p.t3  : "선택";
+    $("kxMT4").textContent   = edit? p.t4  : "선택";
+    $("kxMAmt").textContent  = edit? p.amt.toLocaleString("ko-KR") : "0";
+    $("kxMNum").textContent  = edit? (p.amt/FUND.par).toLocaleString("ko-KR") : "0";
+    $("kxMRt").textContent   = edit? rt(p.amt) : "0.00";
+    /* 수정 모드에서 잠기는 항목을 회색으로 표시 */
+    ["kxMFund","kxMLp","kxMNo","kxMAmt"].forEach(function(id){ $(id).classList.toggle("ro",edit); });
+    setHist(edit?p:null);
+  }
+  lastFocus=document.activeElement;
+  overlay.classList.add("on");
+  $("kxClose").focus();
+}
+function closeModal(){
+  overlay.classList.remove("on");
+  if(lastFocus) lastFocus.focus();
+}
+$("kxClose").addEventListener("click",closeModal);
+$("kxCloseBtn").addEventListener("click",closeModal);
+overlay.addEventListener("click",function(e){ if(e.target===overlay) closeModal(); });
+
+/* ---------- 목록 상호작용 ---------- */
+$("kxRows").addEventListener("dblclick",function(e){
+  if(e.target.closest(".kx-chk")) return;
+  var tr=e.target.closest("tr");
+  if(!tr||tr.dataset.idx==null) return;
+  openModal("edit",LPS[Number(tr.dataset.idx)]);
+});
+$("kxRows").addEventListener("click",function(e){
+  var tr=e.target.closest("tr");
+  if(!tr||tr.dataset.idx==null) return;
+  var box=e.target.closest(".kx-chk");
+  if(box){ /* 체크박스는 선택 토글만 하고 행 선택과 분리 */
+    toggleChk(box);
+    return;
+  }
+  Array.prototype.forEach.call(this.children,function(r){r.classList.remove("sel");});
+  tr.classList.add("sel");
+});
+function toggleChk(b){
+  var on=b.classList.toggle("on");
+  b.setAttribute("aria-checked",on?"true":"false");
+}
+$("kxRows").addEventListener("keydown",function(e){
+  var tr=e.target.closest("tr");
+  if(!tr||tr.dataset.idx==null) return;
+  var box=e.target.closest(".kx-chk");
+  if(box){ /* 체크박스에 직접 포커스한 경우 Space·Enter 모두 토글 */
+    if(e.key===" "||e.key==="Spacebar"||e.key==="Enter"){ e.preventDefault(); toggleChk(box); }
+    return;
+  }
+  if(e.key==="Enter"){ openModal("edit",LPS[Number(tr.dataset.idx)]); return; }
+  if(e.key===" "||e.key==="Spacebar"){ /* 행에서도 Space 로 체크 */
+    e.preventDefault(); toggleChk(tr.querySelector(".kx-chk"));
+  }
+});
+
+/* ---------- 삭제 (3단계 관문 재현) ---------- */
+function checkedRows(){
+  return Array.prototype.filter.call($("kxRows").children,function(tr){
+    var b=tr.querySelector(".kx-chk"); return b&&b.classList.contains("on");
+  });
+}
+$("kxDel").addEventListener("click",function(){
+  if(!loaded){ toast("먼저 조회를 실행하세요."); return; }
+  var rows=checkedRows();
+  if(rows.length===0){ toast("삭제할 데이터를 체크해주세요."); return; }
+  if(rows.length>1){ toast("한 건의 데이터만 체크해주세요."); return; }
+  delTarget=LPS[Number(rows[0].dataset.idx)];
+  openConfirm("del");
+});
+
+/* ---------- 저장 / 임시저장 / 삭제 확인 ---------- */
+var confirmBox=$("kxConfirm"), confirmMode="save", confirmInvoker=null, delTarget=null;
+function openConfirm(mode){
+  confirmMode=mode;
+  confirmInvoker=document.activeElement;
+  var msg="저장하시겠습니까?";
+  if(mode==="temp") msg="작성 중인 내용을 임시저장하시겠습니까?";
+  else if(mode==="keep") msg="저장 후 계속 등록하시겠습니까?";
+  else if(mode==="del") msg="선택한 출자자를 삭제하시겠습니까?";
+  $("kxConfirmMsg").textContent=msg;
+  confirmBox.classList.add("on");
+  $("kxConfirmOk").focus();
+}
+function closeConfirm(){
+  confirmBox.classList.remove("on");
+  /* 포커스를 호출 버튼으로 복원 — body로 떨어지지 않게 */
+  if(confirmInvoker&&confirmInvoker.focus) confirmInvoker.focus();
+  confirmInvoker=null;
+}
+$("kxSave").addEventListener("click",function(){openConfirm("save");});
+$("kxTemp").addEventListener("click",function(){openConfirm("temp");});
+$("kxKeep").addEventListener("click",function(){openConfirm("keep");});
+$("kxConfirmNo").addEventListener("click",closeConfirm);
+$("kxConfirmOk").addEventListener("click",function(){
+  closeConfirm();
+  if(confirmMode==="del"){
+    var p=delTarget;
+    if(!p){ return; }
+    if(p.chg)       toast("최초약정액 외 약정변동내역이 있습니다. 약정액 변동이력을 먼저 삭제한 후 삭제 가능합니다.");
+    else if(p.paid) toast("해당 출자자의 출자/분배 내역이 있습니다. 출자/분배 내역을 먼저 삭제한 후 삭제 가능합니다.");
+    else if(p.rpt)  toast("LP보고가 설정되어 있는 출자자입니다. 로고스시스템으로 문의해 주세요.");
+    else            toast("삭제되었습니다. (연습 화면 — 실제로는 아무것도 삭제되지 않습니다)");
+    return;
+  }
+  if(confirmMode==="save")      toast("저장되었습니다. 약정액 변동이력에 \"최초출자\"가 자동 추가됩니다. (연습 화면)");
+  else if(confirmMode==="keep") toast("저장 후 이어서 등록할 수 있습니다. (연습 화면)");
+  else                          toast("임시저장되었습니다. (연습 화면)");
+});
+
+/* 열린 다이얼로그 안에서 Tab 순환 (포커스 트랩) */
+document.addEventListener("keydown",function(e){
+  if(e.key!=="Tab") return;
+  var scope=confirmBox.classList.contains("on")?confirmBox
+           :overlay.classList.contains("on")?overlay:null;
+  if(!scope) return;
+  var f=Array.prototype.filter.call(
+    scope.querySelectorAll("button,select,[tabindex='0']"),
+    function(el){return el.offsetParent!==null;});
+  if(!f.length) return;
+  var first=f[0], last=f[f.length-1], cur=document.activeElement;
+  if(!scope.contains(cur)){e.preventDefault();first.focus();}
+  else if(e.shiftKey&&cur===first){e.preventDefault();last.focus();}
+  else if(!e.shiftKey&&cur===last){e.preventDefault();first.focus();}
+});
+
+/* 토스트 */
+var toastTimer=null;
+function toast(msg){
+  var t=$("kxToast");
+  t.textContent=msg; t.classList.add("on");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){t.classList.remove("on");},2600);
+}
+
+/* ---------- 핫스팟: 앵커 요소 기준 자동 배치 ---------- */
+var stage=document.querySelector(".kx-stage");
+var kxScroll=document.querySelector(".kx-scroll");
+var openPop=null, openBtn=null;
+function closePop(){
+  if(openPop){openPop.classList.remove("on");}
+  if(openBtn){openBtn.setAttribute("aria-expanded","false");}
+  openPop=null; openBtn=null;
+}
+function placeMarkers(){
+  var sr=stage.getBoundingClientRect();
+  var vr=kxScroll.getBoundingClientRect();
+  document.querySelectorAll(".hs").forEach(function(btn){
+    var t=document.querySelector(btn.dataset.anchor);
+    if(!t){btn.style.display="none";return;}
+    var r=t.getBoundingClientRect();
+    /* 가로 스크롤로 앵커가 보이지 않으면 마커도 숨김 */
+    if(r.left<vr.left-6||r.left>vr.right-6){btn.style.display="none";return;}
+    btn.style.display="flex";
+    btn.style.left=(r.left-sr.left-10)+"px";
+    btn.style.top=(r.top-sr.top-10)+"px";
+  });
+}
+window.addEventListener("resize",function(){closePop();placeMarkers();});
+kxScroll.addEventListener("scroll",function(){closePop();placeMarkers();},{passive:true});
+window.addEventListener("load",placeMarkers);
+setTimeout(placeMarkers,400); /* 웹폰트 적용 후 재배치 */
+placeMarkers();
+
+document.querySelectorAll(".hs").forEach(function(btn){
+  btn.addEventListener("click",function(e){
+    e.stopPropagation();
+    closeMenu(); /* stopPropagation 으로 문서 닫기 핸들러가 건너뛰어지므로 직접 닫는다 */
+    var pop=$(btn.dataset.pop);
+    if(openPop===pop){closePop();return;}
+    closePop();
+    stage.appendChild(pop);           /* 스테이지 좌표계로 이동 */
+    pop.classList.add("on");
+    var bt=btn.offsetTop, bl=btn.offsetLeft;
+    var stW=stage.clientWidth;
+    var left=Math.min(Math.max(bl-20,8), stW-pop.offsetWidth-8);
+    pop.style.left=left+"px";
+    pop.style.top=(bt+32)+"px";
+    btn.setAttribute("aria-expanded","true");
+    openPop=pop; openBtn=btn;
+  });
+});
+document.addEventListener("click",function(e){
+  if(openPop&&!openPop.contains(e.target)) closePop();
+});
+
+/* ---------- ESC 공통 ---------- */
+document.addEventListener("keydown",function(e){
+  if(e.key!=="Escape") return;
+  if(confirmBox.classList.contains("on")){closeConfirm();return;}
+  if(overlay.classList.contains("on")){closeModal();return;}
+  closePop();
+});
+
+/* ---------- redesign: 아이콘 주입 · 진행바 · 탑버튼 ---------- */
+var IC={
+ intro:'<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
+ explorer:'<path d="M14 4.1 12 6"/><path d="m5.1 8-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z"/>',
+ howto:'<path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/>',
+ related:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/>',
+ faq:'<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>'};
+function icsvg(p,s){return '<svg width="'+s+'" height="'+s+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>';}
+document.querySelectorAll('.toc nav a:not(.sub)').forEach(function(a){
+  var k=(a.getAttribute('href')||'').slice(1);
+  if(IC[k]) a.insertAdjacentHTML('afterbegin',icsvg(IC[k],15));
+});
+document.querySelectorAll('section.block').forEach(function(s){
+  var l=s.querySelector('.sec-label');
+  if(l&&IC[s.id]) l.insertAdjacentHTML('afterbegin',icsvg(IC[s.id],15));
+});
+var CMAP={'✓':'<path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/>','▶':'<polygon points="6 3 20 12 6 21 6 3"/>','★':'<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>','!':'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>','ⓘ':'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>'};
+document.querySelectorAll('.callout .ic, .notice>span[aria-hidden]').forEach(function(el){
+  var g=el.textContent.trim();
+  if(CMAP[g]) el.innerHTML=icsvg(CMAP[g],17);
+});
+document.querySelectorAll('#related table.doc td:first-child').forEach(function(td){
+  var parts=td.innerHTML.split(/<br\s*\/?>/i);
+  td.innerHTML=parts.map(function(p){
+    p=p.trim(); if(!p) return '';
+    return '<a href="#" class="scr-link">'+p+icsvg('<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',13)+'</a>';
+  }).join('<br>');
+});
+document.querySelectorAll('.scr-link').forEach(function(a){
+  if(!a.querySelector('svg')) a.insertAdjacentHTML('beforeend',icsvg('<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',13));
+});
+document.addEventListener('click',function(e){
+  var a=e.target.closest('.scr-link'); if(!a) return;
+  e.preventDefault();
+  toast('실제 KiiPS에서는 「'+a.textContent.trim()+'」 화면으로 이동합니다.');
+});
+var pgb=document.createElement('div');pgb.id='pgBar';document.body.appendChild(pgb);
+var tt=document.createElement('button');tt.id='toTop';tt.type='button';tt.setAttribute('aria-label','맨 위로');
+tt.innerHTML=icsvg('<path d="m18 15-6-6-6 6"/>',20);document.body.appendChild(tt);
+tt.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});
+
+/* ---------- 다크 모드 토글 ---------- */
+var SUN='<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>';
+var MOON='<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>';
+var THEME_KEY='fd0102HelpTheme';
+var themeMq=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
+function themeNow(){
+  var a=document.documentElement.getAttribute('data-theme');
+  if(a==='dark'||a==='light') return a;
+  return (themeMq&&themeMq.matches)?'dark':'light';
+}
+var tg=document.createElement('button');tg.id='themeToggle';tg.type='button';
+document.body.appendChild(tg);
+function themePaint(){
+  var d=themeNow()==='dark';
+  tg.innerHTML=icsvg(d?SUN:MOON,17);
+  tg.setAttribute('aria-label',d?'라이트 모드로 전환':'다크 모드로 전환');
+}
+tg.addEventListener('click',function(){
+  var next=themeNow()==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  try{localStorage.setItem(THEME_KEY,next);}catch(e){}
+  themePaint();
+});
+if(themeMq){
+  var mqHandler=function(){themePaint();};
+  if(themeMq.addEventListener) themeMq.addEventListener('change',mqHandler);
+  else if(themeMq.addListener) themeMq.addListener(mqHandler);
+}
+themePaint();
+function pgChrome(){var d=document.documentElement;var max=d.scrollHeight-d.clientHeight;
+  pgb.style.width=(max?(d.scrollTop/max*100):0)+'%';tt.classList.toggle('on',d.scrollTop>600);}
+window.addEventListener('scroll',pgChrome,{passive:true});pgChrome();
+
+/* ---------- Driver.js 스타일 순차 투어 ---------- */
+var tourSpot=document.createElement('div');tourSpot.id='tourSpot';stage.appendChild(tourSpot);
+var tourPop=document.createElement('div');tourPop.id='tourPop';tourPop.className='popover';
+tourPop.innerHTML='<button type="button" class="tour-x" aria-label="안내 종료">'+icsvg('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',14)+'</button>'+
+ '<div class="tour-body"></div>'+
+ '<div class="tour-foot"><span class="cnt"></span><button type="button" class="tour-btn" id="tourPrev">이전</button><button type="button" class="tour-btn primary" id="tourNext">다음</button></div>';
+stage.appendChild(tourPop);
+$('tourStart').insertAdjacentHTML('afterbegin',icsvg('<polygon points="6 3 20 12 6 21 6 3"/>',15));
+var tourSteps=Array.prototype.slice.call(document.querySelectorAll('.kx-stage .hs')).sort(function(a,b){return (+a.textContent)-(+b.textContent);});
+var tourIdx=-1, touring=false;
+function tourPlace(){
+  if(!touring) return;
+  var btn=tourSteps[tourIdx], t=document.querySelector(btn.dataset.anchor);
+  if(!t) return;
+  var r=t.getBoundingClientRect(), vr=kxScroll.getBoundingClientRect();
+  if(r.left<vr.left+8||r.right>vr.right-8){kxScroll.scrollLeft+=r.left-vr.left-24;r=t.getBoundingClientRect();}
+  var sr=stage.getBoundingClientRect(), pad=6;
+  var L=r.left-sr.left-pad, T=r.top-sr.top-pad, W=r.width+pad*2, H=r.height+pad*2;
+  tourSpot.style.left=L+'px';tourSpot.style.top=T+'px';tourSpot.style.width=W+'px';tourSpot.style.height=H+'px';
+  var pl=Math.min(Math.max(L,8),stage.clientWidth-tourPop.offsetWidth-8);
+  tourPop.style.left=Math.max(pl,8)+'px';
+  tourPop.style.top=(T+H+14)+'px';
+}
+function tourShow(i){
+  tourIdx=i;
+  var btn=tourSteps[i];
+  tourPop.querySelector('.tour-body').innerHTML=$(btn.dataset.pop).innerHTML;
+  tourPop.querySelector('.cnt').textContent=(i+1)+' / '+tourSteps.length;
+  $('tourPrev').disabled=(i===0);
+  $('tourNext').textContent=(i===tourSteps.length-1)?'완료':'다음';
+  tourSpot.style.display='block';tourPop.classList.add('on');
+  tourPlace();
+  var r=tourSpot.getBoundingClientRect();
+  if(r.top<120||r.bottom+230>window.innerHeight)
+    window.scrollTo({top:window.scrollY+r.top-150,behavior:'smooth'});
+}
+function tourNextStep(){ if(tourIdx>=tourSteps.length-1){tourEnd();}else{tourShow(tourIdx+1);} }
+function tourEnd(){
+  touring=false;stage.classList.remove('touring');
+  tourSpot.style.display='none';tourPop.classList.remove('on');tourIdx=-1;
+}
+$('tourStart').addEventListener('click',function(){
+  closePop();touring=true;stage.classList.add('touring');tourShow(0);
+});
+$('tourNext').addEventListener('click',tourNextStep);
+$('tourPrev').addEventListener('click',function(){ if(tourIdx>0)tourShow(tourIdx-1); });
+tourPop.querySelector('.tour-x').addEventListener('click',tourEnd);
+window.addEventListener('resize',tourPlace);
+kxScroll.addEventListener('scroll',tourPlace,{passive:true});
+document.addEventListener('keydown',function(e){
+  if(!touring) return;
+  if(e.key==='ArrowRight'){e.preventDefault();tourNextStep();}
+  else if(e.key==='ArrowLeft'){e.preventDefault();if(tourIdx>0)tourShow(tourIdx-1);}
+  else if(e.key==='Escape'){tourEnd();}
+});
+
+/* ---------- 목차 스크롤 스파이 + 섹션 리빌 ---------- */
+var tocLinks=Array.prototype.slice.call(document.querySelectorAll(".toc nav a"));
+var targets=tocLinks.map(function(a){return document.querySelector(a.getAttribute("href"));});
+function spy(){
+  var pos=window.scrollY+130, cur=0;
+  targets.forEach(function(t,i){ if(t&&t.offsetTop<=pos) cur=i; });
+  tocLinks.forEach(function(a,i){ a.classList.toggle("active",i===cur); });
+}
+window.addEventListener("scroll",spy,{passive:true}); spy();
+
+if("IntersectionObserver" in window){
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){ if(en.isIntersecting){en.target.classList.add("on"); io.unobserve(en.target);} });
+  },{threshold:0.08});
+  document.querySelectorAll(".reveal").forEach(function(el){io.observe(el);});
+}else{
+  document.querySelectorAll(".reveal").forEach(function(el){el.classList.add("on");});
+}
+})();
+</script>
+</body>
+</html>

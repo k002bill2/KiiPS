@@ -31,7 +31,20 @@ export const EASE_IN = Easing.bezier(0.16, 1, 0.3, 1);
 export const EASE_OUT = Easing.bezier(0.65, 0, 0.35, 1);
 
 const DEFAULTS = { zoomIn: 0.55, zoomOut: 0.85, padding: 120, maxScale: 3.0 } as const;
-const DRIFT_PER_SECOND = 0.0005;
+
+/**
+ * 홀드 중 미세 줌("정지화면 티 제거"). **기본값 0 — 켜지 말 것.**
+ *
+ * 0 이 아니면 scale 이 매 프레임 소수점 5자리로 바뀌어 전 픽셀이 서브픽셀만큼 밀린다.
+ * 그러면 정지 화면인 홀드 구간을 인코더가 매 프레임 새로 부호화한다.
+ * FD0102(20씬 / 3분 27초 / 1080p CRF30) 실측:
+ *   - 홀드 프레임 비용  4.15 kB → 0.19 kB (96% 감소, 순수 정지 구간 기준)
+ *   - 비디오 스트림     20.70 MiB → 13.46 MiB (35% 감소)
+ * 홀드가 영상의 ~85%라 이 상수 하나가 파일 크기의 최대 지렛대다.
+ * 화질은 완전히 동일하다(같은 해상도·같은 CRF). 얻는 것은 미세한 "살아있는 느낌"뿐이므로
+ * 되살릴 이유가 생기면 그 대가(수 MiB)를 알고 켤 것.
+ */
+const DRIFT_PER_SECOND = 0;
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(Math.max(v, lo), hi);
 
