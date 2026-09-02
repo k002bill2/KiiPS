@@ -29,7 +29,12 @@
 ```
 
 - `name` / `render` 스크립트의 컴포지션 id·출력 파일명은 대상 화면코드로 치환 (예: FD0201 → `fd0201-guide.mp4`).
-- **--crf=30 필수** (30MiB 한도) — render 스크립트 문자열에 반드시 포함. 수동 실행도 동일: `npx remotion render src/index.ts <화면코드> out/<파일>.mp4 --crf=30`.
+- **플래그 3개 필수** (30MiB 한도) — render 스크립트 문자열에 반드시 포함. 수동 실행도 동일:
+  `./node_modules/.bin/remotion render src/index.ts <화면코드> out/<파일>.mp4 --crf=26 --scale=0.6666666666666666 --audio-bitrate=64k`
+  - `--audio-bitrate=64k` — 기본 317 kbps 스테레오는 모노 TTS 를 7배로 부풀린다 (실측 7.85 → 1.52 MiB)
+  - `--scale=0.6666…` — 720p. 도움말 임베드 표시 폭이 645 CSS px 라 DPR2 에서도 1:1
+  - `--crf` — 1080p 는 30, 720p 는 26~28
+  - `npx` 는 샌드박스에서 실패하므로 **로컬 바이너리 직접 호출**, 렌더 자체는 **sandbox off** 필요
 
 ## tsconfig.json
 

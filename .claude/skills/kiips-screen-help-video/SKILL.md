@@ -48,12 +48,14 @@ description: "KiiPS 화면코드 1개(FD0101, FD0201 등)를 입력받아 ①인
 (안내|가이드|튜토리얼).*?(영상|비디오|video|mp4)
 ```
 
-## 파이프라인 개요 (2단계 5절차)
+## 파이프라인 개요 (2단계 6절차)
 
 ```
 [1단계: 도움말]  A.사실확인 → B.도움말 HTML 제작 → 브라우저 실측 검증
-[2단계: 영상]    C.스틸 캡처+TTS+렌더 → D.오디오/스틸 검증 → E.임베드
+[2단계: 영상]    C.스틸 캡처+TTS+렌더 → D.용량 예산 게이트 → E.오디오/스틸 검증 → F.임베드
 ```
+
+> 용량은 **생성 시점에 결정한다.** 다 만든 뒤 압축하는 단계는 없다 — 예산을 넘으면 렌더 파라미터를 고쳐 다시 만든다.
 
 ### 절차 1 — 화면 사실 확인 (제작 전)
 [reference.md](reference.md) Part 2 A절 체크리스트 수행: 대용량 HTML "캡처" 정체 확인, 필터 자동재조회 비대칭(`inc_filter_main.jsp:201`), 툴바 버튼 화면ID 분기 실측, 기존 도움말 체계 존재 여부.
@@ -72,13 +74,21 @@ chrome-devtools MCP 로 file:// 열어 reference.md Part 1 8절 "이식 후 검�
 1. DPR2 스틸 캡처 (`emulate 1920x1080x2`, **렉트 실측은 캡처와 같은 패스**)
 2. edge-tts 내레이션 (`uvx edge-tts --voice ko-KR-SunHiNeural --rate=-5%`, **sandbox off 필수**)
 3. `build_scenes.py` SCENES 테이블 작성 → `python3 build_scenes.py` → `src/scenes.ts` 자동 생성
-4. `npx remotion render src/index.ts <화면코드> out/<화면코드>-guide.mp4 --crf=30`
+4. `./node_modules/.bin/remotion render src/index.ts <화면코드> out/<화면코드>-guide.mp4 --crf=26 --scale=0.6666666666666666 --audio-bitrate=64k` (sandbox off · `npx` 는 샌드박스에서 실패)
 
-### 절차 5 — 오디오/스틸 검증 → 임베드 (+ reference.md Part 2 E절 수행)
+### 절차 5 — 용량 예산 게이트 (렌더 직후 · 검증 전)
+[examples.md](examples.md) 7절 수행. **압축 단계가 아니라 판정 게이트다** — 초과하면 렌더 파라미터를 고쳐 다시 만든다.
+- 목표 **≤ 12 MiB**(도움말 임베드 권장) / 하드 한도 30 MiB
+- 스트림 분해로 원인 특정: 오디오 > 2 MiB → `--audio-bitrate=64k` 누락 / 홀드 > 1 kB per frame → 드리프트 켜짐
+- 초과 시 순서: ①오디오 플래그 → ②드리프트 0 → ③`--scale`(720p) → ④`--crf` +2 → ⑤씬·내레이션 축소(**사용자 확인**)
+- ①~③은 **화질 손실 없음**. 후처리 트랜스코딩 금지 — 세대 손실만 붙는다
+- 화질 판정은 **임베드 표시 크기(1290px)로 축소해** 비교. 1080p 확대 비교는 과잉 판정
+
+### 절차 6 — 오디오/스틸 검증 → 임베드 (+ reference.md Part 2 E절 수행)
 - 씬별 홀드 시점 `remotion still` 스틸 추출로 화면 검증
 - **오디오는 번들 ffmpeg PCM 추출 → 3지점 피크 확인**이 유일한 증거 (afinfo 는 트랙 존재만 증명)
 - 영상 길이는 인코더 로그 프레임 카운트로 대조 (mdls 불가 — Part 2 C절)
-- 30MiB 미만 확인 후 **도움말 HTML과 같은 디렉토리**에 배치, `<video controls preload="metadata">` 블록 임베드 (examples.md 8절 — 정본 마크업 그대로)
+- **도움말 HTML과 같은 디렉토리**에 배치, `<video controls preload="metadata">` 블록 임베드 (examples.md 9절 — 정본 마크업 그대로)
 - 임베드 후 `<video>` `readyState === 4` 재생 실측 검증
 - 구버전 미디어 파일 공존 정리 여부를 명시적으로 결정 (조용히 방치 금지)
 - 대용량 mp4 커밋 전 사용자 확인
@@ -91,7 +101,8 @@ chrome-devtools MCP 로 file:// 열어 reference.md Part 1 8절 "이식 후 검�
 - 렉트 실측을 별도 패스에서 하면 scrollY 편차 (실측 16px)
 - 씬 길이 = 8f 리드인 + 오디오 + 20f 테일 (테일 > 전환 12f)
 - `take_screenshot` 은 워크스페이스 루트 안에만 저장 가능 → mv 경유
-- 기본 CRF 는 30MiB 초과 → `--crf=30`
+- 용량은 **생성 시점**에 결정 — 3대 지렛대(**드리프트 0** · **`--audio-bitrate=64k`** · **`--scale=…`(720p)**), 실측 28.74 → 약 10 MiB. 다 만든 뒤 압축 금지(세대 손실)
+- **CRF 는 해상도 종속** — 720p 로 낮추면 CRF 도 26→28 로 올려야 실익이 난다 (CRF 26 은 1080p 대비 10%↓뿐)
 - TTS 는 sandbox off / 오디오 검증은 PCM 피크만 유효
 - 스크래치패드 영상 프로젝트는 세션 종료 시 소멸 — 보존물은 저장소로
 
@@ -102,6 +113,7 @@ chrome-devtools MCP 로 file:// 열어 reference.md Part 1 8절 "이식 후 검�
 | 도움말 HTML 구조·이식 체크리스트 전문 | [reference.md](reference.md) Part 1 |
 | 반복 함정 체크리스트 전문 (A~E절) | [reference.md](reference.md) Part 2 |
 | 영상 제작 절차서 (실명령) | [examples.md](examples.md) |
+| 용량 예산·지렛대·초과 시 대응 | [examples.md](examples.md) 7절 |
 | 카메라 레이어 (그대로 복사) | [templates/Camera.tsx](templates/Camera.tsx) |
 | 장면 렌더 구조 예시 | [templates/Video.tsx](templates/Video.tsx) |
 | 씬 매니페스트 생성기 (SCENES 만 교체) | [templates/build_scenes.py](templates/build_scenes.py) |
