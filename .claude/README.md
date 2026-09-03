@@ -15,7 +15,8 @@
 | Hooks (유니크) | 23 | `hooks/` (.min.js 제외, .js/.sh 순수 훅 스크립트) |
 | Hooks (settings 바인딩) | 14 across 9 events | [`settings.json`](./settings.json) |
 | Permission Gates | 8 (2a PreToolUse) | [`docs/architecture.html`](./docs/architecture.html) |
-| MCP Servers | context7, serena, playwright, pencil, claude-in-chrome | `mcp.json` |
+| MCP Servers | context7, serena, magic, tavily, morphllm-fast-apply | `mcp.json` |
+| 브라우저 자동화 | **aside-browser** 스킬 (`aside` CLI) — 단일 표준. playwright/claude-in-chrome/chrome-devtools/agent-browser 제거·비활성(2026-09-02) | `~/.claude/skills/aside-browser` |
 
 > drift 감지: `bash tests/catalog-integrity.sh` — 문서 수량 vs 실측 파일 수량 대조.
 

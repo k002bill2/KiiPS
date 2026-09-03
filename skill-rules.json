@@ -1277,33 +1277,6 @@
       "kiips-a11y-guide"
     ]
   },
-  "agent-browser": {
-    "type": "tool",
-    "enforcement": "suggest",
-    "priority": "high",
-    "scope": "global",
-    "description": "Vercel agent-browser CLI - 접근성 트리 기반 브라우저 자동화. 로그인 세션이 필요하면 claude-in-chrome, 독립 세션이면 agent-browser.",
-    "promptTriggers": {
-      "keywords": [
-        "agent-browser",
-        "브라우저 자동화",
-        "browser automation",
-        "헤드리스",
-        "headless",
-        "스크린샷 찍",
-        "화면 실측",
-        "브라우저로 확인",
-        "브라우저로 열",
-        "e2e",
-        "브라우저 테스트"
-      ],
-      "intentPatterns": [
-        "(브라우저|browser).*?(자동화|띄워|열어서|실행해서).*?(확인|검증|테스트|캡처)",
-        "(스크린샷|screenshot).*?(찍어|캡처|저장)",
-        "(웹|사이트|페이지|화면).*?(브라우저|browser).*?(테스트|검증|실측|확인)"
-      ]
-    }
-  },
   "find-skills": {
     "type": "tool",
     "enforcement": "suggest",
@@ -1427,5 +1400,34 @@
       "kiips-ui-component-builder",
       "kiips-a11y-guide"
     ]
+  },
+  "aside-browser": {
+    "type": "tool",
+    "enforcement": "suggest",
+    "priority": "high",
+    "scope": "global",
+    "description": "Aside Browser CLI - AI 브라우저 에이전트. 사용자 자격증명·쿠키·방문기록을 그대로 쓰는 실제 브라우저에서 작업을 수행한다. KiiPS 표준 브라우저 자동화 도구.",
+    "promptTriggers": {
+      "keywords": [
+        "aside",
+        "aside browser",
+        "브라우저",
+        "브라우저 자동화",
+        "browser automation",
+        "헤드리스",
+        "headless",
+        "스크린샷 찍",
+        "화면 실측",
+        "브라우저로 확인",
+        "브라우저로 열",
+        "e2e",
+        "브라우저 테스트"
+      ],
+      "intentPatterns": [
+        "(브라우저|browser).*?(자동화|띄워|열어서|실행해서).*?(확인|검증|테스트|캡처)",
+        "(스크린샷|screenshot).*?(찍어|캡처|저장)",
+        "(웹|사이트|페이지|화면).*?(브라우저|browser).*?(테스트|검증|실측|확인)"
+      ]
+    }
   }
 }

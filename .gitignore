@@ -91,6 +91,8 @@ opencode.json
 .claude/state/
 # Codex 훅 런타임 상태 (postToolOrchestrator/stopEvent가 매 검증 사이클마다 재작성)
 .codex/state/
+# 설정 변경 전 로컬 롤백 백업 (계정 이메일·userID 등 개인 설정 포함 — 저장소 금지)
+.claude/backups/
 .claude/learning/observations.jsonl
 .claude/learning/observer-health.json
 .claude/learning/archive/
