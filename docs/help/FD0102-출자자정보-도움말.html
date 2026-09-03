@@ -1603,9 +1603,11 @@ document.addEventListener('keydown',function(e){
 /* ---------- 목차 스크롤 스파이 + 섹션 리빌 ---------- */
 var tocLinks=Array.prototype.slice.call(document.querySelectorAll(".toc nav a"));
 var targets=tocLinks.map(function(a){return document.querySelector(a.getAttribute("href"));});
+function docTop(el){ return el.getBoundingClientRect().top+window.scrollY; }
 function spy(){
-  var pos=window.scrollY+130, cur=0;
-  targets.forEach(function(t,i){ if(t&&t.offsetTop<=pos) cur=i; });
+  var pos=window.scrollY+140, cur=0;
+  targets.forEach(function(t,i){ if(t&&docTop(t)<=pos) cur=i; });
+  if(window.innerHeight+window.scrollY>=document.documentElement.scrollHeight-2) cur=targets.length-1;
   tocLinks.forEach(function(a,i){ a.classList.toggle("active",i===cur); });
 }
 window.addEventListener("scroll",spy,{passive:true}); spy();
