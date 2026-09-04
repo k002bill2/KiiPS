@@ -1,0 +1,1886 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KiiPS 공통 기능 첫걸음</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<script>/* 렌더 전에 테마 결정 (깜빡임 방지) — 우선순위: ?theme= > 저장값 > 시스템
+   KiiPS 의 ScreenHelp() 는 도움말을 다른 포트로 열기 때문에 localStorage 를 공유할 수 없어
+   현재 테마를 ?theme= 로 넘긴다 (header_function.jsp). 그 값을 먼저 존중한다. */
+try{var _q=(location.search.match(/[?&]theme=(dark|light)\b/)||[])[1];
+var _t=_q||localStorage.getItem('kiipsCommonHelpTheme');
+if(_t==='dark'||_t==='light'){document.documentElement.setAttribute('data-theme',_t);
+if(_q)localStorage.setItem('kiipsCommonHelpTheme',_q);}}catch(e){}</script>
+<style>
+/* ==========================================================================
+   문서 크롬 토큰 (도움말 자체의 디자인)
+   ========================================================================== */
+:root{
+  /* 딥 블루 문서 크롬 + 인주(印朱) 빨강 마커 */
+  --ink:#0B111C;            /* 제목 */
+  --body:#242D3D;           /* 본문 */
+  --muted:#4E5A6E;          /* 보조 텍스트 */
+  --paper:#FFFFFF;          /* 페이지 바탕(화이트) */
+  --card:#FFFFFF;           /* 카드 */
+  --line:#E4E9F1;           /* 헤어라인 보더 */
+  --line-strong:#CBD5E3;    /* 강조 보더 */
+  --accent:#0F62C4;         /* 문서 액센트(딥 블루) */
+  --accent-soft:#EAF2FD;
+  --shadow-sm:none;
+  --shadow-md:0 12px 36px rgba(19,26,38,.11);
+  --marker:#C5372C;         /* 핫스팟 마커(인주 빨강) */
+  --marker-soft:#FAE8E4;
+  --warn:#B45309;           /* 주의 */
+  --warn-soft:#FEF3E2;
+  --code-bg:#EDF1F6;
+  --code-ink:#22405E;
+  --info-ink:#144E8C;       /* callout.info 텍스트 */
+  --hover-soft:#FAFCFE;
+  --chip:rgba(112,115,124,.06);
+  --font-doc:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --font-head:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+
+  /* ===== KiiPS 실측 토큰 (화면 모사 전용, 원본 SCSS에서 추출) ===== */
+  --kx-font:"NexonLv2Gothic","Open Sans","Apple SD Gothic Neo","Malgun Gothic",Tahoma,Verdana,Arial,sans-serif;
+  --kx-primary:#007BFF;
+  --kx-primary-dark:#0062CC;
+  --kx-color:#3B3B3B;
+  --kx-border:#E5E7E9;
+  --kx-card-border:rgba(0,0,0,0.125);
+  --kx-card-header:rgba(0,0,0,0.03);
+  --kx-grid-header:#F0F0F0;
+  --kx-grid-border:#A49A91;
+  --kx-grid-line:#DEDEDE;
+  --kx-summary:#EEEEEE;
+  --kx-placeholder:#BDBDBD;
+}
+/* ===== 다크 모드 (문서 크롬만 — kx 모사 화면은 실제 라이트 화면 재현이므로 불변) ===== */
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ink:#E8EDF5;--body:#C3CCD9;--muted:#8C97A7;
+    --paper:#0E131B;--card:#161D28;
+    --line:#26303E;--line-strong:#3A4756;
+    --accent:#6AA5EC;--accent-soft:#182A42;
+    --shadow-md:0 12px 36px rgba(0,0,0,.5);
+    --marker:#E1584B;--marker-soft:#3B211D;
+    --warn:#E5A15C;--warn-soft:#33260F;
+    --code-bg:#1D2735;--code-ink:#9FBEE2;
+    --info-ink:#9CC3F0;--hover-soft:#1B2431;
+    --chip:rgba(148,163,184,.12);
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#E8EDF5;--body:#C3CCD9;--muted:#8C97A7;
+  --paper:#0E131B;--card:#161D28;
+  --line:#26303E;--line-strong:#3A4756;
+  --accent:#6AA5EC;--accent-soft:#182A42;
+  --shadow-md:0 12px 36px rgba(0,0,0,.5);
+  --marker:#E1584B;--marker-soft:#3B211D;
+  --warn:#E5A15C;--warn-soft:#33260F;
+  --code-bg:#1D2735;--code-ink:#9FBEE2;
+  --info-ink:#9CC3F0;--hover-soft:#1B2431;
+  --chip:rgba(148,163,184,.12);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font-doc);
+  font-size:15px;line-height:1.75;color:var(--body);
+  background:var(--paper);
+  word-break:keep-all;overflow-wrap:break-word;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+h1,h2,h3,h4{font-family:var(--font-head);color:var(--ink);line-height:1.32;text-wrap:balance;letter-spacing:-0.02em;font-weight:700}
+a{color:var(--accent)}
+code{font-family:ui-monospace,Menlo,monospace;font-size:0.88em;background:var(--code-bg);border-radius:4px;padding:1px 6px;color:var(--code-ink)}
+strong{color:var(--ink)}
+
+/* ---------- 레이아웃: 좌측 목차 + 본문 ---------- */
+.layout{display:flex;min-height:100vh}
+.toc{
+  width:236px;flex:0 0 236px;position:sticky;top:0;align-self:flex-start;
+  height:100vh;overflow-y:auto;padding:28px 14px 40px 20px;
+  border-right:1px solid var(--line);background:var(--card);
+}
+.toc .brand{font-family:var(--font-head);font-weight:700;font-size:15px;letter-spacing:-0.01em;color:var(--ink);margin-bottom:2px}
+.toc .brand small{display:block;font-weight:600;font-size:11px;color:var(--muted);letter-spacing:.09em;margin-top:3px}
+.toc nav{margin-top:24px;padding-top:18px;border-top:1px solid var(--line)}
+.toc a{
+  position:relative;display:flex;align-items:center;gap:9px;padding:7px 11px;border-radius:8px;font-size:13.5px;
+  color:var(--muted);text-decoration:none;transition:background .15s,color .15s;
+}
+.toc a.sub{padding-left:24px;font-size:12.8px}
+.toc a:hover{color:var(--accent);background:var(--accent-soft)}
+.toc a.active{color:var(--accent);background:var(--accent-soft);font-weight:700}
+.content{flex:1;min-width:0;padding:0 clamp(20px,4vw,56px) 96px}
+.inner{max-width:980px;margin:0 auto}
+
+/* ---------- 히어로 ---------- */
+.hero{padding:68px 0 8px;position:relative}
+.hero .eyebrow{
+  display:inline-flex;align-items:center;gap:12px;font-size:12px;font-weight:700;
+  letter-spacing:.15em;color:var(--muted);margin-bottom:22px;
+}
+.hero h1{font-size:clamp(34px,4.4vw,54px);font-weight:800;letter-spacing:-0.035em}
+.hero .lead{font-size:17.5px;line-height:1.8;color:var(--muted);margin-top:18px}
+.hero .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.hero .meta span{
+  font-size:12.5px;color:var(--muted);background:var(--chip);
+  border-radius:99px;padding:5px 14px;
+}
+.hero .meta b{color:var(--ink);font-weight:600}
+.notice{
+  display:flex;gap:10px;align-items:flex-start;margin-top:26px;
+  background:var(--warn-soft);border-radius:10px;
+  padding:12px 16px;font-size:13.5px;color:var(--warn);
+}
+/* 안내 영상 미리보기 */
+.video-preview{margin-top:26px}
+.video-preview video{display:block;width:min(645px,100%);border-radius:12px;border:1px solid var(--line);box-shadow:var(--shadow-md);background:#0B1220}
+.video-preview .vp-cap{font-size:12.8px;color:var(--muted);margin-top:8px}
+
+/* ---------- 섹션 공통 ---------- */
+section.block{padding-top:56px;margin-top:56px}
+.sec-label{
+  display:flex;align-items:center;gap:8px;
+  font-size:12.5px;font-weight:700;letter-spacing:.05em;color:var(--accent);margin-bottom:12px;
+}
+section.block{border-top:1px solid var(--line)}
+section.block>h2{font-size:31px;font-weight:800;letter-spacing:-0.028em;margin-bottom:26px}
+section.block h3{font-size:19.5px;font-weight:700;margin:44px 0 12px}
+section.block h4{font-size:15.5px;margin:24px 0 8px}
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .6s cubic-bezier(.22,.61,.36,1),transform .6s cubic-bezier(.22,.61,.36,1)}
+.reveal.on{opacity:1;transform:none}
+
+/* 카드/표/콜아웃 */
+.card-doc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 24px;margin:16px 0}
+table.doc{
+  width:100%;border-collapse:separate;border-spacing:0;font-size:13.5px;margin:16px 0;
+  background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;
+}
+table.doc th{
+  background:none;color:var(--muted);font-weight:700;font-size:12px;letter-spacing:.05em;
+  text-align:left;padding:11px 14px;border-bottom:2px solid var(--line-strong);
+}
+table.doc td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+table.doc tbody tr:last-child td{border-bottom:none}
+table.doc td:first-child{white-space:nowrap;color:var(--ink);font-weight:500}
+.table-wrap{overflow-x:auto}
+.callout{display:flex;gap:11px;border-radius:12px;padding:14px 18px;margin:16px 0;font-size:13.8px;align-items:flex-start}
+.callout .ic{flex:0 0 auto;font-weight:700}
+.callout.info{background:var(--accent-soft);color:var(--info-ink)}
+.callout.warn{background:var(--warn-soft);color:var(--warn)}
+.step-list{counter-reset:step;list-style:none;margin:14px 0}
+.step-list>li{position:relative;padding:0 0 20px 46px}
+.step-list>li::before{
+  counter-increment:step;content:counter(step);
+  position:absolute;left:0;top:1px;width:28px;height:28px;border-radius:50%;
+  background:var(--accent-soft);color:var(--accent);
+  font-weight:700;font-size:13px;
+  display:flex;align-items:center;justify-content:center;font-family:var(--font-head);
+}
+.step-list>li:not(:last-child)::after{
+  content:"";position:absolute;left:13.5px;top:32px;bottom:2px;width:1px;background:var(--line);
+}
+.step-list b{color:var(--ink)}
+.kbd{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:var(--card);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 7px;color:var(--ink)}
+details.acc{border:1px solid var(--line);border-radius:12px;background:var(--card);margin:10px 0;overflow:hidden}
+details.acc summary{
+  cursor:pointer;list-style:none;padding:14px 18px;font-weight:600;color:var(--ink);
+  display:flex;align-items:center;gap:10px;font-size:14.5px;transition:background .15s;
+}
+details.acc summary:hover{background:var(--hover-soft)}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary::before{content:"";flex:0 0 auto;width:16px;height:16px;background:var(--accent);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27black%27 stroke-width=%272.5%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27m9 18 6-6-6-6%27/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27black%27 stroke-width=%272.5%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27m9 18 6-6-6-6%27/%3E%3C/svg%3E") center/contain no-repeat;transition:transform .2s}
+details.acc[open] summary::before{transform:rotate(90deg)}
+details.acc .acc-body{padding:2px 18px 16px 40px;font-size:13.8px}
+details.acc .acc-body p{margin:6px 0}
+
+/* ==========================================================================
+   KiiPS 화면 모사 (kx-*)
+   ========================================================================== */
+.kx-stage{position:relative;margin:22px 0}
+.kx-scroll{overflow-x:auto;border-radius:12px;padding-bottom:4px}
+.kx-scroll::-webkit-scrollbar{height:8px}
+.kx-scroll::-webkit-scrollbar-track{background:transparent}
+.kx-scroll::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:99px}
+.kx-scroll::-webkit-scrollbar-thumb:hover{background:#AFBCCE}
+.kx-screen{
+  min-width:900px;
+  font-family:var(--kx-font);font-size:13px;font-weight:500;color:var(--kx-color);
+  background:#fff;border:1px solid var(--kx-card-border);border-radius:10px;
+  box-shadow:var(--shadow-md);
+  padding:14px 16px 16px;line-height:1.5;
+}
+.kx-screen *{font-family:inherit}
+/* 필터 바 */
+.kx-filterbar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:flex-end;padding:4px 2px 12px;border-bottom:1px solid var(--kx-border)}
+.kx-filter{display:flex;flex-direction:column;gap:3px}
+.kx-filter .flabel{font-size:11.5px;color:#7A828C}
+.kx-select{
+  display:inline-flex;align-items:center;justify-content:space-between;gap:10px;
+  min-width:118px;height:30px;padding:0 10px;
+  background:#fff;border:1px solid var(--kx-border);border-radius:6px;
+  color:var(--kx-placeholder);font-size:12.5px;cursor:default;
+  transition:border-color .15s,box-shadow .15s;
+}
+.kx-select:hover{border-color:#C9D2DB}
+.kx-select.set{color:var(--kx-color)}
+.kx-select .caret{font-size:9px;color:#9AA0A8}
+.kx-daterange{display:inline-flex;align-items:center;gap:6px}
+.kx-date{
+  width:104px;height:30px;padding:0 9px;display:inline-flex;align-items:center;
+  background:#fff;border:1px solid var(--kx-border);border-radius:6px;color:var(--kx-color);font-size:12.5px;
+}
+/* 버튼 툴바 */
+.kx-toolbar{display:flex;align-items:center;gap:8px;padding:11px 2px}
+.kx-count{font-size:12.5px;color:#7A828C;margin-right:auto}
+.kx-count b{color:var(--kx-primary);font-weight:600}
+.kx-btn{
+  display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 13px;
+  font-size:12.5px;font-weight:500;border-radius:6px;cursor:pointer;
+  border:1px solid transparent;background:#fff;color:var(--kx-color);
+  transition:background .15s,color .15s,border-color .15s;
+}
+.kx-btn.outline{border-color:#66B0FF;color:#1A85FF}
+.kx-btn.outline:hover{background:#E5F1FF;border-color:#3D9BFF}
+.kx-btn.plain{border-color:var(--kx-border)}
+.kx-btn.plain:hover{background:#F4F6F8;border-color:#D3D9DF}
+.kx-btn:active{transform:translateY(1px)}
+.kx-btn:focus-visible,.kx-select:focus-visible{outline:2px solid var(--kx-primary);outline-offset:1px}
+.kx-unit{height:30px;border:1px solid var(--kx-border);border-radius:6px;background:#fff;color:var(--kx-color);font-size:12.5px;padding:0 6px;cursor:pointer;font-family:inherit}
+/* 그리드 */
+.kx-grid{width:100%;border-collapse:collapse;font-size:12.5px}
+.kx-grid th{
+  background:var(--kx-grid-header);color:var(--kx-color);font-weight:500;
+  border:1px solid var(--kx-grid-border);border-left-color:#C9C2BC;
+  padding:7px 8px;text-align:center;white-space:nowrap;
+}
+.kx-grid td{
+  border:1px solid var(--kx-grid-line);padding:6px 8px;text-align:center;
+  white-space:nowrap;font-variant-numeric:tabular-nums;
+}
+.kx-grid td.l{text-align:left}
+.kx-grid td.r{text-align:right}
+.kx-grid tr.sum td{background:var(--kx-summary);font-weight:600;border-color:#D6D0CA}
+.kx-grid tbody.data tr{cursor:pointer;transition:background .12s}
+.kx-grid tbody.data tr:hover{background:#F2F8FF}
+.kx-grid tbody.data tr.sel{background:#E5F1FF}
+.kx-grid tbody.data tr:focus-visible{outline:2px solid var(--kx-primary);outline-offset:-2px}
+.kx-empty td{color:var(--kx-placeholder);padding:34px 8px !important;cursor:default !important;font-size:12.5px}
+.kx-empty td::before{content:"⌕";display:block;font-size:22px;margin-bottom:6px;color:#D5DAE0}
+.kx-status{display:inline-block;padding:1px 9px;border-radius:99px;font-size:11.5px}
+.kx-status::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:currentColor;margin-right:5px;vertical-align:1.5px}
+.kx-status.run{background:#E4F4E9;color:#1D7A3E}
+.kx-status.prep{background:#FFF3DC;color:#9A6B00}
+.kx-status.clr{background:#EEEEF1;color:#6B7280}
+.kx-paging{display:flex;justify-content:center;gap:4px;padding-top:12px;font-size:12px;color:#7A828C}
+.kx-paging span{
+  min-width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid var(--kx-border);border-radius:4px;background:#fff;transition:background .12s;
+}
+.kx-paging span:hover{background:#F4F6F8}
+.kx-paging span.cur{background:var(--kx-primary);border-color:var(--kx-primary);color:#fff}
+.kx-paging span.cur:hover{background:var(--kx-primary)}
+.kx-spin{display:none;text-align:center;padding:20px 0;color:#7A828C;font-size:12.5px}
+.kx-spin.on{display:block}
+.kx-spin i{
+  display:inline-block;width:16px;height:16px;border:2px solid #C9DEF6;border-top-color:var(--kx-primary);
+  border-radius:50%;vertical-align:-3px;margin-right:8px;animation:kxspin .7s linear infinite;
+}
+@keyframes kxspin{to{transform:rotate(360deg)}}
+
+/* ---------- 공용 추가 컴포넌트 (드롭다운 · 체크박스 · 표 도구) ---------- */
+.kx-btn.solid{background:var(--kx-primary);border-color:var(--kx-primary);color:#fff}
+.kx-btn.solid:hover{background:var(--kx-primary-dark);border-color:var(--kx-primary-dark)}
+.kx-btn .caret{font-size:8px;margin-left:1px}
+.kx-dd{position:relative;display:inline-flex}
+.kx-menu{
+  position:absolute;top:calc(100% + 4px);left:0;min-width:136px;z-index:6;
+  background:#fff;border:1px solid rgba(0,0,0,.15);border-radius:4px;
+  box-shadow:0 6px 18px rgba(0,0,0,.13);padding:6px 0;display:none;
+}
+.kx-menu.on{display:block}
+.kx-menu button{
+  display:block;width:100%;text-align:left;background:none;border:0;
+  padding:6px 16px;font-family:inherit;font-size:12.5px;color:var(--kx-color);cursor:pointer;
+}
+.kx-menu button:hover{background:#F4F6F8}
+.kx-menu button:focus-visible{outline:2px solid var(--kx-primary);outline-offset:-2px}
+.kx-grid th.c,.kx-grid td.c{width:32px;padding:5px 4px}
+.kx-chk{
+  display:inline-block;width:13px;height:13px;border:1px solid #B9C0C8;border-radius:3px;
+  background:#fff;vertical-align:-2px;position:relative;
+}
+.kx-chk.on{background:var(--kx-primary);border-color:var(--kx-primary)}
+.kx-chk.on::after{content:"✓";position:absolute;inset:0;color:#fff;font-size:9px;line-height:13px;text-align:center}
+.kx-gridtools{display:flex;justify-content:flex-end;gap:5px;margin:6px 0 4px}
+.kx-note{font-size:11.5px;color:#8A9099;margin:2px 4px 10px}
+.kx-lockbar{
+  display:none;align-items:center;gap:6px;margin:0 0 10px;padding:7px 11px;
+  background:#FFF6E6;border:1px solid #F0DFB8;border-radius:6px;font-size:12px;color:#8A6A18;
+}
+.kx-lockbar.on{display:flex}
+
+/* ---------- 핫스팟 ---------- */
+.hs{
+  position:absolute;z-index:5;width:24px;height:24px;border-radius:50%;
+  background:var(--marker);color:#fff;border:2px solid #fff;
+  font:700 12px/1 var(--font-head);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;box-shadow:0 2px 8px rgba(197,55,44,.45);
+}
+.hs::after{
+  content:"";position:absolute;inset:-7px;border-radius:50%;
+  border:2px solid rgba(197,55,44,.55);animation:pulse 2.2s ease-out infinite;
+}
+.hs:hover,.hs[aria-expanded="true"]{background:#A62A20}
+.hs:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+@keyframes pulse{0%{transform:scale(.6);opacity:.9}70%{transform:scale(1.25);opacity:0}100%{opacity:0}}
+.popover{
+  position:absolute;z-index:50;width:min(320px,84vw);
+  background:var(--card);border:1px solid var(--line);border-radius:12px;
+  box-shadow:0 4px 12px rgba(19,26,38,.08),0 16px 44px rgba(19,26,38,.16);padding:15px 17px;
+  font-size:13.3px;line-height:1.6;display:none;
+}
+.popover.on{display:block}
+.popover h5{font-family:var(--font-head);font-size:13.5px;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.popover h5 .n{
+  flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:var(--marker);color:#fff;
+  font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;
+}
+.popover p{margin:4px 0;color:var(--body)}
+.popover .tip{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);color:var(--muted);font-size:12.5px}
+.hs-legend{display:flex;align-items:center;gap:8px;font-size:12.8px;color:var(--muted);margin:10px 2px 0}
+.hs-legend .dot{width:16px;height:16px;border-radius:50%;background:var(--marker);border:2px solid #fff;box-shadow:0 1px 4px rgba(197,55,44,.5)}
+
+/* ---------- 모사 모달 ---------- */
+.kx-overlay{
+  position:fixed;inset:0;z-index:100;background:rgba(23,32,44,.45);
+  display:none;align-items:flex-start;justify-content:center;padding:4vh 16px;
+}
+.kx-overlay.on{display:flex}
+.kx-modal{
+  position:relative;width:min(880px,100%);max-height:88vh;display:flex;flex-direction:column;
+  background:#fff;border-radius:8px;border:1px solid rgba(0,0,0,.2);
+  box-shadow:rgba(50,50,93,.25) 0 50px 100px -20px,rgba(0,0,0,.3) 0 30px 60px -30px;
+  font-family:var(--kx-font);font-size:13px;color:var(--kx-color);
+  animation:kxmodal .22s ease;
+}
+@keyframes kxmodal{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.kx-modal-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 18px;background:var(--kx-card-header);border-bottom:1px solid var(--kx-card-border);
+  border-radius:8px 8px 0 0;
+}
+.kx-modal-head h4{font-size:16px;font-weight:600;color:#33353F;margin:0;font-family:inherit}
+.kx-x{
+  width:30px;height:30px;border-radius:4px;border:0;background:transparent;color:#B4B4B4;
+  font-size:17px;cursor:pointer;line-height:1;
+}
+.kx-x:hover{background:#EDEDED;color:#666}
+.kx-x:focus-visible{outline:2px solid var(--kx-primary)}
+.kx-modal-body{padding:16px 20px;overflow-y:auto}
+.kx-pane{display:none}
+.kx-pane.on{display:block}
+.kx-fieldset{border:1px solid var(--kx-border);border-radius:8px;padding:12px 14px 6px;margin-bottom:12px}
+.kx-fieldset legend{font-size:12px;font-weight:600;color:var(--kx-primary-dark);padding:0 6px;letter-spacing:.02em}
+.kx-frow{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:8px}
+.kx-f{display:flex;align-items:center;gap:8px;font-size:12.5px}
+.kx-f .flabel{color:#7A828C;white-space:nowrap}
+.kx-f .flabel .req{color:#E03131;margin-left:1px}
+.kx-f .v{
+  min-width:90px;padding:4px 9px;background:#fff;border:1px solid var(--kx-border);
+  border-radius:5px;color:var(--kx-color);
+}
+.kx-f .v.ro{background:#F4F5F7;color:#8A9099}
+.kx-minigrid{width:100%;border-collapse:collapse;font-size:12px;margin:4px 0 10px}
+.kx-minigrid th{background:var(--kx-grid-header);border:1px solid var(--kx-grid-border);border-left-color:#C9C2BC;padding:5px 7px;font-weight:500;text-align:center}
+.kx-minigrid td{border:1px solid var(--kx-grid-line);padding:5px 7px;text-align:center}
+.kx-modal-foot{
+  display:flex;justify-content:center;gap:8px;padding:12px;
+  border-top:1px solid #DEE2E6;background:#FAFBFC;border-radius:0 0 8px 8px;
+}
+.kx-toast{
+  position:fixed;left:50%;bottom:34px;transform:translate(-50%,16px);z-index:300;
+  background:#243041;color:#fff;font-size:13.5px;border-radius:8px;padding:11px 22px;
+  opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;
+  box-shadow:0 10px 30px rgba(0,0,0,.3);
+}
+.kx-toast.on{opacity:1;transform:translate(-50%,0)}
+.kx-confirm{
+  position:fixed;inset:0;z-index:200;background:rgba(23,32,44,.45);
+  display:none;align-items:center;justify-content:center;padding:16px;
+}
+.kx-confirm.on{display:flex}
+.kx-confirm .box{
+  width:min(360px,92vw);background:#fff;border-radius:8px;padding:26px 22px 18px;text-align:center;
+  font-family:var(--kx-font);color:var(--kx-color);box-shadow:0 20px 60px rgba(0,0,0,.3);
+  animation:kxmodal .2s ease;
+}
+.kx-confirm .box p{font-size:14px;margin-bottom:18px;max-width:none}
+.kx-confirm .row{display:flex;justify-content:center;gap:8px}
+
+/* 미니 구조 다이어그램 */
+.schema{display:flex;flex-direction:column;gap:8px;margin:20px 0}
+.schema .box{
+  border:1px solid var(--line);border-radius:12px;background:var(--card);
+  padding:13px 20px;display:flex;align-items:baseline;gap:12px;
+}
+.schema .box b{font-family:var(--font-head);color:var(--ink);font-size:14.5px;white-space:nowrap}
+.schema .box span{font-size:13px;color:var(--muted)}
+.schema .box.hl{border-color:var(--accent);background:var(--accent-soft)}
+.schema .arrow{text-align:center;color:var(--muted);font-size:13px;line-height:1}
+
+footer.foot{margin-top:80px;padding-top:20px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+
+@media (max-width:900px){
+  .toc{display:none}
+  .hero{padding:46px 0 8px}
+  #toTop{right:16px;bottom:16px;width:40px;height:40px}
+  #themeToggle{top:10px;right:16px;width:34px;height:34px}
+}
+@media (max-width:560px){
+  body{font-size:14.5px}
+  section.block{padding-top:40px;margin-top:40px}
+  section.block>h2{font-size:25px}
+  section.block h3{font-size:17.5px;margin:32px 0 10px}
+  .hero .lead{font-size:16px}
+  .card-doc{padding:16px 16px}
+  .callout{padding:12px 14px}
+  .step-list>li{padding-left:40px}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .hs::after{animation:none;display:none}
+  .reveal{opacity:1;transform:none;transition:none}
+  .kx-modal,.kx-confirm .box{animation:none}
+}
+
+/* ===== redesign layer ===== */
+.hero .eyebrow{font-size:12.5px;letter-spacing:.08em}
+section.block{position:relative}
+section.block::before{content:none}
+section.block>*{position:relative;z-index:1}
+.toc .brand svg{vertical-align:-4px;margin-right:7px;color:var(--accent)}
+.toc a svg{flex:0 0 auto;opacity:.75}
+.sec-label svg{flex:0 0 auto}
+.callout .ic{display:flex;margin-top:2.5px}
+.callout .ic svg{width:17px;height:17px}
+.notice>span:first-child{display:flex;margin-top:2.5px}
+.notice svg{width:16px;height:16px}
+.kx-btn svg{width:14px;height:14px}
+#pgBar{position:fixed;top:0;left:0;height:3px;width:0;z-index:400;background:linear-gradient(90deg,var(--accent),#3B8AEA);border-radius:0 3px 3px 0}
+#toTop{position:fixed;right:26px;bottom:26px;z-index:300;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--accent);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow-md);opacity:0;pointer-events:none;transform:translateY(10px);transition:opacity .25s,transform .25s,background .15s}
+#toTop.on{opacity:1;pointer-events:auto;transform:none}
+#toTop:hover{background:var(--accent-soft)}
+#toTop:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#themeToggle{position:fixed;top:14px;right:26px;z-index:300;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow-md);transition:background .15s,color .15s}
+#themeToggle:hover{background:var(--accent-soft);color:var(--accent)}
+#themeToggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width:760px){section.block::before{display:none}}
+@media (prefers-reduced-motion:reduce){#toTop{transition:none}}
+.scr-link{display:inline-flex;align-items:center;gap:5px;color:var(--accent);text-decoration:none;font-weight:500;border-radius:4px}
+.scr-link:hover{text-decoration:underline}
+.scr-link:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.scr-link svg{width:13px;height:13px;opacity:.7;flex:0 0 auto}
+/* ---------- 순차 안내 투어 (Driver.js 스타일) ---------- */
+.tour-cta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:16px 0 2px}
+.tour-start{display:inline-flex;align-items:center;gap:7px;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:background .15s}
+.tour-start:hover{background:#0B4FA0}
+.tour-start svg{width:15px;height:15px}
+.tour-cta .hint{font-size:12.8px;color:var(--muted)}
+.kx-stage.touring{z-index:60}
+.kx-stage.touring .hs{opacity:0;pointer-events:none;transition:opacity .25s}
+#tourSpot{position:absolute;z-index:60;border-radius:8px;pointer-events:none;display:none;
+  box-shadow:0 0 0 3px rgba(255,255,255,.95),0 0 0 9999px rgba(19,26,38,.55);
+  transition:left .38s cubic-bezier(.2,0,.2,1),top .38s cubic-bezier(.2,0,.2,1),width .38s cubic-bezier(.2,0,.2,1),height .38s cubic-bezier(.2,0,.2,1)}
+#tourPop{z-index:61;box-shadow:0 16px 48px rgba(0,0,0,.2);padding-top:16px;
+  transition:left .38s cubic-bezier(.2,0,.2,1),top .38s cubic-bezier(.2,0,.2,1)}
+#tourPop .tour-x{position:absolute;top:8px;right:8px;width:24px;height:24px;border:none;background:none;color:var(--muted);cursor:pointer;border-radius:6px;display:flex;align-items:center;justify-content:center;padding:0}
+#tourPop .tour-x:hover{background:rgba(112,115,124,.08)}
+.tour-foot{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.tour-foot .cnt{font-size:12px;color:var(--muted);font-weight:600;margin-right:auto;font-variant-numeric:tabular-nums}
+.tour-btn{border:1px solid var(--line-strong);background:var(--card);color:var(--body);border-radius:8px;padding:6px 13px;font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;transition:background .15s}
+.tour-btn:hover{background:rgba(112,115,124,.08)}
+.tour-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.tour-btn.primary:hover{background:#0B4FA0}
+.tour-btn:disabled{opacity:.4;cursor:default}
+.tour-btn:disabled:hover{background:var(--card)}
+@media (prefers-reduced-motion:reduce){#tourSpot,#tourPop{transition:none}}
+/* ===== 공통 셸 모사 컴포넌트 (COMMON 도움말 전용 · 기존 --kx-* 토큰만 사용) ===== */
+/* GNB + 메가메뉴 (실제 sidemenu_menutop_line_mega.jsp 구조 모사) */
+.kx-gnb{position:relative;display:flex;align-items:center;gap:10px;padding:0 2px 9px;border-bottom:1px solid var(--kx-border);font-size:12.5px;z-index:5}
+.kx-navset{display:flex;align-items:center;gap:2px;margin-right:auto}
+.kx-nav{position:relative}
+.kx-navlink{height:26px;padding:0 11px;border:0;border-radius:6px;background:transparent;color:#4B5563;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px}
+.kx-navlink:hover{background:#F1F4F8;color:#1F2937}
+.kx-nav.on>.kx-navlink{background:#EFF7FF;color:#1A85FF}
+.kx-navlink .caret{font-size:8px;color:#9AA0A8}
+.kx-navlink:focus-visible{outline:2px solid var(--kx-primary);outline-offset:1px}
+.kx-mega{
+  display:none;position:absolute;left:0;top:32px;min-width:430px;
+  background:#fff;border:1px solid var(--kx-border);border-radius:10px;
+  box-shadow:0 12px 30px rgba(16,24,40,.14);padding:12px 14px 0;z-index:40
+}
+.schema .box .sub{display:inline-block;margin-top:4px;color:var(--muted);font-size:.94em}
+.kx-mega.on{display:block}
+/* 메뉴가 열린 동안 다른 마커가 메뉴 위에 겹쳐 보이지 않게 낮춘다(3번은 유지) */
+.kx-stage.megaon .hs{opacity:.18;pointer-events:none}
+.kx-stage.megaon .hs[data-anchor="#kxGnbFund"]{opacity:1;pointer-events:auto}
+.kx-megacol{display:flex;gap:26px}
+.kx-megacol section{min-width:150px}
+.kx-megacol h6{margin:0 0 6px;font-size:11px;font-weight:700;color:#9AA0A8;letter-spacing:.02em;font-family:inherit}
+.kx-megacol ul{list-style:none;margin:0;padding:0}
+.kx-megaitem{display:flex;align-items:center;gap:4px;padding:1px 0}
+.kx-megalink{border:0;background:transparent;padding:3px 2px;font-size:12.5px;color:#33353F;cursor:pointer;font-family:inherit;text-align:left}
+.kx-megalink:hover{color:#1A85FF;text-decoration:underline}
+.kx-megalink.cur{color:#1A85FF;font-weight:700}
+.kx-megastar{border:0;background:transparent;padding:2px;font-size:11px;color:#C9CFD6;cursor:pointer;line-height:1}
+.kx-megastar.on{color:#F2B705}
+.kx-megafoot{margin:10px -14px 0;padding:9px 14px;border-top:1px solid var(--kx-border);background:#FAFBFC;border-radius:0 0 9px 9px}
+.kx-favlink{
+  display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;
+  padding:2px 4px;font-size:12.5px;font-weight:600;color:#33353F;cursor:pointer;font-family:inherit
+}
+.kx-favlink .s{color:#F2B705}
+.kx-favlink:hover{color:#1A85FF}
+.kx-favlink.hl{background:#FFF7DB;border-radius:5px;box-shadow:0 0 0 2px #F2B70555}
+/* .kx-utilbar 는 상단 1줄 통합으로 미사용 — 브레드크럼은 페이지 헤더로 이동 */
+.kx-crumb{display:block;margin:0 0 3px;font-size:11.5px;color:#8A929B}
+.kx-crumb i{font-style:normal;color:#C2C8D0;padding:0 3px}
+.kx-util-right{display:inline-flex;align-items:center;gap:6px}
+/* 왼쪽 여백은 핫스팟 마커(20px, anchor 좌상단 -10px) 자리 — 시계 숫자가 가려지지 않게 확보 */
+.kx-timer{font-variant-numeric:tabular-nums;color:var(--kx-primary);font-weight:600;font-size:12px;padding:1px 7px 1px 20px;border:1px solid var(--kx-border);border-radius:99px;background:#fff}
+.kx-ubtn{height:24px;padding:0 9px;border:1px solid var(--kx-border);border-radius:6px;background:#fff;color:#6B7280;font-size:11.5px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:4px}
+.kx-ubtn:hover{background:#F4F6F8;border-color:#D3D9DF}
+.kx-ubtn[aria-pressed="true"]{border-color:#66B0FF;color:#1A85FF;background:#EFF7FF}
+.kx-ubtn:focus-visible{outline:2px solid var(--kx-primary);outline-offset:1px}
+.kx-pagehead{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 2px 9px}
+.kx-pagehead h4{margin:0;font-size:16px;font-weight:600;color:#33353F;font-family:inherit;display:flex;align-items:center;gap:9px}
+.kx-star{display:inline-flex;align-items:center;gap:4px;height:23px;padding:0 9px;border:1px solid var(--kx-border);border-radius:99px;background:#fff;color:#9AA0A8;font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.kx-star .s{font-size:12px;line-height:1;color:#D5DAE0}
+.kx-star:hover{border-color:#C9D2DB}
+.kx-star[aria-pressed="true"]{border-color:#FFC64D;background:#FFF8E8;color:#8A6300}
+.kx-star[aria-pressed="true"] .s{color:#FFB300}
+.kx-star:focus-visible{outline:2px solid var(--kx-primary);outline-offset:1px}
+.kx-filterbar .kx-select{cursor:pointer}
+.kx-tagbar{display:flex;align-items:flex-start;gap:10px;padding:9px 10px;margin-top:10px;border:1px solid var(--kx-border);border-radius:8px;background:#FBFCFD}
+/* 좌측 여백은 핫스팟 마커 자리 — 첫 태그 글자가 가려지지 않게 확보 */
+.kx-tags{display:flex;flex-wrap:wrap;gap:5px;flex:1 1 auto;min-height:24px;align-items:flex-start;padding-left:14px}
+.kx-tags.collapsed{max-height:24px;overflow:hidden}
+.kx-tags:empty::before{content:"검색필터";color:var(--kx-placeholder);font-size:12px;line-height:24px}
+.kx-tag{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 5px 0 9px;border-radius:99px;background:var(--kx-primary);color:#fff;font-size:11.5px;white-space:nowrap}
+.kx-tag.req{background:#de2f2f}   /* theme.css .label-required 실측 */
+.kx-tag.init{background:#4E5DBF}  /* theme.css .label-init 실측 */
+.kx-tag .x{width:15px;height:15px;border:none;border-radius:50%;background:rgba(255,255,255,.25);color:#fff;font-size:10px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;font-family:inherit}
+.kx-tag .x:hover{background:rgba(255,255,255,.45)}
+.kx-tag .x:focus-visible{outline:2px solid #fff;outline-offset:1px}
+.kx-tagact{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto}
+.kx-fcount{font-size:11.5px;color:#7A828C;white-space:nowrap}
+.kx-fcount b{color:var(--kx-primary);font-weight:600}
+.kx-btn.solid{background:var(--kx-primary);border-color:var(--kx-primary);color:#fff}
+.kx-btn.solid:hover{background:var(--kx-primary-dark);border-color:var(--kx-primary-dark)}
+.kx-rowset{position:relative;display:inline-flex;align-items:center;gap:3px}
+.kx-badge{width:20px;height:20px;border:1px solid var(--kx-border);border-radius:5px;background:#fff;color:#8A9099;font-size:11px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;font-family:inherit}
+.kx-badge:hover{background:#F4F6F8;color:#6B7280}
+.kx-badge:focus-visible,.kx-rowpop input:focus-visible{outline:2px solid var(--kx-primary);outline-offset:1px}
+.kx-rowpop{position:absolute;top:34px;left:0;z-index:30;display:none;flex-direction:column;gap:7px;min-width:186px;padding:10px;background:#fff;border:1px solid var(--kx-border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.14)}
+.kx-rowpop.on{display:flex}
+.kx-rowpop b{font-size:12px;color:#33353F;font-weight:600}
+.kx-rowpop input{height:28px;border:1px solid var(--kx-border);border-radius:6px;padding:0 8px;font-size:12.5px;font-family:inherit;color:var(--kx-color)}
+.kx-rowpop .row{display:flex;gap:6px;justify-content:center}
+.kx-modal.narrow{max-width:420px}
+.kx-favlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.kx-favlist li{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--kx-border);border-radius:8px;background:#fff;font-size:12.5px;color:var(--kx-color)}
+.kx-favlist li .grip{color:#C2C8D0;cursor:grab;font-size:12px;line-height:1}
+.kx-favlist li .nm{flex:1 1 auto;border:none;background:none;padding:0;text-align:left;font:inherit;color:var(--kx-primary);cursor:pointer}
+.kx-favlist li .nm:hover{text-decoration:underline}
+.kx-favlist li .nm:focus-visible{outline:2px solid var(--kx-primary);outline-offset:2px;border-radius:3px}
+.kx-favlist li .cd{color:#9AA0A8;font-size:11.5px}
+.kx-favlist li .mv{width:19px;height:19px;border:1px solid var(--kx-border);border-radius:5px;background:#fff;color:#8A9099;font-size:10px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;font-family:inherit}
+.kx-favlist li .mv:hover:not(:disabled){background:#F4F6F8;color:#6B7280}
+.kx-favlist li .mv:disabled{opacity:.35;cursor:default}
+.kx-favlist li .mv:focus-visible{outline:2px solid var(--kx-primary);outline-offset:1px}
+.kx-favlist li.dragover{border-color:var(--kx-primary);background:#EFF7FF}
+.kx-favlist li[draggable="true"]{cursor:grab}
+.kx-favlist li .x{width:19px;height:19px;border:1px solid var(--kx-border);border-radius:50%;background:#fff;color:#9AA0A8;font-size:11px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;font-family:inherit}
+.kx-favlist li .x:hover{background:#F4F6F8;color:#6B7280}
+.kx-favlist li .x:focus-visible{outline:2px solid var(--kx-primary);outline-offset:1px}
+.kx-favempty{color:var(--kx-placeholder);font-size:12.5px;text-align:center;padding:26px 8px}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ===================== 좌측 목차 ===================== -->
+<aside class="toc" aria-label="목차">
+  <div class="brand"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M8 8v8"/><path d="M8 12l6-4"/><path d="M10.5 10.3 15 16"/></svg>공통 기능 첫걸음<small>KiiPS · 모든 화면 공통</small></div>
+  <nav>
+    <a href="#intro">1. 공통 기능이란</a>
+    <a href="#explorer">2. 화면 직접 만져보기</a>
+    <a href="#howto">3. 업무 따라하기</a>
+    <a href="#howto-search" class="sub">3-1. 조회하기 (검색필터)</a>
+    <a href="#howto-fav" class="sub">3-2. 즐겨찾기</a>
+    <a href="#howto-grid" class="sub">3-3. 목록 다루기</a>
+    <a href="#howto-excel" class="sub">3-4. 엑셀 내려받기</a>
+    <a href="#howto-env" class="sub">3-5. 테마 · 새창 · 세션</a>
+    <a href="#related">4. 화면마다 다른 것</a>
+    <a href="#faq">5. 주의사항 · FAQ</a>
+  </nav>
+</aside>
+
+<!-- ===================== 본문 ===================== -->
+<main class="content">
+<div class="inner">
+
+<header class="hero">
+  <span class="eyebrow">KiiPS 화면 가이드 · 공통</span>
+  <h1>모든 화면에 똑같이 있는 것들</h1>
+  <p class="lead">
+    KiiPS의 업무 화면은 <strong>화면마다 다른 부분</strong>과 <strong>어느 화면에서나 똑같이 동작하는 부분</strong>으로 나뉩니다.
+    이 문서는 뒤쪽, 즉 <strong>검색필터와 조회 · 즐겨찾기 · 목록 다루기 · 엑셀 내려받기 · 테마와 세션</strong>처럼
+    한 번만 익히면 <strong>모든 화면에서 그대로 쓰이는 공통 기능</strong>만 모았습니다.
+    화면별 도움말은 이 내용을 다시 설명하지 않으니, KiiPS를 처음 쓴다면 이 문서를 먼저 읽어 주세요.
+    아래 <a href="#explorer">화면 직접 만져보기</a>에서 실제와 똑같이 생긴 연습 화면을 눌러보며 배울 수 있습니다.
+  </p>
+  <div class="meta">
+    <span>대상 독자 <b>KiiPS를 처음 쓰는 실무자</b></span>
+    <span>적용 범위 <b>펀드관리 · 투자관리 · 회계 · 통계 등 전 업무 화면</b></span>
+    <span>읽는 순서 <b>이 문서 → 화면별 도움말</b></span>
+  </div>
+  <div class="video-preview">
+    <video src="COMMON-guide.mp4" controls preload="metadata" playsinline aria-label="공통 기능 안내 영상"></video>
+    <p class="vp-cap">▶ 안내 영상 (4분 41초) — 모든 화면에 공통인 13가지 기능을 음성으로 안내합니다.</p>
+  </div>
+</header>
+
+<!-- ======================= 1. 소개 ======================= -->
+<section class="block reveal" id="intro" data-num="01">
+  <div class="sec-label">제1장</div>
+  <h2>공통 기능이란</h2>
+  <p>
+    KiiPS의 업무 화면은 어느 메뉴로 들어가든 <strong>같은 뼈대</strong>를 씁니다.
+    화면 위쪽에는 <strong>상단 메뉴와 브레드크럼 · 세션 시계</strong>가, 그 아래에는 <strong>화면 이름과 즐겨찾기 별(★)</strong>이,
+    이어서 <strong>검색필터 → 필터 태그 → 버튼 툴바 → 목록</strong>이 같은 순서로 놓입니다.
+    이 뼈대가 하는 일은 어느 화면에서나 동일하므로, <strong>한 번 익히면 전 화면에서 그대로 통합니다.</strong>
+  </p>
+  <div class="schema" role="img" aria-label="공통 화면 뼈대: 위에서부터 상단 바(왼쪽 업무 메뉴 — 새 메뉴를 쓰는 기관은 펼치면 맨 아래에 즐겨찾기 목록, 오른쪽 세션시계·새창), 페이지 헤더(브레드크럼과 화면명, 즐겨찾기 별), 검색필터, 필터 태그 줄, 버튼 툴바, 목록 그리드 순서로 배치">
+    <div class="box"><b>① 상단 바</b><span>왼쪽은 업무 메뉴(<strong>새 메뉴를 쓰는 기관</strong>은 펼치면 맨 아래에 <strong>즐겨찾기 목록</strong>), 오른쪽은 세션 시계와 연장/로그아웃 · 새창 on/off<br><span class="sub">※ 즐겨찾기 목록은 <strong>모든 화면에서 오른쪽 설정 패널의 즐겨찾기 탭</strong>으로 열 수 있습니다</span></span></div>
+    <div class="box"><b>② 페이지 헤더</b><span>브레드크럼(현재 위치) + 화면 이름 + <strong>즐겨찾기 별(★)</strong> — 별 옆의 알파벳·숫자가 그 화면의 <strong>화면 코드</strong>입니다</span></div>
+    <div class="box hl"><b>③ 검색필터 + 필터 태그</b><span>조건을 고르면 아래 줄에 <strong>태그</strong>로 쌓입니다. 태그가 곧 "지금 적용된 조건"입니다</span></div>
+    <div class="box"><b>④ 버튼 툴바</b><span>페이지 행수(⋯로 직접 지정) · 단위 · <strong>조회</strong> · (화면별 버튼) · 엑셀 · <strong>도움말</strong> — 도움말은 언제나 맨 오른쪽</span></div>
+    <div class="box"><b>⑤ 목록 (그리드)</b><span>조건에 맞는 데이터가 표로 나열 — 행 더블클릭으로 상세를 여는 것도 공통 규칙입니다</span></div>
+  </div>
+  <div class="callout info">
+    <span class="ic">✓</span>
+    <span><strong>공통 기능만 알면 절반은 끝납니다</strong> — 처음 보는 화면이라도 조회하는 법, 목록을 읽는 법,
+    엑셀로 내려받는 법은 이미 아는 그대로입니다. 화면별 도움말에서는 <strong>그 화면에만 있는 버튼과 규칙</strong>만 보면 됩니다.</span>
+  </div>
+  <div class="callout warn">
+    <span class="ic">!</span>
+    <span><strong>조건을 바꿨는데 목록이 그대로인가요?</strong> — 검색필터는 <strong>조건을 새로 고를 때는 조회 버튼(또는 <span class="kbd">F2</span>)을 눌러야</strong> 반영되고,
+    <strong>이미 걸린 태그를 ✕로 지우면 그 즉시 자동으로 다시 조회</strong>됩니다.
+    이 비대칭이 "왜 안 바뀌지?"의 가장 흔한 원인입니다. <a href="#howto-search">3-1. 조회하기</a>에서 자세히 다룹니다.</span>
+  </div>
+</section>
+
+<!-- ======================= 2. 화면 탐색기 ======================= -->
+<section class="block reveal" id="explorer" data-num="02">
+  <div class="sec-label">제2장</div>
+  <h2>화면 직접 만져보기</h2>
+  <p>
+    아래는 KiiPS 업무 화면의 <strong>공통 뼈대만 본떠 만든 연습 화면</strong>입니다. 마음껏 눌러도 아무 데이터도 바뀌지 않습니다.
+    붉은색 번호 <span class="hs-legend" style="display:inline-flex;margin:0"><span class="dot"></span></span> 를 누르면 각 부분의 설명이 나타납니다.
+  </p>
+  <div class="callout info">
+    <span class="ic">▶</span>
+    <span>추천 순서: <strong>⑤ 검색필터</strong>를 눌러 조건을 걸어 보고(태그가 쌓이지만 목록은 그대로!) →
+    <strong>⑩ 조회</strong>를 눌러 목록을 채운 뒤 → 태그의 <strong>✕</strong>를 눌러 <strong>제거하면 즉시 자동 재조회</strong>되는 차이를 직접 확인해 보세요.
+    이어서 <strong>④ ★ 별</strong>을 눌러 즐겨찾기에 넣고, <strong>③</strong>에서 목록을 열어 보면 흐름이 한 번에 잡힙니다 — 목록은 <strong>오른쪽 설정 패널의 즐겨찾기 탭</strong>(모든 화면 공통)으로 열고, <strong>새 메뉴를 쓰는 기관</strong>이면 <strong>F8</strong>이나 펼친 메뉴 맨 아래 「즐겨찾기 목록」으로도 열립니다.</span>
+  </div>
+  <div class="tour-cta">
+    <button type="button" id="tourStart" class="tour-start">순서대로 둘러보기</button>
+    <span class="hint">①→⑬ 순서로 각 부분을 하이라이트하며 안내합니다. 방향키 ← →로도 이동할 수 있어요.</span>
+  </div>
+
+  <div class="kx-stage">
+    <div class="kx-scroll">
+      <div class="kx-screen" id="kxScreen">
+        <!-- 상단 메뉴(GNB) — 즐겨찾기 목록은 메뉴를 펼쳤을 때 맨 아래에 있습니다 -->
+        <div class="kx-gnb">
+          <div class="kx-navset">
+          <div class="kx-nav" id="kxNavFund">
+            <button type="button" class="kx-navlink" id="kxGnbFund" aria-haspopup="true" aria-expanded="false">펀드관리 <span class="caret">&#9660;</span></button>
+            <div class="kx-mega" id="kxMega" role="menu" aria-labelledby="kxGnbFund">
+              <div class="kx-megacol">
+                <section>
+                  <h6>기본정보</h6>
+                  <ul>
+                    <li class="kx-megaitem"><button type="button" class="kx-megalink" data-nm="펀드정보" data-cd="FD0101">펀드정보</button><button type="button" class="kx-megastar" data-nm="펀드정보" data-cd="FD0101" aria-label="펀드정보 즐겨찾기 토글" aria-pressed="false">&#9733;</button></li>
+                    <li class="kx-megaitem"><button type="button" class="kx-megalink cur" data-nm="출자자정보" data-cd="FD0102">출자자정보</button><button type="button" class="kx-megastar" data-nm="출자자정보" data-cd="FD0102" aria-label="출자자정보 즐겨찾기 토글" aria-pressed="false">&#9733;</button></li>
+                    <li class="kx-megaitem"><button type="button" class="kx-megalink" data-nm="조합원변동" data-cd="FD0103">조합원변동</button><button type="button" class="kx-megastar" data-nm="조합원변동" data-cd="FD0103" aria-label="조합원변동 즐겨찾기 토글" aria-pressed="false">&#9733;</button></li>
+                  </ul>
+                </section>
+                <section>
+                  <h6>운용관리</h6>
+                  <ul>
+                    <li class="kx-megaitem"><button type="button" class="kx-megalink" data-nm="투자실행" data-cd="IL0201">투자실행</button><button type="button" class="kx-megastar" data-nm="투자실행" data-cd="IL0201" aria-label="투자실행 즐겨찾기 토글" aria-pressed="false">&#9733;</button></li>
+                    <li class="kx-megaitem"><button type="button" class="kx-megalink" data-nm="회수관리" data-cd="IL0301">회수관리</button><button type="button" class="kx-megastar" data-nm="회수관리" data-cd="IL0301" aria-label="회수관리 즐겨찾기 토글" aria-pressed="false">&#9733;</button></li>
+                  </ul>
+                </section>
+              </div>
+              <div class="kx-megafoot">
+                <button type="button" class="kx-favlink" id="kxFavLink"><span class="s">&#9733;</span> 즐겨찾기 목록(단축키 F8)</button>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="kx-navlink">투자관리</button>
+            <button type="button" class="kx-navlink">회계</button>
+            <button type="button" class="kx-navlink">통계</button>
+          </div>
+          <span class="kx-util-right">
+            <span class="kx-timer" id="kxTimer" aria-label="남은 세션 시간">29:41</span>
+            <button type="button" class="kx-ubtn" id="kxExtend">연장</button>
+            <button type="button" class="kx-ubtn" id="kxLogout">로그아웃</button>
+            <button type="button" class="kx-ubtn" id="kxNewWin" aria-pressed="true">새창 on</button>
+          </span>
+        </div>
+        <!-- 페이지 헤더 -->
+        <div class="kx-pagehead">
+          <span class="kx-crumb">HOME <i>&rsaquo;</i> 펀드관리 <i>&rsaquo;</i> 기본정보</span>
+          <h4>출자자정보
+            <button type="button" class="kx-star" id="kxStar" aria-pressed="false" aria-label="이 화면을 즐겨찾기에 추가"><span class="s">&#9733;</span>FD0102</button>
+          </h4>
+        </div>
+        <!-- 검색필터 -->
+        <div class="kx-filterbar" id="kxFilterbar" role="group" aria-label="검색필터 — 누르면 조건이 태그로 추가됩니다">
+          <div class="kx-filter"><span class="flabel">펀드유형</span><button type="button" class="kx-select" data-tag="펀드유형: 벤처투자조합">전체 선택 <span class="caret">&#9660;</span></button></div>
+          <div class="kx-filter"><span class="flabel">펀드명</span><button type="button" class="kx-select" data-tag="펀드명: 한국성장 1호 투자조합">전체 선택 <span class="caret">&#9660;</span></button></div>
+          <div class="kx-filter"><span class="flabel">펀드상태</span><button type="button" class="kx-select" data-tag="펀드상태: 운용중">전체 선택 <span class="caret">&#9660;</span></button></div>
+          <div class="kx-filter"><span class="flabel">기간</span><button type="button" class="kx-select" data-tag="결성일: 2021-01-01 ~ 2024-12-31">전체 기간 <span class="caret">&#9660;</span></button></div>
+          <div class="kx-filter"><span class="flabel">기준일자 <b style="color:#de2f2f">*</b></span><button type="button" class="kx-select set" data-tag="기준일자: 2025-12-31" data-req="1">2025-12-31 <span class="caret">&#9660;</span></button></div>
+        </div>
+        <!-- 필터 태그 줄 -->
+        <div class="kx-tagbar">
+          <div class="kx-tags collapsed" id="kxTags" aria-label="적용된 필터 태그" role="list"></div>
+          <div class="kx-tagact">
+            <span class="kx-fcount"><b id="kxFilterCount">0</b>개 필터 적용</span>
+            <button type="button" class="kx-btn plain" id="kxSeeMore">전체보기</button>
+            <button type="button" class="kx-btn plain" id="kxFilterInit">필터초기화</button>
+            <button type="button" class="kx-btn solid" id="kxFilterSave">필터저장</button>
+          </div>
+        </div>
+        <!-- 툴바 -->
+        <div class="kx-toolbar">
+          <span class="kx-count">Total : <b id="kxCount">0</b> 건</span>
+          <span class="kx-rowset">
+            <button type="button" class="kx-btn plain" id="kxPageCnt" title="한 페이지에 보여줄 행 수">10</button>
+            <button type="button" class="kx-badge" id="kxRowSetBtn" aria-haspopup="true" aria-expanded="false" aria-label="데이터 개수 직접 설정">&#8943;</button>
+            <span class="kx-rowpop" id="kxRowPop" role="group" aria-label="데이터 개수 설정">
+              <b>데이터 개수 설정</b>
+              <input type="number" id="kxRowCnt" value="11" min="10" placeholder="숫자만 입력하세요" aria-label="한 페이지에 보여줄 행 수 직접 입력 (최소 10)">
+              <span class="row"><button type="button" class="kx-btn solid" id="kxRowOk">확인</button><button type="button" class="kx-btn plain" id="kxRowClose">닫기</button></span>
+            </span>
+          </span>
+          <select class="kx-unit" id="kxUnit" aria-label="금액 단위 선택">
+            <option value="1">원</option>
+            <option value="1000">천원</option>
+            <option value="1000000">백만원</option>
+            <option value="100000000">억원</option>
+          </select>
+          <button type="button" class="kx-btn outline" id="kxSearch"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> 조회</button>
+          <span class="kx-dd">
+            <button type="button" class="kx-btn solid" id="kxExcel" aria-haspopup="true" aria-expanded="false"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg> 엑셀 <span class="caret">&#9660;</span></button>
+            <span class="kx-menu" id="kxExcelMenu" role="menu" aria-labelledby="kxExcel">
+              <button type="button" role="menuitem" data-x="plain">엑셀 내려받기</button>
+              <button type="button" role="menuitem" data-x="cond">엑셀 내려받기(조건포함)</button>
+            </span>
+          </span>
+          <button type="button" class="kx-btn plain" id="kxHelpBtn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg> 도움말</button>
+        </div>
+        <!-- 목록 -->
+        <div class="kx-spin" id="kxSpin"><i></i>조회 중입니다…</div>
+        <table class="kx-grid" id="kxGrid">
+          <thead>
+            <tr>
+              <th class="c"><span class="kx-chk" aria-hidden="true"></span></th>
+              <th>펀드명</th><th>펀드유형</th><th>상태</th><th>결성일</th><th id="kxThAmt">약정총액</th><th>운용역</th>
+            </tr>
+            <tr class="sum" id="kxSumRow" hidden>
+              <td></td><td class="l">합계</td><td></td><td></td><td></td><td class="r" id="kxSumAmt"></td><td></td>
+            </tr>
+          </thead>
+          <tbody class="data" id="kxRows">
+            <tr class="kx-empty"><td colspan="7">조회 버튼을 누르면 목록이 나타납니다.</td></tr>
+          </tbody>
+        </table>
+        <div class="kx-paging" id="kxPaging" hidden><span>&laquo;</span><span class="cur">1</span><span>&raquo;</span></div>
+      </div>
+    </div>
+
+    <!-- 핫스팟 (연습 화면 위 — 위치는 JS가 data-anchor 요소 기준으로 계산) -->
+    <button type="button" class="hs" data-anchor="#kxTimer"     data-pop="pop-session" aria-expanded="false" aria-label="설명 보기: 세션 시계">1</button>
+    <button type="button" class="hs" data-anchor="#kxNewWin"    data-pop="pop-newwin"  aria-expanded="false" aria-label="설명 보기: 새창 on/off">2</button>
+    <button type="button" class="hs" data-anchor="#kxGnbFund"   data-pop="pop-favmenu" aria-expanded="false" aria-label="설명 보기: 즐겨찾기 목록 여는 법">3</button>
+    <button type="button" class="hs" data-anchor="#kxStar"      data-pop="pop-star"    aria-expanded="false" aria-label="설명 보기: 즐겨찾기 별과 화면 코드">4</button>
+    <button type="button" class="hs" data-anchor="#kxFilterbar .kx-filter:nth-child(1) .kx-select" data-pop="pop-filter" aria-expanded="false" aria-label="설명 보기: 검색필터">5</button>
+    <button type="button" class="hs" data-anchor="#kxTags"      data-pop="pop-tags"    aria-expanded="false" aria-label="설명 보기: 필터 태그">6</button>
+    <button type="button" class="hs" data-anchor="#kxFilterInit" data-pop="pop-fact"   aria-expanded="false" aria-label="설명 보기: 필터초기화와 필터저장">7</button>
+    <button type="button" class="hs" data-anchor="#kxPageCnt"   data-pop="pop-page"    aria-expanded="false" aria-label="설명 보기: 페이지 행수">8</button>
+    <button type="button" class="hs" data-anchor="#kxUnit"      data-pop="pop-unit"    aria-expanded="false" aria-label="설명 보기: 금액 단위">9</button>
+    <button type="button" class="hs" data-anchor="#kxSearch"    data-pop="pop-search"  aria-expanded="false" aria-label="설명 보기: 조회 버튼">10</button>
+    <button type="button" class="hs" data-anchor="#kxExcel"     data-pop="pop-excel"   aria-expanded="false" aria-label="설명 보기: 엑셀 내려받기">11</button>
+    <button type="button" class="hs" data-anchor="#kxHelpBtn"   data-pop="pop-help"    aria-expanded="false" aria-label="설명 보기: 도움말 버튼">12</button>
+    <button type="button" class="hs" data-anchor="#kxGrid"      data-pop="pop-grid"    aria-expanded="false" aria-label="설명 보기: 목록 그리드">13</button>
+  </div>
+  <p class="hs-legend"><span class="dot"></span> 번호를 누르면 설명이 열립니다. <span class="kbd">Esc</span> 또는 바깥을 누르면 닫힙니다. 오른쪽 컬럼의 번호는 표를 옆으로 밀면 나타납니다.</p>
+
+  <!-- 팝오버 정의 (JS가 마커 옆으로 이동시켜 표시) -->
+  <div hidden>
+    <div class="popover" id="pop-session">
+      <h5><span class="n">1</span>세션 시계 · 연장 · 로그아웃</h5>
+      <p>남은 <b>접속 유지 시간</b>입니다. 시간이 다 되면 자동으로 로그아웃되어 <b>저장하지 않은 입력은 사라집니다</b>. 옆의 <b>연장</b>을 누르면 시간이 다시 채워집니다.</p>
+      <p class="tip">긴 문서를 작성할 때는 중간중간 저장하거나 <b>연장</b>을 눌러 두세요. 화면을 클릭·입력하는 동안에도 시계는 계속 줄어듭니다.</p>
+    </div>
+    <div class="popover" id="pop-newwin">
+      <h5><span class="n">2</span>새창 on/off</h5>
+      <p>메뉴를 눌렀을 때 <b>별도 창으로 열지</b>, <b>지금 창에서 바꿔 열지</b>를 정하는 스위치입니다. <b>on</b>이면 화면마다 새 창이 떠서 여러 화면을 나란히 놓고 비교할 수 있습니다.</p>
+      <p class="tip">창이 자꾸 늘어나 헷갈린다면 <b>off</b>로 두세요. 이 설정은 <b>계정에 저장</b>되어 다음 접속에도 유지됩니다.</p>
+    </div>
+    <div class="popover" id="pop-favmenu">
+      <h5><span class="n">3</span>즐겨찾기 목록 여는 법 — 메뉴 방식에 따라 두 갈래</h5>
+      <p>즐겨찾기 목록을 여는 <b>버튼은 상단 유틸 바에 따로 있지 않습니다.</b> 여는 자리는 <b>메뉴 방식에 따라 다릅니다.</b></p>
+      <p><b>ⓐ 모든 화면 공통</b> — 오른쪽 <b>설정 패널</b>을 열고 <b>즐겨찾기 탭(★)</b>을 누릅니다. 목록은 드래그로 순서를 바꿀 수 있습니다.<br>
+        <b>ⓑ 새 메뉴를 쓰는 기관</b> — 위 방법에 더해 <b>F8</b>을 누르거나, <b>상단 메뉴를 펼쳐 맨 아래의 「★ 즐겨찾기 목록(단축키 F8)」</b>으로도 열립니다.
+        <b>메뉴를 펼쳤을 때 이 줄이 보이지 않으면 ⓐ를 쓰는 화면</b>입니다.</p>
+      <p>열리면 ★로 등록해 둔 화면들이 나열됩니다. 항목을 누르면 그 화면으로 바로 이동하고, <b>&times;</b>로 목록에서 뺄 수 있습니다.
+        ⓑ에서는 <b>각 메뉴 항목 옆의 ★</b>로도 그 화면을 등록·해제할 수 있습니다.
+        <b>등록하는 방법(화면 이름 옆 ★ 배지)은 어느 쪽이든 같습니다.</b></p>
+      <p class="tip">항목을 <b>끌어서 순서를 바꿀 수</b> 있습니다(연습 화면은 <b>▲▼</b> 버튼도 지원). 자주 쓰는 화면을 위로 올려 두면 메뉴를 파고들지 않아도 됩니다. 순서도 계정에 저장됩니다.</p>
+    </div>
+    <div class="popover" id="pop-star">
+      <h5><span class="n">4</span>즐겨찾기 별(★)과 화면 코드</h5>
+      <p>화면 이름 옆의 <b>★ 배지</b>를 누르면 지금 보고 있는 화면이 즐겨찾기에 <b>등록</b>되고, 한 번 더 누르면 <b>해제</b>됩니다(토글). 별이 노랗게 차 있으면 이미 등록된 상태입니다.</p>
+      <p class="tip">배지에 적힌 <b>FD0102</b> 같은 값이 그 화면의 <b>화면 코드</b>입니다. 담당자에게 문의할 때 이 코드를 알려 주면 가장 빠릅니다.</p>
+    </div>
+    <div class="popover" id="pop-filter">
+      <h5><span class="n">5</span>검색필터</h5>
+      <p>찾고 싶은 데이터의 조건을 고르는 영역입니다. 조건의 개수와 종류는 화면마다 다르지만, <b>고르면 아래 줄에 태그로 쌓인다</b>는 동작은 모든 화면이 같습니다. 조건을 비워 두면 대개 권한 있는 전체가 조회되지만, <b>필수 조건</b>이 있는 화면은 그 조건 없이는 조회되지 않습니다.</p>
+      <p class="tip">조건을 <b>새로 고른</b> 뒤에는 반드시 <b>조회</b>(또는 <b>F2</b>)를 눌러야 목록에 반영됩니다. 연습 화면에서 조건을 눌러 보면 태그만 늘고 목록은 그대로인 것을 확인할 수 있습니다.</p>
+    </div>
+    <div class="popover" id="pop-tags">
+      <h5><span class="n">6</span>필터 태그 — 가장 헷갈리는 지점</h5>
+      <p>지금 <b>적용된 조건</b>이 태그로 나열됩니다. 오른쪽의 <b>N개 필터 적용</b>은 태그 개수입니다.</p>
+      <p class="tip"><b>추가는 수동, 제거는 자동</b>입니다 — 조건을 새로 고르면 태그만 생기고 <b>조회를 눌러야</b> 반영되지만, 태그를 <b>&times;로 지우면 그 즉시 자동으로 다시 조회</b>됩니다. 이 비대칭만 알아 두면 "왜 안 바뀌지?" 하는 순간이 거의 사라집니다.</p>
+    </div>
+    <div class="popover" id="pop-fact">
+      <h5><span class="n">7</span>필터초기화 · 필터저장</h5>
+      <p><b>필터초기화</b>는 걸어 둔 조건을 지우고 <b>그 자리에서 다시 조회</b>합니다. 다만 <b>필수 조건 태그는 지워지지 않고 남습니다</b>. <b>필터저장</b>은 지금 조건 조합에 이름을 붙여 저장해 두었다가 다음에 한 번에 불러 쓰는 기능입니다. 이름은 <b>날짜 + 첫 조건 외 N개</b> 형태로 자동 제안되며 그대로 고쳐 쓸 수 있습니다.</p>
+      <p class="tip">매일·매월 같은 조건으로 조회한다면 <b>필터저장</b>을 써 보세요. <b>전체보기</b>는 태그가 많아 한 줄에 다 안 보일 때 접힌 태그를 펼칩니다 — 한 번 더 누르면 다시 접힙니다.</p>
+    </div>
+    <div class="popover" id="pop-page">
+      <h5><span class="n">8</span>페이지 행수</h5>
+      <p>한 페이지에 <b>몇 줄씩</b> 보여줄지 정합니다. 버튼을 누를 때마다 <b>10 → (직접 입력한 개수) → 전체</b> 순으로 바뀌고, <b>전체</b>는 페이지 나눔 없이 한 번에 모두 표시합니다.</p>
+      <p class="tip">가운데 값은 고정된 선택지가 아니라 <b>내가 정하는 숫자</b>입니다. 옆의 <b>&#8943;</b> 를 눌러 「데이터 개수 설정」에 원하는 숫자를 넣고 <b>확인</b>하면 그 값이 순환에 끼어듭니다 — <b>최소 10 이상</b>만 가능하고, 정한 값은 <b>계정에 저장</b>됩니다(같은 창의 <b>삭제</b>로 지웁니다). 데이터가 아주 많은 화면에서 <b>전체</b>는 느려질 수 있고, 엑셀은 행수와 무관하게 <b>조회된 전체</b>를 내려받습니다.</p>
+    </div>
+    <div class="popover" id="pop-unit">
+      <h5><span class="n">9</span>금액 단위</h5>
+      <p>금액 컬럼의 표시 단위를 <b>원 / 천원 / 백만원 / 억원</b>으로 바꿉니다. <b>보여주는 방식만</b> 바뀌며 저장된 데이터는 그대로입니다.</p>
+      <p class="tip">단위를 바꿔도 숫자가 그대로라면 <b>조회</b>를 한 번 더 눌러 주세요. 일부 화면은 단위 변경이 다시 그려질 때 반영됩니다. 비율(%)·좌수처럼 금액이 아닌 컬럼은 단위 전환 대상이 아닙니다.</p>
+    </div>
+    <div class="popover" id="pop-search">
+      <h5><span class="n">10</span>조회 버튼 (F2)</h5>
+      <p>지금 걸린 필터 조건으로 목록을 다시 불러옵니다. 툴바에서 위치가 거의 고정된 버튼이라 화면이 바뀌어도 같은 자리에 있습니다.</p>
+      <p class="tip">키보드 <b>F2</b> 키가 조회 단축키입니다 — <b>툴바(조회 버튼)가 있는 화면</b>이면 어디서나 동작합니다. 툴바가 없는 일부 화면은 예외이니, F2 가 듣지 않으면 조회 버튼을 쓰세요. 마우스를 옮기지 않고 조건 변경 → <b>F2</b>로 반복 조회하면 훨씬 빠릅니다.</p>
+    </div>
+    <div class="popover" id="pop-excel">
+      <h5><span class="n">11</span>엑셀 내려받기</h5>
+      <p>펼치면 <b>엑셀 내려받기</b>와 <b>엑셀 내려받기(조건포함)</b> 두 가지가 있습니다. <b>조건포함</b>은 어떤 필터로 뽑았는지를 파일 안에 함께 적어 줍니다 — 보고용으로 남길 때 유용합니다.</p>
+      <p class="tip">개인정보가 들어 있는 일부 화면은 내려받기 전에 <b>사유 입력 창</b>이 뜨고, 파일에 <b>비밀번호</b>가 걸립니다. 또한 다운로드 권한이 없는 계정에는 이 버튼이 보이지 않습니다.</p>
+    </div>
+    <div class="popover" id="pop-help">
+      <h5><span class="n">12</span>도움말 버튼</h5>
+      <p>툴바의 <b>맨 오른쪽</b>에 늘 있는 <b>?</b> 버튼입니다. 누르면 <b>지금 보고 있는 화면의 도움말</b>이 별도 창으로 열립니다.</p>
+      <p class="tip">도움말 창은 지금 KiiPS에서 쓰는 <b>라이트/다크 테마를 그대로 물려받아</b> 열립니다(도움말은 별도 주소라 테마 값을 주소에 실어 전달합니다). 화면마다 다른 내용은 이 버튼으로, 지금 보고 있는 공통 내용은 이 문서로 보세요.</p>
+    </div>
+    <div class="popover" id="pop-grid">
+      <h5><span class="n">13</span>목록 (그리드)</h5>
+      <p>조건에 맞는 데이터가 한 줄에 하나씩 나열됩니다. <b>헤더를 클릭하면 정렬</b>, <b>행을 더블클릭하면 상세</b>가 열리는 것은 대부분의 화면에서 같습니다. 맨 왼쪽 체크박스는 삭제·일괄처리 대상 선택용입니다.</p>
+      <p class="tip">컬럼 경계를 끌면 <b>폭을 조절</b>할 수 있고, 컬럼이 많은 화면은 표를 <b>좌우로 밀어</b>서 봅니다. 합계가 필요한 화면은 맨 위(또는 맨 아래)에 <b>합계 행</b>이 따로 붙습니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= 3. 업무 따라하기 ======================= -->
+<section class="block reveal" id="howto" data-num="03">
+  <div class="sec-label">제3장</div>
+  <h2>업무 따라하기</h2>
+  <p>어느 화면에서든 똑같이 쓰이는 다섯 가지 동작입니다. 여기까지 익히면 처음 보는 화면도 바로 다룰 수 있습니다.</p>
+
+  <h3 id="howto-search">3-1. 조회하기 (검색필터)</h3>
+  <ol class="step-list">
+    <li><b>조건을 고릅니다.</b> 화면 위쪽 검색필터에서 필요한 조건을 선택합니다. 조건의 개수·이름은 화면마다 다르지만, 고르면 아래 줄에 <b>태그</b>로 쌓이는 동작은 모두 같습니다. 조건을 비워 두면 대개 <b>권한 있는 전체</b>가 조회되지만, <b>필수 조건이 있는 화면</b>은 그 조건을 지정해야만 조회됩니다(필수 조건 태그는 <b style="color:#de2f2f">붉은색</b>으로 표시됩니다).</li>
+    <li><b>조회를 누릅니다.</b> 툴바가 있는 화면이면 키보드 <span class="kbd">F2</span>로도 실행됩니다(단축키는 툴바와 함께 실리므로, 툴바가 없는 일부 화면은 예외입니다). 툴바의 <b>Total 건수</b>가 결과 줄 수로 갱신됩니다.</li>
+    <li><b>조건을 뺄 때는 태그의 ✕만 누릅니다.</b> 이때는 조회 버튼을 누르지 않아도 <b>즉시 자동으로 다시 조회</b>됩니다.</li>
+    <li><b>결과를 확인합니다.</b> 결과가 많으면 아래쪽 페이지 번호로 넘기거나, 툴바의 <b>페이지 행수</b>를 늘려 한 번에 더 많이 봅니다(옆의 <b>⋯</b> 로 원하는 줄 수를 직접 정할 수 있습니다).</li>
+  </ol>
+  <div class="callout warn">
+    <span class="ic">!</span>
+    <span><strong>추가는 수동, 제거는 자동</strong> — 이 비대칭이 KiiPS 조회에서 가장 자주 겪는 혼란입니다.
+    조건을 <strong>새로 고르거나 바꾸면</strong> 태그만 갱신되고 목록은 그대로이므로 <strong>조회(F2)</strong>를 눌러야 합니다.
+    반대로 태그를 <strong>✕로 지우면</strong> 그 순간 목록이 알아서 다시 그려집니다.
+    "조건을 바꿨는데 왜 그대로지?" 싶을 때는 <strong>조회를 눌렀는지</strong> 먼저 확인하세요.</span>
+  </div>
+  <div class="table-wrap">
+  <table class="doc">
+    <thead><tr><th style="width:150px">조건 종류</th><th style="width:100px">선택 방식</th><th>설명</th></tr></thead>
+    <tbody>
+      <tr><td>목록형 (펀드유형·상태 등)</td><td>다중 선택</td><td>체크한 항목들이 각각 태그가 됩니다. 여러 개를 고르면 <strong>그중 하나라도 해당</strong>하는 데이터가 나옵니다.</td></tr>
+      <tr><td>검색형 (펀드명·거래처 등)</td><td>검색 후 선택</td><td>이름 일부를 입력해 찾아 고릅니다. 목록에는 <strong>내게 접근권한이 있는 대상만</strong> 나타납니다 — 찾는 항목이 없다면 권한 문제일 수 있습니다.</td></tr>
+      <tr><td>기간형 (기준일·결성일 등)</td><td>시작일 ~ 종료일</td><td>기간 조건은 별도 창에서 <strong>시작일과 종료일</strong>을 고른 뒤 적용합니다. 적용하면 <code>결성일: 2021-01-01 ~ 2024-12-31</code> 같은 태그가 생깁니다.</td></tr>
+      <tr><td>필수 조건</td><td>지정 필요</td><td>일부 화면은 특정 조건(예: 기준일자·펀드) 없이는 조회되지 않습니다. 이런 조건의 태그는 <strong style="color:#de2f2f">붉은색</strong>으로 구분되며, <strong>필터초기화로도 지워지지 않습니다</strong>(✕로는 개별 제거 가능).</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="callout info">
+    <span class="ic">✓</span>
+    <span><strong>자주 쓰는 조합은 저장해 두세요</strong> — 조건을 걸어 둔 상태에서 <strong>필터저장</strong>을 누르면 이름(자동 제안되며 수정 가능)을 붙여 보관할 수 있고,
+    다음부터는 하나씩 다시 고를 필요 없이 한 번에 불러옵니다. 조건을 한꺼번에 지우려면 <strong>필터초기화</strong>를 누릅니다 — 지운 뒤 자동으로 다시 조회되며, <strong>필수 조건은 남습니다</strong>.</span>
+  </div>
+
+  <h3 id="howto-fav">3-2. 즐겨찾기</h3>
+  <p>메뉴를 매번 파고들지 않도록, 자주 쓰는 화면을 <strong>★ 하나로 등록</strong>해 두는 기능입니다. 등록 목록은 <strong>계정에 저장</strong>되어 다른 PC에서 접속해도 그대로 따라옵니다.<br><strong>등록·해제 방법(화면 이름 옆 ★ 배지)은 모든 화면이 같고, 등록해 둔 목록을 여는 자리만 메뉴 방식에 따라 다릅니다.</strong></p>
+  <ol class="step-list">
+    <li><b>등록</b> — 화면 이름 옆의 <b>★ 배지</b>를 누릅니다. 별이 노랗게 차면 등록된 것입니다.</li>
+    <li><b>해제</b> — 등록된 화면에서 <b>★ 배지를 한 번 더</b> 누르면 해제됩니다(같은 버튼이 켜기/끄기 토글입니다).</li>
+    <li><b>목록 열기 (ⓐ 모든 화면 공통)</b> — 오른쪽 <b>설정 패널</b>을 열고 <b>즐겨찾기 탭(★)</b>을 누릅니다. 상단 유틸 바에 별도 버튼이 있는 것이 아닙니다.</li>
+    <li><b>목록 열기 (ⓑ 새 메뉴를 쓰는 기관)</b> — 위 방법에 더해 <b>F8</b>, 또는 상단 메뉴를 펼쳐 맨 아래의 <b>「★ 즐겨찾기 목록(단축키 F8)」</b>으로도 열립니다. 메뉴를 펼쳤을 때 그 줄이 없으면 ⓐ를 쓰는 화면입니다.</li>
+    <li><b>이동</b> — 열린 목록에서 항목을 누르면 그 화면으로 바로 갑니다.</li>
+    <li><b>목록에서 빼기</b> — 열린 목록에서 항목의 <b>&times;</b>를 누릅니다. ★ 배지로 해제하는 것과 결과는 같습니다.</li>
+    <li><b>순서 바꾸기</b> — 목록의 항목을 <b>끌어서</b> 원하는 자리에 놓습니다. 바뀐 순서도 저장됩니다. (연습 화면에서는 마우스 없이도 각 항목의 <b>▲▼</b> 버튼으로 같은 일을 할 수 있습니다.)</li>
+  </ol>
+  <div class="callout info">
+    <span class="ic">ⓘ</span>
+    <span><strong>★ 옆의 코드가 화면 코드입니다</strong> — <code>FD0102</code>, <code>IL0601</code>처럼 표시되는 값이 그 화면의 고유 번호입니다.
+    오류를 문의하거나 도움을 요청할 때 <strong>이 코드를 함께 알려 주면</strong> 화면을 찾는 시간이 사라집니다.</span>
+  </div>
+
+  <h3 id="howto-grid">3-3. 목록 다루기</h3>
+  <p>목록(그리드)의 조작 방법은 화면이 달라도 거의 동일합니다.</p>
+  <div class="table-wrap">
+  <table class="doc">
+    <thead><tr><th style="width:170px">동작</th><th>방법 · 참고</th></tr></thead>
+    <tbody>
+      <tr><td>상세 열기</td><td>행을 <strong>더블클릭</strong>합니다. 키보드는 행을 선택한 뒤 <span class="kbd">Enter</span>. 상세가 없는 조회 전용 화면도 있습니다.</td></tr>
+      <tr><td>정렬</td><td>컬럼 <strong>헤더를 클릭</strong>하면 오름차순 ↔ 내림차순으로 바뀝니다.</td></tr>
+      <tr><td>대상 선택</td><td>맨 왼쪽 <strong>체크박스</strong>로 고릅니다. 삭제·일괄처리는 대개 <strong>먼저 체크</strong>한 뒤 버튼을 누르는 순서입니다.</td></tr>
+      <tr><td>컬럼 폭 조절</td><td>화면에 따라 헤더의 <strong>경계선을 좌우로 끌어</strong> 폭을 조절할 수 있습니다. 컬럼이 많은 화면은 표를 좌우로 밀어서 봅니다.</td></tr>
+      <tr><td>페이지 행수</td><td>툴바의 숫자 버튼을 누를 때마다 <strong>10 → (직접 입력한 개수) → 전체</strong> 로 바뀝니다. 가운데 값은 옆의 <strong>⋯</strong> 를 눌러 「데이터 개수 설정」에 숫자(<strong>최소 10</strong>)를 넣어 만들며, <strong>계정에 저장</strong>됩니다. <strong>전체</strong>는 데이터가 많으면 느려질 수 있습니다.</td></tr>
+      <tr><td>금액 단위</td><td>툴바의 <strong>단위</strong>(원/천원/백만원/억원)로 표시만 바꿉니다. <strong>저장된 값은 그대로</strong>입니다.</td></tr>
+      <tr><td>합계 행</td><td>합계가 필요한 화면은 목록 위(또는 아래)에 <strong>합계 행</strong>이 따로 붙고, 배경색으로 구분됩니다.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="callout warn">
+    <span class="ic">!</span>
+    <span><strong>단위를 바꿨는데 숫자가 그대로인가요?</strong> — 일부 화면은 단위 변경이 <strong>다음 조회 때</strong> 반영됩니다.
+    단위를 바꾼 뒤 숫자가 그대로라면 <strong>조회(F2)</strong>를 한 번 더 누르세요.
+    또한 보고서에 값을 옮겨 적을 때는 <strong>지금 단위가 무엇인지</strong> 반드시 확인하세요 — 백만원 단위 화면의 숫자를 원 단위로 옮기면 100만 배가 틀립니다.</span>
+  </div>
+
+  <h3 id="howto-excel">3-4. 엑셀 내려받기</h3>
+  <ol class="step-list">
+    <li><b>먼저 조회합니다.</b> 엑셀은 <b>지금 조회된 결과</b>를 내려받습니다. 조회 전에 누르면 받을 것이 없습니다.</li>
+    <li><b>엑셀 버튼을 펼칩니다.</b> <b>엑셀 내려받기</b>와 <b>엑셀 내려받기(조건포함)</b> 중에서 고릅니다.</li>
+    <li><b>조건포함</b>을 고르면 어떤 필터로 뽑았는지가 파일 안에 함께 기록됩니다 — 보고용·근거 보관용으로 권장합니다.</li>
+    <li>개인정보가 포함된 화면은 <b>내려받기 사유</b>를 입력해야 하고, 파일에 <b>비밀번호</b>가 걸립니다.</li>
+  </ol>
+  <div class="callout warn">
+    <span class="ic">!</span>
+    <span><strong>내려받기는 기록에 남습니다</strong> — 사유 입력을 요구하는 화면은 누가 언제 무엇을 받았는지 남깁니다.
+    받은 파일에는 고객·출자자의 개인정보가 들어 있을 수 있으니 <strong>회사 보안 규정에 따라 관리</strong>하세요.
+    엑셀 버튼이 보이지 않는다면 <strong>다운로드 권한이 없는 계정</strong>입니다.</span>
+  </div>
+
+  <h3 id="howto-env">3-5. 테마 · 새창 · 세션</h3>
+  <div class="table-wrap">
+  <table class="doc">
+    <thead><tr><th style="width:170px">설정</th><th>위치 · 동작</th></tr></thead>
+    <tbody>
+      <tr><td>라이트 / 다크 테마</td><td>화면 <strong>오른쪽 끝 설정 패널</strong>의 첫 번째 탭에서 고릅니다. 선택은 <strong>계정에 저장</strong>되어 다음 접속에도 유지되고, 도움말 창도 같은 테마로 열립니다.</td></tr>
+      <tr><td>새창 on / off</td><td>상단 <strong>새창 아이콘</strong>으로 켜고 끕니다. <strong>on</strong>이면 메뉴를 누를 때마다 별도 창이 떠서 여러 화면을 나란히 볼 수 있습니다.</td></tr>
+      <tr><td>세션 시계 · 연장</td><td>상단의 <strong>남은 시간</strong>이 0이 되면 자동 로그아웃됩니다. <strong>연장</strong> 버튼으로 시간을 다시 채웁니다.</td></tr>
+      <tr><td>즐겨찾기 · 오류보고 · 업무정보</td><td>오른쪽 설정 패널의 탭들입니다. <strong>오류보고</strong>는 화면에서 만난 문제를 그 자리에서 접수할 수 있는 창구입니다.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="callout warn">
+    <span class="ic">!</span>
+    <span><strong>세션이 끊기면 입력 중이던 내용은 사라집니다</strong> — 긴 폼을 작성하는 중에는 중간중간 저장하거나
+    <strong>연장</strong>을 눌러 두세요. 화면을 보고만 있는 동안에도 시간은 계속 줄어듭니다.</span>
+  </div>
+</section>
+
+<!-- ======================= 4. 화면마다 다른 것 ======================= -->
+<section class="block reveal" id="related" data-num="04">
+  <div class="sec-label">제4장</div>
+  <h2>화면마다 다른 것</h2>
+  <p>
+    공통 뼈대는 같아도, 그 안을 채우는 내용은 화면마다 다릅니다.
+    아래 항목은 <strong>이 문서에서 다루지 않으며</strong>, 각 화면의 도움말(툴바 맨 오른쪽 <strong>?</strong> 버튼)에서 확인해야 합니다.
+  </p>
+  <div class="table-wrap">
+  <table class="doc">
+    <thead><tr><th style="width:180px">항목</th><th style="width:90px">구분</th><th>설명</th></tr></thead>
+    <tbody>
+      <tr><td>검색필터의 조건 구성</td><td>화면별</td><td>조건의 개수·이름·필수 여부가 다릅니다. <strong>고르면 태그가 쌓이고, 조회를 눌러야 반영된다</strong>는 규칙만 공통입니다.</td></tr>
+      <tr><td>툴바의 가운데 버튼들</td><td>화면별</td><td>등록 · 삭제 · 저장 · 소계 · 계산 등은 화면마다 다릅니다. 다만 <strong>왼쪽에 조회, 오른쪽 끝에 도움말, 그 바로 앞에 엑셀</strong>이라는 자리 규칙은 공통입니다.</td></tr>
+      <tr><td>목록의 컬럼</td><td>화면별</td><td>어떤 컬럼이 나오고 무엇을 뜻하는지는 업무마다 다릅니다.</td></tr>
+      <tr><td>상세 · 등록 창의 입력 항목</td><td>화면별</td><td>탭 구성, 필수 입력, 자동 계산 규칙이 각기 다릅니다.</td></tr>
+      <tr><td>저장 · 삭제의 제약 조건</td><td>화면별</td><td>"먼저 무엇을 지워야 삭제된다" 같은 관문은 업무 규칙이라 화면마다 다릅니다.</td></tr>
+      <tr><td>보이는 버튼의 범위</td><td>권한별</td><td>같은 화면이라도 <strong>권한에 따라 등록·삭제·엑셀 버튼이 아예 보이지 않을 수</strong> 있습니다. 버튼이 없다면 고장이 아니라 권한 문제일 가능성이 큽니다.</td></tr>
+      <tr><td>회사 전용 항목</td><td>회사별</td><td>운용사에 따라 전용 조건·전용 메뉴가 추가로 나타나기도 합니다.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>화면별 도움말</h3>
+  <p>현재 제공되는 화면 도움말입니다. 화면 안에서는 툴바 맨 오른쪽 <strong>?</strong> 버튼으로도 같은 문서를 열 수 있습니다.</p>
+  <div class="table-wrap">
+  <table class="doc">
+    <thead><tr><th style="width:120px">화면 코드</th><th style="width:180px">화면</th><th>도움말</th></tr></thead>
+    <tbody>
+      <tr><td><code>FD0101</code></td><td>펀드정보</td><td><a href="FD0101-펀드정보-도움말.html">펀드정보 화면, 처음부터 차근차근</a> — 펀드 대장의 조회·수정과 회기 관리</td></tr>
+      <tr><td><code>FD0102</code></td><td>출자자정보</td><td><a href="FD0102-출자자정보-도움말.html">출자자정보 화면, 처음부터 차근차근</a> — 출자자 명부 등록, 약정액 변동·양수도</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>도움말을 읽는 순서</h3>
+  <div class="schema" role="img" aria-label="읽는 순서: 먼저 공통 기능 도움말로 조회·즐겨찾기·목록·엑셀을 익히고, 그다음 각 화면의 도움말에서 그 화면 고유의 규칙만 확인한다">
+    <div class="box hl"><b>① 공통 기능 도움말 (이 문서)</b><span>조회 · 즐겨찾기 · 목록 · 엑셀 · 테마와 세션 — 한 번만 읽으면 전 화면에 적용</span></div>
+    <div class="arrow">▼ 그다음</div>
+    <div class="box"><b>② 화면별 도움말</b><span>그 화면에만 있는 버튼 · 컬럼 · 입력 규칙 · 저장/삭제 제약</span></div>
+    <div class="arrow">▼ 막히면</div>
+    <div class="box"><b>③ 오류보고 · 담당자 문의</b><span>오른쪽 설정 패널의 <strong>오류보고</strong> 탭. 문의할 때 <strong>화면 코드</strong>(★ 옆의 값)를 함께 알려 주세요</span></div>
+  </div>
+</section>
+
+<!-- ======================= 5. 주의사항 · FAQ ======================= -->
+<section class="block reveal" id="faq" data-num="05">
+  <div class="sec-label">제5장</div>
+  <h2>주의사항 · 자주 묻는 질문</h2>
+
+  <h3>이런 상황을 만나면</h3>
+  <div class="table-wrap">
+  <table class="doc">
+    <thead><tr><th style="width:80px">유형</th><th style="width:300px">상황</th><th>의미와 대처</th></tr></thead>
+    <tbody>
+      <tr><td>혼란</td><td>조건을 바꿨는데 목록이 그대로입니다.</td><td>조건 <b>추가·변경은 수동</b>입니다. <b>조회</b> 버튼 또는 <span class="kbd">F2</span>를 누르세요. 반대로 태그를 ✕로 <b>제거할 때만</b> 자동 재조회됩니다.</td></tr>
+      <tr><td>혼란</td><td>단위를 바꿨는데 숫자가 그대로입니다.</td><td>일부 화면은 <b>다음 조회 때</b> 반영됩니다. <b>조회</b>를 한 번 더 누르세요.</td></tr>
+      <tr><td>권한</td><td>등록 / 삭제 / 엑셀 버튼이 보이지 않습니다.</td><td>고장이 아니라 <b>권한</b>입니다. 조회는 접근권한만으로 되지만 등록·삭제는 등록/수정 권한, 내려받기는 다운로드 권한이 따로 필요합니다.</td></tr>
+      <tr><td>권한</td><td>검색 목록에 찾는 펀드·거래처가 없습니다.</td><td>목록에는 <b>내게 접근권한이 있는 대상만</b> 나옵니다. 관리자에게 권한을 요청하세요.</td></tr>
+      <tr><td>안내</td><td>"삭제할 데이터를 체크해주세요." / "한 건의 데이터만 체크해주세요."</td><td>목록 왼쪽 <b>체크박스</b>로 대상을 먼저 고르세요. 삭제는 대개 한 번에 한 건만 가능합니다.</td></tr>
+      <tr><td>차단</td><td>"…내역이 있습니다. 먼저 삭제한 후 삭제 가능합니다."</td><td>연결된 데이터가 있어 막힌 것입니다. 메시지가 가리키는 <b>연결 데이터를 먼저 정리</b>해야 합니다 — 어떤 데이터인지는 화면별 도움말을 보세요.</td></tr>
+      <tr><td>세션</td><td>버튼을 눌렀더니 로그인 화면으로 돌아갔습니다.</td><td>세션이 만료됐습니다. <b>입력 중이던 내용은 복구되지 않습니다</b>. 다시 로그인한 뒤, 앞으로는 상단 <b>연장</b> 버튼을 활용하세요.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>자주 묻는 질문</h3>
+  <details class="acc">
+    <summary>조회 조건을 바꿨는데 왜 목록이 그대로인가요?</summary>
+    <div class="acc-body"><p>가장 많이 나오는 질문입니다. KiiPS의 검색필터는 <strong>추가는 수동, 제거는 자동</strong>으로 동작합니다. 조건을 새로 고르면 아래 줄에 <strong>태그만</strong> 쌓이고 목록은 그대로이며, <strong>조회</strong> 버튼(또는 <span class="kbd">F2</span>)을 눌러야 반영됩니다. 반면 이미 걸린 태그를 <strong>✕로 지우면 그 즉시</strong> 자동으로 다시 조회됩니다. 이 차이만 기억하면 대부분 해결됩니다.</p></div>
+  </details>
+  <details class="acc">
+    <summary>즐겨찾기는 이 PC에만 저장되나요?</summary>
+    <div class="acc-body"><p>아닙니다. 즐겨찾기 목록과 <strong>정렬 순서</strong>는 <strong>계정에 저장</strong>되므로 다른 PC에서 로그인해도 그대로 따라옵니다. 라이트/다크 테마 선택과 새창 on/off 설정도 마찬가지로 계정 단위로 유지됩니다.</p></div>
+  </details>
+  <details class="acc">
+    <summary>★ 옆에 있는 FD0102 같은 값은 무엇인가요?</summary>
+    <div class="acc-body"><p><strong>화면 코드</strong>입니다. KiiPS의 모든 업무 화면에는 <code>FD0101</code>·<code>IL0601</code>처럼 두 글자 + 네 자리 숫자로 된 고유 번호가 있습니다. 앞 두 글자는 업무 영역(FD=펀드, IL=투자, AC=회계, MI=통계 등)을 뜻합니다. <strong>문의·오류보고 때 이 코드를 함께 알려 주면</strong> 담당자가 화면을 찾는 시간이 사라집니다.</p></div>
+  </details>
+  <details class="acc">
+    <summary>엑셀로 받으면 지금 보이는 10줄만 받아지나요?</summary>
+    <div class="acc-body"><p>아닙니다. 페이지 행수는 <strong>화면 표시 방식</strong>일 뿐이고, 엑셀은 <strong>조회된 전체 결과</strong>를 내려받습니다. 다만 <strong>조회하지 않은 데이터는 받아지지 않으므로</strong>, 원하는 조건으로 먼저 조회한 뒤 내려받으세요.</p></div>
+  </details>
+  <details class="acc">
+    <summary>내려받기를 눌렀더니 사유를 입력하라고 합니다.</summary>
+    <div class="acc-body"><p>개인정보가 포함될 수 있는 화면에 적용되는 보호 장치입니다. 사유를 적어야 진행되고, 받은 파일에는 <strong>비밀번호</strong>가 걸립니다. 누가 언제 무엇을 받았는지도 기록에 남으니, 받은 파일은 회사 보안 규정에 따라 관리하세요.</p></div>
+  </details>
+  <details class="acc">
+    <summary>화면이 눈부십니다. 어둡게 바꿀 수 있나요?</summary>
+    <div class="acc-body"><p>가능합니다. 화면 <strong>오른쪽 끝 설정 패널</strong>을 열고 첫 번째 탭에서 <strong>DARK</strong>를 고르면 됩니다. 선택은 계정에 저장되어 다음 접속에도 유지되며, 도움말 창도 같은 테마로 열립니다. 참고로 이 도움말 문서는 오른쪽 위 동그란 버튼으로 따로 전환할 수 있습니다.</p></div>
+  </details>
+  <details class="acc">
+    <summary>여러 화면을 나란히 놓고 비교하고 싶습니다.</summary>
+    <div class="acc-body"><p>상단의 <strong>새창 on/off</strong>를 <strong>on</strong>으로 두면 메뉴를 누를 때마다 별도 창으로 열립니다. 창이 늘어나 헷갈릴 때는 <strong>off</strong>로 되돌리면 지금 창에서 화면만 바뀝니다.</p></div>
+  </details>
+  <details class="acc">
+    <summary>화면이 이상하게 동작합니다. 어디에 알리나요?</summary>
+    <div class="acc-body"><p>오른쪽 설정 패널의 <strong>오류보고</strong> 탭에서 그 자리로 접수할 수 있습니다. 알릴 때는 <strong>① 화면 코드</strong>(★ 옆의 값), <strong>② 무엇을 눌렀는지</strong>, <strong>③ 기대한 결과와 실제 결과</strong>를 함께 적어 주면 확인이 훨씬 빨라집니다.</p></div>
+  </details>
+
+  <footer class="foot">
+    이 문서는 KiiPS 전 업무 화면에 공통으로 적용되는 기능의 학습용 도움말입니다 · 화면 구성과 동작은 실제 화면 소스를 기준으로 작성되었으며, 연습 화면의 모든 예시 데이터는 가상입니다.
+  </footer>
+</section>
+
+</div><!-- /.inner -->
+</main>
+</div><!-- /.layout -->
+
+<!-- ===================== 즐겨찾기 메뉴 패널 (모사) ===================== -->
+<div class="kx-overlay" id="kxOverlay" role="dialog" aria-modal="true" aria-labelledby="kxModalTitle">
+  <div class="kx-modal narrow">
+    <div class="kx-modal-head">
+      <h4 id="kxModalTitle">즐겨찾기 목록</h4>
+      <button type="button" class="kx-x" id="kxClose" aria-label="닫기">&#10005;</button>
+    </div>
+    <div class="kx-modal-body">
+      <p class="kx-note">※ 항목을 끌어서 순서를 바꿀 수 있습니다. 목록과 순서는 계정에 저장되어 다른 PC에서도 그대로 보입니다.</p>
+      <ul class="kx-favlist" id="kxFavList"></ul>
+      <p class="kx-favempty" id="kxFavEmpty">등록된 즐겨찾기가 없습니다.<br>화면 이름 옆의 &#9733; 를 눌러 추가해 보세요.</p>
+    </div>
+    <div class="kx-modal-foot">
+      <button type="button" class="kx-btn plain" id="kxCloseBtn">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 확인 다이얼로그 / 토스트 -->
+<div class="kx-confirm" id="kxConfirm" role="alertdialog" aria-modal="true" aria-labelledby="kxConfirmMsg">
+  <div class="box">
+    <p id="kxConfirmMsg">진행하시겠습니까?</p>
+    <div class="row">
+      <button type="button" class="kx-btn outline" id="kxConfirmOk">확인</button>
+      <button type="button" class="kx-btn plain" id="kxConfirmNo">취소</button>
+    </div>
+  </div>
+</div>
+<div class="kx-toast" id="kxToast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+"use strict";
+/* ---------- 가상 데이터 (전부 허구) ---------- */
+var ROWS=[
+ {nm:"한국성장 1호 투자조합",   tp:"벤처투자조합",       st:"운용중",   dt:"2021-03-15", amt:30000000000, mg:"김도현"},
+ {nm:"미래혁신 2호 투자조합",   tp:"벤처투자조합",       st:"운용중",   dt:"2022-06-01", amt:18000000000, mg:"박서연"},
+ {nm:"대성 신기술투자조합 3호", tp:"신기술사업투자조합", st:"결성준비", dt:"2024-11-20", amt:12000000000, mg:"이준호"},
+ {nm:"한빛 PEF 1호",            tp:"사모투자합자회사",   st:"운용중",   dt:"2020-09-08", amt:45000000000, mg:"최민아"},
+ {nm:"청년창업 4호 투자조합",   tp:"벤처투자조합",       st:"청산",     dt:"2018-04-27", amt:8000000000,  mg:"김도현"}
+];
+var STCLS={"운용중":"run","결성준비":"prep","청산":"clr"};
+var PAGE_SETS=["10","","전체"]; /* inc_main_button.jsp:202 GRID_ROW_SETS 와 동일 — 가운데는 사용자가 직접 입력한 개수 */
+
+var loaded=false, unit=1, pageIdx=0, sortKey=null, sortAsc=true;
+var tags=[{t:"기준일자: 2025-12-31", req:true}];  /* 적용된 필터 태그 ({t:문구, req:필수여부}) */
+var favs=[];          /* 즐겨찾기 목록 */
+var SCREEN={nm:"출자자정보", cd:"FD0102"};
+var $=function(id){return document.getElementById(id);};
+/* 마커 재배치 — 엔진의 stage 는 이 블록보다 뒤에서 선언되므로(호이스팅으로 undefined)
+   초기 렌더 시점에는 건너뛴다. 엔진 초기화 후의 호출만 실제로 재배치한다. */
+function relayout(){ if(typeof stage!=="undefined" && stage) placeMarkers(); }
+
+function fmt(n){ return Math.round(n/unit).toLocaleString("ko-KR"); }
+
+/* ---------- 목록 렌더 ---------- */
+function sorted(){
+  var list=ROWS.slice();
+  if(sortKey){
+    list.sort(function(a,b){
+      var x=a[sortKey], y=b[sortKey];
+      var r=(typeof x==="number")?(x-y):String(x).localeCompare(String(y),"ko");
+      return sortAsc?r:-r;
+    });
+  }
+  return list;
+}
+function renderRows(){
+  var tb=$("kxRows"); tb.innerHTML="";
+  var list=sorted(), sum=0;
+  list.forEach(function(p,i){
+    sum+=p.amt;
+    var tr=document.createElement("tr");
+    tr.tabIndex=0; tr.dataset.idx=i;
+    tr.setAttribute("aria-label",p.nm+" — 행 선택은 클릭, 상세 열기는 더블클릭 또는 Enter. 대상 선택은 Space.");
+    tr.innerHTML=
+      '<td class="c"><span class="kx-chk" role="checkbox" tabindex="0" aria-checked="false" aria-label="'+p.nm+' 선택"></span></td>'+
+      '<td class="l">'+p.nm+'</td><td>'+p.tp+'</td>'+
+      '<td><span class="kx-status '+STCLS[p.st]+'">'+p.st+'</span></td>'+
+      '<td>'+p.dt+'</td><td class="r">'+fmt(p.amt)+'</td><td>'+p.mg+'</td>';
+    tb.appendChild(tr);
+  });
+  $("kxSumAmt").textContent=fmt(sum);
+  $("kxSumRow").hidden=false;
+  $("kxPaging").hidden=false;
+  $("kxCount").textContent=list.length;
+  relayout(); /* 데이터 로드로 컬럼 폭이 바뀌므로 마커 재배치 */
+}
+function doSearch(msg){
+  var spin=$("kxSpin"), tb=$("kxRows");
+  tb.innerHTML=""; $("kxSumRow").hidden=true; spin.classList.add("on");
+  setTimeout(function(){
+    spin.classList.remove("on");
+    loaded=true; renderRows();
+    if(msg) toast(msg);
+  },550);
+}
+$("kxSearch").addEventListener("click",function(){
+  doSearch("조회가 완료되었습니다. 지금 걸린 필터 "+tags.length+"개가 반영되었습니다.");
+});
+/* 실제 화면과 동일하게 F2 = 조회 */
+document.addEventListener("keydown",function(e){
+  if(e.key!=="F2") return;
+  e.preventDefault();
+  doSearch("F2 로 조회했습니다. 실제 화면에서도 F2 가 조회 단축키입니다.");
+});
+
+/* ---------- 필터 태그: 추가는 수동, 제거는 자동 ---------- */
+function paintTags(){
+  var box=$("kxTags"); box.innerHTML="";
+  tags.forEach(function(o,i){
+    var el=document.createElement("span");
+    el.className="kx-tag"+(o.req?" req":""); el.setAttribute("role","listitem");
+    if(o.req) el.title="필수 조건 — 필터초기화로는 지워지지 않습니다";
+    el.innerHTML='<span>'+o.t+'</span><button type="button" class="x" aria-label="'+o.t+' 필터 제거">&#10005;</button>';
+    el.querySelector(".x").addEventListener("click",function(){
+      tags.splice(i,1); resetSelect(o.t); paintTags();
+      /* 제거는 조회 버튼을 누르지 않아도 즉시 재조회된다 (inc_filter_main.jsp itemRemoved) */
+      if(loaded) doSearch("필터를 제거해 자동으로 다시 조회했습니다. (제거는 자동, 추가는 조회 버튼 필요)");
+      else toast("필터를 제거했습니다.");
+    });
+    box.appendChild(el);
+  });
+  $("kxFilterCount").textContent=tags.length;
+  relayout();
+}
+/* 태그가 사라지면 대응하는 필터 버튼도 초기 문구로 되돌린다 */
+function resetSelect(t){
+  var b=$("kxFilterbar").querySelector('.kx-select[data-tag="'+t+'"]');
+  if(!b) return;
+  b.classList.remove("set");
+  b.childNodes[0].nodeValue=(t.indexOf("결성일")===0?"전체 기간 ":t.indexOf("기준일자")===0?"미지정 ":"전체 선택 ");
+}
+$("kxFilterbar").addEventListener("click",function(e){
+  var b=e.target.closest(".kx-select"); if(!b) return;
+  var t=b.dataset.tag;
+  if(tags.some(function(o){return o.t===t;})){ toast("이미 적용된 조건입니다."); return; }
+  tags.push({t:t, req:b.dataset.req==="1"});
+  b.classList.add("set");
+  b.childNodes[0].nodeValue=t.split(": ")[1]+" ";
+  paintTags();
+  toast("조건이 태그로 추가되었습니다. 목록에 반영하려면 조회(F2)를 누르세요.");
+});
+$("kxFilterInit").addEventListener("click",function(){
+  var removable=tags.filter(function(o){return !o.req;});
+  if(!removable.length){ toast(tags.length?"지울 수 있는 필터가 없습니다. 필수 조건은 초기화 대상이 아닙니다.":"적용된 필터가 없습니다."); return; }
+  removable.forEach(function(o){ resetSelect(o.t); });
+  /* fn_FilterInit 은 type!=='required' 인 조건만 지운다 (search_condition_main.jsp) */
+  tags=tags.filter(function(o){return o.req;});
+  paintTags();
+  /* 초기화 끝에서 MAIN_SEARCH_FILTER(0) 을 부르므로 목록도 함께 갱신된다 */
+  if(loaded) doSearch("필터를 초기화하고 다시 조회했습니다."+(tags.length?" 필수 조건은 그대로 남습니다.":""));
+  else toast("필터를 초기화했습니다."+(tags.length?" 필수 조건은 그대로 남습니다.":""));
+});
+$("kxFilterSave").addEventListener("click",function(){
+  if(!tags.length){ toast("저장할 필터 조건이 없습니다."); return; }
+  openConfirm("filter");
+});
+$("kxSeeMore").addEventListener("click",function(){
+  var open=$("kxTags").classList.toggle("collapsed")===false;
+  this.textContent=open?"숨기기":"전체보기";
+  toast(open?"접혀 있던 태그까지 모두 펼쳤습니다.":"태그 영역을 한 줄로 접었습니다.");
+  relayout();
+});
+
+/* ---------- 즐겨찾기 ---------- */
+function isFav(){ return favs.some(function(f){return f.cd===SCREEN.cd;}); }
+function paintStar(){
+  var s=$("kxStar"), on=isFav();
+  s.setAttribute("aria-pressed",on?"true":"false");
+  s.setAttribute("aria-label",on?"이 화면을 즐겨찾기에서 제거":"이 화면을 즐겨찾기에 추가");
+  paintMegaStars();
+}
+/* 펼친 메뉴의 ★ 는 실제 즐겨찾기 목록(favs)과 같은 상태를 보여야 한다 */
+function paintMegaStars(){
+  var list=document.querySelectorAll(".kx-megastar");
+  Array.prototype.forEach.call(list,function(b){
+    var on=favs.some(function(f){return f.cd===b.dataset.cd;});
+    b.classList.toggle("on",on);
+    b.setAttribute("aria-pressed",on?"true":"false");
+    b.setAttribute("aria-label",b.dataset.nm+(on?" 즐겨찾기에서 제거":" 즐겨찾기에 추가"));
+  });
+}
+function moveFav(i,j){
+  if(j<0||j>=favs.length||i===j) return;
+  var it=favs.splice(i,1)[0];
+  favs.splice(j,0,it);
+  paintFavs();
+}
+var dragIdx=null;
+function paintFavs(){
+  paintMegaStars();
+  var ul=$("kxFavList"); ul.innerHTML="";
+  favs.forEach(function(f,i){
+    var li=document.createElement("li");
+    li.draggable=true; li.dataset.idx=i;
+    li.innerHTML='<span class="grip" aria-hidden="true">&#8942;&#8942;</span>'+
+                 '<button type="button" class="nm" aria-label="'+f.nm+' 화면으로 이동">'+f.nm+'</button><span class="cd">'+f.cd+'</span>'+
+                 '<button type="button" class="mv up" aria-label="'+f.nm+' 위로 이동"'+(i===0?' disabled':'')+'>&#9650;</button>'+
+                 '<button type="button" class="mv dn" aria-label="'+f.nm+' 아래로 이동"'+(i===favs.length-1?' disabled':'')+'>&#9660;</button>'+
+                 '<button type="button" class="x" aria-label="'+f.nm+' 즐겨찾기에서 제거">&#10005;</button>';
+    li.querySelector(".nm").addEventListener("click",function(){
+      /* 실제 화면은 goMenu(url, '_blank', menuPath) 로 이동한다 (footer_sidemenu.jsp) */
+      closeModal();
+      toast("실제 KiiPS에서는 「"+f.nm+"」("+f.cd+") 화면으로 이동합니다. 새창 on 이면 별도 창으로 열립니다.");
+    });
+    li.querySelector(".up").addEventListener("click",function(){ moveFav(i,i-1); toast("순서를 위로 옮겼습니다. 실제 화면에서는 끌어서도 바꿀 수 있고, 바뀐 순서는 저장됩니다."); });
+    li.querySelector(".dn").addEventListener("click",function(){ moveFav(i,i+1); toast("순서를 아래로 옮겼습니다. 실제 화면에서는 끌어서도 바꿀 수 있고, 바뀐 순서는 저장됩니다."); });
+    li.querySelector(".x").addEventListener("click",function(){
+      favs.splice(i,1); paintFavs();
+      toast("즐겨찾기에서 제거했습니다.");
+    });
+    /* 드래그 재정렬 — 실제 화면과 같은 조작. 키보드 사용자는 위 ▲▼ 버튼으로 같은 일을 한다 */
+    li.addEventListener("dragstart",function(e){ dragIdx=i; li.style.opacity=".5"; if(e.dataTransfer) e.dataTransfer.effectAllowed="move"; });
+    li.addEventListener("dragend",function(){ dragIdx=null; li.style.opacity=""; });
+    li.addEventListener("dragover",function(e){ e.preventDefault(); if(dragIdx!==null&&dragIdx!==i) li.classList.add("dragover"); });
+    li.addEventListener("dragleave",function(){ li.classList.remove("dragover"); });
+    li.addEventListener("drop",function(e){
+      e.preventDefault(); li.classList.remove("dragover");
+      if(dragIdx===null||dragIdx===i) return;
+      moveFav(dragIdx,i); dragIdx=null;
+      toast("순서를 바꿨습니다. 실제 화면에서도 바뀐 순서가 저장됩니다.");
+    });
+    ul.appendChild(li);
+  });
+  $("kxFavEmpty").style.display=favs.length?"none":"";
+  paintStar();
+}
+$("kxStar").addEventListener("click",function(){
+  if(isFav()){
+    favs=favs.filter(function(f){return f.cd!==SCREEN.cd;});
+    toast("즐겨찾기에서 해제했습니다. (같은 버튼이 켜기/끄기 토글입니다)");
+  }else{
+    favs.push({nm:SCREEN.nm, cd:SCREEN.cd});
+    toast("즐겨찾기에 추가했습니다. 오른쪽 설정 패널의 즐겨찾기 탭(또는 새 메뉴 화면이면 F8)에서 확인해 보세요.");
+  }
+  paintFavs();
+});
+/* 연습용 기본 목록 — 즐겨찾기 목록이 비어 보이지 않도록 두 건을 미리 넣어 둔다 */
+favs.push({nm:"펀드정보", cd:"FD0101"},{nm:"투자실행", cd:"IL0201"});
+
+/* ---------- 즐겨찾기 패널 (모달 엔진 재사용) ---------- */
+var overlay=$("kxOverlay"), lastFocus=null;
+function openPanel(){
+  paintFavs();
+  lastFocus=document.activeElement;
+  overlay.classList.add("on");
+  $("kxClose").focus();
+}
+function closeModal(){
+  overlay.classList.remove("on");
+  if(lastFocus&&lastFocus.focus) lastFocus.focus();
+}
+/* ---------- GNB 메가메뉴 (실제: 메뉴를 펼치면 맨 아래에 「즐겨찾기 목록(F8)」) ----------
+   이름을 openMenu/closeMenu 로 짓지 않는다 — closeMenu 는 엑셀 드롭다운 전용이다. */
+var mega=$("kxMega"), megaBtn=$("kxGnbFund"), favLink=$("kxFavLink");
+function openMega(){
+  mega.classList.add("on");
+  megaBtn.setAttribute("aria-expanded","true");
+  $("kxNavFund").classList.add("on");
+  if(typeof stage!=="undefined" && stage) stage.classList.add("megaon");
+}
+function closeMega(refocus){
+  var wasOpen=mega.classList.contains("on");
+  var inside=mega.contains(document.activeElement);
+  mega.classList.remove("on");
+  megaBtn.setAttribute("aria-expanded","false");
+  $("kxNavFund").classList.remove("on");
+  favLink.classList.remove("hl");
+  if(typeof stage!=="undefined" && stage) stage.classList.remove("megaon");
+  /* 닫힌 메뉴 안에 포커스가 남으면 키보드 사용자가 갈 곳을 잃는다 */
+  if(wasOpen && (refocus===true || inside)) megaBtn.focus();
+}
+megaBtn.addEventListener("click",function(e){
+  e.stopPropagation();
+  if(mega.classList.contains("on")) closeMega();
+  else { if(typeof closeMenu==="function") closeMenu(); openMega(); }
+});
+mega.addEventListener("click",function(e){ e.stopPropagation(); });
+document.addEventListener("click",function(e){
+  /* 투어 조작(다음/이전)은 #tourPop 안에서 일어난다 — 버블링으로 여기까지 오면
+     tourShow() 가 방금 연 메뉴를 곧바로 닫아버리므로 제외한다. */
+  if(e.target.closest("#tourPop")) return;
+  closeMega();
+});
+
+/* 펼친 메뉴 하단 링크 = 실제 favorite-link (toggleFavoritesPanel) */
+favLink.addEventListener("click",function(e){
+  e.stopPropagation();
+  /* 패널을 닫았을 때 돌아갈 곳은 사라질 링크가 아니라 메뉴 버튼이다 */
+  closeMega(); megaBtn.focus(); openPanel();
+});
+
+/* 메뉴 항목 옆 ★ = 실제 content-card-favorite-btn (그 화면을 즐겨찾기에 넣고 빼는 토글)
+   화면 이름 옆 ★ 와 같은 favs 배열을 고친다 — 표시만 바꾸면 목록과 어긋난다. */
+mega.addEventListener("click",function(e){
+  var b=e.target.closest(".kx-megastar"); if(!b) return;
+  var cd=b.dataset.cd, nm=b.dataset.nm;
+  var on=favs.some(function(f){return f.cd===cd;});
+  if(on) favs=favs.filter(function(f){return f.cd!==cd;});
+  else   favs.push({nm:nm, cd:cd});
+  paintFavs();            /* 목록 · 메가 ★ · 화면 헤더 ★ 를 한 번에 맞춘다 */
+  paintStar();
+  toast(on? nm+"을(를) 즐겨찾기에서 뺐습니다."
+          : nm+"을(를) 즐겨찾기에 추가했습니다. F8로 목록을 확인해 보세요.");
+});
+
+/* F8 = 즐겨찾기 목록 토글 (실제 sidemenu_left_navi_new.jsp / _mega.jsp 와 동일) */
+document.addEventListener("keydown",function(e){
+  if(e.key!=="F8") return;
+  e.preventDefault();
+  if(overlay.classList.contains("on")) closeModal();
+  else { closeMega(); openPanel(); }
+});
+$("kxClose").addEventListener("click",closeModal);
+$("kxCloseBtn").addEventListener("click",closeModal);
+overlay.addEventListener("click",function(e){ if(e.target===overlay) closeModal(); });
+
+/* ---------- 툴바: 페이지 행수 · 단위 · 엑셀 · 도움말 ---------- */
+$("kxPageCnt").addEventListener("click",function(){
+  /* 사용자 지정값이 비어 있으면 그 자리를 건너뛴다 (실제 fn_ChangePageCnt 순환과 동일) */
+  do{ pageIdx=(pageIdx+1)%PAGE_SETS.length; }while(PAGE_SETS[pageIdx]==="");
+  var v=PAGE_SETS[pageIdx];
+  this.textContent=v;
+  toast("한 페이지에 "+v+(v==="전체"?"를":"줄을")+" 표시합니다. 엑셀은 행수와 무관하게 조회된 전체를 내려받습니다.");
+  relayout();
+});
+var rowPop=$("kxRowPop"), rowBtn=$("kxRowSetBtn");
+function closeRowPop(){ rowPop.classList.remove("on"); rowBtn.setAttribute("aria-expanded","false"); }
+rowBtn.addEventListener("click",function(e){
+  e.stopPropagation();
+  var on=rowPop.classList.toggle("on");
+  rowBtn.setAttribute("aria-expanded",on?"true":"false");
+  if(on) $("kxRowCnt").focus();
+});
+rowPop.addEventListener("click",function(e){ e.stopPropagation(); });
+$("kxRowOk").addEventListener("click",function(){
+  if(this.textContent==="삭제"){   /* 값이 설정돼 있으면 버튼이 삭제로 바뀐다 (delMyStyle("grid_row")) */
+    PAGE_SETS[1]=""; pageIdx=0; $("kxPageCnt").textContent=PAGE_SETS[0];
+    this.textContent="확인"; closeRowPop(); rowBtn.focus();
+    toast("설정한 개수를 지웠습니다. 다시 10과 전체만 순환합니다.");
+    relayout(); return;
+  }
+  var n=parseInt($("kxRowCnt").value,10);
+  /* 실제 화면도 10 미만은 거부한다 — AlertMsg('I','최소 10개 이상만 가능합니다.') */
+  if(!n||n<10){ toast("최소 10개 이상만 가능합니다."); return; }
+  PAGE_SETS[1]=String(n);      /* GRID_ROW_SETS[1] 에 사용자 입력값이 들어간다 */
+  pageIdx=1; $("kxPageCnt").textContent=PAGE_SETS[1];
+  this.textContent="삭제";
+  closeRowPop(); rowBtn.focus();
+  toast("한 페이지에 "+n+"줄을 표시합니다. 이 값은 계정에 저장되어 다음 접속에도 유지됩니다.");
+  relayout();
+});
+$("kxRowClose").addEventListener("click",function(){ closeRowPop(); rowBtn.focus(); });
+document.addEventListener("click",closeRowPop);
+document.addEventListener("keydown",function(e){
+  if(e.key!=="Escape"||!rowPop.classList.contains("on")) return;
+  var inside=rowPop.contains(document.activeElement);
+  closeRowPop();
+  if(inside) rowBtn.focus();
+});
+$("kxUnit").addEventListener("change",function(){
+  unit=Number(this.value);
+  if(loaded) renderRows();
+  else toast("먼저 조회를 실행하면 단위 변경이 보입니다.");
+});
+var xMenu=$("kxExcelMenu"), xBtn=$("kxExcel");
+function closeMenu(){ xMenu.classList.remove("on"); xBtn.setAttribute("aria-expanded","false"); }
+xBtn.addEventListener("click",function(e){
+  e.stopPropagation();
+  closeMega();                      /* 드롭다운은 하나만 열린다 */
+  var on=xMenu.classList.toggle("on");
+  xBtn.setAttribute("aria-expanded",on?"true":"false");
+});
+xMenu.addEventListener("click",function(e){
+  var b=e.target.closest("button[data-x]"); if(!b) return;
+  e.stopPropagation();
+  closeMenu(); xBtn.focus();
+  if(!loaded){ toast("먼저 조회를 실행하세요. 엑셀은 조회된 결과를 내려받습니다."); return; }
+  toast(b.dataset.x==="cond"
+    ? "조건까지 함께 기록해 내려받습니다. 개인정보 화면에서는 사유 입력 후 비밀번호가 걸립니다. (연습 화면)"
+    : "조회된 전체 결과를 내려받습니다. (연습 화면)");
+});
+document.addEventListener("click",closeMenu);
+document.addEventListener("keydown",function(e){
+  if(e.key!=="Escape"||!xMenu.classList.contains("on")) return;
+  var inside=xMenu.contains(document.activeElement);
+  closeMenu();
+  if(inside) xBtn.focus();
+});
+$("kxHelpBtn").addEventListener("click",function(){
+  toast("실제 화면에서는 지금 보고 있는 화면의 도움말이 별도 창으로 열립니다. (현재 테마를 그대로 물려받습니다)");
+});
+
+/* ---------- 상단 유틸: 새창 · 세션 ---------- */
+$("kxNewWin").addEventListener("click",function(){
+  var on=this.getAttribute("aria-pressed")!=="true";
+  this.setAttribute("aria-pressed",on?"true":"false");
+  this.textContent=on?"새창 on":"새창 off";
+  toast(on?"메뉴를 누르면 별도 창으로 열립니다.":"메뉴를 누르면 지금 창에서 화면만 바뀝니다.");
+  relayout();
+});
+var secs=29*60+41, tick=null;
+function paintTimer(){
+  var m=Math.floor(secs/60), s=secs%60;
+  $("kxTimer").textContent=(m<10?"0":"")+m+":"+(s<10?"0":"")+s;
+}
+function startTimer(){
+  clearInterval(tick);
+  tick=setInterval(function(){ if(secs>0){secs--;paintTimer();} },1000);
+}
+paintTimer(); startTimer();
+$("kxExtend").addEventListener("click",function(){
+  secs=29*60+59; paintTimer(); startTimer();
+  toast("세션을 연장했습니다. 긴 폼을 작성할 때 활용하세요.");
+});
+$("kxLogout").addEventListener("click",function(){ openConfirm("logout"); });
+
+/* ---------- 목록 상호작용 ---------- */
+$("kxGrid").querySelector("thead").addEventListener("click",function(e){
+  var th=e.target.closest("th"); if(!th||!loaded) return;
+  var map={1:"nm",2:"tp",3:"st",4:"dt",5:"amt",6:"mg"};
+  var key=map[th.cellIndex];
+  if(!key) return;
+  if(sortKey===key) sortAsc=!sortAsc; else {sortKey=key;sortAsc=true;}
+  renderRows();
+  toast("「"+th.textContent.trim()+"」 기준 "+(sortAsc?"오름차순":"내림차순")+"으로 정렬했습니다.");
+});
+$("kxRows").addEventListener("click",function(e){
+  var tr=e.target.closest("tr"); if(!tr||tr.dataset.idx==null) return;
+  var box=e.target.closest(".kx-chk");
+  if(box){ toggleChk(box); return; }
+  Array.prototype.forEach.call(this.children,function(r){r.classList.remove("sel");});
+  tr.classList.add("sel");
+});
+$("kxRows").addEventListener("dblclick",function(e){
+  if(e.target.closest(".kx-chk")) return;
+  var tr=e.target.closest("tr"); if(!tr||tr.dataset.idx==null) return;
+  toast("실제 화면에서는 이 행의 상세 창이 열립니다. 상세의 내용은 화면마다 다릅니다.");
+});
+function toggleChk(b){
+  var on=b.classList.toggle("on");
+  b.setAttribute("aria-checked",on?"true":"false");
+}
+$("kxRows").addEventListener("keydown",function(e){
+  var tr=e.target.closest("tr"); if(!tr||tr.dataset.idx==null) return;
+  var box=e.target.closest(".kx-chk");
+  if(box){
+    if(e.key===" "||e.key==="Spacebar"||e.key==="Enter"){ e.preventDefault(); toggleChk(box); }
+    return;
+  }
+  if(e.key==="Enter"){ toast("실제 화면에서는 이 행의 상세 창이 열립니다. 상세의 내용은 화면마다 다릅니다."); return; }
+  if(e.key===" "||e.key==="Spacebar"){ e.preventDefault(); toggleChk(tr.querySelector(".kx-chk")); }
+});
+
+/* ---------- 확인 다이얼로그 ---------- */
+var confirmBox=$("kxConfirm"), confirmMode="", confirmInvoker=null;
+function openConfirm(mode){
+  confirmMode=mode;
+  confirmInvoker=document.activeElement;
+  var msg="진행하시겠습니까?";
+  if(mode==="logout") msg="로그아웃하시겠습니까? 저장하지 않은 내용은 사라집니다.";
+  else if(mode==="filter") msg="지금 걸린 필터 조건을 저장하시겠습니까?";
+  $("kxConfirmMsg").textContent=msg;
+  confirmBox.classList.add("on");
+  $("kxConfirmOk").focus();
+}
+function closeConfirm(){
+  confirmBox.classList.remove("on");
+  /* 포커스를 호출 버튼으로 복원 — body로 떨어지지 않게 */
+  if(confirmInvoker&&confirmInvoker.focus) confirmInvoker.focus();
+  confirmInvoker=null;
+}
+$("kxConfirmNo").addEventListener("click",closeConfirm);
+$("kxConfirmOk").addEventListener("click",function(){
+  closeConfirm();
+  if(confirmMode==="logout") toast("연습 화면이라 실제로 로그아웃되지는 않습니다. 실제 화면에서는 로그인 화면으로 돌아갑니다.");
+  else if(confirmMode==="filter") toast("필터 조건을 저장했습니다. 다음에는 한 번에 불러올 수 있습니다. (연습 화면)");
+});
+
+/* 열린 다이얼로그 안에서 Tab 순환 (포커스 트랩) */
+document.addEventListener("keydown",function(e){
+  if(e.key!=="Tab") return;
+  var scope=confirmBox.classList.contains("on")?confirmBox
+           :overlay.classList.contains("on")?overlay:null;
+  if(!scope) return;
+  var f=Array.prototype.filter.call(
+    scope.querySelectorAll("button,select,[tabindex='0']"),
+    function(el){return el.offsetParent!==null;});
+  if(!f.length) return;
+  var first=f[0], last=f[f.length-1], cur=document.activeElement;
+  if(!scope.contains(cur)){e.preventDefault();first.focus();}
+  else if(e.shiftKey&&cur===first){e.preventDefault();last.focus();}
+  else if(!e.shiftKey&&cur===last){e.preventDefault();first.focus();}
+});
+
+/* 토스트 */
+var toastTimer=null;
+function toast(msg){
+  var t=$("kxToast");
+  t.textContent=msg; t.classList.add("on");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){t.classList.remove("on");},2600);
+}
+
+paintTags(); paintFavs();
+
+/* ---------- 핫스팟: 앵커 요소 기준 자동 배치 ---------- */
+var stage=document.querySelector(".kx-stage");
+var kxScroll=document.querySelector(".kx-scroll");
+var openPop=null, openBtn=null;
+function closePop(){
+  if(openPop){openPop.classList.remove("on");}
+  if(openBtn){openBtn.setAttribute("aria-expanded","false");}
+  openPop=null; openBtn=null;
+}
+function placeMarkers(){
+  var sr=stage.getBoundingClientRect();
+  var vr=kxScroll.getBoundingClientRect();
+  document.querySelectorAll(".hs").forEach(function(btn){
+    var t=document.querySelector(btn.dataset.anchor);
+    if(!t){btn.style.display="none";return;}
+    var r=t.getBoundingClientRect();
+    /* 가로 스크롤로 앵커가 보이지 않으면 마커도 숨김 */
+    if(r.left<vr.left-6||r.left>vr.right-6){btn.style.display="none";return;}
+    btn.style.display="flex";
+    btn.style.left=(r.left-sr.left-10)+"px";
+    btn.style.top=(r.top-sr.top-10)+"px";
+  });
+}
+window.addEventListener("resize",function(){closePop();placeMarkers();});
+kxScroll.addEventListener("scroll",function(){closePop();placeMarkers();},{passive:true});
+window.addEventListener("load",placeMarkers);
+setTimeout(placeMarkers,400); /* 웹폰트 적용 후 재배치 */
+placeMarkers();
+
+document.querySelectorAll(".hs").forEach(function(btn){
+  btn.addEventListener("click",function(e){
+    e.stopPropagation();
+    closeMenu(); /* stopPropagation 으로 문서 닫기 핸들러가 건너뛰어지므로 직접 닫는다 */
+    var pop=$(btn.dataset.pop);
+    if(openPop===pop){closePop();closeMega();return;}
+    closePop();
+    /* 즐겨찾기 항목은 펼친 메뉴 안에 있으므로 설명과 함께 메뉴를 펼쳐 보여준다 */
+    if(btn.dataset.anchor==="#kxGnbFund"){ openMega(); favLink.classList.add("hl"); }
+    else closeMega();
+    stage.appendChild(pop);           /* 스테이지 좌표계로 이동 */
+    pop.classList.add("on");
+    var bt=btn.offsetTop, bl=btn.offsetLeft;
+    var stW=stage.clientWidth;
+    var left=Math.min(Math.max(bl-20,8), stW-pop.offsetWidth-8);
+    var top=bt+32;
+    /* 펼친 메뉴와 같은 자리에 뜨면 설명이 메뉴를 통째로 가린다 — 메뉴 오른쪽으로 비킨다.
+       오른쪽 여백이 모자라면(좁은 화면) 옆이 아니라 메뉴 '아래'로 내린다. */
+    if(mega.classList.contains("on")){
+      var mr=mega.getBoundingClientRect(), sr=stage.getBoundingClientRect();
+      var want=mr.right-sr.left+12;
+      if(want+pop.offsetWidth <= stW-8){ left=want; top=Math.max(mr.top-sr.top,8); }
+      else { left=Math.min(Math.max(mr.left-sr.left,8), stW-pop.offsetWidth-8);
+             top=mr.bottom-sr.top+12; }
+    }
+    pop.style.left=left+"px";
+    pop.style.top=top+"px";
+    btn.setAttribute("aria-expanded","true");
+    openPop=pop; openBtn=btn;
+  });
+});
+document.addEventListener("click",function(e){
+  if(openPop&&!openPop.contains(e.target)){ closePop(); closeMega(); }
+});
+
+/* ---------- ESC 공통 ---------- */
+document.addEventListener("keydown",function(e){
+  if(e.key!=="Escape") return;
+  if(confirmBox.classList.contains("on")){closeConfirm();return;}
+  if(overlay.classList.contains("on")){closeModal();return;}
+  if(mega.classList.contains("on")){closeMega(true);return;}
+  closePop();
+});
+
+/* ---------- redesign: 아이콘 주입 · 진행바 · 탑버튼 ---------- */
+var IC={
+ intro:'<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
+ explorer:'<path d="M14 4.1 12 6"/><path d="m5.1 8-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z"/>',
+ howto:'<path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/>',
+ related:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/>',
+ faq:'<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>'};
+function icsvg(p,s){return '<svg width="'+s+'" height="'+s+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>';}
+document.querySelectorAll('.toc nav a:not(.sub)').forEach(function(a){
+  var k=(a.getAttribute('href')||'').slice(1);
+  if(IC[k]) a.insertAdjacentHTML('afterbegin',icsvg(IC[k],15));
+});
+document.querySelectorAll('section.block').forEach(function(s){
+  var l=s.querySelector('.sec-label');
+  if(l&&IC[s.id]) l.insertAdjacentHTML('afterbegin',icsvg(IC[s.id],15));
+});
+var CMAP={'✓':'<path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/>','▶':'<polygon points="6 3 20 12 6 21 6 3"/>','★':'<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>','!':'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>','ⓘ':'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>'};
+document.querySelectorAll('.callout .ic, .notice>span[aria-hidden]').forEach(function(el){
+  var g=el.textContent.trim();
+  if(CMAP[g]) el.innerHTML=icsvg(CMAP[g],17);
+});
+document.querySelectorAll('#related table.doc.scrlinks td:first-child').forEach(function(td){
+  var parts=td.innerHTML.split(/<br\s*\/?>/i);
+  td.innerHTML=parts.map(function(p){
+    p=p.trim(); if(!p) return '';
+    return '<a href="#" class="scr-link">'+p+icsvg('<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',13)+'</a>';
+  }).join('<br>');
+});
+document.querySelectorAll('.scr-link').forEach(function(a){
+  if(!a.querySelector('svg')) a.insertAdjacentHTML('beforeend',icsvg('<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',13));
+});
+document.addEventListener('click',function(e){
+  var a=e.target.closest('.scr-link'); if(!a) return;
+  e.preventDefault();
+  toast('실제 KiiPS에서는 「'+a.textContent.trim()+'」 화면으로 이동합니다.');
+});
+var pgb=document.createElement('div');pgb.id='pgBar';document.body.appendChild(pgb);
+var tt=document.createElement('button');tt.id='toTop';tt.type='button';tt.setAttribute('aria-label','맨 위로');
+tt.innerHTML=icsvg('<path d="m18 15-6-6-6 6"/>',20);document.body.appendChild(tt);
+/* reduced-motion 을 켠 사용자에게는 CSS 뿐 아니라 스크립트 스크롤도 즉시 이동해야 한다 */
+var reduceMq=window.matchMedia?window.matchMedia('(prefers-reduced-motion: reduce)'):null;
+function scrollBehavior(){ return (reduceMq&&reduceMq.matches)?'auto':'smooth'; }
+tt.addEventListener('click',function(){window.scrollTo({top:0,behavior:scrollBehavior()});});
+
+/* ---------- 다크 모드 토글 ---------- */
+var SUN='<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>';
+var MOON='<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>';
+var THEME_KEY='kiipsCommonHelpTheme';
+var themeMq=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
+function themeNow(){
+  var a=document.documentElement.getAttribute('data-theme');
+  if(a==='dark'||a==='light') return a;
+  return (themeMq&&themeMq.matches)?'dark':'light';
+}
+var tg=document.createElement('button');tg.id='themeToggle';tg.type='button';
+document.body.appendChild(tg);
+function themePaint(){
+  var d=themeNow()==='dark';
+  tg.innerHTML=icsvg(d?SUN:MOON,17);
+  tg.setAttribute('aria-label',d?'라이트 모드로 전환':'다크 모드로 전환');
+}
+tg.addEventListener('click',function(){
+  var next=themeNow()==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  try{localStorage.setItem(THEME_KEY,next);}catch(e){}
+  themePaint();
+});
+if(themeMq){
+  var mqHandler=function(){themePaint();};
+  if(themeMq.addEventListener) themeMq.addEventListener('change',mqHandler);
+  else if(themeMq.addListener) themeMq.addListener(mqHandler);
+}
+themePaint();
+function pgChrome(){var d=document.documentElement;var max=d.scrollHeight-d.clientHeight;
+  pgb.style.width=(max?(d.scrollTop/max*100):0)+'%';tt.classList.toggle('on',d.scrollTop>600);}
+window.addEventListener('scroll',pgChrome,{passive:true});pgChrome();
+
+/* ---------- Driver.js 스타일 순차 투어 ---------- */
+var tourSpot=document.createElement('div');tourSpot.id='tourSpot';stage.appendChild(tourSpot);
+var tourPop=document.createElement('div');tourPop.id='tourPop';tourPop.className='popover';
+tourPop.innerHTML='<button type="button" class="tour-x" aria-label="안내 종료">'+icsvg('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',14)+'</button>'+
+ '<div class="tour-body"></div>'+
+ '<div class="tour-foot"><span class="cnt"></span><button type="button" class="tour-btn" id="tourPrev">이전</button><button type="button" class="tour-btn primary" id="tourNext">다음</button></div>';
+stage.appendChild(tourPop);
+$('tourStart').insertAdjacentHTML('afterbegin',icsvg('<polygon points="6 3 20 12 6 21 6 3"/>',15));
+var tourSteps=Array.prototype.slice.call(document.querySelectorAll('.kx-stage .hs')).sort(function(a,b){return (+a.textContent)-(+b.textContent);});
+var tourIdx=-1, touring=false;
+function tourPlace(){
+  if(!touring) return;
+  var btn=tourSteps[tourIdx], t=document.querySelector(btn.dataset.anchor);
+  if(!t) return;
+  var r=t.getBoundingClientRect(), vr=kxScroll.getBoundingClientRect();
+  if(r.left<vr.left+8||r.right>vr.right-8){kxScroll.scrollLeft+=r.left-vr.left-24;r=t.getBoundingClientRect();}
+  var sr=stage.getBoundingClientRect(), pad=6;
+  var L=r.left-sr.left-pad, T=r.top-sr.top-pad, W=r.width+pad*2, H=r.height+pad*2;
+  tourSpot.style.left=L+'px';tourSpot.style.top=T+'px';tourSpot.style.width=W+'px';tourSpot.style.height=H+'px';
+  var pl=Math.min(Math.max(L,8),stage.clientWidth-tourPop.offsetWidth-8);
+  var pt=T+H+14;
+  /* 펼친 메뉴가 열린 스텝에서는 말풍선을 메뉴 오른쪽으로 — 안 그러면 메뉴를 가린다.
+     오른쪽 여백이 모자라면 메뉴 아래로 내린다(좁은 화면). */
+  if(mega.classList.contains("on")){
+    var mr2=mega.getBoundingClientRect(), stW2=stage.clientWidth;
+    var want2=mr2.right-sr.left+12;
+    if(want2+tourPop.offsetWidth <= stW2-8){ pl=want2; pt=Math.max(mr2.top-sr.top,8); }
+    else { pl=Math.min(Math.max(mr2.left-sr.left,8), stW2-tourPop.offsetWidth-8);
+           pt=mr2.bottom-sr.top+12; }
+  }
+  tourPop.style.left=Math.max(pl,8)+'px';
+  tourPop.style.top=pt+'px';
+}
+function tourShow(i){
+  tourIdx=i;
+  var btn=tourSteps[i];
+  /* 즐겨찾기 목록은 펼친 메뉴 안에 있다 — 그 스텝에서만 메뉴를 펼쳐 실제 위치를 보여준다.
+     anchor 는 상시 보이는 GNB 항목이라 마커/스포트라이트 좌표가 항상 유효하다. */
+  if(btn.dataset.anchor==="#kxGnbFund"){ openMega(); favLink.classList.add("hl"); }
+  else closeMega();
+  tourPop.querySelector('.tour-body').innerHTML=$(btn.dataset.pop).innerHTML;
+  tourPop.querySelector('.cnt').textContent=(i+1)+' / '+tourSteps.length;
+  $('tourPrev').disabled=(i===0);
+  $('tourNext').textContent=(i===tourSteps.length-1)?'완료':'다음';
+  tourSpot.style.display='block';tourPop.classList.add('on');
+  tourPlace();
+  var r=tourSpot.getBoundingClientRect();
+  if(r.top<120||r.bottom+230>window.innerHeight)
+    window.scrollTo({top:window.scrollY+r.top-150,behavior:scrollBehavior()});
+}
+function tourNextStep(){ if(tourIdx>=tourSteps.length-1){tourEnd();}else{tourShow(tourIdx+1);} }
+function tourEnd(){
+  touring=false;stage.classList.remove('touring');closeMega();
+  tourSpot.style.display='none';tourPop.classList.remove('on');tourIdx=-1;
+}
+$('tourStart').addEventListener('click',function(){
+  closePop();touring=true;stage.classList.add('touring');tourShow(0);
+});
+$('tourNext').addEventListener('click',tourNextStep);
+$('tourPrev').addEventListener('click',function(){ if(tourIdx>0)tourShow(tourIdx-1); });
+tourPop.querySelector('.tour-x').addEventListener('click',tourEnd);
+window.addEventListener('resize',tourPlace);
+kxScroll.addEventListener('scroll',tourPlace,{passive:true});
+document.addEventListener('keydown',function(e){
+  if(!touring) return;
+  if(e.key==='ArrowRight'){e.preventDefault();tourNextStep();}
+  else if(e.key==='ArrowLeft'){e.preventDefault();if(tourIdx>0)tourShow(tourIdx-1);}
+  else if(e.key==='Escape'){tourEnd();}
+});
+
+/* ---------- 목차 스크롤 스파이 + 섹션 리빌 ---------- */
+var tocLinks=Array.prototype.slice.call(document.querySelectorAll(".toc nav a"));
+var targets=tocLinks.map(function(a){return document.querySelector(a.getAttribute("href"));});
+function docTop(el){ return el.getBoundingClientRect().top+window.scrollY; }
+function spy(){
+  var pos=window.scrollY+140, cur=0;
+  targets.forEach(function(t,i){ if(t&&docTop(t)<=pos) cur=i; });
+  if(window.innerHeight+window.scrollY>=document.documentElement.scrollHeight-2) cur=targets.length-1;
+  tocLinks.forEach(function(a,i){ a.classList.toggle("active",i===cur); });
+}
+window.addEventListener("scroll",spy,{passive:true}); spy();
+
+if("IntersectionObserver" in window){
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){ if(en.isIntersecting){en.target.classList.add("on"); io.unobserve(en.target);} });
+  },{threshold:0.08});
+  document.querySelectorAll(".reveal").forEach(function(el){io.observe(el);});
+}else{
+  document.querySelectorAll(".reveal").forEach(function(el){el.classList.add("on");});
+}
+})();
+</script>
+</body>
+</html>
