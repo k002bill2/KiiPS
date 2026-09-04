@@ -185,7 +185,7 @@
     "type": "domain",
     "enforcement": "require",
     "priority": "critical",
-    "description": "RealGrid 2.6.3 종합 가이드 - 그리드 생성, 설정, 에디터, Excel, 성능 최적화",
+    "description": "RealGrid 2.6.3 종합 가이드 - 그리드 생성, 설정, 에디터, Excel, 성능 최적화, 행그룹 접기/펼치기",
     "promptTriggers": {
       "keywords": [
         "RealGrid",
@@ -207,7 +207,18 @@
         "그리드 필터",
         "그리드 정렬",
         "그룹핑",
-        "집계"
+        "집계",
+        "행 그룹",
+        "행그룹",
+        "groupBy",
+        "collapseAll",
+        "expandAll",
+        "전체접기",
+        "전체펼치기",
+        "그룹 헤더",
+        "그룹패널",
+        "그룹 접기",
+        "그룹 펼치기"
       ],
       "intentPatterns": [
         "(create|생성|만들).*?(RealGrid|그리드|table|테이블)",
@@ -217,7 +228,9 @@
         "RealGrid.*?(설정|config|setup|configure)",
         "(grid|그리드).*?(edit|편집|export|내보내기|import|가져오기)",
         "(Excel|엑셀).*?(export|import|다운로드|업로드)",
-        "(cell|셀).*?(editor|에디터|edit|편집)"
+        "(cell|셀).*?(editor|에디터|edit|편집)",
+        "(그룹|group).*?(접|펼치|collapse|expand)",
+        "(collapseAll|expandAll|groupBy)"
       ]
     },
     "fileTriggers": {
@@ -234,12 +247,16 @@
         "logosAjax.requestTokenGrid",
         "setColumnLayout",
         "setFields",
-        "setColumns"
+        "setColumns",
+        "groupBy",
+        "setRowGroup",
+        "collapseAll"
       ]
     },
     "referenceFiles": [
       "docs/REALGRID_GUIDE.md",
-      "docs/SCSS_GUIDE.md"
+      "docs/SCSS_GUIDE.md",
+      ".claude/skills/kiips-realgrid-guide/row-group.md"
     ]
   },
   "checklist-generator": {
