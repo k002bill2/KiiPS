@@ -1,6 +1,7 @@
 # RealGrid 행 그룹 (Row Group) — 접기/펼치기
 
-> 조사일 2026-09-03 · 근거 L2 (배포된 `realgrid.2.6.3.min.js` / `realgrid.2.8.8.min.js` 정적 분석 + docs.realgrid.com GridView 문서)
+> 조사일 2026-09-03 · **L1 브라우저 실측 완료 2026-09-09** (IL0602 / RealGrid 2.6.3 / 46컬럼 평면 / 10행)
+> 근거: 배포 `realgrid.2.6.3.min.js`·`2.8.8.min.js` 정적 분석 + docs.realgrid.com + 라이브 화면 실측
 > 관련: [SKILL.md](SKILL.md) · [reference.md](reference.md) · `KiiPS-UI/src/main/resources/static/js/common_grid.js`
 
 ## 핵심 사실
@@ -61,9 +62,23 @@ isHeaderAdornment = (x) => x == "both" || x == "header"
 접었을 때만 보이는 이유는 `collapsedAdornments` 기본값이 `"header"` 이기 때문.
 "그룹핑했는데 헤더가 안 보인다"의 1순위 원인 — `groupBy` 문제가 아니다.
 
-**해결:** 화면별로 `setRowGroup({expandedAdornments:"both"})`
+**L1 실측 (IL0602, 데이터 10행, `groupBy(["STD_YM"])` 후):**
 
-### 2. mergeMode + 멀티레벨 헤더 = `groupBy()` 가 조용히 무시된다
+| 상태 | itemCount | 그룹행 | 데이터행 |
+|---|---|---|---|
+| 그룹핑 전 | 10 | 0 | 10 |
+| `expandedAdornments:"footer"` (KiiPS 기본) + 펼침 | 10 | **0** ← 헤더 없음 | 10 |
+| 같은 설정 + `collapseAll(true)` | 1 | 1 | 0 |
+| `expandedAdornments:"both"` + 펼침 | 11 | **1** ← 헤더 등장 | 10 |
+| `"both"` + `collapseAll(true)` | 1 | 1 | 0 |
+
+`isGrouped()` 는 **네 경우 모두 `true`** 였다. 즉 그룹핑은 성공했는데 헤더만 안 보이는 것이라,
+`isGrouped()` 로는 이 증상을 진단할 수 없다.
+
+**해결:** 화면별로 `setRowGroup({expandedAdornments:"both"})`
+(실측 시 `mergeMode:true` 와 `headerStatement` 가 그대로 유지돼 **부분 병합**도 확인됨)
+
+### 2. mergeMode + (멀티레벨 헤더 | 숨김 컬럼) = `groupBy()` 가 조용히 무시된다
 
 `groupByFieldNames` 의 필드 수집 루프:
 
@@ -89,6 +104,20 @@ if (this.rowGroup.mergeMode) for (l = a.length-1; l >= 0; l--) {
 KiiPS `createMainGrid` 는 `mergeMode:true` 가 기본이고 멀티레벨 헤더를 자주 쓴다.
 → 최상위가 아닌 컬럼으로 `groupBy(["FIELD"])` 하면 **에러 없이 아무 일도 안 일어난다.**
 수집 결과가 비면 `n.length > 0` 이 false 라 `groupBy` 호출조차 되지 않는다.
+
+**★ L1 실측으로 드러난 진짜 조건 — 판정 기준은 `$_getVisibleRootByField`, 즉 "보이는 루트"다.**
+
+| 대상 컬럼 | mergeMode | `isGrouped()` 결과 |
+|---|---|---|
+| 보이는 루트 컬럼 (`STD_YM`, `visible:true`) | `true` | ✅ `true` |
+| **숨김 컬럼** (`CUST_NO`, `visible:false`) | `true` | ❌ **`false`** |
+| 그룹 레이아웃에 중첩된 컬럼 | `true` | ❌ **`false`** |
+| 같은 중첩 컬럼 | `false` | ✅ `true` |
+
+숨김 컬럼은 `layoutByColumn()` 이 **null 이 아니었다**(`hasLayout:true`). 그런데도 탈락했다 —
+`!u` 조건이 아니라 `$_doGroupBy` 의 `$_getVisibleRootByField(...)` 가 걸러낸 것이다.
+따라서 "레이아웃이 있으니 괜찮겠지"로 판단하면 안 된다. **`visible:false` 만으로도 탈락한다.**
+(숨김 컬럼이 `mergeMode:false` 에서 되는지는 미검증)
 
 **해결:** `mergeMode:false` 로 바꾸거나, 최상위 레이아웃의 컬럼으로 그룹핑.
 
@@ -220,12 +249,25 @@ function gridGroupToggleOnClick(obj){
 
 ---
 
-## 검증 방법 (L1 실측 — 아직 미실시)
+## L1 실측 결과 (2026-09-09, IL0602 / RealGrid 2.6.3)
 
-> **이 문서는 전부 L2(배포 min.js 정적 분석)다.** 브라우저 실측을 아직 하지 않았다.
-> 실측하면 이 경고 문단을 지우고 결과를 기록할 것.
+브라우저 콘솔에서 라이브 화면으로 검증 완료. **정적 분석과 전부 일치**했다.
 
-FD/IL 화면 콘솔에서:
+| 검증 항목 | 결과 |
+|---|---|
+| `GridView`에 `collapseAll`/`expandAll`/`groupBy`/`isGrouped` 존재 | ✅ 전부 `function` |
+| `clearGrouping` | ✅ `undefined` (존재하지 않음 확인) |
+| `groupBy([])` 로 그룹 해제 | ✅ `isGrouped:false`, `getGroupFieldNames():null` |
+| 런타임 `getRowGroup()` 기본값 | ✅ `mergeMode:true`, `expandedAdornments:"footer"`, `collapsedAdornments:"header"`, `headerStatement:"${groupColumn} - ${rowCount} rows"` — common_grid.js 분석과 동일 |
+| 함정 1 (펼치면 헤더 소실) | ✅ 재현 — 위 표 참조 |
+| 함정 2 (숨김/중첩 컬럼 무시) | ✅ 재현 — 위 표 참조 |
+| `setRowGroup` 부분 병합 | ✅ `expandedAdornments` 만 바꿔도 `mergeMode`·`headerStatement` 유지 |
+
+> 그리드 상태는 테스트 후 전부 원복했다(46컬럼 / 10행 / `mergeMode:true` / `expandedAdornments:"footer"` / 그룹 해제).
+
+### 재현 절차
+
+FD/IL 화면 콘솔에서 (`gridView` 전역이 없으면 `screenGrid.get("<container>_main")`):
 
 ```js
 gridView.commit();
