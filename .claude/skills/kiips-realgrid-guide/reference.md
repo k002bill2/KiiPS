@@ -281,23 +281,30 @@ function clearFilter() {
 
 ### 그룹핑 & 집계
 
+> 상세 — 접기/펼치기 API, 함정 6종, 툴바 토글 버튼: [row-group.md](row-group.md)
+
 ```javascript
 // 그룹 패널 활성화
 gridView.setGroupPanel({ visible: true });
 
-// 프로그래매틱 그룹핑
-gridView.groupBy(['fundType', 'investYear'], {
-    sorting: [{ field: 'fundType', ascending: true }],
-    summaryMode: 'aggregate',
-    footer: {
-        visible: true,
-        expression: 'sum',
-        numberFormat: '#,##0'
-    }
+// 그룹 표시 옵션 (setRowGroup 은 전달한 키만 대입하는 부분 병합)
+gridView.setRowGroup({
+    mergeMode: false,            // false: 전체 폭 그룹 헤더 행 / true: 그룹 컬럼 병합 셀
+    expandedAdornments: "both",  // ⚠️ "footer"(KiiPS 기본)면 펼친 그룹의 헤더 행이 사라짐
+    headerStatement: "${groupValue} ${groupColumn} - ${rowCount} rows"
 });
 
-// 그룹 해제
-gridView.clearGrouping();
+// 프로그래매틱 그룹핑 — groupBy(fieldNames, sorting?, direction?)
+//   2번째 인자는 옵션 객체가 아니라 정렬 여부 boolean (기본 rowGroup.sorting = true)
+gridView.commit();   // 편집 중이면 groupBy/collapseAll 이 조용히 무시됨
+gridView.groupBy(['fundType', 'investYear'], true, "ascending");
+
+// 전체 접기 / 펼치기 (TreeView 전용 아님 — GridView 정식 API)
+gridView.collapseAll(true);   // recursive: 자손 그룹까지
+gridView.expandAll(true);
+
+// 그룹 해제 — clearGrouping() 이라는 API 는 존재하지 않는다
+gridView.groupBy([]);
 ```
 
 ---

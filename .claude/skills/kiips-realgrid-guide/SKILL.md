@@ -1,6 +1,6 @@
 ---
 name: kiips-realgrid-guide
-description: "RealGrid 2.6.3 그리드 생성·설정·에디터·Excel·성능 최적화·체크박스 토글 패턴. Use when: RealGrid, 리얼그리드, 그리드, 테이블, 그리드 생성, 그리드 만들어, columnLayout, 멀티레벨 헤더, 셀/헤더 체크박스. NOT for: 신규 페이지 전체(use kiips-page-pattern-guide), 컴포넌트 단건 추가(use kiips-ui-component-builder), 등록/수정 모달(use kiips-regist-modal-guide), 체크리스트 목록 팝업(use kiips-checklist-list-popup)"
+description: "RealGrid 2.6.3 그리드 생성·설정·에디터·Excel·성능 최적화·체크박스 토글·행그룹 접기/펼치기 패턴. Use when: RealGrid, 리얼그리드, 그리드, 테이블, 그리드 생성, 그리드 만들어, columnLayout, 멀티레벨 헤더, 셀/헤더 체크박스, 행 그룹, 그룹핑, groupBy, collapseAll, expandAll, 전체접기, 전체펼치기, 그룹 헤더, 그룹패널. NOT for: 신규 페이지 전체(use kiips-page-pattern-guide), 컴포넌트 단건 추가(use kiips-ui-component-builder), 등록/수정 모달(use kiips-regist-modal-guide), 체크리스트 목록 팝업(use kiips-checklist-list-popup)"
 ---
 
 # KiiPS RealGrid Guide
@@ -29,7 +29,9 @@ RealGrid 2.6.3 종합 가이드입니다. 그리드 생성부터 고급 설정, 
 "RealGrid", "그리드", "테이블", "리얼그리드",
 "멀티 레벨 헤더", "컬럼 그룹", "columnLayout",
 "셀 편집", "에디터", "엑셀 내보내기", "엑셀 가져오기",
-"그리드 필터", "그리드 정렬", "그룹핑", "집계"
+"그리드 필터", "그리드 정렬", "그룹핑", "집계",
+"행 그룹", "groupBy", "collapseAll", "expandAll",
+"전체접기", "전체펼치기", "그룹 헤더", "그룹패널"
 ```
 
 ### File Patterns
@@ -397,6 +399,33 @@ template: "<div class='custom-control custom-checkbox'><input class='custom-cont
 
 ---
 
+## 행 그룹 (Row Group) — 접기/펼치기
+
+**`collapseAll()` / `expandAll()` 은 TreeView 전용이 아니다. `GridView`의 정식 API다.**
+접히는 대상이 트리 노드가 아니라 **그룹행(`GroupItem`)** 일 뿐이며,
+`createMainGrid` 는 이미 `groupPanel.visible = true` + `setRowGroup(...)` 을 켜 둬서 즉시 쓸 수 있다.
+
+```js
+gridView.commit();                 // 편집 중이면 아래 호출이 조용히 무시됨
+gridView.groupBy(["VNTG_YY"]);
+gridView.collapseAll(true);        // 전부 접기
+gridView.expandAll(true);          // 전부 펼치기
+gridView.groupBy([]);              // 그룹 해제 (clearGrouping() 은 없는 API)
+```
+
+**최소한 알아야 할 함정 3개** (전체 6개 + 레시피는 [row-group.md](row-group.md)):
+
+1. `expandedAdornments:"footer"` — `createMainGrid:1774` 기본값. **펼친 그룹의 헤더 행이 사라진다.**
+   `"both"` 로 덮어쓸 것. "그룹핑했는데 헤더가 안 보인다"의 1순위 원인.
+2. `mergeMode:true` + **멀티레벨 헤더** — 그룹 대상 컬럼이 `columnLayout` 그룹 안에 중첩돼 있으면
+   `groupBy()` 가 **에러 없이 아무 일도 안 한다**(필드 수집 단계에서 제외됨).
+3. `collapseAll` ≠ `layoutCollapseAll` — 후자는 **컬럼 레이아웃 그룹**(멀티레벨 헤더) 접기다.
+
+⚠️ 설정 변경은 **화면 JSP 에서 `createMainGrid()` 호출 후** 덮어쓴다.
+`common_grid.js` 직접 수정 금지 — 공유 파일이라 전 화면이 바뀐다(고위험 파일 게이트).
+
+---
+
 ## Best Practices
 
 ### Do
@@ -465,3 +494,4 @@ gridView.onEditCommit = function(grid, index) {
 ## 추가 참조
 - 상세 레퍼런스: [reference.md](reference.md)
 - 실전 예제: [examples.md](examples.md)
+- 행 그룹 접기/펼치기 (함정 6종 + 토글 버튼): [row-group.md](row-group.md)
