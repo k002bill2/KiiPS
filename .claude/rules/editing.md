@@ -10,6 +10,21 @@
 4. **주석 검색 포함** - 파일 참조 검색 시 주석 처리된 코드도 포함
 5. **컴파일 검증** - SCSS 편집 후 컴파일 성공 확인 전 완료 보고 금지
 6. **회귀 즉시 복원** - 변경이 컴파일/기능을 깨뜨리면 즉시 되돌리고 보고
+7. **KiiPS-MES 제외** - KiiPS-UI 공통 자산 변경은 MES로 전파하지 않는다 (아래 모듈 경계 참조)
+
+## 모듈 경계 — KiiPS-MES 제외 (2026-09-10 사용자 결정)
+
+KiiPS-UI 공통 자산을 고쳐도 **KiiPS-MES에는 전파하지 않는다.** MES는 자체 사본으로 독립 운영한다.
+
+| 공통 자산 | KiiPS-UI (작업 대상) | KiiPS-MES (건드리지 않음) |
+|-----------|---------------------|--------------------------|
+| 그리드 헬퍼 | `KiiPS-UI/src/main/resources/static/js/common_grid.js` | `KiiPS-MES/src/main/resources/static/js/common_grid.js` (별도 사본) |
+| RealGrid 스타일 | `KiiPS-UI/.../vendor/realgrid.{2.6.3,2.8.8}/*.scss` | MES 자체 벤더 디렉터리 |
+| 공통 컴포넌트/JSP include | `KiiPS-UI/.../include/` | `KiiPS-MES/.../MES/include/` (동명 파일 다수) |
+
+- 동명 파일이 많아 검색 결과에 MES가 섞여 들어온다 — **경로로 모듈을 먼저 확인**하고 KiiPS-UI 것만 수정한다.
+- MES 적용이 필요하면 **사용자가 명시적으로 요청할 때만** 별건으로 진행한다. "일관성을 위해"는 사유가 되지 않는다.
+- KIIPS-SECURL, KIIPS-LAB 도 각자 사본을 가지므로 동일하게 취급한다.
 
 ## Revert & Change Management
 
